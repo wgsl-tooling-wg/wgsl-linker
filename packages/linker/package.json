@@ -19,7 +19,7 @@
     "lint": "eslint src"
   },
   "type": "module",
-  "repository": "github:mighdoll/wgsl-linker",
+  "repository": "github:wgsl-tooling-wg/wgsl-linker",
   "exports": {
     ".": {
       "import": "./dist/index.js",

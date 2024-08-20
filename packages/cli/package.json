@@ -7,8 +7,8 @@
     "build": "esbuild --bundle --platform=node --outfile=bin/wgsl-link src/main.ts",
     "test": "vitest"
   },
-  "repository": "https://github.com/mighdoll/wgsl-linker/tree/main/packages/cli",
-  "homepage": "https://github.com/mighdoll/wgsl-linker/tree/main/packages/cli#readme",
+  "repository": "https://github.com/wgsl-tooling-wg/wgsl-linker/tree/main/packages/cli",
+  "homepage": "https://github.com/wgsl-tooling-wg/wgsl-linker/tree/main/packages/cli#readme",
   "files": [
     "bin"
   ],
