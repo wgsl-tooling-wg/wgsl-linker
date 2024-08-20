@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "fs";
-import { importCases } from "../test-cases/ImportCases.js";
+import { importCases } from "../test-cases/LegacyImportCases.js";
 
 main();
 
