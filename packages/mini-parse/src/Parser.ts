@@ -103,6 +103,9 @@ export interface ParserArgs {
   /** name to use for trace logging */
   traceName?: string;
 
+  /** use the debugName from this source parser for trace logging */
+  traceSrc?: Parser<any, any>;
+
   /** enable trace logging */
   trace?: TraceOptions;
 
@@ -122,7 +125,8 @@ interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
 
 /** a composable parsing element */
 export class Parser<T, N extends TagRecord = NoTags> {
-  tracingName: string | undefined;
+  _traceName: string | undefined;
+  traceSrc: Parser<any, any> | undefined;
   tagName: string | symbol | undefined;
   traceOptions: TraceOptions | undefined;
   terminal: boolean | undefined;
@@ -131,10 +135,11 @@ export class Parser<T, N extends TagRecord = NoTags> {
   fn: ParseFn<T, N>;
 
   constructor(args: ConstructArgs<T, N>) {
-    this.tracingName = args.traceName;
+    this._traceName = args.traceName;
     this.tagName = args.tag;
     this.traceOptions = args.trace;
     this.terminal = args.terminal;
+    this.traceSrc = args.traceSrc;
     this.preDisabled = args.preDisabled;
     this.clearTags = args.clearTags;
     this.fn = args.fn;
@@ -143,7 +148,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
   /** copy this parser with slightly different settings */
   _cloneWith(p: Partial<ConstructArgs<T, N>>): Parser<T, N> {
     return new Parser({
-      traceName: this.tracingName,
+      traceName: this._traceName,
       tag: this.tagName,
       trace: this.traceOptions,
       terminal: this.terminal,
@@ -166,7 +171,11 @@ export class Parser<T, N extends TagRecord = NoTags> {
    * multiple matches with the same name (even from different nested parsers) accumulate
    */
   tag<K extends string | symbol>(name: K): Parser<T, N & { [key in K]: T[] }> {
-    const p = this._cloneWith({ tag: name });
+    const p = this._cloneWith({
+      tag: name,
+      traceSrc: this,
+      traceName: undefined,
+    });
     return p as Parser<T, N & { [key in K]: T[] }>;
   }
 
@@ -221,8 +230,14 @@ export class Parser<T, N extends TagRecord = NoTags> {
     }
   }
 
+  /** name of this parser for debugging/tracing */
   get debugName(): string {
-    return this.tracingName ?? this.tagName?.toString() ?? "parser";
+    return (
+      this._traceName ??
+      this.traceSrc?._traceName ??
+      this.tagName?.toString() ??
+      "parser"
+    );
   }
 }
 
@@ -259,7 +274,7 @@ export function setTraceName(
   parser: Parser<any, TagRecord>,
   traceName: string
 ): void {
-  parser.tracingName = traceName;
+  parser._traceName = traceName;
 }
 
 /**
@@ -299,7 +314,7 @@ function runParser<T, N extends TagRecord>(
     tContext._debugNames.push(p.debugName);
     const traceSuccessOnly = tContext._trace?.successOnly;
     if (!p.terminal && tracing && !traceSuccessOnly)
-      parserLog(`..${p.tracingName}`);
+      parserLog(`..${p.debugName}`);
 
     if (!p.preDisabled) {
       execPreParsers(tContext);
@@ -314,14 +329,14 @@ function runParser<T, N extends TagRecord>(
 
     if (result === null || result === undefined) {
       // parser failed
-      tracing && !traceSuccessOnly && parserLog(`x ${p.tracingName}`);
+      tracing && !traceSuccessOnly && parserLog(`x ${p.debugName}`);
       // parserLog("reset position to:", origPosition)
       lexer.position(origPosition);
       context.app.context = origAppContext;
       return null;
     } else {
       // parser succeeded
-      tracing && parserLog(`✓ ${p.tracingName}`);
+      tracing && parserLog(`✓ ${p.debugName}`);
       const value = result.value;
       let tags;
       if (p.clearTags) {

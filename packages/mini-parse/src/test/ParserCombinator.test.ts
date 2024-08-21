@@ -5,6 +5,7 @@ import {
   Parser,
   disablePreParse,
   preParse,
+  setTraceName,
   tokenSkipSet,
 } from "../Parser.js";
 import {
@@ -24,6 +25,7 @@ import {
   repeatPlus,
 } from "../ParserCombinator.js";
 import { _withBaseLogger, enableTracing } from "../ParserTracing.js";
+import { dlog } from "berry-pretty";
 
 const m = testTokens;
 
@@ -288,3 +290,10 @@ test("withSep", () => {
   const result = testParse(p, src);
   expect(result.parsed?.tags).deep.eq({ w: ["a", "b", "c"] });
 });
+
+test("tag follows setTraceName of orig", () => {
+  const orig = kind(m.word);
+  const tagged = orig.tag("w");
+  setTraceName(orig, "orig");
+  expect(tagged.debugName).eq("orig")
+})
