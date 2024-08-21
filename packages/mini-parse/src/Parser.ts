@@ -180,7 +180,9 @@ export class Parser<T, N extends TagRecord = NoTags> {
     return this._cloneWith({ trace: opts });
   }
 
-  /** map results to a new value, or add to app state as a side effect */
+  /** map results to a new value, or add to app state as a side effect.
+   * Return null to cause the parser to fail.
+   */
   map<U>(fn: ParserMapFn<T, N, U>): Parser<U, N> {
     return map(this, fn);
   }
