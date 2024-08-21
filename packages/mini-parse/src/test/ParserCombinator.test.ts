@@ -21,6 +21,7 @@ import {
   seq,
   text,
   withSep,
+  repeatPlus,
 } from "../ParserCombinator.js";
 import { _withBaseLogger, enableTracing } from "../ParserTracing.js";
 
@@ -248,6 +249,20 @@ test("repeatWhile", () => {
   const src = "a a a a";
   const { parsed } = testParse(p, src);
   expect(parsed?.value).deep.eq(["a", "a"]);
+});
+
+test("repeat1", () => {
+  const p = repeatPlus("a");
+  const src = "a a";
+  const { parsed } = testParse(p, src);
+  expect(parsed?.value).deep.eq(["a", "a"]);
+});
+
+test("repeat1 fails", () => {
+  const p = repeatPlus("a");
+  const src = "b";
+  const { parsed } = testParse(p, src);
+  expect(parsed?.value).toBeNull;
 });
 
 test("clearTags", () => {

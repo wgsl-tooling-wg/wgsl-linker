@@ -201,6 +201,16 @@ export function repeat<A extends CombinatorArg>(
   return parser("repeat", repeatWhileFilter(arg));
 }
 
+/** match one or more instances of a parser */
+export function repeatPlus<A extends CombinatorArg>(
+  arg: A
+): ParserFromRepeatArg<A> {
+  const p = parserArg(arg);
+  return seq(p, repeat(p)).map((r) => {
+    return [r.value[0], ...r.value[1]];
+  }).traceName("repeatPlus");
+}
+
 type ResultFilterFn<T> = (
   result: ExtendedResult<T | string, any>
 ) => boolean | undefined;
@@ -356,9 +366,8 @@ export function fn<T, N extends TagRecord>(
   });
 }
 
-
 /** @return a parser that doesn't propagate any tags */
-export function withTags<A extends CombinatorArg>( 
+export function withTags<A extends CombinatorArg>(
   arg: A
 ): Parser<ResultFromArg<A>, NoTags> {
   const p = parserArg(arg);
