@@ -23,6 +23,7 @@ import {
 import { eolf, makeElem } from "./ParseSupport.js";
 import { rustImport } from "./RustDirective.js";
 import { ImportTree, SimpleSegment } from "./ImportTree.js";
+import { gleamImport } from "./GleamImport.js";
 
 /* parse #directive enhancements to wgsl: #import, #export, etc. */
 
@@ -187,6 +188,7 @@ export const directive = tokens(
     or(
       exportDirective,
       importDirective,
+      gleamImport,
       rustImport,
       extendsDirective,
       moduleDirective,

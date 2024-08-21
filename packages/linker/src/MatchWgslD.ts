@@ -13,8 +13,8 @@ const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
 const longIdent = /[a-zA-Z_][\w.:]*/; // identifier that can include module path
-const word = /[a-zA-Z_]\w*/; // LATER consider making this 'ident' per wgsl spec (incl. non-ascii)
-const digits = /(?:0x)?[\d.]+[iuf]?/; // LATER parse more wgsl number variants
+export const word = /[a-zA-Z_]\w*/; // LATER consider making this 'ident' per wgsl spec (incl. non-ascii)
+export const digits = /(?:0x)?[\d.]+[iuf]?/; // LATER parse more wgsl number variants
 
 /** matching tokens at wgsl root level */
 export const mainTokens = tokenMatcher(
