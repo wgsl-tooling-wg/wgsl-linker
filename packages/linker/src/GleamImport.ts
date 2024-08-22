@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import {
   kind,
   makeEolf,
@@ -11,12 +10,10 @@ import {
   seq,
   setTraceName,
   TagRecord,
-  text,
   tokenMatcher,
   tokens,
   tokenSkipSet,
   tracing,
-  withSep,
   withSepPlus,
   withTags,
 } from "mini-parse";
@@ -30,6 +27,7 @@ import {
 } from "./ImportTree.js";
 import { digits, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
+import { dlog } from "berry-pretty";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
@@ -52,9 +50,9 @@ export const gleamImportTokens = tokenMatcher({
 const eolf = makeEolf(gleamImportTokens, gleamImportTokens.ws);
 const wordToken = kind(gleamImportTokens.word);
 
-// forward reference (for mutual recursion)
-let pathTail: Parser<any, NoTags> = null as any; // TODO fix parser type
-let packagePath: Parser<any, NoTags> = null as any; // TODO fix parser type
+// forward references (for mutual recursion)
+let pathTail: Parser<PathSegment[], NoTags> = null as any;
+let packagePath: Parser<PathSegment[], NoTags> = null as any;
 
 const simpleSegment = wordToken.map((r) => {
   return new SimpleSegment(r.value);
@@ -75,8 +73,8 @@ const starImport = seq(
 ).map((r) => new Wildcard(r.tags.as?.[0]));
 
 const collectionItem = or(
-  seq(() => packagePath),
-  itemImport
+  () => packagePath,
+  itemImport.map((r) => [r.value])
 );
 
 const importCollection = withTags(
@@ -86,26 +84,29 @@ const importCollection = withTags(
       seq(
         withSepPlus(",", () => collectionItem).tag("list"),
         "}" //
-      ) 
+      )
     )
   ).map((r) => {
-    const elems = r.tags.list.flat();
-    return new SegmentList(elems as any); // TODO fix types
+    const elems = r.tags.list.flat(2);
+    return new SegmentList(elems);
   })
 );
 
 const pathSegment = or(simpleSegment, importCollection);
 
 const pathExtends = withTags(
-  seq(simpleSegment.tag("s"), "/", () => pathTail.tag("s")).map((r) => r.tags.s)
+  seq(simpleSegment.tag("s"), "/", () => pathTail.tag("s")).map((r) =>
+    r.tags.s.flat()
+  )
 );
 
 /** The tail covers the part of the import path after the prefix */
 pathTail = withTags(
-  or(pathExtends, importCollection, itemImport, starImport).map((r) => {
-    const tailSegments = r.value;
-    // dlog({ tailSegments });
-    return tailSegments;
+  or(
+    pathExtends,
+    or(importCollection, itemImport, starImport).map((r) => [r.value])
+  ).map((r) => {
+    return r.value.flat();
   })
 );
 
@@ -126,12 +127,10 @@ const relativePath = withTags(
   )
 );
 const packagePrefix = withTags(
-  seq(wordToken.tag("pkg"), "/").map((r) => new SimpleSegment(r.tags.pkg[0]))
+  seq(wordToken.tag("pkg"), "/").map((r) => [new SimpleSegment(r.tags.pkg[0])])
 );
 
-packagePath = withTags(
-  seq(packagePrefix, pathTail.tag("seg")).map((r) => r.tags.seg.flat())
-);
+packagePath = seq(packagePrefix, pathTail).map((r) => r.value.flat());
 
 const fullPath = noSkipWs(
   seq(kind(gleamImportTokens.ws), or(relativePath, packagePath).tag("path"))
@@ -148,8 +147,8 @@ export const gleamImport = withTags(
       r.app.state.push(e);
     })
   )
-).trace();
-// );
+  // ).trace();
+);
 
 if (tracing) {
   const names: Record<string, Parser<unknown, TagRecord>> = {
