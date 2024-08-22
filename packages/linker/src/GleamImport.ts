@@ -31,6 +31,14 @@ import { makeElem } from "./ParseSupport.js";
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
 
+const skipWsSet = new Set(["ws"]);
+function skipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
+  return tokenSkipSet(skipWsSet, p);
+}
+function noSkipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
+  return tokenSkipSet(null, p);
+}
+
 export const gleamImportTokens = tokenMatcher({
   ws: /\s+/,
   gleamImportSymbol,
