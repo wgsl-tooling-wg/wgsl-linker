@@ -17,8 +17,8 @@ export class SegmentList {
 }
 
 export class Wildcard {
-  public static _ = new Wildcard();
-  wildcard = "*"; // to identify this object in debug logging
+  constructor(public as?: string) {}
+  wildcard = "*"; // to identify this object in debug logging // TODO drop this?
 }
 
 export function treeToString(tree: ImportTree): string {
@@ -27,7 +27,7 @@ export function treeToString(tree: ImportTree): string {
 
 function segmentToString(segment: PathSegment): string {
   if (segment instanceof SimpleSegment) {
-    const {name, as, args} = segment;
+    const { name, as, args } = segment;
     const asMsg = as ? ` as ${as}` : "";
     const argsMsg = args ? `(${args.join(", ")})` : "";
     return `${name}${argsMsg}${asMsg}`;
