@@ -313,6 +313,14 @@ export function withSep<P extends CombinatorArg>(
     .traceName("withSep") as any;
 }
 
+/** match an series of one or more elements separated by a delimiter (e.g. a comma) */
+export function withSepPlus<P extends CombinatorArg>(
+  sep: CombinatorArg,
+  p: P,
+): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
+  return withSep(sep, p, { requireOne: true });
+}
+
 /** run a parser with a provided token matcher (i.e. use a temporary lexing mode) */
 export function tokens<A extends CombinatorArg>(
   matcher: TokenMatcher,
