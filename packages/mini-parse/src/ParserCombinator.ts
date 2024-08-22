@@ -318,7 +318,7 @@ export function withSepPlus<P extends CombinatorArg>(
   sep: CombinatorArg,
   p: P,
 ): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
-  return withSep(sep, p, { requireOne: true });
+  return withSep(sep, p, { requireOne: true }).traceName("withSepPlus");
 }
 
 /** run a parser with a provided token matcher (i.e. use a temporary lexing mode) */
