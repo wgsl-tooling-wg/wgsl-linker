@@ -1,10 +1,11 @@
 import { gleamImport } from "../GleamImport.js";
 import { expect, TaskContext, test } from "vitest";
 import { testParse, TestParseResult } from "mini-parse/test-util";
-import { dlog } from "berry-pretty";
 
 function expectParseFail(ctx: TaskContext): void {
-  const result = testParse(gleamImport, ctx.task.name);
+  const failPrefix = "bad: ";
+  const src = ctx.task.name.slice(failPrefix.length);
+  const result = testParse(gleamImport, src);
   expect(result.parsed).is.null;
 }
 
@@ -15,21 +16,21 @@ function expectParses(ctx: TaskContext): TestParseResult<void> {
 }
 /* ------  failure cases  -------   */
 
-test("import", expectParseFail);
-test("import foo", expectParseFail);
-test("import ./foo", expectParseFail);
-test("import ../foo", expectParseFail);
-test("import ./foo /bar", expectParseFail);
-test("import .", expectParseFail);
-test("import ./", expectParseFail);
-test("import ../", expectParseFail);
-test("import ../.", expectParseFail);
-test("import ../..", expectParseFail);
-test("import foo/{*}", expectParseFail);
-test("import foo/*/b", expectParseFail);
-test("import foo/{}", expectParseFail);
-test("import foo/../bar/baz", expectParseFail);
-test("import foo/bee as boo/bar", expectParseFail);
+test("bad: import", expectParseFail);
+test("bad: import foo", expectParseFail);
+test("bad: import ./foo", expectParseFail);
+test("bad: import ../foo", expectParseFail);
+test("bad: import ./foo /bar", expectParseFail);
+test("bad: import .", expectParseFail);
+test("bad: import ./", expectParseFail);
+test("bad: import ../", expectParseFail);
+test("bad: import ../.", expectParseFail);
+test("bad: import ../..", expectParseFail);
+test("bad: import foo/{*}", expectParseFail);
+test("bad: import foo/*/b", expectParseFail);
+test("bad: import foo/{}", expectParseFail);
+test("bad: import foo/../bar/baz", expectParseFail);
+test("bad: import foo/bee as boo/bar", expectParseFail);
 
 /* ------  success cases  -------   */
 
@@ -45,4 +46,3 @@ test("import ./foo/bar;", (ctx) => {
   const result = expectParses(ctx);
   expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
-
