@@ -1,6 +1,6 @@
-import { gleamImport } from "../GleamImport.js";
-import { expect, TaskContext, test } from "vitest";
 import { testParse, TestParseResult } from "mini-parse/test-util";
+import { expect, TaskContext, test } from "vitest";
+import { gleamImport } from "../GleamImport.js";
 
 function expectParseFail(ctx: TaskContext): void {
   const failPrefix = "bad: ";
@@ -59,4 +59,137 @@ test(
 test("import ./foo/bar;", (ctx) => {
   const result = expectParses(ctx);
   expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
+});
+
+/**  ----- extraction tests -----  */
+test("import foo/bar", (ctx) => {
+  const { appState } = expectParses(ctx);
+  expect(appState).toMatchInlineSnapshot(`
+    [
+      {
+        "end": 14,
+        "imports": ImportTree {
+          "segments": [
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "foo",
+            },
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "bar",
+            },
+          ],
+        },
+        "kind": "treeImport",
+        "start": 0,
+      },
+    ]
+  `);
+});
+
+test("import foo/* as b", (ctx) => {
+  const { appState } = expectParses(ctx);
+  expect(appState).toMatchInlineSnapshot(`
+    [
+      {
+        "end": 17,
+        "imports": ImportTree {
+          "segments": [
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "foo",
+            },
+            Wildcard {
+              "as": "b",
+              "wildcard": "*",
+            },
+          ],
+        },
+        "kind": "treeImport",
+        "start": 0,
+      },
+    ]
+  `);
+});
+
+test(`import a/{ b, c/{d, e}, f/* }`, (ctx) => {
+  const { appState } = expectParses(ctx);
+  expect(appState).toMatchInlineSnapshot(`
+    [
+      {
+        "end": 29,
+        "imports": ImportTree {
+          "segments": [
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "a",
+            },
+            SegmentList {
+              "list": [
+                ImportTree {
+                  "segments": [
+                    SimpleSegment {
+                      "args": undefined,
+                      "as": undefined,
+                      "name": "b",
+                    },
+                  ],
+                },
+                ImportTree {
+                  "segments": [
+                    SimpleSegment {
+                      "args": undefined,
+                      "as": undefined,
+                      "name": "c",
+                    },
+                    SegmentList {
+                      "list": [
+                        ImportTree {
+                          "segments": [
+                            SimpleSegment {
+                              "args": undefined,
+                              "as": undefined,
+                              "name": "d",
+                            },
+                          ],
+                        },
+                        ImportTree {
+                          "segments": [
+                            SimpleSegment {
+                              "args": undefined,
+                              "as": undefined,
+                              "name": "e",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                ImportTree {
+                  "segments": [
+                    SimpleSegment {
+                      "args": undefined,
+                      "as": undefined,
+                      "name": "f",
+                    },
+                    Wildcard {
+                      "as": undefined,
+                      "wildcard": "*",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        "kind": "treeImport",
+        "start": 0,
+      },
+    ]
+  `);
 });

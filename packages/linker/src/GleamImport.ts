@@ -27,7 +27,7 @@ import {
 } from "./ImportTree.js";
 import { digits, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
-import { dlog } from "berry-pretty";
+import { dlog, dlogOpt } from "berry-pretty";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
@@ -87,7 +87,7 @@ const importCollection = withTags(
       )
     )
   ).map((r) => {
-    const elems = r.tags.list.flat(2);
+    const elems = r.tags.list.flat().map(l => new ImportTree(l));
     return new SegmentList(elems);
   })
 );
