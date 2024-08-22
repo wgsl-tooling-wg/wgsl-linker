@@ -1,86 +1,44 @@
-import { gleamImport } from "../GleamImport.js"
-import { expect, test } from "vitest";
-import { testParse } from "mini-parse/test-util";
+import { gleamImport } from "../GleamImport.js";
+import { expect, TaskContext, test } from "vitest";
+import { testParse, TestParseResult } from "mini-parse/test-util";
 import { dlog } from "berry-pretty";
 
+function expectParseFail(ctx: TaskContext): void {
+  const result = testParse(gleamImport, ctx.task.name);
+  expect(result.parsed).is.null;
+}
+
+function expectParses(ctx: TaskContext): TestParseResult<void> {
+  const result = testParse(gleamImport, ctx.task.name);
+  expect(result.parsed).is.not.null;
+  return result;
+}
 /* ------  failure cases  -------   */
 
-test("import", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import foo", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import ./foo", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import ./foo /bar", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import .", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import ./", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import foo/{*, *}", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
-test("import foo/{ }", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.null;
-});
-
+test("import", expectParseFail);
+test("import foo", expectParseFail);
+test("import ./foo", expectParseFail);
+test("import ./foo /bar", expectParseFail);
+test("import .", expectParseFail);
+test("import ./", expectParseFail);
+test("import foo/{*}", expectParseFail);
+test("import foo/{}", expectParseFail);
+test("import foo/../bar/baz", expectParseFail);
+test("import foo/bee as boo/bar", expectParseFail);
 
 /* ------  success cases  -------   */
 
-test.only("import ./foo/bar", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-  dlog(result.appState)
-});
+test("import ./foo/bar", expectParses);
 
 test("import ./foo/bar;", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.position).eq(ctx.task.name.length);  // consume semicolon (so that linking will remove it) 
-  expect(result.parsed).is.not.null;
+  const result = expectParses(ctx);
+  expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
 
-test("import ../../foo/bar", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-});
-
-test("import foo/bar", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-});
-
-test("import foo/{a,b}", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-});
-
-test("import foo/{a, b}", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-});
-
-test("import foo/{a, b}", (ctx) => {
-  const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
-});
+test("import ../../foo/bar", expectParses);
+test("import foo/bar", expectParses);
+test("import foo/{a,b}", expectParses);
+test("import foo/{a, b}", expectParses);
+test("import foo/{a, b}", expectParses);
+test("import foo/* as boo", expectParses);
+test("import foo/bee as boo", expectParses);
