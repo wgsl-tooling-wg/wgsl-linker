@@ -18,10 +18,15 @@ function expectParses(ctx: TaskContext): TestParseResult<void> {
 test("import", expectParseFail);
 test("import foo", expectParseFail);
 test("import ./foo", expectParseFail);
+test("import ../foo", expectParseFail);
 test("import ./foo /bar", expectParseFail);
 test("import .", expectParseFail);
 test("import ./", expectParseFail);
+test("import ../", expectParseFail);
+test("import ../.", expectParseFail);
+test("import ../..", expectParseFail);
 test("import foo/{*}", expectParseFail);
+test("import foo/*/b", expectParseFail);
 test("import foo/{}", expectParseFail);
 test("import foo/../bar/baz", expectParseFail);
 test("import foo/bee as boo/bar", expectParseFail);
@@ -29,16 +34,15 @@ test("import foo/bee as boo/bar", expectParseFail);
 /* ------  success cases  -------   */
 
 test("import ./foo/bar", expectParses);
+test("import ../../foo/bar", expectParses);
+test("import foo/bar", expectParses);
+test("import foo/{a,b}", expectParses);
+test("import foo/{a, b}", expectParses);
+test("import foo/* as b", expectParses);
+test("import foo/a as b", expectParses);
 
 test("import ./foo/bar;", (ctx) => {
   const result = expectParses(ctx);
   expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
 
-test("import ../../foo/bar", expectParses);
-test("import foo/bar", expectParses);
-test("import foo/{a,b}", expectParses);
-test("import foo/{a, b}", expectParses);
-test("import foo/{a, b}", expectParses);
-test("import foo/* as boo", expectParses);
-test("import foo/bee as boo", expectParses);
