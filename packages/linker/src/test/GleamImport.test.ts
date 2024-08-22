@@ -36,11 +36,23 @@ test("bad: import foo/bee as boo/bar", expectParseFail);
 
 test("import ./foo/bar", expectParses);
 test("import ../../foo/bar", expectParses);
+test(`import ../b/c/d`, expectParses);
+test(`import a/b/c`, expectParses);
 test("import foo/bar", expectParses);
 test("import foo/{a,b}", expectParses);
 test("import foo/{a, b}", expectParses);
+test("import a/{b, c }", expectParses);
 test("import foo/* as b", expectParses);
 test("import foo/a as b", expectParses);
+test(`import bevy_render/maths/{orthonormalize as onorm}`, expectParses);
+test(
+  `import bevy_pbr/{
+  mesh_view_bindings,
+  utils/{PI, noise},
+  lighting/*
+}`,
+  expectParses
+);
 
 test("import ./foo/bar;", (ctx) => {
   const result = expectParses(ctx);

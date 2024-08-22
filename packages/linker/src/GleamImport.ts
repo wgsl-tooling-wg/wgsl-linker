@@ -74,15 +74,24 @@ const starImport = seq(
   skipWs(seq("*", opt(seq("as", wordToken.tag("as")))))
 ).map((r) => new Wildcard(r.tags.as?.[0]));
 
-const collectionItem = or(seq(() => packagePath), itemImport)
+const collectionItem = or(
+  seq(() => packagePath),
+  itemImport
+);
 
 const importCollection = withTags(
-  seq("{", skipWs(withSepPlus(",", () => collectionItem).tag("list")), "}").map(
-    (r) => {
-      const elems = r.tags.list.flat();
-      return new SegmentList(elems as any); // TODO fix types
-    }
-  )
+  seq(
+    "{",
+    skipWs(
+      seq(
+        withSepPlus(",", () => collectionItem).tag("list"),
+        "}" //
+      ) 
+    )
+  ).map((r) => {
+    const elems = r.tags.list.flat();
+    return new SegmentList(elems as any); // TODO fix types
+  })
 );
 
 const pathSegment = or(simpleSegment, importCollection);
@@ -93,7 +102,7 @@ const pathExtends = withTags(
 
 /** The tail covers the part of the import path after the prefix */
 pathTail = withTags(
-  or(importCollection, itemImport, starImport, pathExtends).map((r) => {
+  or(pathExtends, importCollection, itemImport, starImport).map((r) => {
     const tailSegments = r.value;
     // dlog({ tailSegments });
     return tailSegments;
