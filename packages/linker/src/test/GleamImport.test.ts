@@ -41,6 +41,7 @@ test(`import a/b/c`, expectParses);
 test("import foo/bar", expectParses);
 test("import foo/{a,b}", expectParses);
 test("import foo/{a, b}", expectParses);
+test("import foo/bar/{a, b}", expectParses);
 test("import a/{b, c }", expectParses);
 test("import foo/* as b", expectParses);
 test("import foo/a as b", expectParses);
