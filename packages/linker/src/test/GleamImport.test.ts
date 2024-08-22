@@ -44,7 +44,8 @@ test("import foo/{a, b}", expectParses);
 test("import a/{b, c }", expectParses);
 test("import foo/* as b", expectParses);
 test("import foo/a as b", expectParses);
-test(`import bevy_render/maths/{orthonormalize as onorm}`, expectParses);
+test(`import a/b/{c as foo}`, expectParses);
+
 test(
   `import bevy_pbr/{
   mesh_view_bindings,
