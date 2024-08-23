@@ -12,7 +12,7 @@ import {
   VarElem,
 } from "./AbstractElems.js";
 import { refFullName } from "./Linker.js";
-import { moduleLog, refLog } from "./LinkerLogging.js";
+import { moduleLog } from "./LinkerLogging.js";
 import {
   GeneratorExport,
   GeneratorModule,
@@ -22,15 +22,14 @@ import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { resolveImport } from "./ResolveImport.js";
 import { groupBy, last } from "./Util.js";
-import { printRef } from "./RefDebug.js";
 
-/** 
+/**
  * A wrapper around a wgsl element targeted for inclusion in the link
- * There is one FoundRef per unique target element. 
+ * There is one FoundRef per unique target element.
  * . Multiple references to a single target element share the same FoundRef.
  * . But multiple versions of a target element from generic expansion
  *   result in multiple FoundRefs.
-*/
+ */
 export type FoundRef = TextRef | GeneratorRef;
 
 export type StringPairs = [string, string][];
@@ -230,7 +229,7 @@ function elemChildrenRefs(
   return children.flatMap((elem) => linkedRef(elem, srcRef, mod, registry));
 }
 
-/** given a source elem that refers to another element (like a fn call or type reference), 
+/** given a source elem that refers to another element (like a fn call or type reference),
  * return a TextRef linking the src elem to its referent, possibly through an import/export */
 function linkedRef(
   elem: CallElem | TypeRefElem,
@@ -295,7 +294,6 @@ function importRef(
   imports: (TreeImportElem | ExtendsElem)[],
   registry: ParsedRegistry
 ): TextRef | GeneratorRef | undefined {
-  // dlog({importKinds:imports.map(i => i.kind)})
   const resolveMap = registry.importResolveMap(impMod);
   const resolved = resolveImport(name, resolveMap);
   const fromImport = imports[0]; // TODO implement
@@ -327,7 +325,7 @@ function importRef(
         name: exp.name,
       };
     }
-  } 
+  }
 }
 
 // function matchImportExportArgs(
@@ -354,51 +352,51 @@ function importRef(
 //   impMod: TextModule,
 //   registry: ParsedRegistry
 // ): TextRef | GeneratorRef | undefined {
-  // let fromImport: TreeImportElem | undefined;
+// let fromImport: TreeImportElem | undefined;
 
-  // // find a matching 'importing' phrase in an #export
-  // const textExport = impMod.exports.find((exp) => {
-  //   fromImport = exp.importing?.find((i) => i.name === name);
-  //   return !!fromImport;
-  // });
+// // find a matching 'importing' phrase in an #export
+// const textExport = impMod.exports.find((exp) => {
+//   fromImport = exp.importing?.find((i) => i.name === name);
+//   return !!fromImport;
+// });
 
-  // // find the export for the importing
-  // const modExp = matchingExport(fromImport, impMod, registry);
-  // if (!modExp) return;
-  // isDefined(fromImport);
-  // isDefined(textExport);
+// // find the export for the importing
+// const modExp = matchingExport(fromImport, impMod, registry);
+// if (!modExp) return;
+// isDefined(fromImport);
+// isDefined(textExport);
 
-  // if (srcRef.kind !== "txt") {
-  //   refLog(srcRef, "unexpected srcRef", srcRef.kind);
-  //   return;
-  // }
+// if (srcRef.kind !== "txt") {
+//   refLog(srcRef, "unexpected srcRef", srcRef.kind);
+//   return;
+// }
 
-  // const expImpArgs = importingArgs(fromImport, modExp.exp, srcRef);
-  // const expInfo: ExportInfo = {
-  //   fromRef: srcRef,
-  //   fromImport,
-  //   expImpArgs,
-  // };
-  // if (modExp.kind === "text") {
-  //   const exp = modExp.exp;
+// const expImpArgs = importingArgs(fromImport, modExp.exp, srcRef);
+// const expInfo: ExportInfo = {
+//   fromRef: srcRef,
+//   fromImport,
+//   expImpArgs,
+// };
+// if (modExp.kind === "text") {
+//   const exp = modExp.exp;
 
-  //   return {
-  //     kind: "txt",
-  //     expInfo,
-  //     expMod: modExp.module as TextModule,
-  //     elem: exp.ref,
-  //     proposedName: fromImport.as ?? exp.ref.name,
-  //   };
-  // } else if (modExp.kind === "function") {
-  //   const exp = modExp.exp;
-  //   return {
-  //     kind: "gen",
-  //     expInfo,
-  //     expMod: modExp.module,
-  //     proposedName: fromImport.as ?? exp.name,
-  //     name: exp.name,
-  //   };
-  // }
+//   return {
+//     kind: "txt",
+//     expInfo,
+//     expMod: modExp.module as TextModule,
+//     elem: exp.ref,
+//     proposedName: fromImport.as ?? exp.ref.name,
+//   };
+// } else if (modExp.kind === "function") {
+//   const exp = modExp.exp;
+//   return {
+//     kind: "gen",
+//     expInfo,
+//     expMod: modExp.module,
+//     proposedName: fromImport.as ?? exp.name,
+//     name: exp.name,
+//   };
+// }
 
 //   return undefined;
 // }
@@ -457,9 +455,9 @@ function matchingExport(
 ): ModuleExport | undefined {
   if (!imp) return;
 
-  dlog("NYI")
+  dlog("NYI");
   // TODO
-  
+
   // const modExp = registry.getModuleExportOld(mod, imp.name, imp.from);
   // if (!modExp) {
   //   moduleLog(mod, imp.start, "export not found for import");
