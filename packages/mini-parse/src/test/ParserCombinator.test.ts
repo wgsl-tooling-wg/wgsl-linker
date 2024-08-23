@@ -267,10 +267,15 @@ test("repeat1 fails", () => {
   expect(parsed?.value).toBeNull;
 });
 
-// TODO there's a bug in withTags, this test doesn't catch it.
-// test for accumulating to the same after withTags and it should be cleared but is not
+test("withTags blocks tags accumulation", () => {
+  const p = withTags(kind(m.word).tag("w").map( r => r.tags.w));
+  const s = seq(p.tag("w")).map((r) => r.tags.w);
 
-test("clearTags", () => {
+  const { parsed } = testParse(s, "a b");
+  expect(parsed?.value).deep.eq([["a"]]); // a prev bug returned ["a", [["a"]]]
+});
+
+test("withTags blocks tags from map()", () => {
   const p = kind(m.word).tag("w");
   // w/o clearing tags
   let taggedTags;
@@ -298,5 +303,5 @@ test("tag follows setTraceName of orig", () => {
   const orig = kind(m.word);
   const tagged = orig.tag("w");
   setTraceName(orig, "orig");
-  expect(tagged.debugName).eq("orig")
-})
+  expect(tagged.debugName).eq("orig");
+});

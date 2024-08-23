@@ -374,11 +374,13 @@ export function fn<T, N extends TagRecord>(
   });
 }
 
-/** @return a parser that doesn't propagate any tags */
+/** @return a replacement parser that doesn't propagate any tags */
 export function withTags<A extends CombinatorArg>(
   arg: A
 ): Parser<ResultFromArg<A>, NoTags> {
   const p = parserArg(arg);
-  const clearParser = p._cloneWith({ clearTags: true });
-  return clearParser as Parser<ResultFromArg<A>, NoTags>;
+  return parser("withTags", (ctx: ParserContext) => {
+    const result = p._run(ctx);
+    return result ? { value: result.value, tags: {} } : null;
+  });
 }

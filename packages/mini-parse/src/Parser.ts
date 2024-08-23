@@ -114,9 +114,6 @@ export interface ParserArgs {
   terminal?: boolean;
 
   preDisabled?: true;
-
-  /** clear collected tags on return */
-  clearTags?: true;
 }
 
 interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
@@ -131,7 +128,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
   traceOptions: TraceOptions | undefined;
   terminal: boolean | undefined;
   preDisabled: true | undefined;
-  clearTags: true | undefined;
   fn: ParseFn<T, N>;
 
   constructor(args: ConstructArgs<T, N>) {
@@ -141,7 +137,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
     this.terminal = args.terminal;
     this.traceSrc = args.traceSrc;
     this.preDisabled = args.preDisabled;
-    this.clearTags = args.clearTags;
     this.fn = args.fn;
   }
 
@@ -149,6 +144,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
   _cloneWith(p: Partial<ConstructArgs<T, N>>): Parser<T, N> {
     return new Parser({
       traceName: this._traceName,
+      traceSrc: this.traceSrc,
       tag: this.tagName,
       trace: this.traceOptions,
       terminal: this.terminal,
@@ -339,9 +335,7 @@ function runParser<T, N extends TagRecord>(
       tracing && parserLog(`✓ ${p.debugName}`);
       const value = result.value;
       let tags;
-      if (p.clearTags) {
-        tags = {} as N;
-      } else if (p.tagName && result.value !== undefined) {
+      if (p.tagName && result.value !== undefined) {
         // merge tagged result (if user set a name for this stage's result)
         tags = mergeTags(result.tags, {
           [p.tagName]: [result.value],
@@ -463,7 +457,7 @@ export function disablePreParse<A extends CombinatorArg>(
   return parser._cloneWith({ preDisabled: true });
 }
 
-/** run parser, return extended results to support map() or toParser() */
+/** run parser, return enriched results (to support map(), toParser()) */
 export function runExtended<T, N extends TagRecord>(
   ctx: ParserContext,
   p: Parser<T, N>
