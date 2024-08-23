@@ -112,7 +112,6 @@ test("import foo/* as b", (ctx) => {
             },
             Wildcard {
               "as": "b",
-              "wildcard": "*",
             },
           ],
         },
@@ -187,7 +186,6 @@ test(`import a/{ b, c/{d, e}, f/* }`, (ctx) => {
                     },
                     Wildcard {
                       "as": undefined,
-                      "wildcard": "*",
                     },
                   ],
                 },

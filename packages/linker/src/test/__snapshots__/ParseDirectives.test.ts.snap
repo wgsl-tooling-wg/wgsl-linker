@@ -71,25 +71,6 @@ exports[`parse #export(foo) with trailing space 1`] = `
 ]
 `;
 
-exports[`parse #import foo 1`] = `
-[
-  {
-    "end": 11,
-    "imports": ImportTree {
-      "segments": [
-        SimpleSegment {
-          "args": undefined,
-          "as": undefined,
-          "name": "foo",
-        },
-      ],
-    },
-    "kind": "treeImport",
-    "start": 0,
-  },
-]
-`;
-
 exports[`parse #import foo(a,b) as baz from bar 1`] = `
 [
   {

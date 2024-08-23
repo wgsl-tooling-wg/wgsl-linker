@@ -18,7 +18,6 @@ export class SegmentList {
 
 export class Wildcard {
   constructor(public as?: string) {}
-  wildcard = "*"; // to identify this object in debug logging // TODO drop this?
 }
 
 export function treeToString(tree: ImportTree): string {
