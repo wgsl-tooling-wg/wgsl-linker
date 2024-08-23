@@ -25,7 +25,7 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.js";
-import { digits, word } from "./MatchWgslD.js";
+import { digits, eol, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
 import { dlog, dlogOpt } from "berry-pretty";
 
@@ -47,7 +47,12 @@ export const gleamImportTokens = tokenMatcher({
   digits,
 });
 
-const eolf = makeEolf(gleamImportTokens, gleamImportTokens.ws);
+export const eolTokens = tokenMatcher({
+  ws: /[ \t]+/, // don't include \n, for eolf
+  eol,
+});
+
+const eolf = makeEolf(eolTokens, gleamImportTokens.ws);
 const wordToken = kind(gleamImportTokens.word);
 
 // forward references (for mutual recursion)
@@ -87,7 +92,7 @@ const importCollection = withTags(
       )
     )
   ).map((r) => {
-    const elems = r.tags.list.flat().map(l => new ImportTree(l));
+    const elems = r.tags.list.flat().map((l) => new ImportTree(l));
     return new SegmentList(elems);
   })
 );
@@ -147,8 +152,8 @@ export const gleamImport = withTags(
       r.app.state.push(e);
     })
   )
-  // ).trace();
 );
+// .trace();
 
 if (tracing) {
   const names: Record<string, Parser<unknown, TagRecord>> = {

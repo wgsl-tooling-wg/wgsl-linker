@@ -336,7 +336,8 @@ export function tokens<A extends CombinatorArg>(
 
 /** return a parser that matches end of line, or end of file,
  * optionally preceded by white space
- * @param ws should not match \n */
+ * @param ws should not match \n */ 
+// TODO make arguments optional
 export function makeEolf(matcher: TokenMatcher, ws: string): Parser<any> {
   // prettier-ignore
   return tokens(matcher, 
