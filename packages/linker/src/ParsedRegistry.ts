@@ -52,7 +52,7 @@ export class ParsedRegistry {
       (i) => i.kind === "treeImport"
     ); // TODO drop filter when we drop other import kinds
 
-    // LATER cache?
+    // TODO cache
     return importResolutionMap(importingModule, treeImports, this);
   }
 
