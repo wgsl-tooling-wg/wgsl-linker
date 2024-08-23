@@ -50,7 +50,7 @@ test("resolveImport bar/foo() from import bar/foo", () => {
   const impMod = parsedModules.findTextModule("main")!;
   const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
-  const found = resolveImport("bar::foo", resolveMap);
+  const found = resolveImport("bar.foo", resolveMap);
   expect(found).toBeDefined();
   expect(found?.modExp.module.modulePath).eq("bar");
   expect((found?.modExp.exp as TextExport).ref.name).eq("foo");
