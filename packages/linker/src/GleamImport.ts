@@ -135,12 +135,9 @@ const relativePrefix = withTags(
 );
 
 const relativePath = withTags(
-  seq(relativePrefix.tag("seg"), pathTail.tag("seg")).map((r) => {
-    const result = r.tags.seg.flat();
-    dlog({ tags: r.tags.seg });
-
-    return result;
-  })
+  seq(relativePrefix.tag("seg"), pathTail.tag("seg")).map((r) =>
+    r.tags.seg.flat()
+  )
 );
 const packagePrefix = withTags(
   seq(wordToken.tag("pkg"), "/").map((r) => [new SimpleSegment(r.tags.pkg[0])])

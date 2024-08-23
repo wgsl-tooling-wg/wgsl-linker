@@ -4,11 +4,11 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { TextExport } from "../ParseModule.js";
 import { resolveImport } from "../ResolveImport.js";
 
-test("resolveImport foo() from import bar::foo", () => {
+test("resolveImport foo() from import bar/foo", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::foo;
+         import bar/foo;
 
          module main
          fn main() { foo(); }
@@ -31,13 +31,13 @@ test("resolveImport foo() from import bar::foo", () => {
   expect((found?.modExp.exp as TextExport).ref.name).eq("foo");
 });
 
-test("resolveImport bar::foo() from import bar::foo", () => {
+test("resolveImport bar/foo() from import bar/foo", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::foo;
+         import bar/foo;
          module main
-         fn main() { bar::foo(); }
+         fn main() { bar.foo(); }
       `,
       "bar.wgsl": `
          module bar
