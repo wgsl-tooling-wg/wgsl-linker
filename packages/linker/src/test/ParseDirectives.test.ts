@@ -29,8 +29,8 @@ test("parse #export", () => {
   expect(parsed[0].kind).equals("export");
 });
 
-test("parse #import foo", () => {
-  const parsed = parseWgslD("#import foo");
+test("parse import foo/bar", () => {
+  const parsed = parseWgslD("import foo/bar");
   expect(parsed).toMatchSnapshot();
 });
 
