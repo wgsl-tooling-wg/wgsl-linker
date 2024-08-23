@@ -292,11 +292,7 @@ test("parse for(;;) {} not as a fn call", () => {
 
 test("eolf followed by blank line", () => {
   const src = `
-    // #if typecheck
-    // #endif
-
-    // #export
-    fn foo() { }
+    export fn foo() { }
   `;
   expectNoLogErr(() => testParseWgsl(src));
 });
@@ -342,15 +338,15 @@ test("parse let x: foo.bar; ", () => {
   expect(parsed).toMatchSnapshot();
 });
 
-test("parse var x: foo::bar;", () => {
+test("parse var x: foo.bar;", () => {
   const src = `
-     import foo::bar;
+     import foo/bar;
      module main
-     var x: foo::bar;
+     var x: foo.bar;
      fn main() { }
   `;
   const parsed = testParseWgsl(src);
 
   const varRef = parsed.find((e) => e.kind === "var");
-  expect(varRef?.typeRefs[0].name).eq("foo::bar");
+  expect(varRef?.typeRefs[0].name).eq("foo.bar");
 });
