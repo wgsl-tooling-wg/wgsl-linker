@@ -25,7 +25,6 @@ as your WGSL code scales in size and complexity:
 * struct inheritance
 * `import` parameters for generic programming
 * conditional compilation `#if #else #endif`
-* templating for runtime code rewriting
 * transparent imports from code generation
 
 A simple demo of the **wgsl-linker** is available [on StackBlitz](https://stackblitz.com/~/github.com/mighdoll/wgsl-linker-rand-example).
@@ -56,10 +55,6 @@ A simple demo of the **wgsl-linker** is available [on StackBlitz](https://stackb
     **#if** parameters are simple Javascript values provided by the caller at runtime.
     `0`, `null`, and `undefined` are considered `false`.
     Negation is also allowed with a `!`, e.g. `#if !mySetting`.
-
-* **template** &emsp; _Each module can specify its own string templating engine_
-
-  * Tweak the wgsl based on runtime variables you provide.
 
 * **extends** &emsp; _Combine members from multiple structs_
 
@@ -123,9 +118,9 @@ struct MyStruct {
 
 ### Main API
 
-`new ModuleRegistry({wgsl, templates?, generators?})` - register wgsl source, wgsl code generators, and wgsl template engines.
+`new ModuleRegistry({wgsl, generators?})` - register wgsl source, wgsl code generators
 
-`registry.link("main", runtimeParams?)` - preprocess wgsl, apply templates,
+`registry.link("main", runtimeParams?)` - preprocess wgsl, apply variable replacement,
 merge imported code.
 The result is a raw wgsl string suitable for WebGPU's `createShaderModule`.
 
@@ -143,7 +138,7 @@ const wgsl = import.meta.glob("./shaders/*.wgsl", {
 const registry = new ModuleRegistry({ wgsl });
 
 // link my main shader wgsl with imported modules,
-// using the provided variables for import parameters or string templates
+// using the provided variables for import parameters 
 const code = registry.link("main", { WorkgroupSize: 128 });
 
 // pass the linked wgsl to WebGPU as normal
@@ -195,16 +190,6 @@ Use `extends` to merge fields into your struct from a struct that has been tagge
 `extends name from moduleName` import fields, selected by module and export name.
 
 Multiple `extends` clauses may be attached to the same struct.
-
-#### Template
-
-`template name` specify a template function for additional processing
-of exported text in this module.
-The template function is passed any import parameters,
-and runs prior to `export` parameter string replacement.
-
-* One example template engine is published in `wgsl-linker/templates`
-* `template simple` - replaces strings with values provided by a runtime dictionary.
 
 #### Module
 
@@ -267,7 +252,7 @@ See [wgsl-link](https://www.npmjs.com/package/wgsl-link).
 
 * It'd be fun to publish wgsl modules as esm modules aka glslify.
 
-* The linker already shows _linking errors_ 
+* The linker already shows _linking errors_
   from wgsl-linker in the original unlinked source locations.
   _Linking errors_ point to the original the source
   even if the source has been rewritten by preprocessing.
