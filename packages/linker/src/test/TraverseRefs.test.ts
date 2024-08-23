@@ -28,9 +28,9 @@ test("traverse a fn to struct ref", () => {
   expect(exp.elem.name).eq("AStruct");
 });
 
-test("traverse simple rust style import", () => {
+test("traverse simple gleam style import", () => {
   const main = `
-    import bar::foo;
+    import bar/foo;
     fn main() { foo(); }
   `;
   const bar = `
@@ -216,15 +216,15 @@ test("mismatched import export params", () => {
   `);
 });
 
-test("traverse var to rust style struct ref", () => {
+test("traverse var to gleam style struct ref", () => {
   const main = `
-     import foo::bar;
-     var x: bar;
+     import foo/Bar;
+     var x: Bar;
      fn main() { }
    `;
   const foo = `
       module foo
-      export struct bar { f: f32 }
+      export struct Bar { f: f32 }
    `;
 
   const refs = traverseTest(main, foo);
