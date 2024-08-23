@@ -13,8 +13,7 @@ interface LinkExpectation {
 // wgsl example src, indexed by name
 const examplesByName = new Map(importCases.map((t) => [t.name, t.src]));
 
-// TODO first gleam link test
-test.skip('import ./bar/foo', (ctx) => {
+test('import ./bar/foo', (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
