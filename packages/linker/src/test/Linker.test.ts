@@ -539,38 +539,6 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   expect(linked).includes("step < workgroupThreads");
 });
 
-test("warn on missing template", () => {
-  const src = `
-    // oops
-    #template missing
-
-    fn main() { }
-  `;
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => linkTest(src));
-  expect(logged()).toMatchInlineSnapshot(`
-    "template 'missing' not found in ModuleRegistry
-        #template missing   Ln 3
-        ^"
-  `);
-});
-
-test("template on struct member", () => {
-  const src = `
-    #template simple
-
-    struct Foo {
-      point: POINT_TYPE
-    }
-  `;
-  const runtimeParams = { POINT_TYPE: "vec2f" };
-  const linked = linkTestOpts(
-    { runtimeParams, templates: [simpleTemplate] },
-    src
-  );
-  expect(linked).includes("point: vec2f");
-});
-
 test("copy alias to output", () => {
   const src = `
     alias MyType = u32;

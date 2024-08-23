@@ -22,6 +22,7 @@ import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { resolveImport } from "./ResolveImport.js";
 import { groupBy, last } from "./Util.js";
+import { printRef } from "./RefDebug.js";
 
 /** 
  * A wrapper around a wgsl element targeted for inclusion in the link
@@ -122,6 +123,7 @@ export function traverseRefs(
   recursiveRefs(childRefs, registry, eachRef);
 
   function eachRef(ref: FoundRef): true | undefined {
+    // printRef(ref);
     fn(ref);
     if (unseen(ref)) {
       return true;

@@ -162,12 +162,6 @@ test("parse import with numeric types", () => {
   expect(lastSegment.args).deep.eq(nums);
 });
 
-test("parse template", () => {
-  const src = `#template foo.cz/magic-strings`;
-  const appState = parseWgslD(src);
-  expect((appState[0] as TemplateElem).name).deep.eq("foo.cz/magic-strings");
-});
-
 test("#import foo from ./util", (ctx) => {
   const appState = parseWgslD(ctx.task.name);
   const importElem = appState[0] as TreeImportElem;

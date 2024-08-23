@@ -73,9 +73,7 @@ const bracketedImportClause = or(
 
 /** <{> foo <,zip> <(A,B)> <as boo> <}> <from bar>
  * @returns array of ExtendsElem elements */
-function importPhrase<T extends ExtendsElem>(
-  kind: T["kind"]
-): Parser<T[]> {
+function importPhrase<T extends ExtendsElem>(kind: T["kind"]): Parser<T[]> {
   const p = seq(bracketedImportClause, fromClause).map((r) => {
     const from = r.tags.from?.[0];
     return r.tags.importClause.map((impClause) => {
@@ -89,25 +87,23 @@ function importPhrase<T extends ExtendsElem>(
   return p;
 }
 
-const importElemPhrase = seq(bracketedImportClause, fromClause).map(
-  (r) => {
-    const from = r.tags.from?.[0];
-    return r.tags.importClause.map((impClause) => {
-      const elem = makeElem("treeImport", r as any, [], []);
-      const fromSegments = from.split("/").map((s) => new SimpleSegment(s));
-      const lastSegment = new SimpleSegment(
-        impClause.name,
-        impClause.as,
-        impClause.args
-      );
-      const segments = [...fromSegments, lastSegment];
-      const importTree: ImportTree = new ImportTree(segments);
-      elem.imports = importTree;
-      // TODO wildcards
-      return elem;
-    });
-  }
-);
+const importElemPhrase = seq(bracketedImportClause, fromClause).map((r) => {
+  const from = r.tags.from?.[0];
+  return r.tags.importClause.map((impClause) => {
+    const elem = makeElem("treeImport", r as any, [], []);
+    const fromSegments = from.split("/").map((s) => new SimpleSegment(s));
+    const lastSegment = new SimpleSegment(
+      impClause.name,
+      impClause.as,
+      impClause.args
+    );
+    const segments = [...fromSegments, lastSegment];
+    const importTree: ImportTree = new ImportTree(segments);
+    elem.imports = importTree;
+    // TODO wildcards
+    return elem;
+  });
+});
 
 const extendsElemPhrase = importPhrase<ExtendsElem>("extends");
 if (tracing) setTraceNames({ importElemPhrase, extendsElemPhrase });
@@ -166,21 +162,6 @@ function normalizeModulePath(name: string): string {
   return name;
 }
 
-const templateDirective = oneArgDirective("template");
-
-function oneArgDirective<T extends NamedElem>(
-  elemKind: T["kind"]
-): Parser<void, TagRecord> {
-  return seq(
-    or(`#${elemKind}`, elemKind),
-    tokens(moduleTokens, req(kind(moduleTokens.moduleName).tag("name"))),
-    eolf
-  ).map((r) => {
-    const e = makeElem(elemKind, r as any, ["name"] as any);
-    r.app.state.push(e);
-  });
-}
-
 export const directive = tokens(
   argsTokens,
   seq(
@@ -190,8 +171,7 @@ export const directive = tokens(
       importDirective,
       gleamImport,
       extendsDirective,
-      moduleDirective,
-      templateDirective
+      moduleDirective
     )
   )
 );
@@ -222,7 +202,6 @@ if (tracing) {
     exportDirective,
     lineCommentOptDirective,
     moduleDirective,
-    templateDirective,
     directive,
   });
 }
