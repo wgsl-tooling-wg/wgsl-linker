@@ -8,7 +8,7 @@ test("simple tree", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::foo;
+         import bar/foo
          fn main() { foo(); }
       `,
       "bar.wgsl": `
@@ -40,7 +40,7 @@ test("tree with path segment list", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::{foo, zah};
+         import bar/{foo, zah};
          fn main() { foo(); zah();}
       `,
       "./bar.wgsl": `
@@ -68,11 +68,10 @@ test("tree with trailing wildcard", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::*;
-         fn main() { foo(); zah();}
+         import ./bar/*;
+         fn main() { bar.foo(); bar.zah();}
       `,
       "./bar.wgsl": `
-         module bar
          export fn foo() { }
          export fn zah() { }
         `,

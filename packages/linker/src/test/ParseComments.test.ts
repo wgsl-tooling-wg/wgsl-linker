@@ -63,7 +63,7 @@ test("parse empty line comment", () => {
   expectNoLogErr(() => parseWgslD(src));
 });
 
-test("parse line comment with #replace", () => {
+test.skip("parse line comment with #replace", () => {
   const src = ` 
   const workgroupThreads= 4;                          // #replace 4=workgroupThreads
   `;

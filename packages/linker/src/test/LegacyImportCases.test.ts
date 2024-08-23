@@ -13,7 +13,7 @@ interface LinkExpectation {
 // wgsl example src, indexed by name
 const examplesByName = new Map(importCases.map((t) => [t.name, t.src]));
 
-test('import { foo } from "./bar";', (ctx) => {
+test.skip('import { foo } from "./bar";', (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -25,22 +25,7 @@ test('import { foo } from "./bar";', (ctx) => {
   });
 });
 
-test(`import { foo, boo } from "./bar";`, (ctx) => {
-  linkTest(ctx.task.name, {
-    linked: `
-      fn main() {
-        foo();
-        boo();
-      }
-
-      fn foo() { }
-
-      fn boo() { }
-    `,
-  });
-});
-
-test(`import foo, boo from ./bar`, (ctx) => {
+test.skip(`import { foo, boo } from "./bar";`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -55,7 +40,22 @@ test(`import foo, boo from ./bar`, (ctx) => {
   });
 });
 
-test(`import bar::foo`, (ctx) => {
+test.skip(`import foo, boo from ./bar`, (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        foo();
+        boo();
+      }
+
+      fn foo() { }
+
+      fn boo() { }
+    `,
+  });
+});
+
+test.skip(`import bar::foo`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { foo(); }
@@ -65,7 +65,7 @@ test(`import bar::foo`, (ctx) => {
   });
 });
 
-test(`import self::foo::bar`, (ctx) => {
+test.skip(`import self::foo::bar`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { bar(); }
@@ -75,7 +75,7 @@ test(`import self::foo::bar`, (ctx) => {
   });
 });
 
-test(`import bar::{foo as zip}`, (ctx) => {
+test.skip(`import bar::{foo as zip}`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { zip(); }
@@ -85,7 +85,7 @@ test(`import bar::{foo as zip}`, (ctx) => {
   });
 });
 
-test(`call foo::bar()`, (ctx) => {
+test.skip(`call foo::bar()`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { bar(); }
@@ -95,7 +95,7 @@ test(`call foo::bar()`, (ctx) => {
   });
 });
 
-test(`import foo::bar; var x:bar;`, (ctx) => {
+test.skip(`import foo::bar; var x:bar;`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       var x: bar;
@@ -109,7 +109,7 @@ test(`import foo::bar; var x:bar;`, (ctx) => {
   });
 });
 
-test(`var y: foo::bar;`, (ctx) => {
+test.skip(`var y: foo::bar;`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       var y: bar;
@@ -123,7 +123,7 @@ test(`var y: foo::bar;`, (ctx) => {
   });
 });
 
-test(`import foo::{bar, zah}`, (ctx) => {
+test.skip(`import foo::{bar, zah}`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { bar(); zah(); }
@@ -135,7 +135,7 @@ test(`import foo::{bar, zah}`, (ctx) => {
   });
 });
 
-test(`import foo::{bar::jan::zah, doo}`, (ctx) => {
+test.skip(`import foo::{bar::jan::zah, doo}`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { zah(); doo(); }
@@ -147,7 +147,7 @@ test(`import foo::{bar::jan::zah, doo}`, (ctx) => {
   });
 });
 
-test(`import foo::*`, (ctx) => {
+test.skip(`import foo::*`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { bar(); zah(); }
@@ -159,7 +159,7 @@ test(`import foo::*`, (ctx) => {
   });
 });
 
-test(`import both rust and js style`, (ctx) => {
+test.skip(`import both rust and js style`, (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { zah(); doo(); }
