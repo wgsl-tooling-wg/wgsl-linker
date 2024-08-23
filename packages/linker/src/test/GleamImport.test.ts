@@ -1,6 +1,7 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, TaskContext, test } from "vitest";
 import { gleamImport } from "../GleamImport.js";
+import { dlog } from "berry-pretty";
 
 function expectParseFail(ctx: TaskContext): void {
   const failPrefix = "bad: ";
@@ -208,16 +209,6 @@ test("import ./foo/bar", (ctx) => {
         "end": 16,
         "imports": ImportTree {
           "segments": [
-            SimpleSegment {
-              "args": undefined,
-              "as": undefined,
-              "name": ".",
-            },
-            SimpleSegment {
-              "args": undefined,
-              "as": undefined,
-              "name": "foo",
-            },
             SimpleSegment {
               "args": undefined,
               "as": undefined,

@@ -27,7 +27,6 @@ import {
 } from "./ImportTree.js";
 import { digits, eol, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
-import { dlog, dlogOpt } from "berry-pretty";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
@@ -135,9 +134,7 @@ const relativePrefix = withTags(
 );
 
 const relativePath = withTags(
-  seq(relativePrefix.tag("seg"), pathTail.tag("seg")).map((r) =>
-    r.tags.seg.flat()
-  )
+  seq(relativePrefix.tag("p"), pathTail.tag("p")).map((r) => r.tags.p.flat())
 );
 const packagePrefix = withTags(
   seq(wordToken.tag("pkg"), "/").map((r) => [new SimpleSegment(r.tags.pkg[0])])
