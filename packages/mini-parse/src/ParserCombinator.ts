@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import {
   CombinatorArg,
   OrParser,
@@ -206,9 +205,9 @@ export function repeatPlus<A extends CombinatorArg>(
   arg: A
 ): ParserFromRepeatArg<A> {
   const p = parserArg(arg);
-  return seq(p, repeat(p)).map((r) => {
-    return [r.value[0], ...r.value[1]];
-  }).traceName("repeatPlus");
+  return seq(p, repeat(p))
+    .map((r) => [r.value[0], ...r.value[1]])
+    .traceName("repeatPlus");
 }
 
 type ResultFilterFn<T> = (
@@ -316,7 +315,7 @@ export function withSep<P extends CombinatorArg>(
 /** match an series of one or more elements separated by a delimiter (e.g. a comma) */
 export function withSepPlus<P extends CombinatorArg>(
   sep: CombinatorArg,
-  p: P,
+  p: P
 ): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
   return withSep(sep, p, { requireOne: true }).traceName("withSepPlus");
 }
@@ -336,7 +335,7 @@ export function tokens<A extends CombinatorArg>(
 
 /** return a parser that matches end of line, or end of file,
  * optionally preceded by white space
- * @param ws should not match \n */ 
+ * @param ws should not match \n */
 // TODO make arguments optional
 export function makeEolf(matcher: TokenMatcher, ws: string): Parser<any> {
   // prettier-ignore
