@@ -18,7 +18,8 @@ test("simple fn export", () => {
 
 test("simple fn import", () => {
   const src = `
-    // #import foo
+    import bar/foo
+
     fn bar() { foo(); }
   `;
   const module = testParseModule(src);
@@ -139,9 +140,9 @@ test("parse error shows correct line after #ifdef and simple #template", () => {
   `);
 });
 
-test("import rust style", () => {
+test("import gleam style", () => {
   const src = `
-    import my::foo
+    import my/foo
 
     fn bar() { foo(); }
   `;
