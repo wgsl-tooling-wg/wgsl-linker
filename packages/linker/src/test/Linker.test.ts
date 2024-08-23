@@ -146,14 +146,12 @@ test("import transitive conflicts with main", () => {
 
 test("#import foo from zap (multiple modules)", () => {
   const module1 = `
-    // #module module1
-    // #export
-    fn foo() { /* module1 */ }
+    module module1
+    export fn foo() { /* module1 */ }
   `;
   const module2 = `
-    // #module module2
-    // #export
-    fn foo() { /* module2 */ }
+    module module2
+    export fn foo() { /* module2 */ }
   `;
 
   const src = `
