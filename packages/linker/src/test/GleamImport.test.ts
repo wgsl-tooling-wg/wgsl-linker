@@ -47,10 +47,13 @@ test("import foo/* as b", expectParses);
 test("import foo/a as b", expectParses);
 test(`import a/b/{c as foo}`, expectParses);
 
-test(`
+test(
+  `
   import ./foo/bar
   fn main() {}
-  `, expectParses);
+  `,
+  expectParses
+);
 
 test(
   `import bevy_pbr/{
@@ -189,6 +192,48 @@ test(`import a/{ b, c/{d, e}, f/* }`, (ctx) => {
                   ],
                 },
               ],
+            },
+          ],
+        },
+        "kind": "treeImport",
+        "start": 0,
+      },
+    ]
+  `);
+});
+
+test("import ./foo/bar", (ctx) => {
+  const { appState } = expectParses(ctx);
+  expect(appState).toMatchInlineSnapshot(`
+    [
+      {
+        "end": 16,
+        "imports": ImportTree {
+          "segments": [
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": ".",
+            },
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "foo",
+            },
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": ".",
+            },
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "foo",
+            },
+            SimpleSegment {
+              "args": undefined,
+              "as": undefined,
+              "name": "bar",
             },
           ],
         },

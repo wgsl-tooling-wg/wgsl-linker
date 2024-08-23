@@ -118,18 +118,29 @@ pathTail = withTags(
 // The prefix covers the import path until the point we could import an item
 // so ../foo or foo/
 
+const relativeSegment = withTags(
+  seq(or(".", "..").tag("dir"), "/").map(
+    (r) => new SimpleSegment(r.tags.dir[0])
+  )
+);
+
 const relativePrefix = withTags(
   seq(
-    repeatPlus(seq(or(".", "..").tag("seg"), "/")),
+    repeatPlus(relativeSegment.tag("seg")),
     simpleSegment.tag("seg"),
     "/"
-  ).map((r) => r.tags.seg.map((r) => new SimpleSegment(r)))
+  ).map((r) => {
+    return r.tags.seg;
+  })
 );
 
 const relativePath = withTags(
-  seq(relativePrefix.tag("seg"), pathTail.tag("seg")).map((r) =>
-    r.tags.seg.flat()
-  )
+  seq(relativePrefix.tag("seg"), pathTail.tag("seg")).map((r) => {
+    const result = r.tags.seg.flat();
+    dlog({ tags: r.tags.seg });
+
+    return result;
+  })
 );
 const packagePrefix = withTags(
   seq(wordToken.tag("pkg"), "/").map((r) => [new SimpleSegment(r.tags.pkg[0])])
@@ -164,6 +175,7 @@ if (tracing) {
     pathSegment,
     pathExtends,
     pathTail,
+    relativeSegment,
     relativePrefix,
     relativePath,
     packagePrefix,
