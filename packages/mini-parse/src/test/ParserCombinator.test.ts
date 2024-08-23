@@ -267,6 +267,9 @@ test("repeat1 fails", () => {
   expect(parsed?.value).toBeNull;
 });
 
+// TODO there's a bug in withTags, this test doesn't catch it.
+// test for accumulating to the same after withTags and it should be cleared but is not
+
 test("clearTags", () => {
   const p = kind(m.word).tag("w");
   // w/o clearing tags
