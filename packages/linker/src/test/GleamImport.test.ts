@@ -47,6 +47,11 @@ test("import foo/* as b", expectParses);
 test("import foo/a as b", expectParses);
 test(`import a/b/{c as foo}`, expectParses);
 
+test(`
+  import ./foo/bar
+  fn main() {}
+  `, expectParses);
+
 test(
   `import bevy_pbr/{
   mesh_view_bindings,
