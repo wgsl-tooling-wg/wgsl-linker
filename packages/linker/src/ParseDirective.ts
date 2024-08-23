@@ -189,7 +189,6 @@ export const directive = tokens(
       exportDirective,
       importDirective,
       gleamImport,
-      rustImport,
       extendsDirective,
       moduleDirective,
       templateDirective
