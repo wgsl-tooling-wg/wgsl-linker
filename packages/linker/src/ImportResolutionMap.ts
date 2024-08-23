@@ -1,4 +1,3 @@
-import { dlog, dlogOpt } from "berry-pretty";
 import { ExportElem, TreeImportElem } from "./AbstractElems.js";
 import {
   ImportTree,
@@ -15,8 +14,8 @@ import {
 } from "./ModuleRegistry.js";
 import { exportName, ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
-import { StringPairs } from "./TraverseRefs.js";
 import { dirname, normalize } from "./PathUtil.js";
+import { StringPairs } from "./TraverseRefs.js";
 
 /**
  * Maps to resolve imports to exports.
@@ -188,7 +187,7 @@ function resolveTreeImport(
 
     const impArgsStr = impArgs ? `(${impArgs.join(", ")})` : "";
     const expPathStr = resolvedExp.join("/") + impArgsStr;
-    
+
     const entries: ResolvedEntry[] = [
       new ImportToExportPath(resolvedImp, expPathStr),
     ];
@@ -204,9 +203,7 @@ function resolveTreeImport(
         modExp.module,
         modExp.exp
       );
-      entries.push(
-        new ExportPathToExport(expPathStr, modExp, expImpArgs)
-      );
+      entries.push(new ExportPathToExport(expPathStr, modExp, expImpArgs));
     }
     return entries;
   }
