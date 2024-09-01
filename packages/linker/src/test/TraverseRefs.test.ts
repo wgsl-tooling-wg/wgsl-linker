@@ -8,14 +8,14 @@ import { FoundRef, TextRef, refName, traverseRefs } from "../TraverseRefs.js";
 
 test("traverse a fn to struct ref", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct;
 
     fn main() {
       let a:AStruct; 
     }
   `;
   const module1 = `
-    #export
+    export
     struct AStruct {
       x: u32,
     }
