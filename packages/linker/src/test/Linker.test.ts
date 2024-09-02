@@ -12,7 +12,7 @@ test("simple import", () => {
   `;
 
   const src = `
-    import foo from "./file1.wgsl";
+    import ./file1/foo";
 
     fn bar() {
       foo();
