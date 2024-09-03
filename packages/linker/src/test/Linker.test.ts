@@ -40,31 +40,13 @@ test("copy root elements linked output", () => {
   expect(linked).includes(rootFn);
 });
 
-test("import with parameter", () => {
-  const myModule = `
-    export(Elem)
-    fn foo(a: Elem) { /* fooImpl */ }
-  `;
-
-  const src = `
-    struct MyElem {}
-
-    import foo(MyElem) from "./file1"
-    fn bar() {
-      foo();
-    }
-  `;
-  const linked = linkTest(src, myModule);
-  expect(linked).includes("a: MyElem");
-});
-
 test("import foo as bar", () => {
   const myModule = `
     export fn foo() { /* fooImpl */ }
    `;
 
   const src = `
-    import foo as bar from "./file1"
+    import ./file1/foo as bar;
 
     fn main() {
       bar();
@@ -73,6 +55,7 @@ test("import foo as bar", () => {
   const linked = linkTest(src, myModule);
   expect(linked).contains("fn bar()");
 });
+
 
 test("#import twice doesn't get two copies", () => {
   const module1 = `
@@ -97,24 +80,39 @@ test("#import twice doesn't get two copies", () => {
   expect([...matches].length).toBe(1);
 });
 
-test("#import twice with different params", () => {
+test("imported fn calls support fn with root conflict", () => {
   const src = `
-    #import foo(A) from ./file1
-    #import foo(B) as bar from ./file1
+    import foo from ./file1
 
-    fn main() {
-      bar();
-      foo();
+    fn main() { foo(); }
+    fn conflicted() { }
+  `;
+  const module1 = `
+    export fn foo() {
+      conflicted(0);
+      conflicted(1);
     }
+    fn conflicted(a:i32) {}
   `;
-  const module0 = `
-    #export(X)
-    fn foo(x:X) { /* X */ }
-  `;
+  const linked = linkTest(src, module1);
+  expect(linked).includes("fn conflicted(");
+  expect(linked).includes("conflicted()");
+  expect(linked).includes("conflicted0(0)");
+  expect(linked).includes("conflicted0(1)");
+});
 
-  const linked = linkTest(src, module0);
-  expect(linked).includes("fn bar(x:B) { /* B */ }");
-  expect(linked).includes("fn foo(x:A) { /* A */ }");
+test("import twice with two as names", () => {
+  const src = `
+    #import foo as bar from ./file1
+    #import foo as zap from ./file1
+
+    fn main() { bar(); zap(); }
+  `;
+  const module1 = `
+    export fn foo() { }
+  `;
+  const linked = linkTest(src, module1);
+  expect(linked).includes("fn main() { bar(); bar(); }");
 });
 
 test("import transitive conflicts with main", () => {
@@ -358,25 +356,6 @@ test("'import as' a struct", () => {
   expect(linked).contains("struct AA {");
 });
 
-test("import a struct with imp/exp params", () => {
-  const src = `
-    #import AStruct(i32) from ./file1
-
-    fn foo () { b = AStruct(1); }
-  `;
-
-  const module1 = `
-    #if typecheck
-    alias elemType = u32;
-    #endif
-
-    #export (elemType)
-    struct AStruct { x: elemType }
-  `;
-
-  const linked = linkTest(src, module1);
-  expect(linked).contains("x: i32");
-});
 
 test("import a struct with name conflicting support struct", () => {
   const src = `
@@ -471,6 +450,85 @@ test("#template in src", () => {
   expect(linked).includes("step < 128");
 });
 
+
+test("copy alias to output", () => {
+  const src = `
+    alias MyType = u32;
+  `;
+  const linked = linkTest(src);
+  expect(linked).toContain("alias MyType = u32;");
+});
+
+test("copy diagnostics to output", () => {
+  const src = `
+    diagnostic(off,derivative_uniformity);
+  `;
+  const linked = linkTest(src);
+  expect(linked).toContain("diagnostic(off,derivative_uniformity);");
+});
+
+
+/** -- not yet with gleam syntax --- */
+  
+
+test("import with parameter", () => {
+  const myModule = `
+    export(Elem)
+    fn foo(a: Elem) { /* fooImpl */ }
+  `;
+
+  const src = `
+    struct MyElem {}
+
+    import foo(MyElem) from "./file1"
+    fn bar() {
+      foo();
+    }
+  `;
+  const linked = linkTest(src, myModule);
+  expect(linked).includes("a: MyElem");
+});
+
+test("#import twice with different params", () => {
+  const src = `
+    #import foo(A) from ./file1
+    #import foo(B) as bar from ./file1
+
+    fn main() {
+      bar();
+      foo();
+    }
+  `;
+  const module0 = `
+    #export(X)
+    fn foo(x:X) { /* X */ }
+  `;
+
+  const linked = linkTest(src, module0);
+  expect(linked).includes("fn bar(x:B) { /* B */ }");
+  expect(linked).includes("fn foo(x:A) { /* A */ }");
+});
+
+test("import a struct with imp/exp params", () => {
+  const src = `
+    #import AStruct(i32) from ./file1
+
+    fn foo () { b = AStruct(1); }
+  `;
+
+  const module1 = `
+    #if typecheck
+    alias elemType = u32;
+    #endif
+
+    #export (elemType)
+    struct AStruct { x: elemType }
+  `;
+
+  const linked = linkTest(src, module1);
+  expect(linked).contains("x: i32");
+});
+
 test("#import using simple template and imp/exp param", () => {
   const src = `
     #import foo(128) from ./file1
@@ -535,55 +593,4 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   const linked = linkTestOpts({ runtimeParams }, src, module1);
   expect(linked).not.includes("step < 128");
   expect(linked).includes("step < workgroupThreads");
-});
-
-test("copy alias to output", () => {
-  const src = `
-    alias MyType = u32;
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("alias MyType = u32;");
-});
-
-test("copy diagnostics to output", () => {
-  const src = `
-    diagnostic(off,derivative_uniformity);
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("diagnostic(off,derivative_uniformity);");
-});
-
-test("imported fn calls support fn with root conflict", () => {
-  const src = `
-    import foo from ./file1
-
-    fn main() { foo(); }
-    fn conflicted() { }
-  `;
-  const module1 = `
-    export fn foo() {
-      conflicted(0);
-      conflicted(1);
-    }
-    fn conflicted(a:i32) {}
-  `;
-  const linked = linkTest(src, module1);
-  expect(linked).includes("fn conflicted(");
-  expect(linked).includes("conflicted()");
-  expect(linked).includes("conflicted0(0)");
-  expect(linked).includes("conflicted0(1)");
-});
-
-test("import twice with two as names", () => {
-  const src = `
-    #import foo as bar from ./file1
-    #import foo as zap from ./file1
-
-    fn main() { bar(); zap(); }
-  `;
-  const module1 = `
-    export fn foo() { }
-  `;
-  const linked = linkTest(src, module1);
-  expect(linked).includes("fn main() { bar(); bar(); }");
 });
