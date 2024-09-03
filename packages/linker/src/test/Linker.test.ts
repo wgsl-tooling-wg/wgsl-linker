@@ -163,8 +163,8 @@ test("import foo from zap (multiple modules)", () => {
 
 test("multiple exports from the same module", () => {
   const src = `
-    #import foo from ./file1
-    #import bar from ./file1
+    import ./file1/{foo, bar}
+
     fn main() {
       foo();
       bar();
@@ -180,7 +180,7 @@ test("multiple exports from the same module", () => {
 
 test("import and resolve conflicting support function", () => {
   const src = `
-    import foo as bar from ./file1
+    import ./file1/foo as bar
 
     fn support() { 
       bar();
@@ -203,19 +203,18 @@ test("import and resolve conflicting support function", () => {
   expect([...barMatch].length).toBe(2);
 });
 
-test("#import support fn that references another import", () => {
+test("import support fn that references another import", () => {
   const src = `
-    #import foo from ./file1
+    import ./file1/foo
 
     fn support() { 
       foo();
     }
   `;
   const module1 = `
-    #import bar from ./file2
+    import ./file2/bar
 
-    #export
-    fn foo() {
+    export fn foo() {
       support();
       bar();
     }
@@ -223,8 +222,7 @@ test("#import support fn that references another import", () => {
     fn support() { }
   `;
   const module2 = `
-    #export
-    fn bar() {
+    export fn bar() {
       support();
     }
 
@@ -241,23 +239,21 @@ test("#import support fn that references another import", () => {
   expect([...module2Match].length).toBe(2);
 });
 
-test("#import support fn from two exports", () => {
+test("import support fn from two exports", () => {
   const src = `
-    #import foo from ./file1
-    #import bar from ./file1
+    import ./file1/foo
+    import ./file1/bar
     fn main() {
       foo();
       bar();
     }
   `;
   const module1 = `
-    #export
-    fn foo() {
+    export fn foo() {
       support();
     }
 
-    #export
-    fn bar() {
+    export fn bar() {
       support();
     }
 
