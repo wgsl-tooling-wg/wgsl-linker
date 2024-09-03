@@ -265,9 +265,9 @@ test("import support fn from two exports", () => {
   expect([...supportMatch].length).toBe(3);
 });
 
-test("#import a struct", () => {
+test("import a struct", () => {
   const src = `
-    import AStruct from ./file1
+    import ./file1/AStruct
 
     fn main() {
       let a = AStruct(1u); 
@@ -284,7 +284,7 @@ test("#import a struct", () => {
 
 test("import fn with support struct constructor", () => {
   const src = `
-    #import elemOne  from ./file1
+    import ./file1/elemOne
 
     fn main() {
       let ze = elemOne();
@@ -295,8 +295,7 @@ test("import fn with support struct constructor", () => {
       sum: u32
     }
 
-    #export 
-    fn elemOne() -> Elem {
+    export fn elemOne() -> Elem {
       return Elem(1u);
     }
   `;
@@ -307,23 +306,21 @@ test("import fn with support struct constructor", () => {
 
 test("import a transitive struct", () => {
   const src = `
-    #import AStruct  from ./file1
+    import ./file1/AStruct
 
     struct SrcStruct {
       a: AStruct,
     }
   `;
   const module1 = `
-    #import BStruct from ./file2
+    import ./file2/BStruct
 
-    #export
-    struct AStruct {
+    export struct AStruct {
       s: BStruct,
     }
   `;
   const module2 = `
-    #export
-    struct BStruct {
+    export struct BStruct {
       x: u32,
     }
   `;
@@ -335,7 +332,7 @@ test("import a transitive struct", () => {
 
 test("'import as' a struct", () => {
   const src = `
-    #import AStruct as AA from ./file1
+    import AStruct as AA from ./file1
 
     fn foo (a: AA) { }
   `;
