@@ -349,7 +349,7 @@ test("'import as' a struct", () => {
 
 test("import a struct with name conflicting support struct", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct
 
     struct Base {
       b: i32
@@ -362,8 +362,7 @@ test("import a struct with name conflicting support struct", () => {
       x: u32
     }
 
-    #export
-    struct AStruct {
+    export struct AStruct {
       x: Base
     }
   `;
@@ -374,25 +373,6 @@ test("import a struct with name conflicting support struct", () => {
   expect(linked).contains("x: Base0"); // TBD
 });
 
-test("import with simple template", () => {
-  const src = `
-    #import foo from ./file1
-    fn main() { foo(); }
-  `;
-  const file1 = `
-    #template simple
-    #export
-    fn foo() {
-      for (var step = 0; step < WORKGROUP_SIZE; step++) { }
-    }
-  `;
-  const registry = new ModuleRegistry({
-    wgsl: { "./main.wgsl": src, "./file1.wgsl": file1 },
-    templates: [simpleTemplate],
-  });
-  const linked = registry.link("./main", { WORKGROUP_SIZE: "128" });
-  expect(linked).includes("step < 128");
-});
 
 test("ext params don't replace override", () => {
   const src = `
@@ -583,4 +563,23 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   const linked = linkTestOpts({ runtimeParams }, src, module1);
   expect(linked).not.includes("step < 128");
   expect(linked).includes("step < workgroupThreads");
+});
+
+test("import with simple template", () => {
+  const src = `
+    import ./file1/foo
+    fn main() { foo(); }
+  `;
+  const file1 = `
+    #template simple
+    export fn foo() {
+      for (var step = 0; step < WORKGROUP_SIZE; step++) { }
+    }
+  `;
+  const registry = new ModuleRegistry({
+    wgsl: { "./main.wgsl": src, "./file1.wgsl": file1 },
+    templates: [simpleTemplate],
+  });
+  const linked = registry.link("./main", { WORKGROUP_SIZE: "128" });
+  expect(linked).includes("step < 128");
 });
