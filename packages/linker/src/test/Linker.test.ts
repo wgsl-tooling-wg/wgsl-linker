@@ -62,13 +62,13 @@ test("#import twice doesn't get two copies", () => {
     export fn foo() { /* fooImpl */ }
   `;
   const module2 = `
-    import foo from ./file1
+    import ./file1/foo
     export fn bar() { foo(); }
 
   `;
   const src = `
-    #import foo from ./file1
-    #import bar from ./file2
+    import ./file1/foo
+    import ./file2/bar
 
     fn main() {
       foo();
@@ -103,8 +103,8 @@ test("imported fn calls support fn with root conflict", () => {
 
 test("import twice with two as names", () => {
   const src = `
-    #import foo as bar from ./file1
-    #import foo as zap from ./file1
+    import ./file1/foo as bar
+    import ./file1/foo as zap
 
     fn main() { bar(); zap(); }
   `;
@@ -117,7 +117,7 @@ test("import twice with two as names", () => {
 
 test("import transitive conflicts with main", () => {
   const src = `
-    #import mid from ./file1
+    import ./file1/mid
 
     fn main() {
       mid();
@@ -128,21 +128,18 @@ test("import transitive conflicts with main", () => {
     }
   `;
   const module1 = `
-    #import grand from ./file2
+    import ./file2/grand
     
-    #export
-    fn mid() { grand(); }
+    export fn mid() { grand(); }
   `;
   const module2 = `
-    export fn grand() {
-      /* grandImpl */
-    }
+    export fn grand() { /* grandImpl */ }
   `;
   const linked = linkTest(src, module1, module2);
   expect(linked).includes("mid() { grand0(); }");
 });
 
-test("#import foo from zap (multiple modules)", () => {
+test("import foo from zap (multiple modules)", () => {
   const module1 = `
     module module1
     export fn foo() { /* module1 */ }
@@ -153,7 +150,7 @@ test("#import foo from zap (multiple modules)", () => {
   `;
 
   const src = `
-    #import foo as baz from module2
+    import module2/{foo as baz}
 
     fn main() {
       baz();
