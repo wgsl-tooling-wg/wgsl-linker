@@ -1,5 +1,5 @@
 import { afterAll, expect, test } from "vitest";
-import { importCases } from "../../../shared-tests/src/test-cases/ImportCases.js"
+import { importCases } from "../../../shared-tests/src/test-cases/ImportCases.js";
 
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { trimSrc } from "./shared/StringUtil.js";
@@ -13,7 +13,7 @@ interface LinkExpectation {
 // wgsl example src, indexed by name
 const examplesByName = new Map(importCases.map((t) => [t.name, t.src]));
 
-test('import ./bar/foo', (ctx) => {
+test("import ./bar/foo", (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -25,6 +25,19 @@ test('import ./bar/foo', (ctx) => {
   });
 });
 
+test("main has other root elements", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      struct Uniforms {
+        a: u32
+      }
+
+      @group(0) @binding(0) var<uniform> u: Uniforms;
+
+      fn main() { }
+    `,
+  });
+});
 
 afterAll((c) => {
   const testNameSet = new Set(c.tasks.map((t) => t.name));

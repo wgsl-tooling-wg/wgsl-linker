@@ -5,21 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("copy root elements linked output", () => {
-  const rootStruct = "struct Uniforms {\n  a: u32\n}";
-  const rootVar = `@group(0) @binding(0) var<uniform> u: Uniforms;`;
-  const rootFn = `fn main() { }`;
-  const src = `
-    ${rootStruct}
-    ${rootVar}
-    ${rootFn}
-  `;
-  const linked = linkTest(src);
-  expect(linked).includes(rootStruct);
-  expect(linked).includes(rootVar);
-  expect(linked).includes(rootFn);
-});
-
 test("import foo as bar", () => {
   const myModule = `
     export fn foo() { /* fooImpl */ }

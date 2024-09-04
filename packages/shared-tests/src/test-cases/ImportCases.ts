@@ -15,4 +15,18 @@ export const importCases: WgslTestSrc[] = [
        `,
     },
   },
+  {
+    name: `main has other root elements`,
+    src: {
+      "./main.wgsl": `
+          struct Uniforms {
+            a: u32
+          }
+
+          @group(0) @binding(0) var<uniform> u: Uniforms;
+
+          fn main() { }
+      `
+    },
+  },
 ]
