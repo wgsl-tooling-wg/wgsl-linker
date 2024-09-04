@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { trimSrc } from "../StringUtil.js";
 
-test("trimIndent on blank", () => {
+test("trimSrc on blank", () => {
   const trimmed = trimSrc(``);
   expect(trimmed).eq("");
 });
 
-test("trimIndent with leading blank lines", () => {
+test("trimSrc with leading blank lines", () => {
   const trimmed = trimSrc(`
 
     fn foo() {
@@ -15,7 +15,7 @@ test("trimIndent with leading blank lines", () => {
   expect(trimmed).eq("fn foo() {\n  // bar\n}");
 });
 
-test("trimIndent with blank line in the middle and at end", () => {
+test("trimSrc with blank line in the middle and at end", () => {
   const trimmed = trimSrc(
     `
       foo
@@ -24,4 +24,9 @@ test("trimIndent with blank line in the middle and at end", () => {
      `
   );
   expect(trimmed).eq("foo\n\nbar");
+});
+
+test("trimSrc with trailing spaces", () => {
+  const trimmed = trimSrc( ` foo `);
+  expect(trimmed).eq("foo");
 });

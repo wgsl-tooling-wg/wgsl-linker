@@ -1,4 +1,7 @@
-/** trim off leading indent and leading blank lines */
+/** trim source for test comparisons
+ * rm blank lines at beginning and end of string (but not interior blank lines)
+ * rm leading indent consistently across remaining lines
+ * rm trailing spaces from each line */
 export function trimSrc(src: string): string {
   const rawLines = src.split("\n");
   const noLeading = dropWhile(rawLines, (l) => l.trim() === ""); // skip leading blank lines
@@ -10,8 +13,10 @@ export function trimSrc(src: string): string {
 
   const minIndent = indents.reduce((min, i) => Math.min(min, i));
 
-  const trimmedLines = lines.map((l) => l.slice(minIndent));
-  return trimmedLines.join("\n");
+  const indentTrimmed = lines.map((l) => l.slice(minIndent));
+  const noTrailingSpaces = indentTrimmed.map((l) => l.trimEnd());
+  
+  return noTrailingSpaces.join("\n");
 }
 
 export function dropWhile<T>(a: T[], fn: (el: T) => boolean): T[] {
