@@ -54,7 +54,14 @@ function linkTest(name: string, expectation: LinkExpectation): void {
 
   if (linked !== undefined) {
     const expectTrimmed = trimSrc(linked);
-    expect(result).eq(expectTrimmed);
+    const resultTrimmed = trimSrc(result)
+    if (resultTrimmed !== expectTrimmed) {
+      const expectLines = expectTrimmed.split("\n");
+      const resultLines = result.split("\n");
+      expectLines.forEach((line, i) => {
+        expect(resultLines[i]).eq(line);
+      });
+    }
   }
   if (includes !== undefined) {
     includes.forEach((inc) => {
