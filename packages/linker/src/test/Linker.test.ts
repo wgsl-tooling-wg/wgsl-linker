@@ -5,26 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-// TODO mv to import cases
-test("simple import", () => {
-  const myModule = `
-    export fn foo() { /* fooImpl */ }
-  `;
-
-  const src = `
-    import ./file1/foo";
-
-    fn bar() {
-      foo();
-    }
-  `;
-  const linked = linkTest(src, myModule);
-  expect(linked).contains("fn bar()");
-  expect(linked).includes("fooImpl");
-  expect(linked).not.includes("import");
-  expect(linked).not.includes("export");
-});
-
 test("copy root elements linked output", () => {
   const rootStruct = "struct Uniforms {\n  a: u32\n}";
   const rootVar = `@group(0) @binding(0) var<uniform> u: Uniforms;`;
