@@ -383,9 +383,9 @@ test("ext params don't replace override", () => {
   expect(linked).contains("override workgroupSizeX = 4u;");
 });
 
-test("#import using replace template and ext param", () => {
+test("import using replace template and ext param", () => {
   const src = `
-    import foo from ./file1
+    import ./file1/foo
 
     fn main() { foo(); }
   `;
@@ -393,8 +393,7 @@ test("#import using replace template and ext param", () => {
   const module1 = `
     #template simple
 
-    #export
-    fn foo () {
+    export fn foo () {
       for (var step = 0; step < Threads; step++) { 
       }
     }
