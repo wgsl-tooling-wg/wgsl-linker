@@ -1,4 +1,4 @@
-import { WgslTestSrc } from "./TestSchema.js";
+import { WgslTestSrc } from "../TestSchema.js";
 
 export const importCases: WgslTestSrc[] = [
   {
@@ -29,4 +29,7 @@ export const importCases: WgslTestSrc[] = [
       `
     },
   },
+
 ]
+
+export default importCases;
