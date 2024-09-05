@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { glob } from "glob";
-import path from "path";
+import fs from "fs";
+import path, { dirname } from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -12,12 +13,13 @@ main();
  * the generated script:
  *  . imports each .ts files in the src directory
  *  . outputs a json file for each .ts file in the dest directory
-*/
+ */
 async function main(): Promise<void> {
   const rawArgs = hideBin(process.argv);
   const args: CliArgs = parseArgs(rawArgs);
   const srcDir = args.src_dir as string;
   const destDir = args.dest_dir as string;
+  const outFile = args.output as string;
 
   const tsFiles = await glob(`${srcDir}/*.ts`);
   const header = `#!/usr/bin/env node
@@ -39,15 +41,21 @@ async function main(): Promise<void> {
   });
 
   const chunks = [header, ...snippets];
-  const lines = chunks.flatMap(c => c.split("\n"));
-  const trimmed = lines.map(l => l.trim());
+  const lines = chunks.flatMap((c) => c.split("\n"));
+  const trimmed = lines.map((l) => l.trim());
   const joined = trimmed.join("\n");
-  console.log(joined);
-}
 
+  fs.mkdirSync(path.dirname(outFile), { recursive: true });
+  fs.writeFileSync(outFile, joined);
+}
 
 function parseArgs(args: string[]) {
   return yargs(args)
     .command("$0 <src_dir> <dest_dir>", "generate json files for test cases")
+    .option("output", {
+      alias: "o",
+      type: "string",
+      description: "output script file",
+    })
     .parseSync();
 }

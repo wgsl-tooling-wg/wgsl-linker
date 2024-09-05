@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest",
     "prepublishOnly": "run-s cases",
-    "build:json-script": "tsx src/tools/gen-script.ts ./src/test-cases ./src/test-cases-json > bin/tests-to-json.ts",
+    "build:json-script": "tsx src/tools/gen-script.ts ./src/test-cases ./src/test-cases-json -o bin/tests-to-json.ts",
     "build:cases": "tsx bin/tests-to-json.ts",
     "cases": "run-s build:json-script build:cases",
     "watch": "nodemon --ext ts --watch src/test-cases --watch src/tools --watch src/TestSchema.ts --exec \"pnpm cases\""
