@@ -10,7 +10,8 @@
     "build:json-script:": "esbuild --bundle --platform=node --outfile=bin/tests-to-json bin/tests-to-json.ts",
     "build:all-scripts": "run-s build:gen-script build:json-script-ts build:json-script",
     "build:cases": "node bin/tests-to-json",
-    "cases": "run-s build:all-scripts build:cases"
+    "cases": "run-s build:all-scripts build:cases",
+    "watch": "nodemon --ext ts --watch src/test-cases --watch src/tools --watch src/TestSchema.ts --exec \"pnpm cases\""
   },
   "files": [
     "bin"
