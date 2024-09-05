@@ -5,12 +5,9 @@
   "scripts": {
     "test": "vitest",
     "prepublishOnly": "run-s cases",
-    "build:gen-script": "esbuild --bundle --platform=node --outfile=bin/gen-script src/tools/gen-script.ts",
-    "build:json-script-ts": "node bin/gen-script ./src/test-cases ./src/test-cases-json > bin/tests-to-json.ts",
-    "build:json-script:": "esbuild --bundle --platform=node --outfile=bin/tests-to-json bin/tests-to-json.ts",
-    "build:all-scripts": "run-s build:gen-script build:json-script-ts build:json-script",
-    "build:cases": "node bin/tests-to-json",
-    "cases": "run-s build:all-scripts build:cases",
+    "build:json-script": "tsx src/tools/gen-script.ts ./src/test-cases ./src/test-cases-json > bin/tests-to-json.ts",
+    "build:cases": "tsx bin/tests-to-json.ts",
+    "cases": "run-s build:json-script build:cases",
     "watch": "nodemon --ext ts --watch src/test-cases --watch src/tools --watch src/TestSchema.ts --exec \"pnpm cases\""
   },
   "files": [
@@ -25,6 +22,7 @@
     "glob": "^11.0.0",
     "nodemon": "^3.1.4",
     "npm-run-all": "^4.1.5",
+    "tsx": "^4.7.1",
     "vitest": "^1.4.0",
     "yargs": "^17.7.2"
   }
