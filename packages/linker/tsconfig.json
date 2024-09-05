@@ -23,7 +23,7 @@
       "mini-parse/test-util": ["../mini-parse/src/test-util"],
     }
   },
-  "include": ["src/**/*", "../shared-tests/src/test-cases/TestSchema.ts", "../shared-tests/src/test-cases/ImportCases.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig-node.json" }]
 }
