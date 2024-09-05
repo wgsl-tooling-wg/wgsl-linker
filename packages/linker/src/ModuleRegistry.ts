@@ -62,7 +62,7 @@ export interface GeneratorModuleExport {
 }
 
 export interface RegistryParams {
-  /** record of file names an wgsl text for modules */
+  /** record of file names and wgsl text for modules */
   wgsl?: Record<string, string>;
 
   /** string template handlers for processing exported functions and structs */
