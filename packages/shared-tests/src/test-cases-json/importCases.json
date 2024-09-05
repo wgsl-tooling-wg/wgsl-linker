@@ -1,0 +1,15 @@
+[
+  {
+    "name": "import ./bar/foo",
+    "src": {
+      "./main.wgsl": "\n          import ./bar/foo \n          fn main() {\n            foo();\n          }\n       ",
+      "./bar.wgsl": "\n          export fn foo() { }\n       "
+    }
+  },
+  {
+    "name": "main has other root elements",
+    "src": {
+      "./main.wgsl": "\n          struct Uniforms {\n            a: u32\n          }\n\n          @group(0) @binding(0) var<uniform> u: Uniforms;\n\n          fn main() { }\n      "
+    }
+  }
+]
