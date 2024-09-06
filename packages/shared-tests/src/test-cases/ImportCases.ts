@@ -44,6 +44,27 @@ export const importCases: WgslTestSrc[] = [
       `
     },
   },
+  {
+    name: `import twice doesn't get two copies`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo
+        import ./file2/bar
+
+        fn main() {
+          foo();
+          bar();
+        }
+      `,
+      "./file1.wgsl": `
+        export fn foo() { /* fooImpl */ }
+      `,
+      "./file2.wgsl": `
+        import ./file1/foo
+        export fn bar() { foo(); }
+      `
+    },
+  },
 
 ]
 

@@ -51,6 +51,21 @@ test("import foo as bar", (ctx) => {
   });
 });
 
+test("import twice doesn't get two copies", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        foo();
+        bar();
+      }
+
+      fn foo() { /* fooImpl */ }
+
+      fn bar() { foo(); }
+    `,
+  });
+});
+
 afterAll((c) => {
   const testNameSet = new Set(c.tasks.map((t) => t.name));
   const cases = importCases.map((c) => c.name);
@@ -75,6 +90,7 @@ function linkTest(name: string, expectation: LinkExpectation): void {
   const registry = new ModuleRegistry({ wgsl });
   const result = registry.link(main);
 
+  console.log(result);
   const { linked, includes, excludes } = expectation;
 
   if (linked !== undefined) {

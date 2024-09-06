@@ -5,29 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("#import twice doesn't get two copies", () => {
-  const module1 = `
-    export fn foo() { /* fooImpl */ }
-  `;
-  const module2 = `
-    import ./file1/foo
-    export fn bar() { foo(); }
-
-  `;
-  const src = `
-    import ./file1/foo
-    import ./file2/bar
-
-    fn main() {
-      foo();
-      bar();
-    }
-  `;
-  const linked = linkTest(src, module1, module2);
-  const matches = linked.matchAll(/fooImpl/g);
-  expect([...matches].length).toBe(1);
-});
-
 test("imported fn calls support fn with root conflict", () => {
   const src = `
     import foo from ./file1

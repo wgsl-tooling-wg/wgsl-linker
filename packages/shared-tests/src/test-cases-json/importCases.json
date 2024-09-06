@@ -18,5 +18,13 @@
       "./main.wgsl": "\n        import ./file1/foo as bar;\n\n        fn main() {\n          bar();\n        }\n      ",
       "./file1.wgsl": "\n        export fn foo() { /* fooImpl */ }\n      "
     }
+  },
+  {
+    "name": "import twice doesn't get two copies",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/foo\n        import ./file2/bar\n\n        fn main() {\n          foo();\n          bar();\n        }\n      ",
+      "./file1.wgsl": "\n        export fn foo() { /* fooImpl */ }\n      ",
+      "./file2.wgsl": "\n        import ./file1/foo\n        export fn bar() { foo(); }\n      "
+    }
   }
 ]
