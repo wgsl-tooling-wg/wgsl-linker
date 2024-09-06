@@ -122,17 +122,74 @@ export const importCases: WgslTestSrc[] = [
     },
   },
 
-  // {
-  //   name: ``,
-  //   src: {
-  //     "./main.wgsl": `
-  //     `,
-  //     "./file1.wgsl": `
-  //     `,
-  //     "./file2.wgsl": `
-  //     `
-  //   },
-  // },
+  {
+    name: `multiple exports from the same module`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/{foo, bar}
+
+        fn main() {
+          foo();
+          bar();
+        }
+      `,
+      "./file1.wgsl": `
+        export fn foo() { }
+        export fn bar() { }
+      `,
+    },
+  },
+
+  {
+    name: `import and resolve conflicting support function`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo as bar
+
+        fn support() { 
+          bar();
+        }
+      `,
+      "./file1.wgsl": `
+        export
+        fn foo() {
+          support();
+        }
+
+        fn support() { }
+      `,
+    },
+  },
+
+  {
+    name: `import support fn that references another import`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo
+
+        fn support() { 
+          foo();
+        }
+      `,
+      "./file1.wgsl": `
+        import ./file2/bar
+
+        export fn foo() {
+          support();
+          bar();
+        }
+
+        fn support() { }
+      `,
+      "./file2.wgsl": `
+        export fn bar() {
+          support();
+        }
+
+        fn support() { }
+      `
+    },
+  },
 
 ]
 

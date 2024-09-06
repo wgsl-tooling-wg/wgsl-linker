@@ -5,130 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("import transitive conflicts with main", () => {
-  const src = `
-    import ./file1/mid
-
-    fn main() {
-      mid();
-    }
-
-    fn grand() {
-      /* main impl */
-    }
-  `;
-  const module1 = `
-    import ./file2/grand
-    
-    export fn mid() { grand(); }
-  `;
-  const module2 = `
-    export fn grand() { /* grandImpl */ }
-  `;
-  const linked = linkTest(src, module1, module2);
-  expect(linked).includes("mid() { grand0(); }");
-});
-
-test("import foo from zap (multiple modules)", () => {
-  const module1 = `
-    module module1
-    export fn foo() { /* module1 */ }
-  `;
-  const module2 = `
-    module module2
-    export fn foo() { /* module2 */ }
-  `;
-
-  const src = `
-    import module2/{foo as baz}
-
-    fn main() {
-      baz();
-    }
-  `;
-
-  const linked = linkTest(src, module1, module2);
-  expect(linked).contains("/* module2 */");
-});
-
-test("multiple exports from the same module", () => {
-  const src = `
-    import ./file1/{foo, bar}
-
-    fn main() {
-      foo();
-      bar();
-    }
-  `;
-  const module1 = `
-    export fn foo() { }
-    export fn bar() { }
-  `;
-  const linked = linkTest(src, module1);
-  expect(linked).toMatchSnapshot();
-});
-
-test("import and resolve conflicting support function", () => {
-  const src = `
-    import ./file1/foo as bar
-
-    fn support() { 
-      bar();
-    }
-  `;
-  const module1 = `
-    export
-    fn foo() {
-      support();
-    }
-
-    fn support() { }
-  `;
-  const linked = linkTest(src, module1);
-  const origMatch = linked.matchAll(/\bsupport\b/g);
-  expect([...origMatch].length).toBe(1);
-  const module1Match = linked.matchAll(/\bsupport0\b/g);
-  expect([...module1Match].length).toBe(2);
-  const barMatch = linked.matchAll(/\bbar\b/g);
-  expect([...barMatch].length).toBe(2);
-});
-
-test("import support fn that references another import", () => {
-  const src = `
-    import ./file1/foo
-
-    fn support() { 
-      foo();
-    }
-  `;
-  const module1 = `
-    import ./file2/bar
-
-    export fn foo() {
-      support();
-      bar();
-    }
-
-    fn support() { }
-  `;
-  const module2 = `
-    export fn bar() {
-      support();
-    }
-
-    fn support() { }
-  `;
-
-  const linked = linkTest(src, module1, module2);
-
-  const origMatch = linked.matchAll(/\bsupport\b/g);
-  expect([...origMatch].length).toBe(1);
-  const module1Match = linked.matchAll(/\bsupport0\b/g);
-  expect([...module1Match].length).toBe(2);
-  const module2Match = linked.matchAll(/\bsupport1\b/g);
-  expect([...module2Match].length).toBe(2);
-});
-
 test("import support fn from two exports", () => {
   const src = `
     import ./file1/foo
@@ -326,6 +202,28 @@ test("copy diagnostics to output", () => {
   expect(linked).toContain("diagnostic(off,derivative_uniformity);");
 });
 
+/** requires 'module' syntax, which may not make the shared design */
+test("import foo from zap (multiple modules)", () => {
+  const module1 = `
+    module module1
+    export fn foo() { /* module1 */ }
+  `;
+  const module2 = `
+    module module2
+    export fn foo() { /* module2 */ }
+  `;
+
+  const src = `
+    import module2/{foo as baz}
+
+    fn main() {
+      baz();
+    }
+  `;
+
+  const linked = linkTest(src, module1, module2);
+  expect(linked).contains("/* module2 */");
+});
 
 /** -- not yet with gleam syntax --- */
   

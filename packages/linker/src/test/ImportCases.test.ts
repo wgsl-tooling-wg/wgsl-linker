@@ -83,7 +83,6 @@ test("imported fn calls support fn with root conflict", (ctx) => {
   });
 });
 
-
 test("import twice with two as names", (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
@@ -108,6 +107,61 @@ test("import transitive conflicts with main", (ctx) => {
       fn mid() { grand0(); }
 
       fn grand0() { /* grandImpl */ }
+    `,
+  });
+});
+
+test("multiple exports from the same module", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        foo();
+        bar();
+      }
+
+      fn foo() { }
+
+      fn bar() { }
+    `,
+  });
+});
+
+test("import and resolve conflicting support function", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn support() {
+        bar();
+      }
+
+      fn bar() {
+        support0();
+      }
+
+      fn support0() { }
+    `,
+  });
+});
+
+
+test("import support fn that references another import", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn support() {
+        foo();
+      }
+
+      fn foo() {
+        support0();
+        bar();
+      }
+
+      fn support0() { }
+
+      fn bar() {
+        support1();
+      }
+
+      fn support1() { }
     `,
   });
 });
