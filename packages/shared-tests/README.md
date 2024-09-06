@@ -8,7 +8,7 @@ to verify WGSL parsing and linking.
 The source texts are an shared as an array of objects
 in both JSON and TypeScript format.
 The format is described in:
-[TestSchema.ts](./src/test-cases/TestSchema.ts)
+[TestSchema.ts](./src/TestSchema.ts)
 
 JSON version:
 [import-cases.json](./src/test-cases/import-cases.json)
@@ -31,11 +31,14 @@ A tool is available to convert the TypeScript objects to JSON.
 
 ```sh
 pnpm install
-pnpm build
 ```
 
-#### Generate JSON
+#### Generate JSON test cases from ts
 
 ```sh
-./bin/tests-to-json
+pnpm cases
+```
+
+```sh
+pnpm cases:watch
 ```
