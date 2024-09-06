@@ -98,7 +98,7 @@ test("import a transitive struct", () => {
 
 test("'import as' a struct", () => {
   const src = `
-    import AStruct as AA from ./file1
+    import ./file1/AStruct as AA
 
     fn foo (a: AA) { }
   `;
