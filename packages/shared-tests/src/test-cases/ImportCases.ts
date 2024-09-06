@@ -97,6 +97,31 @@ export const importCases: WgslTestSrc[] = [
       `
     },
   },
+  {
+    name: `import transitive conflicts with main`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/mid
+
+        fn main() {
+          mid();
+        }
+
+        fn grand() {
+          /* main impl */
+        }
+      `,
+      "./file1.wgsl": `
+        import ./file2/grand
+        
+        export fn mid() { grand(); }
+      `,
+      "./file2.wgsl": `
+        export fn grand() { /* grandImpl */ }
+      `
+    },
+  },
+
   // {
   //   name: ``,
   //   src: {

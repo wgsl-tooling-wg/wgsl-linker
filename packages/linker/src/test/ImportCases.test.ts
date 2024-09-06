@@ -94,6 +94,24 @@ test("import twice with two as names", (ctx) => {
   });
 });
 
+test("import transitive conflicts with main", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        mid();
+      }
+
+      fn grand() {
+        /* main impl */
+      }
+
+      fn mid() { grand0(); }
+
+      fn grand0() { /* grandImpl */ }
+    `,
+  });
+});
+
 // test("", (ctx) => {
 //   linkTest(ctx.task.name, {
 //     linked: `

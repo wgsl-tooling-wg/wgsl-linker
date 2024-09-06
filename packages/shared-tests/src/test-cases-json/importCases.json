@@ -40,5 +40,13 @@
       "./main.wgsl": "\n        import ./file1/foo as bar\n        import ./file1/foo as zap\n\n        fn main() { bar(); zap(); }\n      ",
       "./file1.wgsl": "\n        export fn foo() { }\n      "
     }
+  },
+  {
+    "name": "import transitive conflicts with main",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/mid\n\n        fn main() {\n          mid();\n        }\n\n        fn grand() {\n          /* main impl */\n        }\n      ",
+      "./file1.wgsl": "\n        import ./file2/grand\n        \n        export fn mid() { grand(); }\n      ",
+      "./file2.wgsl": "\n        export fn grand() { /* grandImpl */ }\n      "
+    }
   }
 ]
