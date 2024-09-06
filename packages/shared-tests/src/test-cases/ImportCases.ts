@@ -83,6 +83,20 @@ export const importCases: WgslTestSrc[] = [
       `,
     },
   },
+  {
+    name: `import twice with two as names`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo as bar
+        import ./file1/foo as zap
+
+        fn main() { bar(); zap(); }
+      `,
+      "./file1.wgsl": `
+        export fn foo() { }
+      `
+    },
+  },
   // {
   //   name: ``,
   //   src: {

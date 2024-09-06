@@ -5,20 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("import twice with two as names", () => {
-  const src = `
-    import ./file1/foo as bar
-    import ./file1/foo as zap
-
-    fn main() { bar(); zap(); }
-  `;
-  const module1 = `
-    export fn foo() { }
-  `;
-  const linked = linkTest(src, module1);
-  expect(linked).includes("fn main() { bar(); bar(); }");
-});
-
 test("import transitive conflicts with main", () => {
   const src = `
     import ./file1/mid

@@ -33,5 +33,12 @@
       "./main.wgsl": "\n        import foo from ./file1\n\n        fn main() { foo(); }\n        fn conflicted() { }\n      ",
       "./file1.wgsl": "\n        export fn foo() {\n          conflicted(0);\n          conflicted(1);\n        }\n        fn conflicted(a:i32) {}\n      "
     }
+  },
+  {
+    "name": "import twice with two as names",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/foo as bar\n        import ./file1/foo as zap\n\n        fn main() { bar(); zap(); }\n      ",
+      "./file1.wgsl": "\n        export fn foo() { }\n      "
+    }
   }
 ]

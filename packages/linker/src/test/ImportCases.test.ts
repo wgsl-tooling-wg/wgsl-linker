@@ -83,6 +83,17 @@ test("imported fn calls support fn with root conflict", (ctx) => {
   });
 });
 
+
+test("import twice with two as names", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() { bar(); bar(); }
+
+      fn bar() { }
+    `,
+  });
+});
+
 // test("", (ctx) => {
 //   linkTest(ctx.task.name, {
 //     linked: `
