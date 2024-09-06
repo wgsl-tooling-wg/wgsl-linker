@@ -29,6 +29,21 @@ export const importCases: WgslTestSrc[] = [
       `
     },
   },
+  {
+    name: `import foo as bar`,
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo as bar;
+
+        fn main() {
+          bar();
+        }
+      `,
+      "./file1.wgsl": `
+        export fn foo() { /* fooImpl */ }
+      `
+    },
+  },
 
 ]
 

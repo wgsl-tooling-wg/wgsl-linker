@@ -5,23 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("import foo as bar", () => {
-  const myModule = `
-    export fn foo() { /* fooImpl */ }
-   `;
-
-  const src = `
-    import ./file1/foo as bar;
-
-    fn main() {
-      bar();
-    }
-   `;
-  const linked = linkTest(src, myModule);
-  expect(linked).contains("fn bar()");
-});
-
-
 test("#import twice doesn't get two copies", () => {
   const module1 = `
     export fn foo() { /* fooImpl */ }

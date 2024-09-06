@@ -39,6 +39,18 @@ test("main has other root elements", (ctx) => {
   });
 });
 
+test("import foo as bar", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        bar();
+      }
+
+      fn bar() { /* fooImpl */ }
+    `,
+  });
+});
+
 afterAll((c) => {
   const testNameSet = new Set(c.tasks.map((t) => t.name));
   const cases = importCases.map((c) => c.name);
@@ -67,7 +79,7 @@ function linkTest(name: string, expectation: LinkExpectation): void {
 
   if (linked !== undefined) {
     const expectTrimmed = trimSrc(linked);
-    const resultTrimmed = trimSrc(result)
+    const resultTrimmed = trimSrc(result);
     if (resultTrimmed !== expectTrimmed) {
       const expectLines = expectTrimmed.split("\n");
       const resultLines = result.split("\n");

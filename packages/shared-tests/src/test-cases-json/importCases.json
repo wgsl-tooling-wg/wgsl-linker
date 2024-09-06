@@ -11,5 +11,12 @@
     "src": {
       "./main.wgsl": "\n          struct Uniforms {\n            a: u32\n          }\n\n          @group(0) @binding(0) var<uniform> u: Uniforms;\n\n          fn main() { }\n      "
     }
+  },
+  {
+    "name": "import foo as bar",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/foo as bar;\n\n        fn main() {\n          bar();\n        }\n      ",
+      "./file1.wgsl": "\n        export fn foo() { /* fooImpl */ }\n      "
+    }
   }
 ]
