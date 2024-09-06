@@ -11,10 +11,12 @@ The format is described in:
 [TestSchema.ts](./src/TestSchema.ts)
 
 JSON version:
-[import-cases.json](./src/test-cases/import-cases.json)
+[importCases.json](./src/test-cases-json/importCases.json)
+[importSyntaxCases.json](./src/test-cases-json/importSyntaxCases.json)
 
 TypeScript version:
 [ImportCases.ts](./src/test-cases/ImportCases.ts)
+[ImportSyntaxCases.ts](./src/test-cases/ImportSyntaxCases.ts)
 
 ## Add Examples in TypeScript
 
@@ -38,6 +40,8 @@ pnpm install
 ```sh
 pnpm cases
 ```
+
+#### Generate JSON test cases from ts continuously
 
 ```sh
 pnpm cases:watch
