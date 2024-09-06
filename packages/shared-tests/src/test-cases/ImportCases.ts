@@ -65,6 +65,35 @@ export const importCases: WgslTestSrc[] = [
       `
     },
   },
+  {
+    name: `imported fn calls support fn with root conflict`,
+    src: {
+      "./main.wgsl": `
+        import foo from ./file1
+
+        fn main() { foo(); }
+        fn conflicted() { }
+      `,
+      "./file1.wgsl": `
+        export fn foo() {
+          conflicted(0);
+          conflicted(1);
+        }
+        fn conflicted(a:i32) {}
+      `,
+    },
+  },
+  // {
+  //   name: ``,
+  //   src: {
+  //     "./main.wgsl": `
+  //     `,
+  //     "./file1.wgsl": `
+  //     `,
+  //     "./file2.wgsl": `
+  //     `
+  //   },
+  // },
 
 ]
 

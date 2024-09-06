@@ -66,6 +66,30 @@ test("import twice doesn't get two copies", (ctx) => {
   });
 });
 
+test("imported fn calls support fn with root conflict", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() { foo(); }
+
+      fn conflicted() { }
+
+      fn foo() {
+        conflicted0(0);
+        conflicted0(1);
+      }
+
+      fn conflicted0(a:i32) {}
+    `,
+  });
+});
+
+// test("", (ctx) => {
+//   linkTest(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
 afterAll((c) => {
   const testNameSet = new Set(c.tasks.map((t) => t.name));
   const cases = importCases.map((c) => c.name);

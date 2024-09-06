@@ -5,27 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("imported fn calls support fn with root conflict", () => {
-  const src = `
-    import foo from ./file1
-
-    fn main() { foo(); }
-    fn conflicted() { }
-  `;
-  const module1 = `
-    export fn foo() {
-      conflicted(0);
-      conflicted(1);
-    }
-    fn conflicted(a:i32) {}
-  `;
-  const linked = linkTest(src, module1);
-  expect(linked).includes("fn conflicted(");
-  expect(linked).includes("conflicted()");
-  expect(linked).includes("conflicted0(0)");
-  expect(linked).includes("conflicted0(1)");
-});
-
 test("import twice with two as names", () => {
   const src = `
     import ./file1/foo as bar
