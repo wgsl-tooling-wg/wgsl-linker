@@ -59,6 +59,7 @@
     "vite": "^5.4.2",
     "vite-plugin-dts": "^4.0.3",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "wesl-testsuite": "file:../../../wesl-testsuite"
   }
 }

@@ -1,5 +1,5 @@
 import { afterAll, expect, test } from "vitest";
-import { importCases } from "../../../shared-tests/src/test-cases/ImportCases.js";
+import { importCases } from "wesl-testsuite";
 
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { trimSrc } from "./shared/StringUtil.js";
