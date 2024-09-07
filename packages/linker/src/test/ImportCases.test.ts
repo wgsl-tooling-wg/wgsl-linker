@@ -166,6 +166,62 @@ test("import support fn that references another import", (ctx) => {
   });
 });
 
+test("import support fn from two exports", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        foo();
+        bar();
+      }
+
+      fn foo() {
+        support();
+      }
+
+      fn bar() {
+        support();
+      }
+
+      fn support() { }
+    `,
+  });
+});
+
+
+test("import a struct", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        let a = AStruct(1u);
+      }
+
+      struct AStruct {
+        x: u32
+      }
+    `,
+  });
+});
+
+
+test("import fn with support struct constructor", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn main() {
+        let ze = elemOne();
+      }
+
+      fn elemOne() -> Elem {
+        return Elem(1u);
+      }
+
+      struct Elem {
+        sum: u32
+      }
+    `,
+  });
+});
+
+
 // test("", (ctx) => {
 //   linkTest(ctx.task.name, {
 //     linked: `

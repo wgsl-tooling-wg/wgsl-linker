@@ -26,7 +26,7 @@ export const importCases: WgslTestSrc[] = [
           @group(0) @binding(0) var<uniform> u: Uniforms;
 
           fn main() { }
-      `
+      `,
     },
   },
   {
@@ -41,7 +41,7 @@ export const importCases: WgslTestSrc[] = [
       `,
       "./file1.wgsl": `
         export fn foo() { /* fooImpl */ }
-      `
+      `,
     },
   },
   {
@@ -62,7 +62,7 @@ export const importCases: WgslTestSrc[] = [
       "./file2.wgsl": `
         import ./file1/foo
         export fn bar() { foo(); }
-      `
+      `,
     },
   },
   {
@@ -94,7 +94,7 @@ export const importCases: WgslTestSrc[] = [
       `,
       "./file1.wgsl": `
         export fn foo() { }
-      `
+      `,
     },
   },
   {
@@ -118,7 +118,7 @@ export const importCases: WgslTestSrc[] = [
       `,
       "./file2.wgsl": `
         export fn grand() { /* grandImpl */ }
-      `
+      `,
     },
   },
 
@@ -187,10 +187,93 @@ export const importCases: WgslTestSrc[] = [
         }
 
         fn support() { }
-      `
+      `,
+    },
+  },
+  
+  {
+    name: "import support fn from two exports",
+    src: {
+      "./main.wgsl": `
+        import ./file1/foo
+        import ./file1/bar
+        fn main() {
+          foo();
+          bar();
+        }
+      `,
+      "./file1.wgsl": `
+        export fn foo() {
+          support();
+        }
+
+        export fn bar() {
+          support();
+        }
+
+        fn support() { }
+      `,
     },
   },
 
-]
+  {
+    name: "import a struct",
+    src: {
+      "./main.wgsl": `
+          import ./file1/AStruct
+
+          fn main() {
+            let a = AStruct(1u); 
+          }
+      `,
+      "./file1.wgsl": `
+        export struct AStruct {
+          x: u32,
+        }
+      `,
+      "./file2.wgsl": `
+      `,
+    },
+  },
+  
+  {
+    name: "import fn with support struct constructor",
+    src: {
+      "./main.wgsl": `
+        import ./file1/elemOne
+
+        fn main() {
+          let ze = elemOne();
+        }
+      `,
+      "./file1.wgsl": `
+        struct Elem {
+          sum: u32
+        }
+
+        export fn elemOne() -> Elem {
+          return Elem(1u);
+        }
+      `,
+      "./file2.wgsl": `
+      `,
+    },
+  },
+
+  // {
+  //   name: "",
+  //   src: {
+  //     "./main.wgsl": `
+  //     `,
+  //     "./file1.wgsl": `
+  //     `,
+  //     "./file2.wgsl": `
+  //     `,
+  //   },
+  // },
+  
+
+  
+];
 
 export default importCases;
