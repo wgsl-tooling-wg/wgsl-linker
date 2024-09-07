@@ -1,11 +1,11 @@
-# WGSL Examples for Testing
+# WESL Examples for Testing
 
-This package contains wgsl source texts useful
-to verify WGSL parsing and linking.
+This package contains wesl source texts useful
+to verify WESL parsing and linking.
 
-## WGSL and Linking Extended WGSL
+## Test Format
 
-The source texts are an shared as an array of objects
+The source texts are published as an array of objects
 in both JSON and TypeScript format.
 The format is described in:
 [TestSchema.ts](./src/TestSchema.ts)
@@ -18,30 +18,29 @@ TypeScript version:
 [ImportCases.ts](./src/test-cases/ImportCases.ts)
 [ImportSyntaxCases.ts](./src/test-cases/ImportSyntaxCases.ts)
 
-## Add Examples in TypeScript
+## Adding New Tests
 
 Author new examples in TypeScript.
-TypeScript is similar to JSON but a little more convenient.
-In TypeScript,
-there's no need to quote keys and multiline strings are allowed.
+(TypeScript is similar to JSON but a little more user friendly for authoring.)
+
+A tool is included in the package to convert the TypeScript objects to JSON.
 
 ### Convert TypeScript Tests to JSON
 
-A tool is available to convert the TypeScript objects to JSON.
 
-#### Install dependencies and build the tool
+#### Install dependencies
 
 ```sh
 pnpm install
 ```
 
-#### Generate JSON test cases from ts
+#### Generate JSON test cases from TypeScript
 
 ```sh
 pnpm cases
 ```
 
-#### Generate JSON test cases from ts continuously
+#### Generate JSON test cases from TypeScript continuously
 
 ```sh
 pnpm cases:watch
