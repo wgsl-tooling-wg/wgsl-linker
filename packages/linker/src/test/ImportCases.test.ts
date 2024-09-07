@@ -222,6 +222,36 @@ test("import fn with support struct constructor", (ctx) => {
 });
 
 
+test("import a transitive struct", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      struct SrcStruct {
+        a: AStruct
+      }
+
+      struct AStruct {
+        s: BStruct
+      }
+
+      struct BStruct {
+        x: u32
+      }
+    `,
+  });
+});
+
+test.only("'import as' a struct", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      fn foo (a: AA) { }
+
+      struct AA {
+        x: u32
+      }
+    `,
+  });
+});
+
 // test("", (ctx) => {
 //   linkTest(ctx.task.name, {
 //     linked: `

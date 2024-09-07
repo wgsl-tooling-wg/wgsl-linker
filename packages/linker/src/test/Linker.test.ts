@@ -5,48 +5,6 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-test("import a transitive struct", () => {
-  const src = `
-    import ./file1/AStruct
-
-    struct SrcStruct {
-      a: AStruct,
-    }
-  `;
-  const module1 = `
-    import ./file2/BStruct
-
-    export struct AStruct {
-      s: BStruct,
-    }
-  `;
-  const module2 = `
-    export struct BStruct {
-      x: u32,
-    }
-  `;
-  const linked = linkTest(src, module1, module2);
-  expect(linked).contains("struct SrcStruct {");
-  expect(linked).contains("struct AStruct {");
-  expect(linked).contains("struct BStruct {");
-});
-
-test("'import as' a struct", () => {
-  const src = `
-    import ./file1/AStruct as AA
-
-    fn foo (a: AA) { }
-  `;
-
-  const module1 = `
-    #export 
-    struct AStruct { x: u32 }
-  `;
-
-  const linked = linkTest(src, module1);
-  expect(linked).contains("struct AA {");
-});
-
 
 test("import a struct with name conflicting support struct", () => {
   const src = `
@@ -72,6 +30,22 @@ test("import a struct with name conflicting support struct", () => {
   expect(linked).contains("struct Base {");
   expect(linked).contains("struct Base0 {");
   expect(linked).contains("x: Base0"); // TBD
+});
+
+test("copy alias to output", () => {
+  const src = `
+    alias MyType = u32;
+  `;
+  const linked = linkTest(src);
+  expect(linked).toContain("alias MyType = u32;");
+});
+
+test("copy diagnostics to output", () => {
+  const src = `
+    diagnostic(off,derivative_uniformity);
+  `;
+  const linked = linkTest(src);
+  expect(linked).toContain("diagnostic(off,derivative_uniformity);");
 });
 
 
@@ -121,21 +95,6 @@ test("#template in src", () => {
 });
 
 
-test("copy alias to output", () => {
-  const src = `
-    alias MyType = u32;
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("alias MyType = u32;");
-});
-
-test("copy diagnostics to output", () => {
-  const src = `
-    diagnostic(off,derivative_uniformity);
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("diagnostic(off,derivative_uniformity);");
-});
 
 /** requires 'module' syntax, which may not make the shared design */
 test("import foo from zap (multiple modules)", () => {

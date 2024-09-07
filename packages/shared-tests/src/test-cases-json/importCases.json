@@ -93,5 +93,20 @@
       "./file1.wgsl": "\n        struct Elem {\n          sum: u32\n        }\n\n        export fn elemOne() -> Elem {\n          return Elem(1u);\n        }\n      ",
       "./file2.wgsl": "\n      "
     }
+  },
+  {
+    "name": "import a transitive struct",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/AStruct\n\n        struct SrcStruct {\n          a: AStruct,\n        }\n      ",
+      "./file1.wgsl": "\n        import ./file2/BStruct\n\n        export struct AStruct {\n          s: BStruct,\n        }\n      ",
+      "./file2.wgsl": "\n        export struct BStruct {\n          x: u32,\n        }\n      "
+    }
+  },
+  {
+    "name": "'import as' a struct",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/AStruct as AA\n\n        fn foo (a: AA) { }\n      ",
+      "./file1.wgsl": "\n        export struct AStruct { x: u32 }\n      "
+    }
   }
 ]

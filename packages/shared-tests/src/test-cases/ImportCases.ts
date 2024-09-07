@@ -260,6 +260,57 @@ export const importCases: WgslTestSrc[] = [
     },
   },
 
+  {
+    name: "import a transitive struct",
+    src: {
+      "./main.wgsl": `
+        import ./file1/AStruct
+
+        struct SrcStruct {
+          a: AStruct,
+        }
+      `,
+      "./file1.wgsl": `
+        import ./file2/BStruct
+
+        export struct AStruct {
+          s: BStruct,
+        }
+      `,
+      "./file2.wgsl": `
+        export struct BStruct {
+          x: u32,
+        }
+      `,
+    },
+  },
+  
+  {
+    name: "'import as' a struct",
+    src: {
+      "./main.wgsl": `
+        import ./file1/AStruct as AA
+
+        fn foo (a: AA) { }
+      `,
+      "./file1.wgsl": `
+        export struct AStruct { x: u32 }
+      `,
+    },
+  },
+  
+  // {
+  //   name: "",
+  //   src: {
+  //     "./main.wgsl": `
+  //     `,
+  //     "./file1.wgsl": `
+  //     `,
+  //     "./file2.wgsl": `
+  //     `,
+  //   },
+  // },
+  
   // {
   //   name: "",
   //   src: {
