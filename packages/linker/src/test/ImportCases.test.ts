@@ -240,7 +240,7 @@ test("import a transitive struct", (ctx) => {
   });
 });
 
-test.only("'import as' a struct", (ctx) => {
+test("'import as' a struct", (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
       fn foo (a: AA) { }
@@ -252,12 +252,41 @@ test.only("'import as' a struct", (ctx) => {
   });
 });
 
-// test("", (ctx) => {
-//   linkTest(ctx.task.name, {
-//     linked: `
-//     `,
-//   });
-// });
+test("import a struct with name conflicting support struct", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      struct Base {
+        b: i32
+      }
+
+      fn foo() -> AStruct {let a:AStruct; return a;}
+
+      struct AStruct {
+        x: Base0
+      }
+
+      struct Base0 {
+        x: u32
+      }
+    `,
+  });
+});
+
+test("copy alias to output", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      alias MyType = u32;
+    `,
+  });
+});
+
+test("copy diagnostics to output", (ctx) => {
+  linkTest(ctx.task.name, {
+    linked: `
+      diagnostic(off,derivative_uniformity);
+    `,
+  });
+});
 
 afterAll((c) => {
   const testNameSet = new Set(c.tasks.map((t) => t.name));
@@ -283,7 +312,6 @@ function linkTest(name: string, expectation: LinkExpectation): void {
   const registry = new ModuleRegistry({ wgsl });
   const result = registry.link(main);
 
-  console.log(result);
   const { linked, includes, excludes } = expectation;
 
   if (linked !== undefined) {

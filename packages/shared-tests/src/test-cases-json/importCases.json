@@ -108,5 +108,24 @@
       "./main.wgsl": "\n        import ./file1/AStruct as AA\n\n        fn foo (a: AA) { }\n      ",
       "./file1.wgsl": "\n        export struct AStruct { x: u32 }\n      "
     }
+  },
+  {
+    "name": "import a struct with name conflicting support struct",
+    "src": {
+      "./main.wgsl": "\n        import ./file1/AStruct\n\n        struct Base {\n          b: i32\n        }\n\n        fn foo() -> AStruct {let a:AStruct; return a;}\n      ",
+      "./file1.wgsl": "\n        struct Base {\n          x: u32\n        }\n\n        export struct AStruct {\n          x: Base\n        }\n      "
+    }
+  },
+  {
+    "name": "copy alias to output",
+    "src": {
+      "./main.wgsl": "\n        alias MyType = u32;\n      "
+    }
+  },
+  {
+    "name": "copy diagnostics to output",
+    "src": {
+      "./main.wgsl": "\n        diagnostic(off,derivative_uniformity);\n      "
+    }
   }
 ]

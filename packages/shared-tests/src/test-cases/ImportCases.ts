@@ -299,17 +299,45 @@ export const importCases: WgslTestSrc[] = [
     },
   },
   
-  // {
-  //   name: "",
-  //   src: {
-  //     "./main.wgsl": `
-  //     `,
-  //     "./file1.wgsl": `
-  //     `,
-  //     "./file2.wgsl": `
-  //     `,
-  //   },
-  // },
+  {
+    name: "import a struct with name conflicting support struct",
+    src: {
+      "./main.wgsl": `
+        import ./file1/AStruct
+
+        struct Base {
+          b: i32
+        }
+
+        fn foo() -> AStruct {let a:AStruct; return a;}
+      `,
+      "./file1.wgsl": `
+        struct Base {
+          x: u32
+        }
+
+        export struct AStruct {
+          x: Base
+        }
+      `,
+    },
+  },
+  {
+    name: "copy alias to output",
+    src: {
+      "./main.wgsl": `
+        alias MyType = u32;
+      `,
+    },
+  },
+  {
+    name: "copy diagnostics to output",
+    src: {
+      "./main.wgsl": `
+        diagnostic(off,derivative_uniformity);
+      `,
+    },
+  },
   
   // {
   //   name: "",

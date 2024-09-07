@@ -5,49 +5,7 @@ import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { linkTestOpts, linkTest } from "./TestUtil.js";
 
-
-test("import a struct with name conflicting support struct", () => {
-  const src = `
-    import ./file1/AStruct
-
-    struct Base {
-      b: i32
-    }
-
-    fn foo() -> AStruct {let a:AStruct; return a;}
-  `;
-  const module1 = `
-    struct Base {
-      x: u32
-    }
-
-    export struct AStruct {
-      x: Base
-    }
-  `;
-
-  const linked = linkTest(src, module1);
-  expect(linked).contains("struct Base {");
-  expect(linked).contains("struct Base0 {");
-  expect(linked).contains("x: Base0"); // TBD
-});
-
-test("copy alias to output", () => {
-  const src = `
-    alias MyType = u32;
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("alias MyType = u32;");
-});
-
-test("copy diagnostics to output", () => {
-  const src = `
-    diagnostic(off,derivative_uniformity);
-  `;
-  const linked = linkTest(src);
-  expect(linked).toContain("diagnostic(off,derivative_uniformity);");
-});
-
+/* --- these tests rely on features not yet portable in wesl --- */
 
 test("ext params don't replace override", () => {
   const src = `
@@ -118,9 +76,6 @@ test("import foo from zap (multiple modules)", () => {
   const linked = linkTest(src, module1, module2);
   expect(linked).contains("/* module2 */");
 });
-
-/** -- not yet with gleam syntax --- */
-  
 
 test("import with parameter", () => {
   const myModule = `
