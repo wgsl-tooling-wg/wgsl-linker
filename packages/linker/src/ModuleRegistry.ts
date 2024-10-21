@@ -76,6 +76,8 @@ export interface RegistryParams {
   generators?: RegisterGenerator[];
 }
 
+const libExp = /\/lib\.w[eg]sl/i;
+
 /**
  * A ModuleRegistry collects exportable code fragments, code generator functions,
  * and template processors.
@@ -85,16 +87,28 @@ export interface RegistryParams {
  */
 export class ModuleRegistry {
   templates = new Map<string, ApplyTemplateFn>();
+  // map from absolute module path to wgsl/wesl src text
   wgslSrc = new Map<string, string>();
   generators = new Map<string, GeneratorModuleExport>();
 
   constructor(args?: RegistryParams) {
     if (!args) return;
-    const { wgsl = {}, templates = [], generators } = args;
+    const { wgsl = {}, templates = [], libs = [], generators } = args;
 
     Object.entries(wgsl).forEach(([fileName, src]) =>
       this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src)
     );
+
+    libs.forEach(({ name, wesl }) => {
+      Object.entries(wesl).forEach(([fileName, src]) => {
+        const absPath = relativeToAbsolute(fileName, name);
+        const canonPath = libExp.test(absPath)
+          ? absPath.slice(0, -"/lib.wgsl".length)
+          : absPath;
+        this.wgslSrc.set(canonPath, src);
+      });
+    });
+
     templates && this.registerTemplate(...templates);
     generators?.map((g) => this.registerGenerator(g));
   }
@@ -135,7 +149,6 @@ export class ModuleRegistry {
   registerTemplate(...templates: Template[]): void {
     templates.forEach((t) => this.templates.set(t.name, t.apply));
   }
-
 }
 
 export function relativeToAbsolute(
