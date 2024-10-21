@@ -38,16 +38,17 @@ function skipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
 function noSkipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
   return tokenSkipSet(null, p);
 }
+const ws = /\s+/;
 
 export const gleamImportTokens = tokenMatcher({
-  ws: /\s+/,
+  ws,
   gleamImportSymbol,
   word,
   digits,
 });
 
 export const packageTokens = tokenMatcher({
-  ws: /\s+/,
+  ws,
   pkg: /[a-zA-Z_][\w-]*/, // LATER follow spec
 });
 
