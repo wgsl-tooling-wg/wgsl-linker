@@ -108,8 +108,6 @@ Linker rewriting should also track through a `SrcMap`
 wgsl parsing errors from dawn/naga can also be
 translated to the original source.
 
-No performance tuning has been done to date. There's undoubtedly low hanging fruit.
-
 Consider rewriting graph mutations as separate passes
 producing new data structures to improve clarity (rather
 than mutating optional fields in existing data structures).
@@ -118,9 +116,3 @@ Simplify internal differences between generator imports and regular imports.
 
 Simplify internal differences between local refs and non-local refs,
 e.g. provide ExportInfo for local refs too.
-
-Flag to enable/disable non-standard features.
-
-Support some standard form for #define.
-
-Link vars (not just structs and fns).
