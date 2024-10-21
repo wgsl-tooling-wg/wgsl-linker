@@ -3,6 +3,7 @@ import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { normalize } from "./PathUtil.js";
 import { dlog } from "berry-pretty";
+import { WgslBundle } from "wgsl-rand";
 
 /** A named function to transform code fragments (e.g. by inserting parameters) */
 export interface Template {
@@ -64,6 +65,9 @@ export interface GeneratorModuleExport {
 export interface RegistryParams {
   /** record of file names and wgsl text for modules */
   wgsl?: Record<string, string>;
+
+  /** record of file names and wgsl text for modules */
+  libs?: WgslBundle[];
 
   /** string template handlers for processing exported functions and structs */
   templates?: Template[];
