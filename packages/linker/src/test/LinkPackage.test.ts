@@ -1,8 +1,6 @@
 import { expect, test } from "vitest";
-import { linkTestOpts, linkTest } from "./TestUtil.js";
 import lib from "wgsl-rand";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { dlog } from "berry-pretty";
 
 test("import rand() from a package", () => {
   const src = `
@@ -22,6 +20,5 @@ test("import rand() from a package", () => {
 
   const registry = new ModuleRegistry({ wgsl, libs: [lib] });
   const result = registry.link("./main");
-  dlog({result});
-  expect(result).includes('fn pcg_2u_3f')
+  expect(result).includes("fn pcg_2u_3f");
 });
