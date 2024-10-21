@@ -1,0 +1,11 @@
+{
+  "name": "wgsl-rand",
+  "type": "module",
+  "files": [
+    "out"
+  ],
+  "exports": {
+    "import": "./out/wgsl.js",
+    "types": "./out/wgsl.d.ts"
+  }
+}
