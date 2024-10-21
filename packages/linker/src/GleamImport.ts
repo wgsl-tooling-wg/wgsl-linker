@@ -46,6 +46,11 @@ export const gleamImportTokens = tokenMatcher({
   digits,
 });
 
+export const packageTokens = tokenMatcher({
+  ws: /\s+/,
+  pkg: /[a-zA-Z_][\w-]*/, // LATER follow spec
+});
+
 export const eolTokens = tokenMatcher({
   ws: /[ \t]+/, // don't include \n, for eolf
   eol,
@@ -53,6 +58,7 @@ export const eolTokens = tokenMatcher({
 
 const eolf = makeEolf(eolTokens, gleamImportTokens.ws);
 const wordToken = kind(gleamImportTokens.word);
+const pkgToken = kind(packageTokens.pkg);
 
 // forward references (for mutual recursion)
 let pathTail: Parser<PathSegment[], NoTags> = null as any;
@@ -136,8 +142,11 @@ const relativePrefix = withTags(
 const relativePath = withTags(
   seq(relativePrefix.tag("p"), pathTail.tag("p")).map((r) => r.tags.p.flat())
 );
+
 const packagePrefix = withTags(
-  seq(wordToken.tag("pkg"), "/").map((r) => [new SimpleSegment(r.tags.pkg[0])])
+  seq(tokens(packageTokens, pkgToken.tag("pkg")), "/").map((r) => [
+    new SimpleSegment(r.tags.pkg[0]),
+  ])
 );
 
 packagePath = seq(packagePrefix, pathTail).map((r) => r.value.flat());

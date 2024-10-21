@@ -14,6 +14,10 @@ test("import ./foo/bar;", (ctx) => {
   expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
 
+test("import foo-bar/boo", (ctx) => {
+  expectParses(ctx);
+});
+
 /**  ----- extraction tests -----  */
 test("import foo/bar", (ctx) => {
   const { appState } = expectParses(ctx);
