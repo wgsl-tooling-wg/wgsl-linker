@@ -1,7 +1,8 @@
 export const wgsl = {
   name: "wgsl-rand",
   version: "0.1",
-  wesl: {
+  edition: "wesl_unstable_2024_1",
+  modules: {
     "./lib.wesl": `
 // PCG pseudo random generator from vec2u to vec4f
 // the random output is in the range from zero to 1

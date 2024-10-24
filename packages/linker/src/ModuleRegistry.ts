@@ -99,8 +99,8 @@ export class ModuleRegistry {
       this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src)
     );
 
-    libs.forEach(({ name, wesl }) => {
-      Object.entries(wesl).forEach(([fileName, src]) => {
+    libs.forEach(({ name, modules}) => {
+      Object.entries(modules).forEach(([fileName, src]) => {
         const absPath = relativeToAbsolute(fileName, name);
         const canonPath = libExp.test(absPath)
           ? absPath.slice(0, -"/lib.wgsl".length)

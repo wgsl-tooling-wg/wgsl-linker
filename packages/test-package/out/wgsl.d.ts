@@ -1,7 +1,18 @@
 export interface WgslBundle {
-    name: string;
-    version: string;
-    wesl: Record<string, string>
+  /** name of the package, e.g. wgsl-rand */
+  name: string;
+
+  /** npm version of the package  e.g. 0.4.1 */
+  version: string;
+
+  /** wesl edition of the code e.g. wesl_unstable_2024_1 */
+  edition: string;
+
+  /** map of wesl/wgsl modules: 
+   *    keys are file paths, relative to package root (e.g. "./lib.wgsl") 
+   *    values are wgsl/wesl code strings
+   */
+  modules: Record<string, string>;
 }
 
 export declare const wgsl: WgslBundle;
