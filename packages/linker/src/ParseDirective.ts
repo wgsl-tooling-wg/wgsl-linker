@@ -21,7 +21,6 @@ import {
   moduleTokens,
 } from "./MatchWgslD.js";
 import { eolf, makeElem } from "./ParseSupport.js";
-import { rustImport } from "./RustDirective.js";
 import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import { gleamImport } from "./GleamImport.js";
 
