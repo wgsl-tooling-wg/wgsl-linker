@@ -22,19 +22,19 @@
   "repository": "github:wgsl-tooling-wg/wgsl-linker",
   "exports": {
     ".": {
+      "types": "./dist/linker/src/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/linker/src/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./templates": {
+      "types": "./dist/linker/src/templates/index.d.ts",
       "import": "./dist/templates.js",
-      "require": "./dist/templates.cjs",
-      "types": "./dist/linker/src/templates/index.d.ts"
+      "require": "./dist/templates.cjs"
     },
     "./minified": {
+      "types": "./dist/linker/src/index.d.ts",
       "import": "./dist/minified.js",
-      "require": "./dist/minified.cjs",
-      "types": "./dist/linker/src/index.d.ts"
+      "require": "./dist/minified.cjs"
     }
   },
   "dependencies": {
