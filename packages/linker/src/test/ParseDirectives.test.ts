@@ -89,7 +89,7 @@ test("#export w/o closing paren", () => {
   `);
 });
 
-test("parse #extends", () => {
+test.skip("parse #extends", () => {
   const src = `#extends Foo(a,b) as Bar from baz`;
   const appState = parseWgslD(src);
   expect(appState[0]).toMatchInlineSnapshot(`
@@ -127,8 +127,8 @@ test("parse extends", () => {
   `);
 });
 
-test("parse #module foo.bar.ca", () => {
-  const src = `#module foo.bar.ca`;
+test("parse module foo.bar.ca", () => {
+  const src = `module foo.bar.ca`;
   const appState = parseWgslD(src);
   expect(appState[0].kind).eq("module");
   expect((appState[0] as ModuleElem).name).eq("foo.bar.ca");

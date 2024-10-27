@@ -1,8 +1,4 @@
-// #module main
-// #import bar from util
+module main
+import util/bar
 
 fn main() { bar(); }
-
-#if typecheck
-fn bar() {}
-#endif

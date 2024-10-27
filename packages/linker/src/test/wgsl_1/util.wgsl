@@ -1,4 +1,3 @@
-// #module util
+module util
 
-// #export
-fn bar() { }
+export fn bar() { }

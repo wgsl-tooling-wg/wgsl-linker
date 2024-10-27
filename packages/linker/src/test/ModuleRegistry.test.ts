@@ -19,7 +19,7 @@ test("getModuleExport", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
-         import bar::foo;
+         import bar/foo;
          fn main() { foo(); }
       `,
       "bar.wgsl": `

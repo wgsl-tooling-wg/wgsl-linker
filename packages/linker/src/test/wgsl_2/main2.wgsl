@@ -1,8 +1,4 @@
-// #module main2
-// #import bar from ./util2
+module main2
+import ./util2/bar
 
 fn main() { bar(); }
-
-#if typecheck
-fn bar() {}
-#endif

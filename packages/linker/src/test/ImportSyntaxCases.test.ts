@@ -10,7 +10,6 @@ function expectParseFail(src: string): void {
 
 function expectParses(src: string): TestParseResult<void> {
   const result = testParse(gleamImport, src);
-  console.log(src);
   expect(result.parsed).is.not.null;
   return result;
 }

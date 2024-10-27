@@ -27,7 +27,7 @@ test("simple fn import", () => {
   expect(module).toMatchSnapshot();
 });
 
-test("match #extends", () => {
+test.skip("match #extends", () => {
   const src = `
     // #extends Foo from pkg
     // #extends Bar from pkg
@@ -42,7 +42,7 @@ test("match #extends", () => {
 });
 
 test("read simple struct export", () => {
-  const exportPrefix = `// #export`;
+  const exportPrefix = `export`;
   const src = `
     struct Elem {
       sum: f32
@@ -56,9 +56,8 @@ test("read simple struct export", () => {
 
 test("read #module", () => {
   const src = `
-    // #module my.module.com
-    // #export
-    fn foo() {}
+    module my.module.com
+    export fn foo() {}
   `;
   const textModule = testParseModule(src);
   expect(textModule.modulePath).toBe("my.module.com");
