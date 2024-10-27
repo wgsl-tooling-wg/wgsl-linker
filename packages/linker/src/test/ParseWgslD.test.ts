@@ -13,7 +13,6 @@ import {
   typeSpecifier,
 } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
-import { dlog } from "berry-pretty";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);

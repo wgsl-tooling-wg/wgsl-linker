@@ -25,16 +25,6 @@ exports[`importing parses importing bar(A) fog(B) 1`] = `
 ]
 `;
 
-exports[`lineComment parse // #export  1`] = `
-[
-  {
-    "end": 11,
-    "kind": "export",
-    "start": 3,
-  },
-]
-`;
-
 exports[`parse #export(A, B) importing bar(A) 1`] = `
 {
   "args": [
@@ -64,9 +54,9 @@ exports[`parse #export(foo) with trailing space 1`] = `
     "args": [
       "Elem",
     ],
-    "end": 24,
+    "end": 20,
     "kind": "export",
-    "start": 8,
+    "start": 5,
   },
 ]
 `;

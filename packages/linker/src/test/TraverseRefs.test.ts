@@ -46,16 +46,16 @@ test("traverse simple gleam style import", () => {
 
 test("traverse nested import with params and support fn", () => {
   const src = `
-    // #import foo(u32) from ./file1
+    import foo(u32) from ./file1
     fn bar() {
       foo(8u);
     }
   `;
 
   const module1 = `
-    // #import zap from ./file2
+    import zap from ./file2
   
-    // #export (A)
+    export (A)
     fn foo(a: A) { 
       support(a);
       zap();
@@ -65,7 +65,7 @@ test("traverse nested import with params and support fn", () => {
   `;
 
   const module2 = `
-    // #export 
+    export 
     fn zap() {}
   `;
 

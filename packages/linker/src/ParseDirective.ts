@@ -183,7 +183,7 @@ const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
  * by pushing an AbstractElem to the app context) */
 export const lineCommentOptDirective = seq(
   tokens(mainTokens, "//"),
-  or(directive, skipToEol)
+  skipToEol
 );
 
 if (tracing) {

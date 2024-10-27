@@ -97,8 +97,8 @@ test("import with parameter", () => {
 
 test("#import twice with different params", () => {
   const src = `
-    #import foo(A) from ./file1
-    #import foo(B) as bar from ./file1
+    import foo(A) from ./file1
+    import foo(B) as bar from ./file1
 
     fn main() {
       bar();
@@ -106,7 +106,7 @@ test("#import twice with different params", () => {
     }
   `;
   const module0 = `
-    #export(X)
+    export(X)
     fn foo(x:X) { /* X */ }
   `;
 
@@ -162,13 +162,13 @@ test("#import using simple template and imp/exp param", () => {
 
 test("#import using external param", () => {
   const src = `
-    #import foo(ext.workgroupSize) from ./file1
+    import foo(ext.workgroupSize) from ./file1
 
     fn main() { foo(); }
   `;
 
   const module1 = `
-    // #export(threads)
+    export(threads)
     fn foo () {
       for (var step = 0; step < threads; step++) { 
       }
@@ -182,14 +182,14 @@ test("#import using external param", () => {
 
 test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   const src = `
-    #import foo(workgroupThreads) from ./file1
+    import foo(workgroupThreads) from ./file1
 
     fn main() {
       foo();
     }
   `;
   const module1 = `
-    #export(threads)
+    export(threads)
     fn foo() {
       for (var step = 0; step < threads; step++) { 
       }

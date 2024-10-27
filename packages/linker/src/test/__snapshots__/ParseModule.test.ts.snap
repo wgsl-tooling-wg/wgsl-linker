@@ -29,51 +29,51 @@ exports[`simple fn export 1`] = `
   "aliases": [],
   "exports": [
     {
-      "end": 16,
+      "end": 12,
       "kind": "export",
       "ref": {
         "calls": [],
-        "end": 59,
+        "end": 55,
         "kind": "fn",
         "name": "one",
         "nameElem": {
-          "end": 26,
+          "end": 22,
           "kind": "fnName",
           "name": "one",
-          "start": 23,
+          "start": 19,
         },
-        "start": 20,
+        "start": 16,
         "typeRefs": [
           {
-            "end": 35,
+            "end": 31,
             "kind": "typeRef",
             "name": "i32",
-            "start": 32,
+            "start": 28,
           },
         ],
       },
-      "start": 8,
+      "start": 5,
     },
   ],
   "fns": [
     {
       "calls": [],
-      "end": 59,
+      "end": 55,
       "kind": "fn",
       "name": "one",
       "nameElem": {
-        "end": 26,
+        "end": 22,
         "kind": "fnName",
         "name": "one",
-        "start": 23,
+        "start": 19,
       },
-      "start": 20,
+      "start": 16,
       "typeRefs": [
         {
-          "end": 35,
+          "end": 31,
           "kind": "typeRef",
           "name": "i32",
-          "start": 32,
+          "start": 28,
         },
       ],
     },
@@ -83,35 +83,35 @@ exports[`simple fn export 1`] = `
   "kind": "text",
   "modulePath": "./test.wgsl",
   "preppedSrc": "
-    // #export
+    export
     fn one() -> i32 {
       return 1;
     }
   ",
   "src": "
-    // #export
+    export
     fn one() -> i32 {
       return 1;
     }
   ",
   "srcMap": SrcMap {
     "dest": "
-    // #export
+    export
     fn one() -> i32 {
       return 1;
     }
   ",
     "entries": [
       {
-        "destEnd": 62,
+        "destEnd": 58,
         "destStart": 0,
         "src": "
-    // #export
+    export
     fn one() -> i32 {
       return 1;
     }
   ",
-        "srcEnd": 62,
+        "srcEnd": 58,
         "srcStart": 0,
       },
     ],

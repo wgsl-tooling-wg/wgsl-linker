@@ -39,22 +39,9 @@ test("parse #import foo(a,b) as baz from bar", () => {
   expect(parsed).toMatchSnapshot();
 });
 
-test("lineComment parse // #export ", () => {
-  const src = "// #export ";
-  const { position, appState: app } = testParse(lineCommentOptDirective, src);
-  expect(position).eq(src.length);
-  expect(app).toMatchSnapshot();
-});
-
-test("lineCommentOptDirective parses #export(foo) with trailing space", () => {
-  const src = `// #export (Elem)    `;
-  const result = testAppParse(lineCommentOptDirective, src);
-  expect(result.appState[0].kind).eq("export");
-});
-
 test("parse #export(foo) with trailing space", () => {
   const src = `
-    // #export (Elem) 
+    export (Elem) 
   `;
 
   const parsed = parseWgslD(src);
