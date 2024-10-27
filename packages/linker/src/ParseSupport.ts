@@ -26,7 +26,9 @@ export const wordNum = or(word, kind(mainTokens.digits));
 
 export const unknown = any().map((r) => {
   const { kind, text } = r.value;
-  resultLog(r, `??? ${kind}: '${text}'`);
+  const deepName = r.ctx._debugNames.join(" > ");
+  
+  resultLog(r, `??? ${kind}: '${text}'  ${deepName}`);
 });
 
 export const blockComment: Parser<any> = seq(
