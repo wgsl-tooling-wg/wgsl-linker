@@ -2,8 +2,7 @@ import { SrcMap } from "mini-parse";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { normalize } from "./PathUtil.js";
-import { dlog } from "berry-pretty";
-import { WgslBundle } from "wgsl-rand";
+import { WgslBundle } from "./WgslBundle.js";
 
 /** A named function to transform code fragments (e.g. by inserting parameters) */
 export interface Template {
