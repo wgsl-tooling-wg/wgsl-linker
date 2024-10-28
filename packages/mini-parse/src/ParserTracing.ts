@@ -80,7 +80,7 @@ function stubTraceLogging<T>(
   trace: TraceOptions | undefined,
   fn: (ctx: ParserContext) => T
 ): T {
-  return fn(ctx);
+  return fn({...ctx}); // TODO FIXME later, shouldn't need to copy ctx
 }
 
 /** setup trace logging inside a parser stage */
