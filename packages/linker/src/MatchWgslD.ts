@@ -36,7 +36,7 @@ export const identTokens = tokenMatcher(
     ws: /\s+/,
     symbol,
     digits,
-    quote
+    quote,
   },
   "longIdent"
 );
@@ -52,9 +52,8 @@ export const moduleTokens = tokenMatcher(
 /** matching tokens at the start of a '//' line comment that might contain #directives */
 export const lineCommentTokens = tokenMatcher(
   {
-    directive,
-    ws: /[ \t]+/, // note ws must be before notDirective
-    notDirective,
+    ws: /[ \t]+/, // note ws must be before notEol
+    notEol: /[^\n]+/,
     eol,
   },
   "lineComment"
@@ -84,4 +83,9 @@ export const treeImportTokens = tokenMatcher({
   importSymbol,
   word,
   digits,
-});
+}, "treeTokens");
+
+export const rootWs = tokenMatcher({
+  blanks: /\s+/,
+  other: /[^\s]+/
+}, "rootWs");

@@ -17,7 +17,7 @@ import {
 } from "mini-parse";
 import { AbstractElem, AbstractElemBase } from "./AbstractElems.js";
 import { argsTokens, mainTokens } from "./MatchWgslD.js";
-import { lineCommentOptDirective } from "./ParseDirective.js";
+import { lineComment } from "./ParseDirective.js";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 
@@ -29,6 +29,7 @@ export const unknown = any().map((r) => {
   const deepName = r.ctx._debugNames.join(" > ");
   
   resultLog(r, `??? ${kind}: '${text}'  ${deepName}`);
+  // throw new Error("Fail fast");
 });
 
 export const blockComment: Parser<any> = seq(
@@ -37,7 +38,7 @@ export const blockComment: Parser<any> = seq(
   req("*/")
 );
 
-export const comment = or(() => lineCommentOptDirective, blockComment);
+export const comment = or(() => lineComment, blockComment);
 
 export const eolf: Parser<any> = disablePreParse(
   makeEolf(argsTokens, argsTokens.ws)
@@ -96,7 +97,6 @@ function mapIfDefined<A>(
   return Object.fromEntries(entries);
 }
 
-// enableTracing();
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     skipBlockComment: blockComment,

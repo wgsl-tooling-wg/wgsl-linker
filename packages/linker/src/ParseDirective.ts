@@ -1,6 +1,5 @@
 import {
   Parser,
-  TagRecord,
   anyThrough,
   kind,
   opt,
@@ -11,9 +10,11 @@ import {
   setTraceNames,
   tokens,
   tracing,
-  withSep,
+  withSep
 } from "mini-parse";
-import { ExtendsElem, NamedElem } from "./AbstractElems.js";
+import { ExtendsElem } from "./AbstractElems.js";
+import { gleamImport } from "./GleamImport.js";
+import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import {
   argsTokens,
   lineCommentTokens,
@@ -21,8 +22,6 @@ import {
   moduleTokens,
 } from "./MatchWgslD.js";
 import { eolf, makeElem } from "./ParseSupport.js";
-import { ImportTree, SimpleSegment } from "./ImportTree.js";
-import { gleamImport } from "./GleamImport.js";
 
 /* parse #directive enhancements to wgsl: #import, #export, etc. */
 
@@ -177,14 +176,8 @@ export const directive = tokens(
 
 const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
 
-/** parse a line comment possibly containg a #directive
- *    // <#import|#export|any>
- * if a directive is found it is handled internally (e.g.
- * by pushing an AbstractElem to the app context) */
-export const lineCommentOptDirective = seq(
-  tokens(mainTokens, "//"),
-  skipToEol
-);
+/** parse a line comment */
+export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
 
 if (tracing) {
   setTraceNames({
@@ -199,7 +192,8 @@ if (tracing) {
     importDirective,
     extendsDirective,
     exportDirective,
-    lineCommentOptDirective,
+    skipToEol,
+    lineComment,
     moduleDirective,
     directive,
   });

@@ -1,23 +1,20 @@
 import { _withBaseLogger, tokens } from "mini-parse";
-import { logCatch, testParse } from "mini-parse/test-util";
+import { logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import {
   ModuleElem,
-  TemplateElem,
-  TreeImportElem,
+  TreeImportElem
 } from "../AbstractElems.js";
+import { SimpleSegment, treeToString } from "../ImportTree.js";
 import { argsTokens } from "../MatchWgslD.js";
 import {
   directive,
-  importing,
-  lineCommentOptDirective,
+  importing
 } from "../ParseDirective.js";
 import { parseWgslD } from "../ParseWgslD.js";
-import { testAppParse } from "./TestUtil.js";
 import { last } from "../Util.js";
-import { SimpleSegment, treeToString } from "../ImportTree.js";
-import { dlog } from "berry-pretty";
+import { testAppParse } from "./TestUtil.js";
 
 test("directive parses #export", () => {
   const { appState } = testAppParse(directive, "#export");
