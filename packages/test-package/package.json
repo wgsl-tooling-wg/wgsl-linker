@@ -7,5 +7,6 @@
   "exports": {
     "import": "./out/wgsl.js",
     "types": "./out/wgsl.d.ts"
-  }
+  },
+  "version": "0.5.0-d1"
 }

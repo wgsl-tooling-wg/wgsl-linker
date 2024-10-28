@@ -1,6 +1,6 @@
 {
   "name": "mini-parse",
-  "version": "0.4.6",
+  "version": "0.5.0-d1",
   "files": [
     "dist",
     "src"
