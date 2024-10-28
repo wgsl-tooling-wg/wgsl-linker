@@ -2,20 +2,20 @@ import { preParse } from "mini-parse";
 import { expectNoLogErr } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import { lineCommentOptDirective } from "../ParseDirective.js";
+import { lineComment } from "../ParseDirective.js";
 import { blockComment, comment, wordNumArgs } from "../ParseSupport.js";
 import { parseWgslD } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
 
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";
-  const { position } = testAppParse(lineCommentOptDirective, src);
+  const { position } = testAppParse(lineComment, src);
   expect(position).eq(src.length);
 });
 
 test("lineComment parse // foo bar \\n", () => {
   const src = "// foo bar\n";
-  const { position } = testAppParse(lineCommentOptDirective, src);
+  const { position } = testAppParse(lineComment, src);
   expect(position).eq(src.length);
 });
 
