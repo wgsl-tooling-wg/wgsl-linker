@@ -1,4 +1,5 @@
 import {
+  disablePreParse,
   kind,
   makeEolf,
   matchOneOf,
@@ -57,7 +58,9 @@ export const eolTokens = tokenMatcher({
   eol,
 });
 
-const eolf = makeEolf(eolTokens, gleamImportTokens.ws);
+const eolf = disablePreParse(
+  makeEolf(eolTokens, gleamImportTokens.ws).traceName("gleam_eolf")
+);
 const wordToken = kind(gleamImportTokens.word);
 const pkgToken = kind(packageTokens.pkg);
 
@@ -168,7 +171,6 @@ export const gleamImport = withTags(
     })
   )
 );
-// .trace();
 
 if (tracing) {
   const names: Record<string, Parser<unknown, TagRecord>> = {
