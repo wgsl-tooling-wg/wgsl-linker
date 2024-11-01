@@ -364,7 +364,7 @@ export function parserArg<A extends CombinatorArg>(arg: A): ParserFromArg<A> {
 export function fn<T, N extends TagRecord>(
   fn: () => Parser<T, N>
 ): Parser<T, N> {
-  return parser("fn", (state: ParserContext): OptParserResult<T, N> => {
+  return parser("fn()", (state: ParserContext): OptParserResult<T, N> => {
     if (!fn) {
       const deepName = state._debugNames.join(".");
       throw new Error(`fn parser called before definition: ${deepName}`);
