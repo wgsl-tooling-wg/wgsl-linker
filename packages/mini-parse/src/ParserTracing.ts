@@ -1,10 +1,12 @@
 import { Parser, ParserContext, setTraceName } from "./Parser.js";
 
 export let tracing = false;
+export let debugNames = false;
 
 /** enable tracing of parser activity via .trace() */
 export function enableTracing(): void {
   tracing = true;
+  debugNames = true;
 }
 
 /** mutate the provided to set their trace names (if tracing is enabled) */
