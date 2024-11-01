@@ -1,9 +1,17 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
-import { baseViteConfig } from "./base.vite.config.js";
-// import { visualizer } from "rollup-plugin-visualizer";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
 
-const config = baseViteConfig();
-config.test = { setupFiles: "./src/test/TestSetup.ts" };
-
-export default defineConfig(config);
+export default defineConfig({
+  plugins: [dts()],
+  test: { setupFiles: "./src/test/TestSetup.ts" },
+  build: {
+    lib: {
+      name: "wgsl-linker",
+      entry: [resolve(__dirname, "src/index.ts")],
+    },
+    minify: false,
+    sourcemap: true,
+  },
+});

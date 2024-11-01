@@ -1,25 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "types": ["node"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "allowJs": false,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "importsNotUsedAsValues": "remove",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "paths": {
-      "wgsl-linker": ["../linker/src"],
-      "mini-parse": ["../mini-parse/src"]
-    }
-  },
+  "extends": ["../../tsconfig.base.json"],
+  "compilerOptions": {},
   "include": ["src/**/*", "src/viteTypes.d.ts"],
   "exclude": ["node_modules"]
 }

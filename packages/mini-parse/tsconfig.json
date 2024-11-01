@@ -1,28 +1,12 @@
 {
+  "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
-    "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext", "ESNext.AsyncIterable"],
-    "esModuleInterop": false,
-    "downlevelIteration": true,
-    "importsNotUsedAsValues": "remove",
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "allowJs": false,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "paths": {
       "mini-parse": ["./src"],
-      "mini-parse/test-util": ["./src/test-util"],
+      "mini-parse/test-util": ["./src/test-util"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"],
-  "references": [{ "path": "./tsconfig-node.json" }]
+  "exclude": ["node_modules"]
 }

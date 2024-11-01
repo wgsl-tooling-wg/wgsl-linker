@@ -8,11 +8,10 @@
   "scripts": {
     "pr": "printenv",
     "prepublishOnly": "run-s build",
-    "build": "run-s build:main build:util build:minified build:brotli",
+    "build": "run-s build:main build:util build:minified",
     "build:main": "vite build",
     "build:util": "vite -c test-util.vite.config.ts build",
-    "build:minified": "vite -c minified.vite.config.ts build",
-    "build:brotli": "brotli dist/minified.cjs && ls -l dist/minified.cjs.br",
+    "build:minified": "vite build --minify --emptyOutDir=false",
     "test": "vitest",
     "organize": "organize-imports-cli tsconfig.json",
     "format": "prettier-eslint \"src/**/*.ts\" --write",
@@ -23,12 +22,10 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
     "./minified": {
       "import": "./dist/minified.js",
-      "require": "./dist/minified.cjs",
       "types": "./dist/index.d.ts"
     },
     "./test-util": {
@@ -38,23 +35,20 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
-    "@typescript-eslint/eslint-plugin": "^8.2.0",
-    "@typescript-eslint/parser": "^8.2.0",
-    "@vitest/ui": "^2.0.5",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "@vitest/ui": "^2.1.4",
     "berry-pretty": "^0.0.5",
-    "brotli": "^1.3.3",
-    "esbuild": "^0.23.1",
-    "eslint": "^9.9.0",
+    "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "npm-run-all": "^4.1.5",
     "organize-imports-cli": "^0.10.0",
     "prettier-eslint-cli": "^8.0.1",
     "rollup-plugin-visualizer": "^5.12.0",
-    "terser": "^5.31.6",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.2",
-    "vite-plugin-dts": "^4.0.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vite-plugin-dts": "^4.3.0",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.4"
   }
 }

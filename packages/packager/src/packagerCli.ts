@@ -1,13 +1,15 @@
 import yargs from "yargs";
-import fs from "fs";
 import { packageWgsl } from "./packageWgsl.js";
 
-export type CliArgs = ReturnType<typeof parseArgs>;
-let cliArgs: CliArgs;
+export type CliArgs = {
+  rootDir: string;
+  projectDir: string;
+  updatePackageJson: boolean;
+  outDir: string;
+};
 
 export async function packagerCli(rawArgs: string[]): Promise<void> {
-  cliArgs = parseArgs(rawArgs);
-  await packageWgsl(cliArgs);
+  await packageWgsl(parseArgs(rawArgs));
 }
 
 function parseArgs(args: string[]) {

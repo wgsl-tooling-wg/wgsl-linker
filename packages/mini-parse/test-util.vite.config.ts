@@ -1,9 +1,11 @@
 /// <reference types="vitest" />
 import { LibraryOptions, defineConfig } from "vite";
-import { baseViteConfig } from "./base.vite.config.js";
+import baseViteConfig from "./vite.config.js";
 import { resolve } from "path";
+import assert from "node:assert";
 
-const config = baseViteConfig();
+const config = baseViteConfig;
+assert(config.build);
 config.build.emptyOutDir = false;
 const lib = config.build.lib as LibraryOptions;
 lib.name = "mini-parse-test-util";

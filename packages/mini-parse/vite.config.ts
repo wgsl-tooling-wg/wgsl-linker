@@ -1,10 +1,17 @@
 /// <reference types="vitest" />
-import { LibraryOptions, defineConfig } from "vite";
-import { baseViteConfig } from "./base.vite.config.js";
+import { defineConfig } from "vite";
+import { resolve } from "path";
+import dts from "vite-plugin-dts";
 
-const config = baseViteConfig();
-config.test = { setupFiles: "./src/test/TestSetup.ts" };
-(config.build.lib as LibraryOptions).formats = ["es", "cjs"];
-(config.build.lib as LibraryOptions).name = "mini-parse";
-
-export default defineConfig(config);
+export default defineConfig({
+  plugins: [dts()],
+  test: { setupFiles: "./src/test/TestSetup.ts" },
+  build: {
+    lib: {
+      name: "mini-parse",
+      entry: [resolve(__dirname, "src/index.ts")],
+    },
+    minify: false,
+    sourcemap: true,
+  },
+});

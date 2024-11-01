@@ -1,9 +1,9 @@
-import fs from "fs";
+import fs from "node:fs";
 import glob from "fast-glob";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { promisify } from "util";
-import { exec as execOrig } from "child_process";
+import { promisify } from "node:util";
+import { exec as execOrig } from "node:child_process";
 const execAsync = promisify(execOrig);
 
 const argv = yargs(hideBin(process.argv))
@@ -43,7 +43,7 @@ async function setPackageVersions(version: string): Promise<void> {
 
 async function gitDirty(): Promise<boolean> {
   const status = await execAsync("git status --short");
-  return status.stdout !== ""; 
+  return status.stdout !== "";
 }
 
 async function commitAndTag(version: string): Promise<void> {

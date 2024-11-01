@@ -6,7 +6,7 @@ import { WgslBundle } from "wgsl-linker";
 import wgslBundleDecl from "../../linker/src/WgslBundle.ts?raw";
 
 export async function packageWgsl(args: CliArgs): Promise<void> {
-  const { packageJson, projectDir, outDir } = args;
+  const { updatePackageJson, projectDir, outDir } = args;
   const modules = await loadModules(args);
   const pkgJsonPath = path.join(projectDir, "package.json");
   const { name, version, exports } = await loadPackageFields(pkgJsonPath);
@@ -24,7 +24,6 @@ export default wgslBundle;
   const declText = wgslBundleDecl + constDecl;
   const outPath = path.join(outDir, "wgslBundle.d.ts");
   await fs.writeFile(outPath, declText);
-
 }
 
 async function writeJsBundle(
@@ -44,7 +43,7 @@ export default wgslBundle;
 }
 
 async function loadModules(args: CliArgs): Promise<Record<string, string>> {
-  const { rootDir, outDir, packageJson } = args;
+  const { rootDir, outDir, updatePackageJson } = args;
   const shaderFiles = await glob(`${rootDir}/*.w[ge]sl`, {
     ignore: "node_modules/**",
   });

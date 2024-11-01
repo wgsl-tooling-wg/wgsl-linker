@@ -1,5 +1,5 @@
 import yargs from "yargs";
-import fs from "fs";
+import fs from "node:fs";
 import { ModuleRegistry, normalize } from "wgsl-linker";
 import { createTwoFilesPatch } from "diff";
 import { TypeRefElem } from "../../linker/src/AbstractElems.js";
@@ -13,10 +13,12 @@ export async function cli(rawArgs: string[]): Promise<void> {
   argv.separately ? linkSeparately(files) : linkNormally(files);
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function parseArgs(args: string[]) {
   return yargs(args)
-    .command("$0 <files...>", "root wgsl file followed by any library wgsl files")
+    .command(
+      "$0 <files...>",
+      "root wgsl file followed by any library wgsl files"
+    )
     .option("define", {
       type: "array",
       describe: "definitions for preprocessor and linking",
@@ -136,7 +138,7 @@ function printDetails(modulePath: string, registry: ModuleRegistry): void {
     console.log(`  struct ${s.name}`);
     const members = (s.members ?? []).map((m) => m.name).join("  ");
     console.log(`    members: ${members}`);
-    s.members.map(m => printTypeRefs(m));
+    s.members.map((m) => printTypeRefs(m));
   });
   console.log();
 }
