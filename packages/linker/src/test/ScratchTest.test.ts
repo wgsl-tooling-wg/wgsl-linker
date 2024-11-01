@@ -24,4 +24,8 @@ fn main() { }
 
   const registry = new ModuleRegistry({ wgsl, libs: [randBundle] });
   registry.link("./main");
+  // expectNoLogErr(() => {
+  //   const registry = new ModuleRegistry({ wgsl, libs: [randBundle] });
+  //   registry.link("./main");
+  // });
 });
