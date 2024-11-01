@@ -3,7 +3,7 @@ import { expect } from "vitest";
 import { logCatch } from "./LogCatcher.js";
 
 const symbolSet =
-  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + 
+  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- ' \"" +
   ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
 export const testTokens = tokenMatcher({
   directive: /#[a-zA-Z_]\w*/,
