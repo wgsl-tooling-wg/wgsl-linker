@@ -216,7 +216,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
         _parseCount: 0,
         _preCacheFails: new Map(),
         maxParseCount,
-        _debugNames: [this.debugName],
+        _debugNames: [],
       });
     } catch (e) {
       if (!(e instanceof ParseError)) {

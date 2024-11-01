@@ -199,7 +199,7 @@ test("unexpected token", () => {
   const { log, logged } = logCatch();
   _withBaseLogger(log, () => testAppParse(p, "a b"));
   expect(logged()).toMatchInlineSnapshot(`
-    "??? word: 'b'  repeat > repeat > or > map
+    "??? word: 'b'  repeat > or > map
     a b   Ln 1
       ^"
   `);
