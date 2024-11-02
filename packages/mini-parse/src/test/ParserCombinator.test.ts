@@ -217,6 +217,37 @@ test("disable preParse inside quote", () => {
   expect(parsed?.value).deep.eq(["zug", "zip /* boo */", "zax"]);
 });
 
+test("disablePreParse restores preParse context", () => {
+  withTracingDisabled(() => {
+    // prettier-ignore
+    const comment = seq(
+    "/*", 
+    repeat(anyNot("*/")), 
+    "*/"
+  ).traceName("comment");
+
+    const quote = withTags(
+      disablePreParse(
+        tokenSkipSet(
+          null, // disable ws skipping
+          seq(opt(kind(m.ws)), "'", repeat(anyNot("'").tag("contents")), "'")
+        )
+      ).map((r) => r.tags.contents.map((tok) => tok.text).join(""))
+    ).traceName("quote");
+    let misParsed = false;
+
+    const ugh = any().map(() => (misParsed = true));
+    const p = preParse(comment, repeat(or(kind(m.word), quote, ugh)));
+
+    // needs to restore preparsing state to catch second comment
+    const src = "/*boo*/ 'za x' /*foo*/";
+
+    const { parsed } = testParse(p, src);
+    expect(parsed?.value).deep.eq(["za x"]);
+    expect(misParsed).false;
+  });
+});
+
 test("tokenIgnore", () => {
   const p = repeat(any()).map((r) => r.value.map((tok) => tok.text));
   const src = "a b";
