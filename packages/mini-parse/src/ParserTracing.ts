@@ -4,9 +4,9 @@ export let tracing = false;
 export let debugNames = false;
 
 /** enable tracing of parser activity via .trace() */
-export function enableTracing(): void {
-  tracing = true;
-  debugNames = true;
+export function enableTracing(enable = true): void {
+  tracing = enable;
+  debugNames = enable;
 }
 
 /** mutate the provided to set their trace names (if tracing is enabled) */
