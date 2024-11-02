@@ -1,4 +1,4 @@
-import { TagRecord, NoTags, Parser } from "mini-parse";
+import { NoTags, Parser, TagRecord } from "mini-parse";
 import { testParse, TestParseResult } from "mini-parse/test-util";
 
 import { AbstractElem } from "../AbstractElems.js";
@@ -8,7 +8,6 @@ import {
   RegisterGenerator,
   Template,
 } from "../ModuleRegistry.js";
-import { dlog } from "berry-pretty";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
