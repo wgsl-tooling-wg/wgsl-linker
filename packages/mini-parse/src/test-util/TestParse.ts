@@ -1,4 +1,16 @@
-import { matchingLexer, matchOneOf, OptParserResult, Parser, TokenMatcher, tokenMatcher, _withBaseLogger, TagRecord, NoTags } from "mini-parse";
+import {
+  _withBaseLogger,
+  enableTracing,
+  matchingLexer,
+  matchOneOf,
+  NoTags,
+  OptParserResult,
+  Parser,
+  TagRecord,
+  TokenMatcher,
+  tokenMatcher,
+  tracing,
+} from "mini-parse";
 import { expect } from "vitest";
 import { logCatch } from "./LogCatcher.js";
 

@@ -1,7 +1,19 @@
 import { Parser, ParserContext, setTraceName } from "./Parser.js";
 
+/** true if parser tracing is enabled */
 export let tracing = false;
+
+/** true if parser debug names are enabled */
 export let debugNames = false;
+
+/** base logger. (can be overriden to a capturing logger for tests) */
+export let logger = console.log;
+
+/** no-op logger, for when tracing is disabled */
+const noLog: typeof console.log = () => {};
+
+/** logger while tracing is active, otherwise noop */
+export let parserLog: typeof console.log = noLog;
 
 /** enable tracing of parser activity via .trace() */
 export function enableTracing(enable = true): void {
@@ -18,15 +30,6 @@ export function setTraceNames(parsers: Record<string, Parser<any, any>>): void {
   }
 }
 
-
-/** base logger. (can be overriden to a capturing logger for tests) */
-export let logger = console.log;
-
-/** no-op logger, for when tracing is disabled */
-const noLog: typeof console.log = () => {};
-
-/** logger while tracing is active, otherwise noop */
-export let parserLog: typeof console.log = noLog;
 
 /** options to .trace() on a parser stage */
 export interface TraceOptions {

@@ -1,4 +1,9 @@
-import { logCatch, testParse, testTokens } from "mini-parse/test-util";
+import {
+  logCatch,
+  testParse,
+  testTokens,
+  withTracingDisabled,
+} from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import {
   NoTags,
@@ -11,21 +16,20 @@ import {
 import {
   any,
   anyNot,
-  withTags,
   kind,
   not,
   opt,
   or,
   repeat,
+  repeatPlus,
   repeatWhile,
   req,
   seq,
   text,
   withSep,
-  repeatPlus,
+  withTags,
 } from "../ParserCombinator.js";
 import { _withBaseLogger, enableTracing } from "../ParserTracing.js";
-import { dlog } from "berry-pretty";
 
 const m = testTokens;
 
@@ -268,7 +272,11 @@ test("repeat1 fails", () => {
 });
 
 test("withTags blocks tags accumulation", () => {
-  const p = withTags(kind(m.word).tag("w").map( r => r.tags.w));
+  const p = withTags(
+    kind(m.word)
+      .tag("w")
+      .map((r) => r.tags.w)
+  );
   const s = seq(p.tag("w")).map((r) => r.tags.w);
 
   const { parsed } = testParse(s, "a b");
