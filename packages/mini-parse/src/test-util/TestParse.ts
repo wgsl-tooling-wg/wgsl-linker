@@ -42,3 +42,15 @@ export function expectNoLogErr<T>(fn: () => T): T {
   expect(logged()).eq("");
   return result;
 }
+
+/** run a test with tracing facility disabled
+ * (e.g. if the tracing facility might interfere with the test) */
+export function withTracingDisabled(fn: () => void): void {
+  const tracingWasEnabled = tracing;
+  enableTracing(false);
+  try {
+    fn();
+  } finally {
+    enableTracing(tracingWasEnabled);
+  }
+}
