@@ -57,8 +57,9 @@ export interface ParserContext<A = any> {
   /** positions where the preparse has failed to match, so no need to retry */
   _preCacheFails: Map<Parser<unknown>, Set<number>>;
 
-  srcMap?: SrcMap;
+  srcMap?: SrcMap; // TODO can we remove this and just use the one in the lexer?
 
+  /** current parser stack or parent parsers that called this one */
   _debugNames: string[];
 }
 
@@ -113,7 +114,7 @@ export interface ParserArgs {
    * (to avoid intro log statement while tracing) */
   terminal?: boolean;
 
-  preDisabled?: true;
+  preDisabled?: true; // TODO just detect preParse combinator, rather than a flag here..
 }
 
 interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
