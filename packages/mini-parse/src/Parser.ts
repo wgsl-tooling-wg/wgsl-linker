@@ -352,27 +352,38 @@ function runParser<T, N extends TagRecord>(
 }
 
 function execPreParsers(ctx: ParserContext): void {
-  const { _preParse, _preCacheFails, lexer } = ctx;
+  const { _preParse, lexer } = ctx;
 
   const ctxNoPre = { ...ctx, _preParse: [] };
   _preParse.forEach((pre) => {
-    // get the cache of failed positions for this pre-parser
-    const failCache = _preCacheFails.get(pre) || new Set();
-    _preCacheFails.set(pre, failCache);
+    const checkedCache = getPreParserCheckedCache(ctx, pre);
 
     // exec each pre-parser until it fails
     let position: number;
     let preResult: OptParserResult<unknown, NoTags>;
     do {
       position = lexer.position();
-      if (failCache.has(position)) break;
+      if (checkedCache.has(position)) break;
 
       preResult = pre._run(ctxNoPre);
     } while (preResult !== null && preResult !== undefined);
 
-    failCache.add(position);
+    checkedCache.add(position);
     lexer.position(position); // reset position to end of last successful parse
   });
+}
+
+/** get the cache of already checked positions for this pre-parser */
+function getPreParserCheckedCache(
+  ctx: ParserContext,
+  pre: Parser<unknown>
+): Set<number> {
+  let cache = ctx._preCacheFails.get(pre);
+  if (!cache) {
+    cache = new Set();
+    ctx._preCacheFails.set(pre, cache);
+  }
+  return cache;
 }
 
 type ParserMapFn<T, N extends TagRecord, U> = (
