@@ -4,4 +4,4 @@ import { cli } from "./cli.js";
 
 const rawArgs = hideBin(process.argv);
 
-cli(rawArgs);
+await cli(rawArgs);

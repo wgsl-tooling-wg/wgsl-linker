@@ -1,9 +1,9 @@
-import fs from "node:fs";
 import glob from "fast-glob";
+import { exec as execOrig } from "node:child_process";
+import fs from "node:fs";
+import { promisify } from "node:util";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { promisify } from "node:util";
-import { exec as execOrig } from "node:child_process";
 const execAsync = promisify(execOrig);
 
 const argv = yargs(hideBin(process.argv))
@@ -18,7 +18,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-run(argv.version);
+await run(argv.version);
 
 async function run(version: string): Promise<void> {
   const dirty = await gitDirty();

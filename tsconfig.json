@@ -1,9 +1,22 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "composite": false,
-    "allowJs": true
-  },
-  "include": ["eslint.config.js", "scripts/**/*", "packages/**/*.config.js"],
-  "exclude": ["node_modules"]
+  /* See https://moonrepo.dev/docs/guides/javascript/typescript-project-refs */
+  "files": [],
+  "extends": "./tsconfig.options.json",
+  "references": [
+    {
+      "path": "scripts"
+    },
+    {
+      "path": "packages/cli"
+    },
+    {
+      "path": "packages/linker"
+    },
+    {
+      "path": "packages/mini-parse"
+    },
+    {
+      "path": "packages/packager"
+    }
+  ]
 }

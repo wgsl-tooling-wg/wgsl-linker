@@ -1,6 +1,6 @@
 {
-  "extends": ["../../tsconfig.base.json"],
+  "extends": ["../../tsconfig.options.json"],
   "compilerOptions": {},
-  "include": ["src/**/*", "src/viteTypes.d.ts"],
+  "include": ["build.ts", "src/**/*"],
   "exclude": ["node_modules"]
 }

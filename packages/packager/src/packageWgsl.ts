@@ -68,7 +68,7 @@ interface PkgFields {
 
 async function loadPackageFields(pkgJsonPath: string): Promise<PkgFields> {
   const pkgJsonString = await fs.readFile(pkgJsonPath, { encoding: "utf8" });
-  const pkgJson = JSON.parse(pkgJsonString);
+  const pkgJson: any = JSON.parse(pkgJsonString);
   const { version, name, exports } = pkgJson;
   verifyField("version", version);
   verifyField("name", name);

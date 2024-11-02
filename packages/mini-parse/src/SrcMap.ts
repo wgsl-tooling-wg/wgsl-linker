@@ -1,5 +1,3 @@
-import { dlog } from "berry-pretty";
-
 export interface SrcMapEntry {
   src: string;
   srcStart: number;
@@ -109,7 +107,7 @@ export class SrcMap {
    */
   destToSrc(destPos: number): SrcPosition {
     const entry = this.entries.find(
-      (e) => e.destStart <= destPos && e.destEnd >= destPos
+      (e) => e.destStart <= destPos && e.destEnd >= destPos,
     );
     if (!entry) {
       console.log(`no SrcMapEntry for dest position: ${destPos}`);

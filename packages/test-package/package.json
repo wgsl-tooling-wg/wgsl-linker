@@ -2,11 +2,11 @@
   "name": "wgsl-rand",
   "type": "module",
   "files": [
-    "out"
+    "dist"
   ],
   "exports": {
-    "import": "./out/wgsl.js",
-    "types": "./out/wgsl.d.ts"
+    "import": "./dist/wgsl.js",
+    "types": "./dist/wgsl.d.ts"
   },
-  "version": "0.5.0-d1"
+  "version": "0.5.0-d2"
 }

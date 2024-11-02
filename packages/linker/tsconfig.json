@@ -1,13 +1,11 @@
 {
-  "extends": ["../../tsconfig.base.json"],
+  "extends": ["../../tsconfig.options.json"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ESNext", "ESNext.AsyncIterable"],
     "paths": {
-      "mini-parse": ["../mini-parse/src"],
-      "wgsl-linker": ["./src"],
-      "mini-parse/test-util": ["../mini-parse/src/test-util"]
+      "wgsl-linker": ["./src"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "*.config.ts"],
   "exclude": ["node_modules"]
 }

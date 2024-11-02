@@ -4,4 +4,4 @@ import { packagerCli } from "./packagerCli.js";
 
 const rawArgs = hideBin(process.argv);
 
-packagerCli(rawArgs);
+await packagerCli(rawArgs);

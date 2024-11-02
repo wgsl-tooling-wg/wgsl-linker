@@ -14,7 +14,6 @@
   "dependencies": {
     "glob": "^11.0.0",
     "wgsl-linker": "workspace:*",
-    "mini-parse": "workspace:*",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

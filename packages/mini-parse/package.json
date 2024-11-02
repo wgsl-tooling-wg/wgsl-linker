@@ -6,15 +6,11 @@
     "src"
   ],
   "scripts": {
-    "pr": "printenv",
     "prepublishOnly": "run-s build",
-    "build": "run-s build:main build:util build:minified",
+    "build": "run-s build:main build:util",
     "build:main": "vite build",
     "build:util": "vite -c test-util.vite.config.ts build",
-    "build:minified": "vite build --minify --emptyOutDir=false",
     "test": "vitest",
-    "organize": "organize-imports-cli tsconfig.json",
-    "format": "prettier-eslint \"src/**/*.ts\" --write",
     "lint": "eslint src"
   },
   "type": "module",
@@ -24,10 +20,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./minified": {
-      "import": "./dist/minified.js",
-      "types": "./dist/index.d.ts"
-    },
     "./test-util": {
       "import": "./dist/testUtil.js",
       "types": "./dist/test-util/testUtil.d.ts"
@@ -35,20 +27,11 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
-    "@typescript-eslint/eslint-plugin": "^8.12.2",
-    "@typescript-eslint/parser": "^8.12.2",
     "@vitest/ui": "^2.1.4",
     "berry-pretty": "^0.0.5",
-    "eslint": "^9.13.0",
-    "eslint-config-prettier": "^9.1.0",
-    "npm-run-all": "^4.1.5",
-    "organize-imports-cli": "^0.10.0",
-    "prettier-eslint-cli": "^8.0.1",
     "rollup-plugin-visualizer": "^5.12.0",
-    "typescript": "^5.6.3",
     "vite": "^5.4.10",
     "vite-plugin-dts": "^4.3.0",
-    "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.1.4"
   }
 }

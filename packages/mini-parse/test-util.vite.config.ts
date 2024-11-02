@@ -1,8 +1,8 @@
 /// <reference types="vitest" />
+import assert from "node:assert";
+import { resolve } from "path";
 import { LibraryOptions, defineConfig } from "vite";
 import baseViteConfig from "./vite.config.js";
-import { resolve } from "path";
-import assert from "node:assert";
 
 const config = baseViteConfig;
 assert(config.build);
