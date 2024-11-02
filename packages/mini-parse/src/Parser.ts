@@ -3,6 +3,7 @@ import { Lexer } from "./MatchingLexer.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
 import { srcLog } from "./ParserLogging.js";
 import {
+  debugNames,
   parserLog,
   TraceContext,
   TraceOptions,
@@ -298,7 +299,6 @@ function runParser<T, N extends TagRecord>(
   }
 
   const origAppContext = context.app.context;
-  const origPosition = lexer.position();
 
   // setup trace logging if enabled and active for this parser
   const result = withTraceLogging<OptParserResult<T, N>>()(
@@ -307,22 +307,27 @@ function runParser<T, N extends TagRecord>(
     runInContext
   );
 
-  function runInContext(tContext: ParserContext): OptParserResult<T, N> {
-    tContext._debugNames.push(p.debugName);
-    const traceSuccessOnly = tContext._trace?.successOnly;
+  return result;
+
+  function runInContext(ctx: ParserContext): OptParserResult<T, N> {
+    const origPosition = lexer.position();
+
+    if (debugNames) ctx._debugNames.push(p.debugName);
+    const traceSuccessOnly = ctx._trace?.successOnly;
     if (!p.terminal && tracing && !traceSuccessOnly)
       parserLog(`..${p.debugName}`);
 
+    const savePreParse = ctx._preParse;
     if (!p.preDisabled) {
-      execPreParsers(tContext);
+      execPreParsers(ctx);
     } else {
-      tContext._preParse = [];
+      ctx._preParse = [];
     }
 
     // run the parser function for this stage
-    const result = p.fn(tContext);
+    let result = p.fn(ctx);
 
-    tContext._debugNames.pop();
+    if (debugNames) ctx._debugNames.pop();
 
     if (result === null || result === undefined) {
       // parser failed
@@ -330,7 +335,7 @@ function runParser<T, N extends TagRecord>(
       // parserLog("reset position to:", origPosition)
       lexer.position(origPosition);
       context.app.context = origAppContext;
-      return null;
+      result = null;
     } else {
       // parser succeeded
       tracing && parserLog(`✓ ${p.debugName}`);
@@ -344,11 +349,13 @@ function runParser<T, N extends TagRecord>(
       } else {
         tags = result.tags;
       }
-      return { value, tags };
+      result = { value, tags };
     }
-  }
 
-  return result;
+    ctx._preParse = savePreParse;
+
+    return result;
+  }
 }
 
 function execPreParsers(ctx: ParserContext): void {
