@@ -2,7 +2,7 @@ export function multiKeySet<A, B, V>(
   m: Map<A, Map<B, V>>,
   a: A,
   b: B,
-  v: V
+  v: V,
 ): void {
   const bMap = m.get(a) || new Map();
   m.set(a, bMap);
@@ -15,7 +15,7 @@ const tokenRegex = /\b(\w+)\b/gi;
  */
 export function replaceWords(
   text: string,
-  replace: Record<string, string>
+  replace: Record<string, string>,
 ): string {
   return text.replaceAll(tokenRegex, (s) => (s in replace ? replace[s] : s));
 }
@@ -70,7 +70,7 @@ export function scan<T, U>(array: T[], fn: (a: T, b: U) => U, zero: U): U[] {
  */
 export function mapForward(
   a: Record<string, string>,
-  b: Record<string, any>
+  b: Record<string, any>,
 ): Record<string, any> {
   const combined = Object.entries(a).map(([key, value]) => {
     const mappedValue = value in b ? b[value] : value;

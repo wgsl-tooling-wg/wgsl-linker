@@ -1,6 +1,6 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, test } from "vitest";
-import { importSyntaxCases } from "wesl-testsuite"
+import { importSyntaxCases } from "wesl-testsuite";
 import { gleamImport } from "../GleamImport.js";
 
 function expectParseFail(src: string): void {
@@ -14,10 +14,10 @@ function expectParses(src: string): TestParseResult<void> {
   return result;
 }
 
-  importSyntaxCases.forEach((c) => {
-    if (c.fails) {
-      test(c.src, () => expectParseFail(c.src));
-    } else {
-      test(c.src, () => expectParses(c.src));
-    }
-  });
+importSyntaxCases.forEach((c) => {
+  if (c.fails) {
+    test(c.src, () => expectParseFail(c.src));
+  } else {
+    test(c.src, () => expectParses(c.src));
+  }
+});

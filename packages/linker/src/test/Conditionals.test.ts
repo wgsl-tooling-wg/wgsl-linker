@@ -1,4 +1,4 @@
-import { srcLog, _withBaseLogger } from "mini-parse";
+import { _withBaseLogger, srcLog } from "mini-parse";
 import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { processConditionals } from "../Conditionals.js";

@@ -1,13 +1,13 @@
+import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { calcTokens } from "../examples/CalculatorExample.js";
 import {
   power,
   product,
   resultsStatement,
-  sum
+  sum,
 } from "../examples/CalculatorResultsExample.js";
 import { Parser } from "../Parser.js";
-import { testParse } from "mini-parse/test-util";
 
 test("power 2 ^ 4", () => {
   const { parsed } = testParse(power, "2 ^ 3", calcTokens);
@@ -41,8 +41,8 @@ test("parse 3^2 * 4 + 11", () => {
 
 test("parse 2^4^2", () => {
   const result = calcTest(resultsStatement, "2^4^2");
-  expect(result).eq(2**4**2);
-})
+  expect(result).eq(2 ** (4 ** 2));
+});
 
 function calcTest(parser: Parser<number>, src: string): number | undefined {
   const { parsed } = testParse(parser, src, calcTokens);

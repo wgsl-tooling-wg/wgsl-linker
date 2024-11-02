@@ -13,7 +13,7 @@ import { NoTags, Parser, TagRecord } from "./Parser.js";
  * (and wrapping things in conditional types with ? : never gives us a stage to place the inferencing)
  */
 export type Intersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I extends U
+  k: infer I extends U,
 ) => void
   ? I
   : never;

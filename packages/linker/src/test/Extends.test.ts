@@ -1,9 +1,5 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
-import { ModuleRegistry } from "../ModuleRegistry.js";
-import { simpleTemplate } from "../templates/SimpleTemplate.js";
-import { linkTestOpts, linkTest } from "./TestUtil.js";
+import { linkTest } from "./TestUtil.js";
 
 test.skip("#extends a struct in the root src", () => {
   const src = `
@@ -105,7 +101,7 @@ test.skip("two #extends on the same struct", () => {
   const linked = linkTest(src, module1, module2, module3);
   expect(linked.match(/struct AStruct/g)).toHaveLength(1);
   expect(linked).toContain(
-    `struct AStruct {\n  x: i32,\n  z: u32,\n  d: f32\n}`
+    `struct AStruct {\n  x: i32,\n  z: u32,\n  d: f32\n}`,
   );
 });
 
@@ -164,7 +160,7 @@ test.skip("transitive #extends ", () => {
   const linked = linkTest(src, module1);
   expect(linked.match(/struct AStruct {/g)).toHaveLength(1);
   expect(linked).toContain(
-    `struct AStruct {\n  x: u32,\n  y: u32,\n  z: u32\n}`
+    `struct AStruct {\n  x: u32,\n  y: u32,\n  z: u32\n}`,
   );
 });
 
@@ -191,7 +187,7 @@ test.skip("transitive #extends from root", () => {
   const linked = linkTest(src, module1, module2);
   expect(linked.match(/struct AStruct {/g)).toHaveLength(1);
   expect(linked).toContain(
-    `struct AStruct {\n  x: u32,\n  y: u32,\n  z: u32\n}`
+    `struct AStruct {\n  x: u32,\n  y: u32,\n  z: u32\n}`,
   );
 });
 

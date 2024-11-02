@@ -55,14 +55,14 @@ class ExportPathToExport {
   constructor(
     public exportPath: string,
     public modExp: ModuleExport,
-    public expImpArgs: StringPairs
+    public expImpArgs: StringPairs,
   ) {}
 }
 
 class ImportToExportPath {
   constructor(
     public importPath: string[],
-    public exportPath: string
+    public exportPath: string,
   ) {}
 }
 
@@ -76,10 +76,10 @@ class ImportToExportPath {
 export function importResolutionMap(
   importingModule: TextModule,
   imports: TreeImportElem[],
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): ResolveMap {
   const resolveEntries = imports.flatMap((imp) =>
-    resolveTreeImport(importingModule, imp, registry)
+    resolveTreeImport(importingModule, imp, registry),
   );
 
   const exportEntries: [string, ExportPathToExport][] = [];
@@ -105,7 +105,7 @@ export function importResolutionMap(
 function resolveTreeImport(
   importingModule: TextModule,
   imp: TreeImportElem,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): ResolvedEntry[] {
   return recursiveResolve([], [], imp.imports.segments);
 
@@ -113,7 +113,7 @@ function resolveTreeImport(
   function recursiveResolve(
     resolvedImportPath: string[],
     resolvedExportPath: string[],
-    remainingPath: PathSegment[]
+    remainingPath: PathSegment[],
   ): ResolvedEntry[] {
     const [segment, ...rest] = remainingPath;
     if (segment === undefined) {
@@ -149,7 +149,7 @@ function resolveTreeImport(
       return recursiveResolve(
         resolvedImportPath,
         resolvedExportPath,
-        segment.segments
+        segment.segments,
       );
     }
 
@@ -160,7 +160,7 @@ function resolveTreeImport(
   function wildCardExports(
     m: GeneratorModule | TextModule,
     resolvedImportPath: string[],
-    resolvedExportPath: string[]
+    resolvedExportPath: string[],
   ): ResolvedEntry[] {
     const exportKind = m.kind === "generator" ? "function" : "text";
     return m.exports.flatMap((exp) => {
@@ -180,7 +180,7 @@ function resolveTreeImport(
   function resolveFlatPath(
     impPath: string[],
     expPath: string[],
-    impArgs: string[] | undefined
+    impArgs: string[] | undefined,
   ): ResolvedEntry[] {
     const resolvedImp = absolutePath(impPath, importingModule);
     const resolvedExp = absolutePath(expPath, importingModule);
@@ -201,7 +201,7 @@ function resolveTreeImport(
         imp,
         impArgs ?? [],
         modExp.module,
-        modExp.exp
+        modExp.exp,
       );
       entries.push(new ExportPathToExport(expPathStr, modExp, expImpArgs));
     }
@@ -225,7 +225,7 @@ function matchExportImportArgs(
   imp: TreeImportElem,
   impArgs: string[],
   expMod: TextModule | GeneratorModule,
-  exp: ExportElem | GeneratorExport
+  exp: ExportElem | GeneratorExport,
 ): StringPairs {
   const expArgs = exp.args ?? [];
   if (expArgs.length !== impArgs.length) {

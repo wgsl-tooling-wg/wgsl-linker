@@ -1,9 +1,19 @@
-import { matchingLexer, matchOneOf, OptParserResult, Parser, TokenMatcher, tokenMatcher, _withBaseLogger, TagRecord, NoTags } from "mini-parse";
+import {
+  _withBaseLogger,
+  matchingLexer,
+  matchOneOf,
+  NoTags,
+  OptParserResult,
+  Parser,
+  TagRecord,
+  TokenMatcher,
+  tokenMatcher,
+} from "mini-parse";
 import { expect } from "vitest";
 import { logCatch } from "./LogCatcher.js";
 
 const symbolSet =
-  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + 
+  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " +
   ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
 export const testTokens = tokenMatcher({
   directive: /#[a-zA-Z_]\w*/,
@@ -24,7 +34,7 @@ export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
 export function testParse<T, N extends TagRecord = NoTags, S = any>(
   p: Parser<T, N>,
   src: string,
-  tokenMatcher: TokenMatcher = testTokens
+  tokenMatcher: TokenMatcher = testTokens,
 ): TestParseResult<T, N, S> {
   const lexer = matchingLexer(src, tokenMatcher);
   const app = {

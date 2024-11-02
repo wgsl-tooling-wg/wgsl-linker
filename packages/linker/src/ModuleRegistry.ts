@@ -11,7 +11,7 @@ export interface Template {
 }
 export type CodeGenFn = (
   name: string,
-  params: Record<string, string>
+  params: Record<string, string>,
 ) => string;
 
 export interface GeneratorExport {
@@ -37,7 +37,7 @@ export interface RegisterGenerator {
 
 export type ApplyTemplateFn = (
   src: string,
-  params: Record<string, any> // combination of external params and imp/exp params
+  params: Record<string, any>, // combination of external params and imp/exp params
 ) => SrcMap;
 
 /** a single export from a module */
@@ -95,10 +95,10 @@ export class ModuleRegistry {
     const { wgsl = {}, templates = [], libs = [], generators } = args;
 
     Object.entries(wgsl).forEach(([fileName, src]) =>
-      this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src)
+      this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src),
     );
 
-    libs.forEach(({ name, modules}) => {
+    libs.forEach(({ name, modules }) => {
       Object.entries(modules).forEach(([fileName, src]) => {
         const absPath = relativeToAbsolute(fileName, name);
         const canonPath = libExp.test(absPath)
@@ -152,7 +152,7 @@ export class ModuleRegistry {
 
 export function relativeToAbsolute(
   relativePath: string,
-  packageName: string
+  packageName: string,
 ): string {
   const normalPath = normalize(relativePath);
   const fullPath = `${packageName}/${normalPath}`;

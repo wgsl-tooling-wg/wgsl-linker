@@ -8,7 +8,7 @@ export class SimpleSegment {
   constructor(
     public name: string,
     public as?: string,
-    public args?: string[] // generic args (only allowed on final segment)
+    public args?: string[], // generic args (only allowed on final segment)
   ) {}
 }
 

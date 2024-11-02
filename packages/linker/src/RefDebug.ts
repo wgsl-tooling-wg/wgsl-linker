@@ -1,6 +1,6 @@
 import { dlog } from "berry-pretty";
-import { FoundRef, TextRef } from "./TraverseRefs.js";
 import { AbstractElem, CallElem, FnElem } from "./AbstractElems.js";
+import { FoundRef, TextRef } from "./TraverseRefs.js";
 
 export function printRef(r: FoundRef, msg = ""): void {
   const { kind, elem, rename } = r as TextRef;
@@ -11,7 +11,7 @@ export function printRef(r: FoundRef, msg = ""): void {
       kind,
       ...renameFields,
     },
-    elemToText("elem", elem)
+    elemToText("elem", elem),
   );
 }
 

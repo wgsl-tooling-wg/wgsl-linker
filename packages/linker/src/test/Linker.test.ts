@@ -1,9 +1,7 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
-import { linkTestOpts, linkTest } from "./TestUtil.js";
+import { linkTest, linkTestOpts } from "./TestUtil.js";
 
 /* --- these tests rely on features not yet portable in wesl --- */
 
@@ -51,8 +49,6 @@ test("#template in src", () => {
   const linked = linkTestOpts({ templates, runtimeParams }, src);
   expect(linked).includes("step < 128");
 });
-
-
 
 /** requires 'module' syntax, which may not make the shared design */
 test("import foo from zap (multiple modules)", () => {

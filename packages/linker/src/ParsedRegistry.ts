@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
 import { linkWgslModule } from "./Linker.js";
@@ -20,7 +19,7 @@ export class ParsedRegistry {
 
   constructor(
     public registry: ModuleRegistry,
-    public conditions: Record<string, any> = {}
+    public conditions: Record<string, any> = {},
   ) {
     this.textModules = [];
     this.registry.wgslSrc.forEach((src, fileName) => {
@@ -40,7 +39,7 @@ export class ParsedRegistry {
   private parseOneModule(
     src: string,
     params: Record<string, any> = {},
-    modulePath: string
+    modulePath: string,
   ): void {
     const m = parseModule(src, modulePath, params, this.registry.templates);
     this.textModules.push(m);
@@ -49,7 +48,7 @@ export class ParsedRegistry {
   /** @return a ResolveMap to make it easier to resolve imports from the provided module */
   importResolveMap(importingModule: TextModule): ResolveMap {
     const treeImports: TreeImportElem[] = importingModule.imports.filter(
-      (i) => i.kind === "treeImport"
+      (i) => i.kind === "treeImport",
     ); // TODO drop filter when we drop other import kinds
 
     // TODO cache
@@ -60,7 +59,7 @@ export class ParsedRegistry {
    * reference an export in a registered module */
   getModuleExport(
     importingModule: TextModule, // TODO drop this and require pathSegments to be absolute
-    pathSegments: string[]
+    pathSegments: string[],
   ): ModuleExport | undefined {
     const exportName = pathSegments[pathSegments.length - 1];
     if (pathSegments[0] === ".") {
@@ -82,7 +81,7 @@ export class ParsedRegistry {
 
   private findExport(
     modulePath: string,
-    exportName: string
+    exportName: string,
   ): TextModuleExport | GeneratorModuleExport | undefined {
     const module = this.findTextModule(modulePath);
     // dlog({ modulePath, module: !!module });
@@ -95,7 +94,7 @@ export class ParsedRegistry {
   }
 
   findModule(
-    moduleSpecifier: string
+    moduleSpecifier: string,
   ): TextModule | GeneratorModule | undefined {
     return (
       this.findTextModule(moduleSpecifier) ??
@@ -109,7 +108,7 @@ export class ParsedRegistry {
    */
   findTextModule(
     moduleSpecifier: string,
-    packageName = "_root"
+    packageName = "_root",
   ): TextModule | undefined {
     // const modulePaths = this.textModules.map((m) => m.modulePath);
     // dlog({ modulePaths });
@@ -122,7 +121,6 @@ export class ParsedRegistry {
     // dlog({ moduleSpecifier, packageName, result: !!result });
     return result;
   }
-
 }
 
 export function exportName(exp: TextExport | GeneratorExport): string {

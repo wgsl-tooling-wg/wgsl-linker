@@ -43,7 +43,7 @@ Here's a parser for nested block comments:
 export const blockComment: Parser<void> = seq(
   "/*",
   repeat(or(() => blockComment, anyNot("*/"))),
-  req("*/")
+  req("*/"),
 );
 ```
 
@@ -169,7 +169,7 @@ const op = or("+", "-");
 
 export const namedSum = seq(
   int,
-  repeat(seq(op, int).named("opRights")) // accumulate an array of [op, int] pairs
+  repeat(seq(op, int).named("opRights")), // accumulate an array of [op, int] pairs
 ).map((r) => {
   const { opRights } = r.named;
   const left = r.value[0];

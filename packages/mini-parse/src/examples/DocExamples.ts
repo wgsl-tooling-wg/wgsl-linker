@@ -22,7 +22,7 @@ const op = or("+", "-");
 
 export const taggedSum = seq(
   int,
-  repeat(seq(op, int).tag("opRights")) // accumulate an array of [op, int] pairs
+  repeat(seq(op, int).tag("opRights")), // accumulate an array of [op, int] pairs
 ).map((r) => {
   const { opRights } = r.tags;
   const left = r.value[0];

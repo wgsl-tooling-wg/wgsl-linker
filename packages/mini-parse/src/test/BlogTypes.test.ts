@@ -34,7 +34,7 @@ test("types solution", () => {
   class Tags<N extends TagRecord> {
     addTag<K extends string, V>(
       name: K,
-      value: V
+      value: V,
     ): Tags<N & { [key in K]: V[] }> {
       return NYI();
     }
@@ -72,7 +72,7 @@ test("infer type parameter", () => {
   function manyParams<A, B, C, D, E, F, G, H, I>(
     a: ThreeParams<A, B, C>,
     b: ThreeParams<D, E, F>,
-    c: ThreeParams<G, H, I>
+    c: ThreeParams<G, H, I>,
   ): B {
     return NYI();
   }

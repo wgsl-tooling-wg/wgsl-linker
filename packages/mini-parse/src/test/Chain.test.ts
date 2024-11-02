@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { expect, test } from "vitest";
+import { test } from "vitest";
 
 test("chain", () => {
   type ChainElem<I, O> = { in: I; out: O };
@@ -58,7 +58,6 @@ test("chain with error reporting", () => {
   type ElemOut<T> = T extends ChainElem<any, infer O> ? O : never;
   type ElemIn<T> = T extends ChainElem<infer I, any> ? I : never;
 
-
   // prettier-ignore
   type ChainOK<T extends Elem[]> = 
     T extends [infer A, ...infer R]
@@ -79,8 +78,8 @@ test("chain with error reporting", () => {
   const nn: ChainElem<number, number> = { in: 4, out: 3 };
 
   // const f2 = chain(nn, sn); // fails to compile (which is what we want here)
-  //    Argument of type '[ChainElem<number, number>, ChainElem<string, number>]' is 
-  //    not assignable to parameter of type 
+  //    Argument of type '[ChainElem<number, number>, ChainElem<string, number>]' is
+  //    not assignable to parameter of type
   //    '{ msg: "chain input doesn't match previous output"; types: [number, string]; }'
 });
 

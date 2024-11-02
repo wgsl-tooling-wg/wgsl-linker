@@ -84,14 +84,13 @@ export interface ExportElem extends AbstractElemBase {
   importing?: any[]; // TODO
 }
 
-// LATER consider modeling import elems as containing multiple clauses 
-// instead of overlapping ImportElems 
+// LATER consider modeling import elems as containing multiple clauses
+// instead of overlapping ImportElems
 
 export interface TreeImportElem extends AbstractElemBase {
   kind: "treeImport";
   imports: ImportTree;
 }
-
 
 export interface ExtendsElem extends AbstractElemBase {
   kind: "extends";

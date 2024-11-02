@@ -6,7 +6,7 @@ import {
   simpleSum,
   simpleTokens,
   sumResults,
-  taggedSum
+  taggedSum,
 } from "../examples/DocExamples.js";
 
 test("parse 3 + 4", () => {

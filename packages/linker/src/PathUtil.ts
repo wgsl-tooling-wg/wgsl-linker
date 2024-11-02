@@ -2,7 +2,7 @@
 
 export function relativePath(
   srcPath: string | undefined,
-  reqPath: string
+  reqPath: string,
 ): string {
   if (!srcPath) return reqPath;
   const srcDir = dirname(srcPath);

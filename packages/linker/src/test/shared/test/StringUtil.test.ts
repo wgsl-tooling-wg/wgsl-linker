@@ -21,12 +21,12 @@ test("trimSrc with blank line in the middle and at end", () => {
       foo
 
       bar
-     `
+     `,
   );
   expect(trimmed).eq("foo\n\nbar");
 });
 
 test("trimSrc with trailing spaces", () => {
-  const trimmed = trimSrc( ` foo `);
+  const trimmed = trimSrc(` foo `);
   expect(trimmed).eq("foo");
 });

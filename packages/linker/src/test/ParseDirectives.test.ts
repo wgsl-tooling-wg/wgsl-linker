@@ -2,16 +2,10 @@ import { _withBaseLogger, tokens } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import {
-  ModuleElem,
-  TreeImportElem
-} from "../AbstractElems.js";
+import { ModuleElem, TreeImportElem } from "../AbstractElems.js";
 import { SimpleSegment, treeToString } from "../ImportTree.js";
 import { argsTokens } from "../MatchWgslD.js";
-import {
-  directive,
-  importing
-} from "../ParseDirective.js";
+import { directive, importing } from "../ParseDirective.js";
 import { parseWgslD } from "../ParseWgslD.js";
 import { last } from "../Util.js";
 import { testAppParse } from "./TestUtil.js";

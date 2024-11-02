@@ -1,7 +1,7 @@
-import yargs from "yargs";
+import { createTwoFilesPatch } from "diff";
 import fs from "node:fs";
 import { ModuleRegistry, normalize } from "wgsl-linker";
-import { createTwoFilesPatch } from "diff";
+import yargs from "yargs";
 import { TypeRefElem } from "../../linker/src/AbstractElems.js";
 
 type CliArgs = ReturnType<typeof parseArgs>;
@@ -17,7 +17,7 @@ function parseArgs(args: string[]) {
   return yargs(args)
     .command(
       "$0 <files...>",
-      "root wgsl file followed by any library wgsl files"
+      "root wgsl file followed by any library wgsl files",
     )
     .option("define", {
       type: "array",
@@ -80,7 +80,7 @@ function linkSeparately(paths: string[]): void {
 function doLink(
   srcPath: string,
   registry: ModuleRegistry,
-  origWgsl: string
+  origWgsl: string,
 ): void {
   const linked = registry.link(srcPath, externalDefines());
   argv.emit && console.log(linked);

@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { _withBaseLogger } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
@@ -229,7 +228,7 @@ test("traverse var to gleam style struct ref", () => {
 
   const refs = traverseTest(main, foo);
   const structRef = refs.find(
-    (ref) => ref.kind === "txt" && ref.elem.kind === "struct"
+    (ref) => ref.kind === "txt" && ref.elem.kind === "struct",
   );
   expect(structRef).toBeDefined();
 });
@@ -514,7 +513,7 @@ function traverseWithLog(
  */
 function traverseTest(src: string, ...modules: string[]): FoundRef[] {
   const moduleFiles = Object.fromEntries(
-    modules.map((m, i) => [`./file${i + 1}.wgsl`, m])
+    modules.map((m, i) => [`./file${i + 1}.wgsl`, m]),
   );
   const wgsl = { "./main.wgsl": src, ...moduleFiles };
   const registry = new ModuleRegistry({ wgsl });

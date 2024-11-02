@@ -11,21 +11,20 @@ import {
 import {
   any,
   anyNot,
-  withTags,
   kind,
   not,
   opt,
   or,
   repeat,
+  repeatPlus,
   repeatWhile,
   req,
   seq,
   text,
   withSep,
-  repeatPlus,
+  withTags,
 } from "../ParserCombinator.js";
 import { _withBaseLogger, enableTracing } from "../ParserTracing.js";
-import { dlog } from "berry-pretty";
 
 const m = testTokens;
 
@@ -140,7 +139,7 @@ test("recurse with fn()", () => {
   const p: Parser<any> = seq(
     "{",
     repeat(or(kind(m.word).tag("word"), () => p)),
-    "}"
+    "}",
   );
   const wrap = or(p).map((r) => r.app.state.push(r.tags.word));
   const { appState: app } = testParse(wrap, src);
@@ -268,7 +267,11 @@ test("repeat1 fails", () => {
 });
 
 test("withTags blocks tags accumulation", () => {
-  const p = withTags(kind(m.word).tag("w").map( r => r.tags.w));
+  const p = withTags(
+    kind(m.word)
+      .tag("w")
+      .map((r) => r.tags.w),
+  );
   const s = seq(p.tag("w")).map((r) => r.tags.w);
 
   const { parsed } = testParse(s, "a b");

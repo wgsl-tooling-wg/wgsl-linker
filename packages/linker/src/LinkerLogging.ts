@@ -17,12 +17,7 @@ export function moduleLog(
   ...msgs: any[]
 ): void {
   const { src, srcMap } = mod;
-  srcLog(
-    srcMap ?? src,
-    pos,
-    ...msgs,
-    ` module: ${mod.modulePath}`
-  );
+  srcLog(srcMap ?? src, pos, ...msgs, ` module: ${mod.modulePath}`);
 }
 
 export function elemLog(

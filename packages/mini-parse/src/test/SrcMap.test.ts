@@ -1,6 +1,5 @@
 import { expect, test } from "vitest";
 import { SrcMap } from "../SrcMap.js";
-import { dlog } from "berry-pretty";
 
 test("compact", () => {
   const src = "a b";

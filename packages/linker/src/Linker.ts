@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import {
   AliasElem,
   FnElem,
@@ -20,7 +19,6 @@ import {
   traverseRefs,
 } from "./TraverseRefs.js";
 import { partition, replaceWords } from "./Util.js";
-import { printRef } from "./RefDebug.js";
 
 type DirectiveRef = {
   kind: "dir";
@@ -40,7 +38,7 @@ type LoadableRef = TextRef | GeneratorRef | DirectiveRef;
 export function linkWgslModule(
   srcModule: TextModule,
   registry: ParsedRegistry,
-  extParams: Record<string, any> = {}
+  extParams: Record<string, any> = {},
 ): string {
   const refs = findReferences(srcModule, registry); // all recursively referenced structs and fns
 
@@ -60,7 +58,7 @@ export function linkWgslModule(
  */
 export function findReferences(
   srcModule: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): FoundRef[] {
   // map full export name (with generic params from import) to name for linked result
   const visited = new Map<string, string>();
@@ -103,7 +101,7 @@ export function findReferences(
 function uniquifyName(
   /** proposed name for this fn in the linked results (e.g. import as name) */
   proposedName: string,
-  rootNames: Set<string>
+  rootNames: Set<string>,
 ): string {
   let renamed = proposedName;
   let conflicts = 0;
@@ -146,7 +144,7 @@ function prepRefsMergeAndLoad(refs: FoundRef[]): FoundRef[] {
 /** combine export refs with any merge refs for the same element */
 function combineMergeRefs(
   mergeRefs: TextRef[],
-  nonMergeRefs: TextRef[]
+  nonMergeRefs: TextRef[],
 ): TextRef[] {
   // map from the element name of a struct annotated with #extends to the merge refs
   const mergeMap = new Map<string, TextRef[]>();
@@ -190,7 +188,7 @@ function partitionRefTypes(refs: FoundRef[]): RefTypes {
   const gen = refs.filter((r) => r.kind === "gen") as GeneratorRef[];
   const [merge, nonMerge] = partition(
     txt,
-    (r) => r.expInfo?.fromImport.kind === "extends"
+    (r) => r.expInfo?.fromImport.kind === "extends",
   );
 
   return {
@@ -204,7 +202,7 @@ function partitionRefTypes(refs: FoundRef[]): RefTypes {
  * (so that we can use the standard extract path to copy them to the linked output) */
 function globalDirectiveRefs(srcModule: TextModule): DirectiveRef[] {
   const directiveRefs = srcModule.globalDirectives.map((e) =>
-    toDirectiveRef(e, srcModule)
+    toDirectiveRef(e, srcModule),
   );
   return directiveRefs;
 }
@@ -212,7 +210,7 @@ function globalDirectiveRefs(srcModule: TextModule): DirectiveRef[] {
 /** convert a global directive element into a DirectiveRef */
 function toDirectiveRef(
   elem: GlobalDirectiveElem,
-  expMod: TextModule
+  expMod: TextModule,
 ): DirectiveRef {
   return {
     kind: "dir",
@@ -224,7 +222,7 @@ function toDirectiveRef(
 // LATER rename imported vars or aliases
 function loadOtherElem(
   ref: TextRef | DirectiveRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   const { expMod, elem } = ref;
   const typeRefs = (elem as VarElem | AliasElem).typeRefs ?? [];
@@ -237,7 +235,7 @@ function loadOtherElem(
 
 function loadGeneratedElem(
   ref: GeneratorRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   const genExp = ref.expMod.exports.find((e) => e.name === ref.name);
   if (!genExp) {
@@ -254,7 +252,7 @@ function loadGeneratedElem(
 /** load exported text for an import */
 function extractTexts(
   refs: LoadableRef[],
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   return refs
     .map((r) => {
@@ -292,7 +290,7 @@ function loadStruct(ref: TextRef, extParams: Record<string, string>): string {
     ref.mergeRefs?.flatMap((mergeRef) => {
       const mergeStruct = mergeRef.elem as StructElem;
       return mergeStruct.members?.map((member) =>
-        loadMemberText(member, mergeRef, extParams)
+        loadMemberText(member, mergeRef, extParams),
       );
     }) ?? [];
 
@@ -305,7 +303,7 @@ function loadStruct(ref: TextRef, extParams: Record<string, string>): string {
 function loadMemberText(
   member: StructMemberElem,
   ref: TextRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   const newRef = { ...ref, elem: member };
   return loadOtherElem(newRef, extParams);
@@ -314,7 +312,7 @@ function loadMemberText(
 /** get the export/import param map if appropriate for this ref */
 function refExpImp(
   ref: FoundRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): Record<string, string> {
   const expImp = ref.expInfo?.expImpArgs ?? [];
   const entries = expImp.map(([exp, imp]) => {
@@ -332,7 +330,7 @@ function refExpImp(
 function loadFnText(
   elem: FnElem,
   ref: TextRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   const { rename } = ref;
   const slicing: SliceReplace[] = [];
@@ -356,7 +354,7 @@ function loadFnText(
     ref.expMod.preppedSrc,
     slicing,
     elem.start,
-    elem.end
+    elem.end,
   );
 
   return applyExpImp(srcMap.dest, ref, extParams);
@@ -366,7 +364,7 @@ function loadFnText(
 function applyExpImp(
   src: string,
   ref: TextRef | DirectiveRef,
-  extParams: Record<string, string>
+  extParams: Record<string, string>,
 ): string {
   const params = ref.kind === "txt" ? refExpImp(ref, extParams) : {};
   return replaceWords(src, params);

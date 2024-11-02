@@ -15,12 +15,12 @@ let expr: Parser<any> = null as any; // help TS with forward reference
 
 const value = or(
   num.map((r) => parseInt(r.value)).tag("value"),
-  seq("(", () => expr.tag("value"), ")")
+  seq("(", () => expr.tag("value"), ")"),
 ).map((r) => r.tags.value[0]);
 
 export const power: Parser<number> = seq(
   value.tag("base"),
-  opt(seq("^", fn(() => power).tag("exp")))
+  opt(seq("^", fn(() => power).tag("exp"))),
 ).map((r) => {
   r.value;
   const { base, exp } = r.tags;
@@ -31,7 +31,7 @@ export const power: Parser<number> = seq(
 
 export const product = seq(
   power.tag("pow"),
-  repeat(seq(mulDiv, power).tag("mulDiv"))
+  repeat(seq(mulDiv, power).tag("mulDiv")),
 ).map((r) => {
   const { pow, mulDiv } = r.tags;
   if (!mulDiv) return pow[0];
@@ -44,7 +44,7 @@ export const product = seq(
 
 export const sum = seq(
   product.tag("left"),
-  repeat(seq(plusMinus, product).tag("sumOp"))
+  repeat(seq(plusMinus, product).tag("sumOp")),
 ).map((r) => {
   const { left, sumOp } = r.tags;
   if (!sumOp) return left[0];

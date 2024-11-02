@@ -8,7 +8,6 @@ import {
   makeEolf,
   matchingLexer,
   matchOneOf,
-  TagRecord,
   opt,
   or,
   Parser,
@@ -20,6 +19,7 @@ import {
   srcLog,
   SrcMap,
   SrcMapEntry,
+  TagRecord,
   tokenMatcher,
   tokenSkipSet,
   tracing,
@@ -35,7 +35,7 @@ export const conditionalsTokens = tokenMatcher(
     symbol: matchOneOf("// !"),
     word: /[^\s\n]+/,
   },
-  "conditionals"
+  "conditionals",
 );
 
 const eolf = makeEolf(conditionalsTokens, conditionalsTokens.ws);
@@ -45,8 +45,8 @@ const ifDirective: Parser<any> = seq(
   seq(
     opt("!").tag("invert"),
     req(kind(conditionalsTokens.word).tag("name")),
-    eolf
-  )
+    eolf,
+  ),
 ).map((r) => {
   // extract args
   const ifArg = r.tags["name"]?.[0] as string;
@@ -73,7 +73,7 @@ const endifDirective = seq("#endif", eolf).map((r) => {
 
 const directiveLine = seq(
   opt("//"),
-  or(ifDirective, elseDirective, endifDirective)
+  or(ifDirective, elseDirective, endifDirective),
 );
 
 // special case for last line which might not have a newline
@@ -93,7 +93,7 @@ const line = tokenSkipSet(null, regularLine);
 const srcLines = seq(repeat(or(directiveLine, line)), eof());
 
 function skippingIfBody(
-  r: ExtendedResult<unknown, TagRecord, ParseState>
+  r: ExtendedResult<unknown, TagRecord, ParseState>,
 ): boolean {
   const ifStack = r.app.state.ifStack as IfStackElem[];
   return !ifStack.every(({ truthy }) => truthy);
@@ -101,13 +101,13 @@ function skippingIfBody(
 
 function pushIfState<T>(
   r: ExtendedResult<T, TagRecord, ParseState>,
-  truthy: boolean
+  truthy: boolean,
 ): void {
   r.app.state.ifStack.push({ truthy, pos: r });
 }
 
 function popIfState<T>(
-  r: ExtendedResult<T, TagRecord, ParseState>
+  r: ExtendedResult<T, TagRecord, ParseState>,
 ): boolean | undefined {
   const ifStack = r.app.state.ifStack as IfStackElem[];
   const result = ifStack.pop();
@@ -137,7 +137,7 @@ interface IfStackElem {
 /** preprocess a src string to handle #if #else #endif, etc. */
 export function processConditionals(
   src: string,
-  params: Record<string, any>
+  params: Record<string, any>,
 ): SrcMap {
   const lines: string[] = [];
   const srcMapEntries: SrcMapEntry[] = [];

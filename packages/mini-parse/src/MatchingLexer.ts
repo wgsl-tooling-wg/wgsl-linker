@@ -35,7 +35,7 @@ export function matchingLexer(
   src: string,
   rootMatcher: TokenMatcher,
   ignore = new Set(["ws"]),
-  srcMap?: SrcMap
+  srcMap?: SrcMap,
 ): Lexer {
   let matcher = rootMatcher;
   const matcherStack: MatcherStackElem[] = [];
@@ -115,7 +115,7 @@ export function matchingLexer(
   function withMatcherIgnore<T>(
     tokenMatcher: TokenMatcher,
     ignore: Set<string>,
-    fn: () => T
+    fn: () => T,
   ): T {
     pushMatcher(tokenMatcher, ignore);
     const result = fn();

@@ -4,7 +4,7 @@ import { cli } from "../cli.js";
 test("simple link", async () => {
   const logged = await cliLine(
     `./src/test/wgsl/main.wgsl 
-       ./src/test/wgsl/util.wgsl`
+       ./src/test/wgsl/util.wgsl`,
   );
   expect(logged).toMatchSnapshot();
 });
@@ -13,7 +13,7 @@ test("link with definition", async () => {
   const logged = await cliLine(
     `./src/test/wgsl/main.wgsl 
        ./src/test/wgsl/util.wgsl
-       --define EXTRA=true`
+       --define EXTRA=true`,
   );
   expect(logged).to.include("fn extra()");
 });

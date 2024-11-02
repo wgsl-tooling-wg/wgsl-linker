@@ -1,4 +1,4 @@
-import { TagRecord, NoTags, Parser } from "mini-parse";
+import { NoTags, Parser, TagRecord } from "mini-parse";
 import { testParse, TestParseResult } from "mini-parse/test-util";
 
 import { AbstractElem } from "../AbstractElems.js";
@@ -8,11 +8,10 @@ import {
   RegisterGenerator,
   Template,
 } from "../ModuleRegistry.js";
-import { dlog } from "berry-pretty";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
-  src: string
+  src: string,
 ): TestParseResult<T, N, AbstractElem> {
   return testParse(parser, src, mainTokens);
 }
@@ -31,15 +30,12 @@ export interface LinkTestOpts {
 }
 
 /** Convenience wrapper to link wgsl for tests, with load and link options. */
-export function linkTestOpts(
-  opts: LinkTestOpts,
-  ...rawWgsl: string[]
-): string {
+export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
   const { templates, generators, runtimeParams } = opts;
 
   const restWgsl = Object.fromEntries(
-    rest.map((src, i) => [`./file${i + 1}.wgsl`, src])
+    rest.map((src, i) => [`./file${i + 1}.wgsl`, src]),
   );
   const wgsl = { "./root.wgsl": root, ...restWgsl };
 

@@ -10,7 +10,7 @@ import {
   setTraceNames,
   tokens,
   tracing,
-  withSep
+  withSep,
 } from "mini-parse";
 import { ExtendsElem } from "./AbstractElems.js";
 import { gleamImport } from "./GleamImport.js";
@@ -39,7 +39,7 @@ export const directiveArgs: Parser<string[]> =
 
 const fromClause = seq(
   "from",
-  or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"'))
+  or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"')),
 );
 
 export interface ImportClause {
@@ -93,7 +93,7 @@ const importElemPhrase = seq(bracketedImportClause, fromClause).map((r) => {
     const lastSegment = new SimpleSegment(
       impClause.name,
       impClause.as,
-      impClause.args
+      impClause.args,
     );
     const segments = [...fromSegments, lastSegment];
     const importTree: ImportTree = new ImportTree(segments);
@@ -109,7 +109,7 @@ if (tracing) setTraceNames({ importElemPhrase, extendsElemPhrase });
 /** #import foo <(a,b)> <as boo> <from bar>  EOL */
 const importDirective = seq(
   or("#import", "import"),
-  seq(importElemPhrase.tag("imp"), opt(";"), () => eolf)
+  seq(importElemPhrase.tag("imp"), opt(";"), () => eolf),
 ).map((r) => {
   r.tags.imp[0].forEach((imp) => {
     imp.start = r.start; // use start of #import, not import phrase
@@ -119,7 +119,7 @@ const importDirective = seq(
 
 export const extendsDirective = seq(
   or("#extends", "extends"),
-  seq(extendsElemPhrase.tag("extends"), eolf)
+  seq(extendsElemPhrase.tag("extends"), eolf),
 ).map((r) => {
   r.tags.extends[0].map((ext) => {
     ext.start = r.start; // use start of #extends, not import phrase
@@ -130,13 +130,13 @@ export const extendsDirective = seq(
 export const importing = seq(
   "importing",
   seq(importElemPhrase.tag("importing")),
-  repeat(seq(",", importElemPhrase.tag("importing")))
+  repeat(seq(",", importElemPhrase.tag("importing"))),
 );
 
 /** #export <foo> <(a,b)> <importing bar(a) <zap(b)>* > EOL */
 export const exportDirective = seq(
   or("#export", "export"),
-  seq(opt(directiveArgs.tag("args")), opt(importing), opt(eolf))
+  seq(opt(directiveArgs.tag("args")), opt(importing), opt(eolf)),
 ).map((r) => {
   const e = makeElem("export", r, ["args", "importing"]);
   r.app.state.push(e);
@@ -145,7 +145,7 @@ export const exportDirective = seq(
 const moduleDirective = seq(
   or("module", "#module"),
   tokens(moduleTokens, req(kind(moduleTokens.moduleName).tag("name"))),
-  eolf
+  eolf,
 ).map((r) => {
   const e = makeElem("module", r);
   e.name = normalizeModulePath(r.tags.name[0]);
@@ -169,9 +169,9 @@ export const directive = tokens(
       importDirective,
       gleamImport,
       extendsDirective,
-      moduleDirective
-    )
-  )
+      moduleDirective,
+    ),
+  ),
 );
 
 const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
@@ -202,7 +202,7 @@ if (tracing) {
 function copyDefinedProps<S extends Record<string, any>>(
   src: S,
   keys: (keyof S)[],
-  dest: any
+  dest: any,
 ): void {
   keys.forEach((k) => {
     if (src[k] !== undefined) dest[k] = src[k];

@@ -1,4 +1,3 @@
-
 # Features from the Legacy Version of wgsl-linker
 
 _(These are going away, in favor of the new [WESL standard](https://github.com/wgsl-tooling-wg/wesl-spec).)_
@@ -8,67 +7,69 @@ _(These are going away, in favor of the new [WESL standard](https://github.com/w
 In addition to linking, the **wgsl-linker** adds some other features useful
 as your WGSL code scales in size and complexity:
 
-* struct inheritance
-* `import` parameters for generic programming
-* conditional compilation `#if #else #endif`
-* transparent imports from code generation
+- struct inheritance
+- `import` parameters for generic programming
+- conditional compilation `#if #else #endif`
+- transparent imports from code generation
 
 A simple demo of the **wgsl-linker** is available [on StackBlitz](https://stackblitz.com/~/github.com/mighdoll/wgsl-linker-rand-example).
 
 ## WGSL extensions
 
-* **import** &ensp; **export** &emsp; _Combine functions and structs from other modules._
+- **import** &ensp; **export** &emsp; _Combine functions and structs from other modules._
 
-  * import / export functionality is roughly similar to TypeScript / JavaScript.
+  - import / export functionality is roughly similar to TypeScript / JavaScript.
     Linking is wgsl syntax aware, including import deduplication and token renaming.
     Internally, wgsl-linker works like a javascript module bundler.
 
-* **import foo(arg, ...)** &ensp; **export(arg, ...)** &emsp; _Imports and exports can take parameters_
-  * Unlike JavaScript, imports and exports can take parameters.
-    * Typically you'll use import parameters like you would use type parameters
+- **import foo(arg, ...)** &ensp; **export(arg, ...)** &emsp; _Imports and exports can take parameters_
+
+  - Unlike JavaScript, imports and exports can take parameters.
+
+    - Typically you'll use import parameters like you would use type parameters
       in TypesScript, to write generic functions that can be reused.
 
     ```wgsl
     import workgroupReduce(Histogram) as reduceHistogram
     ```
 
-  * You can import a function twice with different parameters.
+  - You can import a function twice with different parameters.
 
-* **#if** &ensp; **#else** &ensp; **#endif** &emsp; _Compile differently depending on runtime variables_
+- **#if** &ensp; **#else** &ensp; **#endif** &emsp; _Compile differently depending on runtime variables_
 
-  * Preprocessing works on full lines, similarly to languages like C.
+  - Preprocessing works on full lines, similarly to languages like C.
     **#if** clauses may nest.
     **#if** parameters are simple Javascript values provided by the caller at runtime.
     `0`, `null`, and `undefined` are considered `false`.
     Negation is also allowed with a `!`, e.g. `#if !mySetting`.
 
-* **extends** &emsp; _Combine members from multiple structs_
+- **extends** &emsp; _Combine members from multiple structs_
 
-  * Use it wher you might use `extends` in TypesScript, to mix in member elements from
+  - Use it wher you might use `extends` in TypesScript, to mix in member elements from
     a struct in another module. The syntax is like `import`.
 
-* **module** &emsp; _Organize exports semantically_
+- **module** &emsp; _Organize exports semantically_
 
-* **wgsl syntax compatible** &emsp; _The **wgsl-linker** will parse directives inside line comments_
+- **wgsl syntax compatible** &emsp; _The **wgsl-linker** will parse directives inside line comments_
 
-  * Continue to use static wgsl tools like code formatters and `wgsl-analyzer`
+  - Continue to use static wgsl tools like code formatters and `wgsl-analyzer`
     by simply prefixing the directives with `//`.  
     e.g. use `// export` instead of `export`.
 
 ### Other Features
 
-* **Runtime Linking** &emsp; _Link at runtime rather than at build time if you like_
+- **Runtime Linking** &emsp; _Link at runtime rather than at build time if you like_
 
-  * Choose different wgsl modules depending on runtime reported detected gpu features, or based on user application settings.
-  * Keep integration into web development easy - no need to add any new steps into your build process or IDE.
-  * To enable runtime linking, **wgsl-linker** is small, Currently about 10kb (compressed).
+  - Choose different wgsl modules depending on runtime reported detected gpu features, or based on user application settings.
+  - Keep integration into web development easy - no need to add any new steps into your build process or IDE.
+  - To enable runtime linking, **wgsl-linker** is small, Currently about 10kb (compressed).
 
-* **Code generation**
-  * Typically it's best to write static wgsl,
+- **Code generation**
+  - Typically it's best to write static wgsl,
     perhaps with some simple templates.
     But the escape hatch of arbitrary code generation is available for complex situations.
-  * You can register a function to generate wgsl text for an exported module function.
-  * Imports work identically on code generated exports.
+  - You can register a function to generate wgsl text for an exported module function.
+  - Imports work identically on code generated exports.
 
 ### WGSL Example
 
@@ -124,7 +125,7 @@ const wgsl = import.meta.glob("./shaders/*.wgsl", {
 const registry = new ModuleRegistry({ wgsl });
 
 // link my main shader wgsl with imported modules,
-// using the provided variables for import parameters 
+// using the provided variables for import parameters
 const code = registry.link("main", { WorkgroupSize: 128 });
 
 // pass the linked wgsl to WebGPU as normal
@@ -192,15 +193,15 @@ if you'd like.
 For runtime linking, the easiest way to load all the `.wgsl` files at once is to use your
 bundler's glob import mechanism:
 
-* Vite: [import.meta.glob](https://vitejs.dev/guide/features#glob-import)
-* Rollup: [rollup-plugin-glob-import](https://github.com/gjbkz/rollup-plugin-glob-import)
-* Parcel: [glob-specifiers](https://parceljs.org/features/dependency-resolution/#glob-specifiers)
+- Vite: [import.meta.glob](https://vitejs.dev/guide/features#glob-import)
+- Rollup: [rollup-plugin-glob-import](https://github.com/gjbkz/rollup-plugin-glob-import)
+- Parcel: [glob-specifiers](https://parceljs.org/features/dependency-resolution/#glob-specifiers)
 
 You can also load `.wgsl` files individually with your favorite bundler:
 
-* Vite: [import ?raw](https://vitejs.dev/guide/assets#importing-asset-as-string)
-* Webpack: [Source Assets](https://webpack.js.org/guides/asset-modules/).
-* Rollup: [rollup-plugin-string](https://github.com/TrySound/rollup-plugin-string)
+- Vite: [import ?raw](https://vitejs.dev/guide/assets#importing-asset-as-string)
+- Webpack: [Source Assets](https://webpack.js.org/guides/asset-modules/).
+- Rollup: [rollup-plugin-string](https://github.com/TrySound/rollup-plugin-string)
 
 #### Command Line Linking
 
@@ -223,22 +224,22 @@ See [wgsl-link](https://www.npmjs.com/package/wgsl-link).
 
 ### Known Limitations
 
-* Static typechecking is possible with some effort
+- Static typechecking is possible with some effort
   (typically by manualy adding placeholder declarations
   inside an `#if typecheck` clause).
   But extending `wgsl-analyzer` or `vscode-wgsl`
   to typecheck imports would be much better.
 
-* wgsl global variables, aliases, and wgsl directives from outside
+- wgsl global variables, aliases, and wgsl directives from outside
   the main module are not linked in to the final result.
 
-* non-ascii wgsl identifiers aren't yet supported.
+- non-ascii wgsl identifiers aren't yet supported.
 
 ### Future Work
 
-* It'd be fun to publish wgsl modules as esm modules aka glslify.
+- It'd be fun to publish wgsl modules as esm modules aka glslify.
 
-* The linker already shows _linking errors_
+- The linker already shows _linking errors_
   from wgsl-linker in the original unlinked source locations.
   _Linking errors_ point to the original the source
   even if the source has been rewritten by preprocessing.
@@ -249,7 +250,6 @@ See [wgsl-link](https://www.npmjs.com/package/wgsl-link).
   We could use the linker's internal source maps
   to fix that.
 
-* Rework import/export parameter syntax to look more
+- Rework import/export parameter syntax to look more
   like TypeScript generics.
-  
-* Rework extends syntax to be more TypeScript like.
+- Rework extends syntax to be more TypeScript like.

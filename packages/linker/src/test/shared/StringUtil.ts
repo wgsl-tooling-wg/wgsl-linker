@@ -5,7 +5,7 @@
 export function trimSrc(src: string): string {
   const rawLines = src.split("\n");
   const noLeading = dropWhile(rawLines, (l) => l.trim() === ""); // skip leading blank lines
-  const lines = dropRightWhile(noLeading , (l) => l.trim() === ""); // skip trailing blank lines
+  const lines = dropRightWhile(noLeading, (l) => l.trim() === ""); // skip trailing blank lines
 
   const nonBlankLines = lines.filter((l) => l.trim() !== "");
   const indents = nonBlankLines.map((l) => l.match(/^[ \t]*/)?.[0].length ?? 0);
@@ -15,7 +15,7 @@ export function trimSrc(src: string): string {
 
   const indentTrimmed = lines.map((l) => l.slice(minIndent));
   const noTrailingSpaces = indentTrimmed.map((l) => l.trimEnd());
-  
+
   return noTrailingSpaces.join("\n");
 }
 

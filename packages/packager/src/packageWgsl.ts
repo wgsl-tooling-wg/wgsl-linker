@@ -1,9 +1,9 @@
-import { CliArgs } from "./packagerCli.js";
 import { glob } from "glob";
-import path from "node:path";
 import fs, { mkdir } from "node:fs/promises";
+import path from "node:path";
 import { WgslBundle } from "wgsl-linker";
 import wgslBundleDecl from "../../linker/src/WgslBundle.ts?raw";
+import { CliArgs } from "./packagerCli.js";
 
 export async function packageWgsl(args: CliArgs): Promise<void> {
   const { updatePackageJson, projectDir, outDir } = args;
@@ -28,7 +28,7 @@ export default wgslBundle;
 
 async function writeJsBundle(
   wgslBundle: WgslBundle,
-  outDir: string
+  outDir: string,
 ): Promise<void> {
   await mkdir(outDir, { recursive: true });
 
@@ -48,7 +48,7 @@ async function loadModules(args: CliArgs): Promise<Record<string, string>> {
     ignore: "node_modules/**",
   });
   const promisedSrcs = shaderFiles.map((f) =>
-    fs.readFile(f, { encoding: "utf8" })
+    fs.readFile(f, { encoding: "utf8" }),
   );
   const src = await Promise.all(promisedSrcs);
   const relativePaths = shaderFiles.map((p) => path.relative(rootDir, p));

@@ -32,7 +32,7 @@ class Cache<K, V> extends Map<K, V> {
 
 export function tokenMatcher<T extends Record<string, string | RegExp>>(
   matchers: T,
-  traceName = "matcher"
+  traceName = "matcher",
 ): FullTokenMatcher<T> {
   const groups: string[] = Object.keys(matchers);
   let src: string;
@@ -72,7 +72,7 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
         srcLog(
           src,
           startPos,
-          `skipped: '${src.slice(startPos, startEnd[0])}' to get to: '${text}'`
+          `skipped: '${src.slice(startPos, startEnd[0])}' to get to: '${text}'`,
         );
       }
       cache.set(startPos, token);
@@ -104,7 +104,7 @@ interface MatchedIndex {
 }
 
 function findGroupDex(
-  indices: RegExpIndicesArray | undefined
+  indices: RegExpIndicesArray | undefined,
 ): MatchedIndex | undefined {
   if (indices) {
     for (let i = 1; i < indices.length; i++) {
@@ -133,7 +133,7 @@ function verifyNonCapturing(name: string, exp: RegExp): void {
   const result = willMatch.exec("")!;
   if (result.length > 1) {
     throw new Error(
-      `match expression groups must be non-capturing: ${name}: /${exp.source}/. Use (?:...) instead.`
+      `match expression groups must be non-capturing: ${name}: /${exp.source}/. Use (?:...) instead.`,
     );
   }
 }
@@ -151,6 +151,6 @@ export function escapeRegex(s: string): string {
  */
 export function matchOneOf(syms: string): RegExp {
   const symbolList = syms.split(" ").sort((a, b) => b.length - a.length);
-  const escaped = symbolList.filter(s => s).map(escapeRegex);
+  const escaped = symbolList.filter((s) => s).map(escapeRegex);
   return new RegExp(escaped.join("|"));
 }

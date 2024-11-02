@@ -49,7 +49,7 @@ export interface TextExport extends ExportElem {
 export function preProcess(
   src: string,
   params: Record<string, any> = {},
-  templates: Map<string, ApplyTemplateFn> = new Map()
+  templates: Map<string, ApplyTemplateFn> = new Map(),
 ): SrcMap {
   const condSrcMap = processConditionals(src, params);
   return applyTemplate(condSrcMap, templates, params);
@@ -59,7 +59,7 @@ export function parseModule(
   src: string,
   naturalModulePath: string,
   params: Record<string, any> = {},
-  templates: Map<string, ApplyTemplateFn> = new Map()
+  templates: Map<string, ApplyTemplateFn> = new Map(),
 ): TextModule {
   const srcMap = preProcess(src, params, templates);
 
@@ -70,10 +70,10 @@ export function parseModule(
   const aliases = filterElems<AliasElem>(parsed, "alias");
   const globalDirectives = filterElems<GlobalDirectiveElem>(
     parsed,
-    "globalDirective"
+    "globalDirective",
   );
   const imports = parsed.filter(
-    (e) => e.kind === "extends" || e.kind === "treeImport"
+    (e) => e.kind === "extends" || e.kind === "treeImport",
   ) as (ExtendsElem | TreeImportElem)[];
   const structs = filterElems<StructElem>(parsed, "struct");
   const vars = filterElems<VarElem>(parsed, "var");
@@ -93,7 +93,7 @@ export function parseModule(
 
 export function filterElems<T extends AbstractElem>(
   parsed: AbstractElem[],
-  kind: T["kind"]
+  kind: T["kind"],
 ): T[] {
   return parsed.filter((e) => e.kind === kind) as T[];
 }
@@ -137,10 +137,10 @@ function matchMergeImports(parsed: AbstractElem[], srcMap: SrcMap): void {
 
 function findKind<T extends AbstractElem>(
   parsed: AbstractElem[],
-  kind: T["kind"]
+  kind: T["kind"],
 ): [T, number][] {
   return parsed.flatMap((elem, i) =>
-    elem.kind === kind ? ([[elem, i]] as [T, number][]) : []
+    elem.kind === kind ? ([[elem, i]] as [T, number][]) : [],
   );
 }
 
@@ -149,7 +149,7 @@ const templateRegex = /#template\s+([/[a-zA-Z_][\w./-]*)/;
 function applyTemplate(
   priorSrcMap: SrcMap,
   templates: Map<string, ApplyTemplateFn>,
-  params: Record<string, any>
+  params: Record<string, any>,
 ): SrcMap {
   const src = priorSrcMap.dest;
   const foundTemplate = src.match(templateRegex);
@@ -162,7 +162,7 @@ function applyTemplate(
     srcLog(
       priorSrcMap,
       foundTemplate.index!,
-      `template '${templateName}' not found in ModuleRegistry`
+      `template '${templateName}' not found in ModuleRegistry`,
     );
     return priorSrcMap;
   }

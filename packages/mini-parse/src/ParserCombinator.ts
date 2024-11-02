@@ -61,7 +61,7 @@ export function kind(kindStr: string): Parser<string> {
     (state: ParserContext): string | null => {
       const next = state.lexer.next();
       return next?.kind === kindStr ? next.text : null;
-    }
+    },
   );
 }
 
@@ -73,7 +73,7 @@ export function text(value: string): Parser<string, NoTags> {
     (state: ParserContext): string | null => {
       const next = state.lexer.next();
       return next?.text === value ? next.text : null;
-    }
+    },
   );
 }
 
@@ -128,7 +128,7 @@ export type UndefinedParser = Parser<undefined, NoTags>;
  * indicates a successful parse, so combinators like seq() will succeed.
  */
 export function opt<P extends CombinatorArg>(
-  arg: P
+  arg: P,
 ): ParserFromArg<P> | UndefinedParser {
   const p = parserArg(arg);
 
@@ -142,7 +142,7 @@ export function opt<P extends CombinatorArg>(
       // cast the undefined result here and recover type with the ascription above
       type PR = ParserResult<ResultFromArg<P>, TagsFromArg<P>>;
       return result || (undefinedResult as PR);
-    }
+    },
   );
   return result;
 }
@@ -179,11 +179,11 @@ export function anyNot(arg: CombinatorArg): Parser<Token> {
 
 /** match everything until a terminator (and the terminator too) */
 export function anyThrough<A extends CombinatorArg>(
-  arg: A
+  arg: A,
 ): Parser<[...any, ResultFromArg<A>], TagsFromArg<A>> {
   const p = parserArg<A>(arg);
   const result = seq(repeat(anyNot(p)), p).traceName(
-    `anyThrough ${p.debugName}`
+    `anyThrough ${p.debugName}`,
   );
   type V = typeof result extends Parser<infer V, any> ? V : never;
   return result as Parser<V, any>;
@@ -195,14 +195,14 @@ export function anyThrough<A extends CombinatorArg>(
 
 /** match zero or more instances of a parser */
 export function repeat<A extends CombinatorArg>(
-  arg: A
+  arg: A,
 ): ParserFromRepeatArg<A> {
   return parser("repeat", repeatWhileFilter(arg));
 }
 
 /** match one or more instances of a parser */
 export function repeatPlus<A extends CombinatorArg>(
-  arg: A
+  arg: A,
 ): ParserFromRepeatArg<A> {
   const p = parserArg(arg);
   return seq(p, repeat(p))
@@ -211,12 +211,12 @@ export function repeatPlus<A extends CombinatorArg>(
 }
 
 type ResultFilterFn<T> = (
-  result: ExtendedResult<T | string, any>
+  result: ExtendedResult<T | string, any>,
 ) => boolean | undefined;
 
 export function repeatWhile<A extends CombinatorArg>(
   arg: A,
-  filterFn: ResultFilterFn<ResultFromArg<A>>
+  filterFn: ResultFilterFn<ResultFromArg<A>>,
 ): ParserFromRepeatArg<A> {
   return parser("repeatWhile", repeatWhileFilter(arg, filterFn));
 }
@@ -228,7 +228,7 @@ type RepeatWhileResult<A extends CombinatorArg> = OptParserResult<
 
 function repeatWhileFilter<A extends CombinatorArg>(
   arg: A,
-  filterFn: ResultFilterFn<ResultFromArg<A>> = () => true
+  filterFn: ResultFilterFn<ResultFromArg<A>> = () => true,
 ): (ctx: ParserContext) => RepeatWhileResult<A> {
   const p = parserArg(arg);
   return (ctx: ParserContext): RepeatWhileResult<A> => {
@@ -254,14 +254,14 @@ function repeatWhileFilter<A extends CombinatorArg>(
 export function eof(): Parser<true> {
   return simpleParser(
     "eof",
-    (state: ParserContext) => state.lexer.eof() || null
+    (state: ParserContext) => state.lexer.eof() || null,
   );
 }
 
 /** if parsing fails, log an error and abort parsing */
 export function req<A extends CombinatorArg>(
   arg: A,
-  msg?: string
+  msg?: string,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
   return parser("req", (ctx: ParserContext) => {
@@ -295,7 +295,7 @@ export interface WithSepOptions {
 export function withSep<P extends CombinatorArg>(
   sep: CombinatorArg,
   p: P,
-  opts: WithSepOptions = {}
+  opts: WithSepOptions = {},
 ): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
   const { trailing = true, requireOne = false } = opts;
   const parser = parserArg(p);
@@ -315,7 +315,7 @@ export function withSep<P extends CombinatorArg>(
 /** match an series of one or more elements separated by a delimiter (e.g. a comma) */
 export function withSepPlus<P extends CombinatorArg>(
   sep: CombinatorArg,
-  p: P
+  p: P,
 ): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
   return withSep(sep, p, { requireOne: true }).traceName("withSepPlus");
 }
@@ -323,7 +323,7 @@ export function withSepPlus<P extends CombinatorArg>(
 /** run a parser with a provided token matcher (i.e. use a temporary lexing mode) */
 export function tokens<A extends CombinatorArg>(
   matcher: TokenMatcher,
-  arg: A
+  arg: A,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
   return parser(`tokens ${matcher._traceName}`, (state: ParserContext) => {
@@ -362,7 +362,7 @@ export function parserArg<A extends CombinatorArg>(arg: A): ParserFromArg<A> {
 
 /** A delayed parser definition, for making recursive parser definitions.  */
 export function fn<T, N extends TagRecord>(
-  fn: () => Parser<T, N>
+  fn: () => Parser<T, N>,
 ): Parser<T, N> {
   return parser("fn", (state: ParserContext): OptParserResult<T, N> => {
     if (!fn) {
@@ -376,7 +376,7 @@ export function fn<T, N extends TagRecord>(
 
 /** @return a replacement parser that doesn't propagate any tags */
 export function withTags<A extends CombinatorArg>(
-  arg: A
+  arg: A,
 ): Parser<ResultFromArg<A>, NoTags> {
   const p = parserArg(arg);
   return parser("withTags", (ctx: ParserContext) => {

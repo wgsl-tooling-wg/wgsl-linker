@@ -23,7 +23,10 @@ export function srcTrace(
   logInternal(parserLog, src, pos, ...msgs);
 }
 
-export function resultLog(result: ExtendedResult<any, any>, ...msgs: any[]): void {
+export function resultLog(
+  result: ExtendedResult<any, any>,
+  ...msgs: any[]
+): void {
   const { src, srcMap, start, end } = result;
   srcLog(srcMap ?? src, [start, end - 1], ...msgs);
 }
@@ -58,7 +61,7 @@ interface SrcPositions {
 
 function mapSrcPositions(
   srcMap: SrcMap,
-  destPos: number | [number, number]
+  destPos: number | [number, number],
 ): SrcPositions {
   const srcPos = srcMap.mapPositions(...[destPos].flat());
   const { src } = srcPos[0];
@@ -115,7 +118,7 @@ interface SrcLine {
 /** return the line in the src containing a given character postion */
 export function srcLine(
   src: string,
-  position: number | [number, number]
+  position: number | [number, number],
 ): SrcLine {
   let pos: number;
   let pos2: number | undefined;
