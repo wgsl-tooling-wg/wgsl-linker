@@ -441,8 +441,9 @@ export function tokenSkipSet<T, N extends TagRecord>(
   mainParser: Parser<T, N>
 ): Parser<T, N> {
   const ignoreSet = ignore ?? emptySet;
+  const ignoreValues = [...ignoreSet.values()].toString() || "(null)";
   return parser(
-    `tokenIgnore ${[...ignoreSet.values()]}`,
+    `tokenSkipSet ${ignoreValues}`,
     (ctx: ParserContext): OptParserResult<T, N> =>
       ctx.lexer.withIgnore(ignoreSet, () => mainParser._run(ctx))
   );
