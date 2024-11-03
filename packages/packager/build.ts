@@ -8,6 +8,7 @@ build({
   plugins: [raw()],
   bundle: true,
   platform: "node",
+  format: "esm",
   outfile: "bin/wgsl-packager",
   entryPoints: ["src/main.ts"],
 });

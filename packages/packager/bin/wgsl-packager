@@ -1,12 +1,17 @@
 #!/usr/bin/env node
-"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __commonJS = (cb, mod) => function __require() {
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined") return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
+var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps = (to, from, except, desc) => {
@@ -28,9 +33,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 // ../../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js
 var require_balanced_match = __commonJS({
-  "../../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/balanced-match@1.0.2/node_modules/balanced-match/index.js"(exports, module) {
     "use strict";
-    module2.exports = balanced;
+    module.exports = balanced;
     function balanced(a, b, str) {
       if (a instanceof RegExp) a = maybeMatch(a, str);
       if (b instanceof RegExp) b = maybeMatch(b, str);
@@ -86,9 +91,9 @@ var require_balanced_match = __commonJS({
 
 // ../../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js
 var require_brace_expansion = __commonJS({
-  "../../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js"(exports2, module2) {
+  "../../node_modules/.pnpm/brace-expansion@2.0.1/node_modules/brace-expansion/index.js"(exports, module) {
     var balanced = require_balanced_match();
-    module2.exports = expandTop;
+    module.exports = expandTop;
     var escSlash = "\0SLASH" + Math.random() + "\0";
     var escOpen = "\0OPEN" + Math.random() + "\0";
     var escClose = "\0CLOSE" + Math.random() + "\0";
@@ -258,7 +263,7 @@ function applyExtends(config, cwd, mergeExtends, _shim) {
     let pathToDefault = null;
     if (!isPath) {
       try {
-        pathToDefault = require.resolve(config.extends);
+        pathToDefault = __require.resolve(config.extends);
       } catch (_err) {
         return config;
       }
@@ -267,7 +272,7 @@ function applyExtends(config, cwd, mergeExtends, _shim) {
     }
     checkForCircularExtends(pathToDefault);
     previouslyVisitedConfigs.push(pathToDefault);
-    defaultConfig = isPath ? JSON.parse(shim.readFileSync(pathToDefault, "utf8")) : require(config.extends);
+    defaultConfig = isPath ? JSON.parse(shim.readFileSync(pathToDefault, "utf8")) : __require(config.extends);
     delete config.extends;
     defaultConfig = applyExtends(defaultConfig, shim.path.dirname(pathToDefault), mergeExtends, shim);
   }
@@ -318,8 +323,8 @@ function getProcessArgvBin() {
 }
 
 // ../../node_modules/.pnpm/yargs-parser@21.1.1/node_modules/yargs-parser/build/lib/index.js
-var import_util = require("util");
-var import_path = require("path");
+import { format } from "util";
+import { normalize, resolve } from "path";
 
 // ../../node_modules/.pnpm/yargs-parser@21.1.1/node_modules/yargs-parser/build/lib/string-utils.js
 function camelCase(str) {
@@ -1257,7 +1262,7 @@ function stripQuotes(val) {
 }
 
 // ../../node_modules/.pnpm/yargs-parser@21.1.1/node_modules/yargs-parser/build/lib/index.js
-var import_fs = require("fs");
+import { readFileSync } from "fs";
 var _a;
 var _b;
 var _c;
@@ -1275,16 +1280,16 @@ var parser = new YargsParser({
   env: () => {
     return env;
   },
-  format: import_util.format,
-  normalize: import_path.normalize,
-  resolve: import_path.resolve,
+  format,
+  normalize,
+  resolve,
   // TODO: figure  out a  way to combine ESM and CJS coverage, such  that
   // we can exercise all the lines below:
   require: (path3) => {
-    if (typeof require !== "undefined") {
-      return require(path3);
+    if (typeof __require !== "undefined") {
+      return __require(path3);
     } else if (path3.match(/\.json$/)) {
-      return JSON.parse((0, import_fs.readFileSync)(path3, "utf8"));
+      return JSON.parse(readFileSync(path3, "utf8"));
     } else {
       throw Error("only .json config files are supported in ESM");
     }
@@ -1303,7 +1308,7 @@ yargsParser.looksLikeNumber = looksLikeNumber;
 var lib_default = yargsParser;
 
 // ../../node_modules/.pnpm/yargs@17.7.2/node_modules/yargs/lib/platform-shims/esm.mjs
-var import_assert = require("assert");
+import { notStrictEqual, strictEqual } from "assert";
 
 // ../../node_modules/.pnpm/cliui@8.0.1/node_modules/cliui/build/lib/index.js
 var align = {
@@ -1594,42 +1599,42 @@ function ui(opts) {
 }
 
 // ../../node_modules/.pnpm/escalade@3.1.2/node_modules/escalade/sync/index.mjs
-var import_path2 = require("path");
-var import_fs2 = require("fs");
+import { dirname, resolve as resolve2 } from "path";
+import { readdirSync, statSync } from "fs";
 function sync_default(start, callback) {
-  let dir = (0, import_path2.resolve)(".", start);
-  let tmp, stats = (0, import_fs2.statSync)(dir);
+  let dir = resolve2(".", start);
+  let tmp, stats = statSync(dir);
   if (!stats.isDirectory()) {
-    dir = (0, import_path2.dirname)(dir);
+    dir = dirname(dir);
   }
   while (true) {
-    tmp = callback(dir, (0, import_fs2.readdirSync)(dir));
-    if (tmp) return (0, import_path2.resolve)(dir, tmp);
-    dir = (0, import_path2.dirname)(tmp = dir);
+    tmp = callback(dir, readdirSync(dir));
+    if (tmp) return resolve2(dir, tmp);
+    dir = dirname(tmp = dir);
     if (tmp === dir) break;
   }
 }
 
 // ../../node_modules/.pnpm/yargs@17.7.2/node_modules/yargs/lib/platform-shims/esm.mjs
-var import_util3 = require("util");
-var import_fs4 = require("fs");
-var import_url = require("url");
-var import_path4 = require("path");
+import { inspect } from "util";
+import { readFileSync as readFileSync3 } from "fs";
+import { fileURLToPath } from "url";
+import { basename, dirname as dirname2, extname, relative, resolve as resolve4 } from "path";
 
 // ../../node_modules/.pnpm/y18n@5.0.8/node_modules/y18n/build/lib/platform-shims/node.js
-var import_fs3 = require("fs");
-var import_util2 = require("util");
-var import_path3 = require("path");
+import { readFileSync as readFileSync2, statSync as statSync2, writeFile } from "fs";
+import { format as format2 } from "util";
+import { resolve as resolve3 } from "path";
 var node_default = {
   fs: {
-    readFileSync: import_fs3.readFileSync,
-    writeFile: import_fs3.writeFile
+    readFileSync: readFileSync2,
+    writeFile
   },
-  format: import_util2.format,
-  resolve: import_path3.resolve,
+  format: format2,
+  resolve: resolve3,
   exists: (file) => {
     try {
-      return (0, import_fs3.statSync)(file).isFile();
+      return statSync2(file).isFile();
     } catch (err) {
       return false;
     }
@@ -1804,27 +1809,26 @@ var y18n2 = (opts) => {
 var y18n_default = y18n2;
 
 // ../../node_modules/.pnpm/yargs@17.7.2/node_modules/yargs/lib/platform-shims/esm.mjs
-var import_meta = {};
 var REQUIRE_ERROR = "require is not supported by ESM";
 var REQUIRE_DIRECTORY_ERROR = "loading a directory of commands is not supported yet for ESM";
 var __dirname;
 try {
-  __dirname = (0, import_url.fileURLToPath)(import_meta.url);
+  __dirname = fileURLToPath(import.meta.url);
 } catch (e) {
   __dirname = process.cwd();
 }
 var mainFilename = __dirname.substring(0, __dirname.lastIndexOf("node_modules"));
 var esm_default = {
   assert: {
-    notStrictEqual: import_assert.notStrictEqual,
-    strictEqual: import_assert.strictEqual
+    notStrictEqual,
+    strictEqual
   },
   cliui: ui,
   findUp: sync_default,
   getEnv: (key) => {
     return process.env[key];
   },
-  inspect: import_util3.inspect,
+  inspect,
   getCallerFile: () => {
     throw new YError(REQUIRE_DIRECTORY_ERROR);
   },
@@ -1832,11 +1836,11 @@ var esm_default = {
   mainFilename: mainFilename || process.cwd(),
   Parser: lib_default,
   path: {
-    basename: import_path4.basename,
-    dirname: import_path4.dirname,
-    extname: import_path4.extname,
-    relative: import_path4.relative,
-    resolve: import_path4.resolve
+    basename,
+    dirname: dirname2,
+    extname,
+    relative,
+    resolve: resolve4
   },
   process: {
     argv: () => process.argv,
@@ -1847,7 +1851,7 @@ var esm_default = {
     nextTick: process.nextTick,
     stdColumns: typeof process.stdout.columns !== "undefined" ? process.stdout.columns : null
   },
-  readFileSync: import_fs4.readFileSync,
+  readFileSync: readFileSync3,
   require: () => {
     throw new YError(REQUIRE_ERROR);
   },
@@ -1858,7 +1862,7 @@ var esm_default = {
     return [...str].length;
   },
   y18n: y18n_default({
-    directory: (0, import_path4.resolve)(__dirname, "../../../locales"),
+    directory: resolve4(__dirname, "../../../locales"),
     updateFiles: false
   })
 };
@@ -2069,10 +2073,10 @@ function isFunction(arg) {
 
 // ../../node_modules/.pnpm/yargs@17.7.2/node_modules/yargs/build/lib/utils/which-module.js
 function whichModule(exported) {
-  if (typeof require === "undefined")
+  if (typeof __require === "undefined")
     return null;
-  for (let i = 0, files = Object.keys(require.cache), mod; i < files.length; i++) {
-    mod = require.cache[files[i]];
+  for (let i = 0, files = Object.keys(__require.cache), mod; i < files.length; i++) {
+    mod = __require.cache[files[i]];
     if (mod.exports === exported)
       return mod;
   }
@@ -6413,7 +6417,7 @@ minimatch.escape = escape;
 minimatch.unescape = unescape;
 
 // ../../node_modules/.pnpm/glob@11.0.0/node_modules/glob/dist/esm/glob.js
-var import_node_url2 = require("node:url");
+import { fileURLToPath as fileURLToPath3 } from "node:url";
 
 // ../../node_modules/.pnpm/lru-cache@11.0.1/node_modules/lru-cache/dist/esm/index.js
 var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
@@ -7785,24 +7789,24 @@ var LRUCache = class _LRUCache {
 };
 
 // ../../node_modules/.pnpm/path-scurry@2.0.0/node_modules/path-scurry/dist/esm/index.js
-var import_node_path = require("node:path");
-var import_node_url = require("node:url");
-var import_fs5 = require("fs");
-var actualFS = __toESM(require("node:fs"), 1);
-var import_promises = require("node:fs/promises");
+import { posix, win32 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { lstatSync, readdir as readdirCB, readdirSync as readdirSync2, readlinkSync, realpathSync as rps } from "fs";
+import * as actualFS from "node:fs";
+import { lstat, readdir, readlink, realpath } from "node:fs/promises";
 
 // ../../node_modules/.pnpm/minipass@7.1.2/node_modules/minipass/dist/esm/index.js
-var import_node_events = require("node:events");
-var import_node_stream = __toESM(require("node:stream"), 1);
-var import_node_string_decoder = require("node:string_decoder");
+import { EventEmitter } from "node:events";
+import Stream from "node:stream";
+import { StringDecoder } from "node:string_decoder";
 var proc = typeof process === "object" && process ? process : {
   stdout: null,
   stderr: null
 };
-var isStream = (s) => !!s && typeof s === "object" && (s instanceof Minipass || s instanceof import_node_stream.default || isReadable(s) || isWritable(s));
-var isReadable = (s) => !!s && typeof s === "object" && s instanceof import_node_events.EventEmitter && typeof s.pipe === "function" && // node core Writable streams have a pipe() method, but it throws
-s.pipe !== import_node_stream.default.Writable.prototype.pipe;
-var isWritable = (s) => !!s && typeof s === "object" && s instanceof import_node_events.EventEmitter && typeof s.write === "function" && typeof s.end === "function";
+var isStream = (s) => !!s && typeof s === "object" && (s instanceof Minipass || s instanceof Stream || isReadable(s) || isWritable(s));
+var isReadable = (s) => !!s && typeof s === "object" && s instanceof EventEmitter && typeof s.pipe === "function" && // node core Writable streams have a pipe() method, but it throws
+s.pipe !== Stream.Writable.prototype.pipe;
+var isWritable = (s) => !!s && typeof s === "object" && s instanceof EventEmitter && typeof s.write === "function" && typeof s.end === "function";
 var EOF = Symbol("EOF");
 var MAYBE_EMIT_END = Symbol("maybeEmitEnd");
 var EMITTED_END = Symbol("emittedEnd");
@@ -7878,7 +7882,7 @@ var PipeProxyErrors = class extends Pipe {
 };
 var isObjectModeOptions = (o) => !!o.objectMode;
 var isEncodingOptions = (o) => !o.objectMode && !!o.encoding && o.encoding !== "buffer";
-var Minipass = class extends import_node_events.EventEmitter {
+var Minipass = class extends EventEmitter {
   [FLOWING] = false;
   [PAUSED] = false;
   [PIPES] = [];
@@ -7929,7 +7933,7 @@ var Minipass = class extends import_node_events.EventEmitter {
       this[ENCODING] = null;
     }
     this[ASYNC] = !!options.async;
-    this[DECODER] = this[ENCODING] ? new import_node_string_decoder.StringDecoder(this[ENCODING]) : null;
+    this[DECODER] = this[ENCODING] ? new StringDecoder(this[ENCODING]) : null;
     if (options && options.debugExposeBuffer === true) {
       Object.defineProperty(this, "buffer", { get: () => this[BUFFER] });
     }
@@ -8670,18 +8674,18 @@ var Minipass = class extends import_node_events.EventEmitter {
 };
 
 // ../../node_modules/.pnpm/path-scurry@2.0.0/node_modules/path-scurry/dist/esm/index.js
-var realpathSync = import_fs5.realpathSync.native;
+var realpathSync = rps.native;
 var defaultFS = {
-  lstatSync: import_fs5.lstatSync,
-  readdir: import_fs5.readdir,
-  readdirSync: import_fs5.readdirSync,
-  readlinkSync: import_fs5.readlinkSync,
+  lstatSync,
+  readdir: readdirCB,
+  readdirSync: readdirSync2,
+  readlinkSync,
   realpathSync,
   promises: {
-    lstat: import_promises.lstat,
-    readdir: import_promises.readdir,
-    readlink: import_promises.readlink,
-    realpath: import_promises.realpath
+    lstat,
+    readdir,
+    readlink,
+    realpath
   }
 };
 var fsFromOption = (fsOption) => !fsOption || fsOption === defaultFS || fsOption === actualFS ? defaultFS : {
@@ -9692,7 +9696,7 @@ var PathWin32 = class _PathWin32 extends PathBase {
    * @internal
    */
   getRootString(path3) {
-    return import_node_path.win32.parse(path3).root;
+    return win32.parse(path3).root;
   }
   /**
    * @internal
@@ -9791,7 +9795,7 @@ var PathScurryBase = class {
   constructor(cwd = process.cwd(), pathImpl, sep2, { nocase, childrenCacheSize = 16 * 1024, fs: fs2 = defaultFS } = {}) {
     this.#fs = fsFromOption(fs2);
     if (cwd instanceof URL || cwd.startsWith("file://")) {
-      cwd = (0, import_node_url.fileURLToPath)(cwd);
+      cwd = fileURLToPath2(cwd);
     }
     const cwdPath = pathImpl.resolve(cwd);
     this.roots = /* @__PURE__ */ Object.create(null);
@@ -10332,7 +10336,7 @@ var PathScurryWin32 = class extends PathScurryBase {
   sep = "\\";
   constructor(cwd = process.cwd(), opts = {}) {
     const { nocase = true } = opts;
-    super(cwd, import_node_path.win32, "\\", { ...opts, nocase });
+    super(cwd, win32, "\\", { ...opts, nocase });
     this.nocase = nocase;
     for (let p = this.cwd; p; p = p.parent) {
       p.nocase = this.nocase;
@@ -10342,7 +10346,7 @@ var PathScurryWin32 = class extends PathScurryBase {
    * @internal
    */
   parseRootPath(dir) {
-    return import_node_path.win32.parse(dir).root.toUpperCase();
+    return win32.parse(dir).root.toUpperCase();
   }
   /**
    * @internal
@@ -10364,7 +10368,7 @@ var PathScurryPosix = class extends PathScurryBase {
   sep = "/";
   constructor(cwd = process.cwd(), opts = {}) {
     const { nocase = false } = opts;
-    super(cwd, import_node_path.posix, "/", { ...opts, nocase });
+    super(cwd, posix, "/", { ...opts, nocase });
     this.nocase = nocase;
   }
   /**
@@ -11256,7 +11260,7 @@ var Glob = class {
     if (!opts.cwd) {
       this.cwd = "";
     } else if (opts.cwd instanceof URL || opts.cwd.startsWith("file://")) {
-      opts.cwd = (0, import_node_url2.fileURLToPath)(opts.cwd);
+      opts.cwd = fileURLToPath3(opts.cwd);
     }
     this.cwd = opts.cwd || "";
     this.root = opts.root;
@@ -11456,8 +11460,8 @@ var glob = Object.assign(glob_, {
 glob.glob = glob;
 
 // src/packageWgsl.ts
-var import_node_path2 = __toESM(require("node:path"));
-var import_promises2 = __toESM(require("node:fs/promises"));
+import path2 from "node:path";
+import fs, { mkdir } from "node:fs/promises";
 
 // raw-loader:/Users/lee/wgsl-linker/packages/linker/src/WgslBundle.ts?raw
 var WgslBundle_default = '\nexport interface WgslBundle {\n  /** name of the package, e.g. wgsl-rand */\n  name: string;\n\n  /** npm version of the package  e.g. 0.4.1 */\n  version: string;\n\n  /** wesl edition of the code e.g. wesl_unstable_2024_1 */\n  edition: string;\n\n  /** map of wesl/wgsl modules: \n   *    keys are file paths, relative to package root (e.g. "./lib.wgsl") \n   *    values are wgsl/wesl code strings\n   */\n  modules: Record<string, string>;\n}';
@@ -11466,8 +11470,8 @@ var WgslBundle_default = '\nexport interface WgslBundle {\n  /** name of the pac
 async function packageWgsl(args) {
   const { packageJson, projectDir, outDir } = args;
   const modules = await loadModules(args);
-  const pkgJsonPath = import_node_path2.default.join(projectDir, "package.json");
-  const { name, version, exports: exports2 } = await loadPackageFields(pkgJsonPath);
+  const pkgJsonPath = path2.join(projectDir, "package.json");
+  const { name, version, exports } = await loadPackageFields(pkgJsonPath);
   const edition = "wesl_unstable_2024_1";
   await writeJsBundle({ name, version, edition, modules }, outDir);
   await writeTypeScriptDts(outDir);
@@ -11478,19 +11482,19 @@ export declare const wgslBundle: WgslBundle;
 export default wgslBundle;
 `;
   const declText = WgslBundle_default + constDecl;
-  const outPath = import_node_path2.default.join(outDir, "wgslBundle.d.ts");
-  await import_promises2.default.writeFile(outPath, declText);
+  const outPath = path2.join(outDir, "wgslBundle.d.ts");
+  await fs.writeFile(outPath, declText);
 }
 async function writeJsBundle(wgslBundle, outDir) {
-  await (0, import_promises2.mkdir)(outDir, { recursive: true });
+  await mkdir(outDir, { recursive: true });
   const bundleString = JSON.stringify(wgslBundle, null, 2);
   const outString = `
 export const wgslBundle = ${bundleString}
 
 export default wgslBundle;
   `;
-  const outPath = import_node_path2.default.join(outDir, "wgslBundle.js");
-  await import_promises2.default.writeFile(outPath, outString);
+  const outPath = path2.join(outDir, "wgslBundle.js");
+  await fs.writeFile(outPath, outString);
 }
 async function loadModules(args) {
   const { rootDir, outDir, packageJson } = args;
@@ -11498,10 +11502,10 @@ async function loadModules(args) {
     ignore: "node_modules/**"
   });
   const promisedSrcs = shaderFiles.map(
-    (f) => import_promises2.default.readFile(f, { encoding: "utf8" })
+    (f) => fs.readFile(f, { encoding: "utf8" })
   );
   const src = await Promise.all(promisedSrcs);
-  const relativePaths = shaderFiles.map((p) => import_node_path2.default.relative(rootDir, p));
+  const relativePaths = shaderFiles.map((p) => path2.relative(rootDir, p));
   const moduleEntries = zip(relativePaths, src);
   return Object.fromEntries(moduleEntries);
 }
@@ -11509,9 +11513,9 @@ function zip(as, bs) {
   return as.map((a, i) => [a, bs[i]]);
 }
 async function loadPackageFields(pkgJsonPath) {
-  const pkgJsonString = await import_promises2.default.readFile(pkgJsonPath, { encoding: "utf8" });
+  const pkgJsonString = await fs.readFile(pkgJsonPath, { encoding: "utf8" });
   const pkgJson = JSON.parse(pkgJsonString);
-  const { version, name, exports: exports2 } = pkgJson;
+  const { version, name, exports } = pkgJson;
   verifyField("version", version);
   verifyField("name", name);
   function verifyField(field, value) {
@@ -11520,7 +11524,7 @@ async function loadPackageFields(pkgJsonPath) {
       throw new Error("package.json incomplete");
     }
   }
-  return { name, version, exports: exports2 };
+  return { name, version, exports };
 }
 
 // src/packagerCli.ts
