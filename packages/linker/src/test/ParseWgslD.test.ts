@@ -40,7 +40,7 @@ test("structDecl parses struct member types", () => {
   const { appState } = testAppParse(structDecl, src);
   const { members } = appState[0] as StructElem;
   const typeNames = members.flatMap((m) => m.typeRefs.map((t) => t.name));
-  expect(typeNames).deep.eq(["f32", "i32"]);
+  expect(typeNames).toEqual(["f32", "i32"]);
 });
 
 test("parse struct", () => {
@@ -210,7 +210,7 @@ test("fnDecl parses fn with return type", () => {
     fn foo() -> MyType { }
   `;
   const { appState } = testAppParse(fnDecl, src);
-  expect((appState[0] as FnElem).typeRefs[0].name).eq("MyType");
+  expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
 test("fnDecl parses :type specifier in fn args", () => {
@@ -219,7 +219,7 @@ test("fnDecl parses :type specifier in fn args", () => {
   `;
   const { appState } = testAppParse(fnDecl, src);
   const { typeRefs } = appState[0] as FnElem;
-  expect(typeRefs[0].name).eq("MyType");
+  expect(typeRefs[0].name).toBe("MyType");
 });
 
 test("fnDecl parses :type specifier in fn block", () => {
@@ -229,7 +229,7 @@ test("fnDecl parses :type specifier in fn block", () => {
     }
   `;
   const { appState } = testAppParse(fnDecl, src);
-  expect((appState[0] as FnElem).typeRefs[0].name).eq("MyType");
+  expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
 test("parse type in <template> in fn args", () => {
@@ -238,17 +238,17 @@ test("parse type in <template> in fn args", () => {
 
   const { appState } = testAppParse(fnDecl, src);
   const { typeRefs } = appState[0] as FnElem;
-  expect(typeRefs[0].name).eq("vec2");
-  expect(typeRefs[1].name).eq("MyStruct");
+  expect(typeRefs[0].name).toBe("vec2");
+  expect(typeRefs[1].name).toBe("MyStruct");
 });
 
 test("parse simple templated type", () => {
   const src = `array<MyStruct,4>`;
 
   const { parsed } = testAppParse(typeSpecifier, src);
-  expect(parsed?.value[0].name).eq("array");
-  expect(parsed?.value[1].name).eq("MyStruct");
-  expect(parsed?.value.length).eq(2);
+  expect(parsed?.value[0].name).toBe("array");
+  expect(parsed?.value[1].name).toBe("MyStruct");
+  expect(parsed?.value.length).toBe(2);
 });
 
 test("parse nested template that ends with >> ", () => {
@@ -256,7 +256,7 @@ test("parse nested template that ends with >> ", () => {
 
   const { parsed } = testAppParse(typeSpecifier, src);
   const typeRefNames = parsed?.value.map((r) => r.name);
-  expect(typeRefNames).deep.eq(["vec2", "array", "MyStruct"]);
+  expect(typeRefNames).toEqual(["vec2", "array", "MyStruct"]);
 });
 
 test("parse struct member with templated type", () => {
@@ -264,7 +264,7 @@ test("parse struct member with templated type", () => {
   const { appState } = testAppParse(structDecl, src);
   const members = filterElems<StructElem>(appState, "struct")[0].members;
   const memberNames = members.flatMap((m) => m.typeRefs.map((t) => t.name));
-  expect(memberNames).deep.eq(["vec2", "array", "Bar"]);
+  expect(memberNames).toEqual(["vec2", "array", "Bar"]);
 });
 
 test("parse type in <template> in global var", () => {
@@ -273,8 +273,8 @@ test("parse type in <template> in global var", () => {
 
   const { appState } = testAppParse(globalVar, src);
   const typeRefs = (appState[0] as VarElem).typeRefs;
-  expect(typeRefs[0].name).eq("vec2");
-  expect(typeRefs[1].name).eq("MyStruct");
+  expect(typeRefs[0].name).toBe("vec2");
+  expect(typeRefs[1].name).toBe("MyStruct");
 });
 
 test("parse for(;;) {} not as a fn call", () => {
@@ -286,7 +286,7 @@ test("parse for(;;) {} not as a fn call", () => {
   const appState = testParseWgsl(src);
   const fnElem = filterElems<FnElem>(appState, "fn")[0];
   expect(fnElem).toBeDefined();
-  expect(fnElem.calls.length).eq(0);
+  expect(fnElem.calls.length).toBe(0);
 });
 
 test("eolf followed by blank line", () => {
@@ -308,8 +308,8 @@ test("parse fn with attributes and suffix comma", () => {
   expectNoLogErr(() => {
     const parsed = testParseWgsl(src);
     const first = parsed[0] as FnElem;
-    expect(first.kind).eq("fn");
-    expect(first.name).eq("main");
+    expect(first.kind).toBe("fn");
+    expect(first.name).toBe("main");
   });
 });
 
@@ -347,5 +347,5 @@ test("parse var x: foo.bar;", () => {
   const parsed = testParseWgsl(src);
 
   const varRef = parsed.find((e) => e.kind === "var");
-  expect(varRef?.typeRefs[0].name).eq("foo.bar");
+  expect(varRef?.typeRefs[0].name).toBe("foo.bar");
 });

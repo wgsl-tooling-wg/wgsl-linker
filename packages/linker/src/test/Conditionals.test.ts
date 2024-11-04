@@ -11,7 +11,7 @@ test("parse #if #endif", () => {
     `;
 
   const sourceMap = processConditionals(src, { foo: true });
-  expect(sourceMap.dest).contains("fn f() { }");
+  expect(sourceMap.dest).toContain("fn f() { }");
   expect(sourceMap.entries).toMatchInlineSnapshot(`
     [
       {
@@ -58,7 +58,7 @@ test("parse // #if !foo", () => {
     // #endif 
     `;
   const { dest } = processConditionals(src, { foo: false });
-  expect(dest).contains("fn f() { }");
+  expect(dest).toContain("fn f() { }");
 });
 
 test("parse #if !foo (true)", () => {
@@ -69,8 +69,8 @@ test("parse #if !foo (true)", () => {
     `;
   expectNoLogErr(() => {
     const { dest } = processConditionals(src, { foo: true });
-    expect(dest).not.contains("fn");
-    expect(dest).not.contains("//");
+    expect(dest).not.toContain("fn");
+    expect(dest).not.toContain("//");
   });
 });
 
@@ -83,8 +83,8 @@ test("parse #if !foo #else #endif", () => {
     // #endif 
     `;
   const { dest } = processConditionals(src, { foo: true });
-  expect(dest).contains("fn g()");
-  expect(dest).not.contains("fn f()");
+  expect(dest).toContain("fn g()");
+  expect(dest).not.toContain("fn f()");
 });
 
 test("parse nested #if", () => {
@@ -103,9 +103,9 @@ test("parse nested #if", () => {
     #endif 
     `;
   const { dest } = processConditionals(src, { foo: true, zap: true });
-  expect(dest).contains("fn zap()");
-  expect(dest).contains("fn g()");
-  expect(dest).not.contains("fn f()");
+  expect(dest).toContain("fn zap()");
+  expect(dest).toContain("fn g()");
+  expect(dest).not.toContain("fn f()");
 });
 
 test("parse #if #endif with extra space", () => {
@@ -116,7 +116,7 @@ test("parse #if #endif with extra space", () => {
     `;
 
   const { dest } = processConditionals(src, {});
-  expect(dest).not.contains("fn f() { }");
+  expect(dest).not.toContain("fn f() { }");
 });
 
 test("parse last line", () => {
@@ -124,7 +124,7 @@ test("parse last line", () => {
     #x
     y`;
   const { dest } = processConditionals(src, {});
-  expect(dest).eq(src);
+  expect(dest).toBe(src);
 });
 
 test("srcLog with srcMap", () => {

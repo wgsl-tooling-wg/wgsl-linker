@@ -10,13 +10,13 @@ import { testAppParse } from "./TestUtil.js";
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";
   const { position } = testAppParse(lineComment, src);
-  expect(position).eq(src.length);
+  expect(position).toBe(src.length);
 });
 
 test("lineComment parse // foo bar \\n", () => {
   const src = "// foo bar\n";
   const { position } = testAppParse(lineComment, src);
-  expect(position).eq(src.length);
+  expect(position).toBe(src.length);
 });
 
 test("blockComment parses /* comment */", () => {

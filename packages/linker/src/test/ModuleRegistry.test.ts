@@ -12,7 +12,7 @@ test("findTextModule", () => {
   });
   const parsed = registry.parsed();
   const m = parsed.findTextModule("bar");
-  expect(m?.modulePath).eq("bar");
+  expect(m?.modulePath).toBe("bar");
 });
 
 test("getModuleExport", () => {
@@ -33,5 +33,5 @@ test("getModuleExport", () => {
   const impMod = parsed.findTextModule("./main")!;
 
   const m = parsed.getModuleExport(impMod, ["bar", "foo"]);
-  expect(m?.module.modulePath).eq("bar");
+  expect(m?.module.modulePath).toBe("bar");
 });

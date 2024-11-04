@@ -13,7 +13,7 @@ test("ext params don't replace override", () => {
   `;
 
   const linked = linkTestOpts({ runtimeParams: { workgroupSizeX: 4 } }, src);
-  expect(linked).contains("override workgroupSizeX = 4u;");
+  expect(linked).toContain("override workgroupSizeX = 4u;");
 });
 
 test("import using replace template and ext param", () => {
@@ -35,7 +35,7 @@ test("import using replace template and ext param", () => {
   const templates = [simpleTemplate];
   const runtimeParams = { Threads: 128 };
   const linked = linkTestOpts({ templates, runtimeParams }, src, module1);
-  expect(linked).contains("step < 128");
+  expect(linked).toContain("step < 128");
 });
 
 test("#template in src", () => {
@@ -49,10 +49,8 @@ test("#template in src", () => {
   const templates = [simpleTemplate];
   const runtimeParams = { threads: 128 };
   const linked = linkTestOpts({ templates, runtimeParams }, src);
-  expect(linked).includes("step < 128");
+  expect(linked).toContain("step < 128");
 });
-
-
 
 /** requires 'module' syntax, which may not make the shared design */
 test("import foo from zap (multiple modules)", () => {
@@ -74,7 +72,7 @@ test("import foo from zap (multiple modules)", () => {
   `;
 
   const linked = linkTest(src, module1, module2);
-  expect(linked).contains("/* module2 */");
+  expect(linked).toContain("/* module2 */");
 });
 
 test("import with parameter", () => {
@@ -92,7 +90,7 @@ test("import with parameter", () => {
     }
   `;
   const linked = linkTest(src, myModule);
-  expect(linked).includes("a: MyElem");
+  expect(linked).toContain("a: MyElem");
 });
 
 test("#import twice with different params", () => {
@@ -111,8 +109,8 @@ test("#import twice with different params", () => {
   `;
 
   const linked = linkTest(src, module0);
-  expect(linked).includes("fn bar(x:B) { /* B */ }");
-  expect(linked).includes("fn foo(x:A) { /* A */ }");
+  expect(linked).toContain("fn bar(x:B) { /* B */ }");
+  expect(linked).toContain("fn foo(x:A) { /* A */ }");
 });
 
 test("import a struct with imp/exp params", () => {
@@ -132,7 +130,7 @@ test("import a struct with imp/exp params", () => {
   `;
 
   const linked = linkTest(src, module1);
-  expect(linked).contains("x: i32");
+  expect(linked).toContain("x: i32");
 });
 
 test("#import using simple template and imp/exp param", () => {
@@ -156,8 +154,8 @@ test("#import using simple template and imp/exp param", () => {
   const templates = [simpleTemplate];
   const runtimeParams = { Foo: "Bar" };
   const linked = linkTestOpts({ templates, runtimeParams }, src, module1);
-  expect(linked).contains("step < 128");
-  expect(linked).contains("/* Bar */");
+  expect(linked).toContain("step < 128");
+  expect(linked).toContain("/* Bar */");
 });
 
 test("#import using external param", () => {
@@ -177,7 +175,7 @@ test("#import using external param", () => {
 
   const runtimeParams = { workgroupSize: 128 };
   const linked = linkTestOpts({ runtimeParams }, src, module1);
-  expect(linked).contains("step < 128");
+  expect(linked).toContain("step < 128");
 });
 
 test("external param w/o ext. prefix doesn't override imp/exp params", () => {
@@ -197,8 +195,8 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   `;
   const runtimeParams = { workgroupThreads: 128 };
   const linked = linkTestOpts({ runtimeParams }, src, module1);
-  expect(linked).not.includes("step < 128");
-  expect(linked).includes("step < workgroupThreads");
+  expect(linked).not.toContain("step < 128");
+  expect(linked).toContain("step < workgroupThreads");
 });
 
 test("import with simple template", () => {
@@ -217,5 +215,5 @@ test("import with simple template", () => {
     templates: [simpleTemplate],
   });
   const linked = registry.link("./main", { WORKGROUP_SIZE: "128" });
-  expect(linked).includes("step < 128");
+  expect(linked).toContain("step < 128");
 });

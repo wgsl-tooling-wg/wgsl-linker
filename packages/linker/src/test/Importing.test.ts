@@ -20,9 +20,9 @@ test.skip("transitive with importing", () => {
       reduceWorkgroup(localId); // call the imported function
     }`;
   const linked = linkTest(src, binOpModule, reduceModule);
-  expect(linked).includes("myWork[index]");
-  expect(linked).not.includes("work[");
-  expect(linked).includes("binOpImpl");
+  expect(linked).toContain("myWork[index]");
+  expect(linked).not.toContain("work[");
+  expect(linked).toContain("binOpImpl");
 });
 
 test.skip("#export importing", () => {
@@ -38,5 +38,5 @@ test.skip("#export importing", () => {
     #export(X)
     fn bar(x:X) { } `;
   const linked = linkTest(src, module1, module2);
-  expect(linked).contains("fn bar(x:B)");
+  expect(linked).toContain("fn bar(x:B)");
 });

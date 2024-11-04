@@ -19,7 +19,7 @@ test("link with definition", async () => {
        ./src/test/wgsl/util.wgsl
        --define EXTRA=true`
   );
-  expect(logged).to.include("fn extra()");
+  expect(logged).toContain("fn extra()");
 });
 
 async function cliLine(argsLine: string): Promise<string> {

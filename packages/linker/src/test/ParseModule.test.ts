@@ -37,8 +37,8 @@ test.skip("match #extends", () => {
   `;
   const module = testParseModule(src);
   const merges = module.structs[0].extendsElems!;
-  expect(merges[0].name).eq("Foo");
-  expect(merges[1].name).eq("Bar");
+  expect(merges[0].name).toBe("Foo");
+  expect(merges[1].name).toBe("Bar");
 });
 
 test("read simple struct export", () => {
@@ -73,9 +73,9 @@ test.skip("simple #template preserves src map", () => {
   `;
   const templates = new Map([["simple", simpleTemplate.apply]]);
   const textModule = parseModule(src, "./foo", { XX: "/**/" }, templates);
-  expect(textModule.preppedSrc).includes("fn foo() { /**/ }");
-  expect(textModule.preppedSrc).equals(expected);
-  expect(textModule.srcMap.entries).length(3);
+  expect(textModule.preppedSrc).toContain("fn foo() { /**/ }");
+  expect(textModule.preppedSrc).toBe(expected);
+  expect(textModule.srcMap.entries.length).toBe(3);
 });
 
 test.skip("parse error shows correct line after simple #template", () => {

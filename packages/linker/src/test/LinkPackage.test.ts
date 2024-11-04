@@ -20,5 +20,5 @@ test("import rand() from a package", () => {
 
   const registry = new ModuleRegistry({ wgsl, libs: [lib] });
   const result = registry.link("./main");
-  expect(result).includes("fn pcg_2u_3f");
+  expect(result).toContain("fn pcg_2u_3f");
 });

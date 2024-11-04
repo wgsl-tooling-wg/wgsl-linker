@@ -6,7 +6,7 @@ test("slice middle", () => {
   const src = "aaabbbc";
   const srcMap = sliceReplace(src, [{ start: 3, end: 6, replacement: "X" }]);
   const { dest, entries } = srcMap;
-  expect(dest).eq("aaaXc");
+  expect(dest).toBe("aaaXc");
   expect(entries).toMatchInlineSnapshot(`
     [
       {
@@ -37,7 +37,7 @@ test("slice middle", () => {
 test("slice end", () => {
   const src = "aaabbb";
   const srcMap = sliceReplace(src, [{ start: 3, end: 6, replacement: "X" }]);
-  expect(srcMap.dest).eq("aaaX");
+  expect(srcMap.dest).toBe("aaaX");
   validateDestCovered(srcMap);
 });
 
@@ -45,7 +45,7 @@ test("slice beginning", () => {
   const src = "aaabbb";
   const srcMap = sliceReplace(src, [{ start: 0, end: 3, replacement: "X" }]);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq("Xbbb");
+  expect(srcMap.dest).toBe("Xbbb");
 });
 
 test("slice multiple", () => {
@@ -55,22 +55,22 @@ test("slice multiple", () => {
     { start: 0, end: 3, replacement: "A" },
   ]);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq("ABc");
-  expect(srcMap.entries).length(3);
+  expect(srcMap.dest).toBe("ABc");
+  expect(srcMap.entries.length).toBe(3);
 });
 
 test("slice none", () => {
   const src = "aaabbbc";
   const srcMap = sliceReplace(src, []);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq(src);
+  expect(srcMap.dest).toBe(src);
 });
 
 test("slice none with start and end", () => {
   const src = "aaabbbc";
   const srcMap = sliceReplace(src, [], 3, 6);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq("bbb");
+  expect(srcMap.dest).toBe("bbb");
 });
 
 test("slice one with start and end", () => {
@@ -79,7 +79,7 @@ test("slice one with start and end", () => {
   const slices = [{ start: 3, end: 6, replacement: "B" }];
   const srcMap = sliceReplace(src, slices, 2);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq("aBc");
+  expect(srcMap.dest).toBe("aBc");
 });
 
 test("slice with empty replacement", () => {
@@ -88,7 +88,7 @@ test("slice with empty replacement", () => {
   const slices = [{ start: 3, end: 6, replacement: "" }];
   const srcMap = sliceReplace(src, slices);
   validateDestCovered(srcMap);
-  expect(srcMap.dest).eq("aaac");
+  expect(srcMap.dest).toBe("aaac");
 });
 
 /** verify that the srcMap covers every part of the destination text */
@@ -96,8 +96,8 @@ function validateDestCovered(srcMap: SrcMap): void {
   const { dest, entries } = srcMap;
   let destPos = 0;
   entries.forEach((e) => {
-    expect(e.destStart).eq(destPos);
+    expect(e.destStart).toBe(destPos);
     destPos = e.destEnd;
   });
-  expect(destPos).eq(dest.length);
+  expect(destPos).toBe(dest.length);
 }
