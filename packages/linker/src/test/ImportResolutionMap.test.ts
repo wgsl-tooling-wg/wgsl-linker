@@ -1,6 +1,10 @@
 import { expect, test } from "vitest";
 import { importResolutionMap } from "../ImportResolutionMap.js";
-import { exportsToStrings, logResolveMap, pathsToStrings } from "../LogResolveMap.js";
+import {
+  exportsToStrings,
+  logResolveMap,
+  pathsToStrings,
+} from "../LogResolveMap.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { TextExport } from "../ParseModule.js";
 
@@ -24,16 +28,16 @@ test("simple tree", () => {
   const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
 
-  expect(resolveMap.exportMap.size).eq(1);
+  expect(resolveMap.exportMap.size).toBe(1);
   const [impPath, impToExp] = [...resolveMap.exportMap.entries()][0];
-  expect(impPath).eq("bar/foo");
-  expect(impToExp.modExp.module.modulePath).eq("bar");
-  expect((impToExp.modExp.exp as TextExport).ref.name).eq("foo");
+  expect(impPath).toBe("bar/foo");
+  expect(impToExp.modExp.module.modulePath).toBe("bar");
+  expect((impToExp.modExp.exp as TextExport).ref.name).toBe("foo");
 
-  expect(resolveMap.pathsMap.length).eq(1);
+  expect(resolveMap.pathsMap.length).toBe(1);
   const [impSegments, expSegments] = resolveMap.pathsMap[0];
-  expect(impSegments).deep.eq(["bar", "foo"]);
-  expect(expSegments).eq("bar/foo");
+  expect(impSegments).toEqual(["bar", "foo"]);
+  expect(expSegments).toBe("bar/foo");
 });
 
 test("tree with path segment list", () => {
@@ -54,11 +58,11 @@ test("tree with path segment list", () => {
   const impMod = parsedModules.findTextModule("./main")!;
   const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
-  expect(pathsToStrings(resolveMap)).deep.eq([
+  expect(pathsToStrings(resolveMap)).toEqual([
     "bar/foo -> bar/foo",
     "bar/zah -> bar/zah",
   ]);
-  expect(exportsToStrings(resolveMap)).deep.eq([
+  expect(exportsToStrings(resolveMap)).toEqual([
     "bar/foo -> bar/foo",
     "bar/zah -> bar/zah",
   ]);
@@ -83,11 +87,11 @@ test.skip("tree with trailing wildcard", () => {
   const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
   logResolveMap(resolveMap);
-  // expect(pathsToStrings(resolveMap)).deep.eq([
+  // expect(pathsToStrings(resolveMap)).toEqual([
   //   "bar/foo -> bar/foo",
   //   "bar/zah -> bar/zah",
   // ]);
-  // expect(exportsToStrings(resolveMap)).deep.eq([
+  // expect(exportsToStrings(resolveMap)).toEqual([
   //   "bar/foo -> bar/foo",
   //   "bar/zah -> bar/zah",
   // ]);

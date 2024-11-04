@@ -210,5 +210,5 @@ test.skip("extend struct with rename", () => {
     `;
 
   const linked = linkTest(src, module1);
-  expect(linked).includes("fill: vec4f");
+  expect(linked).toContain("fill: vec4f");
 });

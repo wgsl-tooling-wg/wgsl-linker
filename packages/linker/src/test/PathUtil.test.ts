@@ -5,30 +5,30 @@ import { normalize } from "../PathUtil.js";
 
 test("normalize ./foo", () => {
   const n = normalize("./foo");
-  expect(n).equals("foo");
+  expect(n).toBe("foo");
 });
 
 test("normalize ./foo/./", () => {
   const n = normalize("./foo/./");
-  expect(n).equals("foo");
+  expect(n).toBe("foo");
 });
 
 test("normalize foo/bar/..", () => {
   const n = normalize("foo/bar/..");
-  expect(n).equals("foo");
+  expect(n).toBe("foo");
 });
 
 test("normalize ./foo/bar/../.", () => {
   const n = normalize("./foo/bar/../.");
-  expect(n).equals("foo");
+  expect(n).toBe("foo");
 });
 
 test("normalize ../foo", () => {
   const n = normalize("../foo");
-  expect(n).equals("../foo");
+  expect(n).toBe("../foo");
 });
 
 test("normalize ../../foo", () => {
   const n = normalize("../../foo");
-  expect(n).equals("../../foo");
+  expect(n).toBe("../../foo");
 });

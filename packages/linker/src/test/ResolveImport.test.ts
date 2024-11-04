@@ -27,8 +27,8 @@ test("resolveImport foo() from import bar/foo", () => {
 
   const found = resolveImport("foo", resolveMap);
   expect(found).toBeDefined();
-  expect(found?.modExp.module.modulePath).eq("bar");
-  expect((found?.modExp.exp as TextExport).ref.name).eq("foo");
+  expect(found?.modExp.module.modulePath).toBe("bar");
+  expect((found?.modExp.exp as TextExport).ref.name).toBe("foo");
 });
 
 test("resolveImport bar/foo() from import bar/foo", () => {
@@ -52,6 +52,6 @@ test("resolveImport bar/foo() from import bar/foo", () => {
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
   const found = resolveImport("bar.foo", resolveMap);
   expect(found).toBeDefined();
-  expect(found?.modExp.module.modulePath).eq("bar");
-  expect((found?.modExp.exp as TextExport).ref.name).eq("foo");
+  expect(found?.modExp.module.modulePath).toBe("bar");
+  expect((found?.modExp.exp as TextExport).ref.name).toBe("foo");
 });

@@ -51,7 +51,7 @@ export function testParse<T, N extends TagRecord = NoTags, S = any>(
 export function expectNoLogErr<T>(fn: () => T): T {
   const { log, logged } = logCatch();
   const result = _withBaseLogger(log, fn);
-  expect(logged()).eq("");
+  expect(logged()).toBe("");
   return result;
 }
 

@@ -142,7 +142,6 @@ test("import and resolve conflicting support function", (ctx) => {
   });
 });
 
-
 test("import support fn that references another import", (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
@@ -187,7 +186,6 @@ test("import support fn from two exports", (ctx) => {
   });
 });
 
-
 test("import a struct", (ctx) => {
   linkTest(ctx.task.name, {
     linked: `
@@ -201,7 +199,6 @@ test("import a struct", (ctx) => {
     `,
   });
 });
-
 
 test("import fn with support struct constructor", (ctx) => {
   linkTest(ctx.task.name, {
@@ -220,7 +217,6 @@ test("import fn with support struct constructor", (ctx) => {
     `,
   });
 });
-
 
 test("import a transitive struct", (ctx) => {
   linkTest(ctx.task.name, {
@@ -321,18 +317,18 @@ function linkTest(name: string, expectation: LinkExpectation): void {
       const expectLines = expectTrimmed.split("\n");
       const resultLines = result.split("\n");
       expectLines.forEach((line, i) => {
-        expect(resultLines[i]).eq(line);
+        expect(resultLines[i]).toBe(line);
       });
     }
   }
   if (includes !== undefined) {
     includes.forEach((inc) => {
-      expect(result).includes(inc);
+      expect(result).toContain(inc);
     });
   }
   if (excludes !== undefined) {
     excludes.forEach((exc) => {
-      expect(result).not.includes(exc);
+      expect(result).not.toContain(exc);
     });
   }
 }

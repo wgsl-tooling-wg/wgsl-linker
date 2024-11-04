@@ -4,14 +4,14 @@ import { gleamImport } from "../GleamImport.js";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
   const result = testParse(gleamImport, ctx.task.name);
-  expect(result.parsed).is.not.null;
+  expect(result.parsed).not.toBeNull();
   return result;
 }
 /* ------  success cases  -------   */
 
 test("import ./foo/bar;", (ctx) => {
   const result = expectParses(ctx);
-  expect(result.position).eq(ctx.task.name.length); // consume semicolon (so that linking will remove it)
+  expect(result.position).toBe(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
 
 test("import foo-bar/boo", (ctx) => {

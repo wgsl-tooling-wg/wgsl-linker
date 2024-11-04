@@ -78,6 +78,6 @@ test("parse fn foo() with tagged results", () => {
     const [fnName] = result.tags.fnName;
     expect(fnName).toBe("foo");
     const annotations: string[] = result.tags.annotation;
-    expect(annotations).to.deep.eq(["export"]);
+    expect(annotations).to.toEqual(["export"]);
   }
 });

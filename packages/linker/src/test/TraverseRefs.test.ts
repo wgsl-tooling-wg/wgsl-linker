@@ -23,9 +23,9 @@ test("traverse a fn to struct ref", () => {
 
   const refs = traverseTest(src, module1);
   const exp = refs[1] as TextRef;
-  expect(exp.kind).eq("txt");
-  expect(exp.elem.kind).eq("struct");
-  expect(exp.elem.name).eq("AStruct");
+  expect(exp.kind).toBe("txt");
+  expect(exp.elem.kind).toBe("struct");
+  expect(exp.elem.name).toBe("AStruct");
 });
 
 test("traverse simple gleam style import", () => {
@@ -39,9 +39,9 @@ test("traverse simple gleam style import", () => {
   `;
   const refs = traverseTest(main, bar);
   const exp = refs[1] as TextRef;
-  expect(exp.kind).eq("txt");
-  expect(exp.elem.kind).eq("fn");
-  expect(exp.elem.name).eq("foo");
+  expect(exp.kind).toBe("txt");
+  expect(exp.elem.kind).toBe("fn");
+  expect(exp.elem.name).toBe("foo");
 });
 
 test("traverse nested import with params and support fn", () => {
@@ -73,9 +73,9 @@ test("traverse nested import with params and support fn", () => {
   const first = refs[1] as TextRef;
   const second = refs[2] as TextRef;
   expect(first.kind).toBe("txt");
-  expect(first.expInfo?.expImpArgs).deep.eq([["A", "u32"]]);
+  expect(first.expInfo?.expImpArgs).toEqual([["A", "u32"]]);
   expect(second.kind).toBe("txt");
-  expect(second.elem.name).eq("support");
+  expect(second.elem.name).toBe("support");
 });
 
 test.skip("traverse importing", () => {
@@ -95,7 +95,7 @@ test.skip("traverse importing", () => {
   const refs = traverseTest(src, module1, module2);
 
   const importingRef = refs[2] as TextRef;
-  expect(importingRef.expInfo?.expImpArgs).deep.eq([["X", "B"]]);
+  expect(importingRef.expInfo?.expImpArgs).toEqual([["X", "B"]]);
 });
 
 test.skip("traverse double importing", () => {
@@ -120,8 +120,8 @@ test.skip("traverse double importing", () => {
     const er = r as TextRef;
     return er ? [er.expInfo?.expImpArgs] : [];
   });
-  expect(expImpArgs[2]).deep.eq([["X", "B"]]);
-  expect(expImpArgs[3]).deep.eq([["Y", "B"]]);
+  expect(expImpArgs[2]).toEqual([["X", "B"]]);
+  expect(expImpArgs[3]).toEqual([["Y", "B"]]);
 });
 
 test.skip("traverse importing from a support fn", () => {
@@ -167,7 +167,7 @@ test.skip("traverse importing from a local call fails", () => {
     fn bar(x:X) { } `;
 
   const { log } = traverseWithLog(src, module1, module2);
-  expect(log.length).not.eq(0);
+  expect(log.length).not.toBe(0);
 });
 
 test.skip("importing args don't match", () => {
@@ -269,9 +269,9 @@ test("traverse a global var to struct ref", () => {
 
   const refs = traverseTest(src, module1);
   const exp = refs[1] as TextRef;
-  expect(exp.kind).eq("txt");
-  expect(exp.elem.kind).eq("struct");
-  expect(exp.elem.name).eq("Uniforms");
+  expect(exp.kind).toBe("txt");
+  expect(exp.elem.kind).toBe("struct");
+  expect(exp.elem.name).toBe("Uniforms");
 });
 
 test("traverse transitive struct refs", () => {
@@ -383,7 +383,7 @@ test("traverse with local support struct", () => {
 
   const refs = traverseTest(src, module1);
   const refNames = refs.map(refName);
-  expect(refNames).deep.eq(["B", "b", "A"]);
+  expect(refNames).toEqual(["B", "b", "A"]);
 });
 
 test("traverse from return type of function", () => {
@@ -399,7 +399,7 @@ test("traverse from return type of function", () => {
 
   const refs = traverseTest(src, module1);
   const refNames = refs.map(refName);
-  expect(refNames).deep.eq(["b", "A"]);
+  expect(refNames).toEqual(["b", "A"]);
 });
 
 test("traverse skips built in fn and type", () => {
@@ -415,8 +415,8 @@ test("traverse skips built in fn and type", () => {
   const { refs, log } = traverseWithLog(src);
   const refNames = refs.map(refName);
   // refs.map(r => refLog(r));
-  expect(refNames).deep.eq(["foo", "bar"]);
-  expect(log).eq("");
+  expect(refNames).toEqual(["foo", "bar"]);
+  expect(log).toBe("");
 });
 
 test("type inside fn with same name as fn", () => {
@@ -428,8 +428,8 @@ test("type inside fn with same name as fn", () => {
     fn bar() {}
   `;
   const { refs, log } = traverseWithLog(src);
-  expect(log).is.empty;
-  expect(refs).length(2);
+  expect(log).toBe("");
+  expect(refs.length).toBe(2);
 });
 
 test("call inside fn with same name as fn", () => {
@@ -439,8 +439,8 @@ test("call inside fn with same name as fn", () => {
     }
   `;
   const { refs, log } = traverseWithLog(src);
-  expect(refs).length(1);
-  expect(log).is.empty;
+  expect(refs.length).toBe(1);
+  expect(log).toBe("");
 });
 
 test("call cross reference", () => {
@@ -455,10 +455,10 @@ test("call cross reference", () => {
   `;
   const { refs, log } = traverseWithLog(src);
   const refNames = refs.map((r) => (r as TextRef).elem.name);
-  expect(refNames).contains("foo");
-  expect(refNames).contains("bar");
-  expect(refNames).length(2);
-  expect(log).is.empty;
+  expect(refNames).toContain("foo");
+  expect(refNames).toContain("bar");
+  expect(refNames.length).toBe(2);
+  expect(log).toBe("");
 });
 
 test("struct self reference", () => {
@@ -472,7 +472,7 @@ test("struct self reference", () => {
     }
   `;
   const { log } = traverseWithLog(src);
-  expect(log).is.empty;
+  expect(log).toBe("");
 });
 
 test("struct cross reference", () => {
@@ -485,17 +485,17 @@ test("struct cross reference", () => {
     }
   `;
   const { refs, log } = traverseWithLog(src);
-  expect(log).is.empty;
+  expect(log).toBe("");
   const refNames = refs.map((r) => (r as any).elem.name);
-  expect(refNames).includes("A");
-  expect(refNames).includes("B");
-  expect(refNames).length(2);
+  expect(refNames).toContain("A");
+  expect(refNames).toContain("B");
+  expect(refNames.length).toBe(2);
 });
 
 test("parse texture_storage_2d with texture format in type position", () => {
   const src = `var t: texture_storage_2d<rgba8unorm, write>;`;
   const { log } = traverseWithLog(src);
-  expect(log).is.empty;
+  expect(log).toBe("");
 });
 
 /** run traverseRefs with no filtering and return the refs and the error log output */

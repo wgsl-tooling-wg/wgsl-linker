@@ -2,28 +2,22 @@ import { _withBaseLogger, tokens } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import {
-  ModuleElem,
-  TreeImportElem
-} from "../AbstractElems.js";
+import { ModuleElem, TreeImportElem } from "../AbstractElems.js";
 import { SimpleSegment, treeToString } from "../ImportTree.js";
 import { argsTokens } from "../MatchWgslD.js";
-import {
-  directive,
-  importing
-} from "../ParseDirective.js";
+import { directive, importing } from "../ParseDirective.js";
 import { parseWgslD } from "../ParseWgslD.js";
 import { last } from "../Util.js";
 import { testAppParse } from "./TestUtil.js";
 
 test("directive parses #export", () => {
   const { appState } = testAppParse(directive, "#export");
-  expect(appState[0].kind).equals("export");
+  expect(appState[0].kind).toBe("export");
 });
 
 test("parse #export", () => {
   const parsed = parseWgslD("#export");
-  expect(parsed[0].kind).equals("export");
+  expect(parsed[0].kind).toBe("export");
 });
 
 test("parse import foo/bar", () => {
@@ -114,26 +108,26 @@ test("parse extends", () => {
 test("parse module foo.bar.ca", () => {
   const src = `module foo.bar.ca`;
   const appState = parseWgslD(src);
-  expect(appState[0].kind).eq("module");
-  expect((appState[0] as ModuleElem).name).eq("foo.bar.ca");
+  expect(appState[0].kind).toBe("module");
+  expect((appState[0] as ModuleElem).name).toBe("foo.bar.ca");
 });
 
 test("module foo.bar.ca", (ctx) => {
   const appState = parseWgslD(ctx.task.name);
-  expect(appState[0].kind).eq("module");
-  expect((appState[0] as ModuleElem).name).eq("foo.bar.ca");
+  expect(appState[0].kind).toBe("module");
+  expect((appState[0] as ModuleElem).name).toBe("foo.bar.ca");
 });
 
 test("module foo::bar::ba", (ctx) => {
   const appState = parseWgslD(ctx.task.name);
-  expect(appState[0].kind).eq("module");
-  expect((appState[0] as ModuleElem).name).eq("foo/bar/ba");
+  expect(appState[0].kind).toBe("module");
+  expect((appState[0] as ModuleElem).name).toBe("foo/bar/ba");
 });
 
 test("module foo/bar/ba", (ctx) => {
   const appState = parseWgslD(ctx.task.name);
-  expect(appState[0].kind).eq("module");
-  expect((appState[0] as ModuleElem).name).eq("foo/bar/ba");
+  expect(appState[0].kind).toBe("module");
+  expect((appState[0] as ModuleElem).name).toBe("foo/bar/ba");
 });
 
 test("parse import with numeric types", () => {
@@ -143,27 +137,27 @@ test("parse import with numeric types", () => {
 
   const segments = (appState[0] as TreeImportElem).imports.segments;
   const lastSegment = last(segments) as SimpleSegment;
-  expect(lastSegment.args).deep.eq(nums);
+  expect(lastSegment.args).toEqual(nums);
 });
 
 test("#import foo from ./util", (ctx) => {
   const appState = parseWgslD(ctx.task.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
-  expect(segments).eq("./util/foo");
+  expect(segments).toBe("./util/foo");
 });
 
 test('import { foo } from "./bar"', (ctx) => {
   const appState = parseWgslD(ctx.task.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
-  expect(segments).eq("./bar/foo");
+  expect(segments).toBe("./bar/foo");
 });
 
 test('import { foo, bar } from "./bar"', (ctx) => {
   const appState = parseWgslD(ctx.task.name);
   const imports = appState.filter((e) => e.kind === "treeImport");
   const segments = imports.map((i) => treeToString(i.imports));
-  expect(segments).includes("./bar/foo");
-  expect(segments).includes("./bar/bar");
+  expect(segments).toContain("./bar/foo");
+  expect(segments).toContain("./bar/bar");
 });

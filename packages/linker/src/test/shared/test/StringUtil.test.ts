@@ -3,7 +3,7 @@ import { trimSrc } from "../StringUtil.js";
 
 test("trimSrc on blank", () => {
   const trimmed = trimSrc(``);
-  expect(trimmed).eq("");
+  expect(trimmed).toBe("");
 });
 
 test("trimSrc with leading blank lines", () => {
@@ -12,7 +12,7 @@ test("trimSrc with leading blank lines", () => {
     fn foo() {
       // bar
     }`);
-  expect(trimmed).eq("fn foo() {\n  // bar\n}");
+  expect(trimmed).toBe("fn foo() {\n  // bar\n}");
 });
 
 test("trimSrc with blank line in the middle and at end", () => {
@@ -23,10 +23,10 @@ test("trimSrc with blank line in the middle and at end", () => {
       bar
      `
   );
-  expect(trimmed).eq("foo\n\nbar");
+  expect(trimmed).toBe("foo\n\nbar");
 });
 
 test("trimSrc with trailing spaces", () => {
-  const trimmed = trimSrc( ` foo `);
-  expect(trimmed).eq("foo");
+  const trimmed = trimSrc(` foo `);
+  expect(trimmed).toBe("foo");
 });
