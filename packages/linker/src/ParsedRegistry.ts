@@ -110,18 +110,17 @@ export class ParsedRegistry {
     moduleSpecifier: string,
     packageName = "_root"
   ): TextModule | undefined {
-    // const modulePaths = this.textModules.map((m) => m.modulePath);
-    // dlog({ modulePaths });
     const resolvedPath = moduleSpecifier.startsWith(".")
       ? relativeToAbsolute(moduleSpecifier, packageName)
       : moduleSpecifier;
+    // const modulePaths = this.textModules.map((m) => m.modulePath);
+    // dlog({ modulePaths, resolvedPath });
     const result =
       this.textModules.find((m) => m.modulePath === resolvedPath) ??
       this.textModules.find((m) => noSuffix(m.modulePath) === resolvedPath);
     // dlog({ moduleSpecifier, packageName, result: !!result });
     return result;
   }
-
 }
 
 export function exportName(exp: TextExport | GeneratorExport): string {
