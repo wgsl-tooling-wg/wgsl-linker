@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
 import { linkWgslModule } from "./Linker.js";
