@@ -80,7 +80,8 @@ function doLink(
   registry: ModuleRegistry,
   origWgsl: string
 ): void {
-  const linked = registry.link(srcPath, externalDefines());
+  const asRelative = "./" + srcPath;
+  const linked = registry.link(asRelative, externalDefines());
   argv.emit && console.log(linked);
   argv.diff && printDiff(srcPath, origWgsl, linked);
   argv.details && printDetails(srcPath, registry);
