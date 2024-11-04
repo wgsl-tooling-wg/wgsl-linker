@@ -1,4 +1,4 @@
-// #import foo from ./util
+import ./util/foo;
 
 fn main() {
   foo();
