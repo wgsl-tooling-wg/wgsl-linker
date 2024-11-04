@@ -61,7 +61,7 @@ function linkNormally(paths: string[]): void {
     return [basedPath, text];
   });
   const wgsl = Object.fromEntries(pathAndTexts);
-  const registry = new ModuleRegistry({ wgsl, conditions: externalDefines() });
+  const registry = new ModuleRegistry({ wgsl });
   const [srcPath, srcText] = pathAndTexts[0];
   doLink(srcPath, registry, srcText);
 }
@@ -121,7 +121,8 @@ function printDiff(modulePath: string, src: string, linked: string): void {
 
 function printDetails(modulePath: string, registry: ModuleRegistry): void {
   console.log(modulePath, ":");
-  const m = registry.findTextModule(modulePath)!;
+  const parsed = registry.parsed(externalDefines());
+  const m = parsed.findTextModule(modulePath)!;
   m.fns.forEach((f) => {
     console.log(`  fn ${f.name}`);
     const calls = f.calls.map((c) => c.name).join("  ");
