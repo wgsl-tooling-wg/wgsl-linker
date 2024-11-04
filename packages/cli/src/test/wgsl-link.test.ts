@@ -1,6 +1,10 @@
 import { expect, test, vi } from "vitest";
 import { cli } from "../cli.js";
 
+/** so vitest triggers when these files change */
+import("./src/test/wgsl/main.wgsl?raw");
+import("./src/test/wgsl/util.wgsl?raw");
+
 test("simple link", async () => {
   const logged = await cliLine(
     `./src/test/wgsl/main.wgsl 
