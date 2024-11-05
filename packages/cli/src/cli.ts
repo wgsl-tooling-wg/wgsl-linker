@@ -10,10 +10,10 @@ let argv: CliArgs;
 export async function cli(rawArgs: string[]): Promise<void> {
   argv = parseArgs(rawArgs);
   const files = argv.files as string[];
-  argv.separately ? linkSeparately(files) : linkNormally(files);
+  if (argv.separately) linkSeparately(files);
+  else linkNormally(files);
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function parseArgs(args: string[]) {
   return yargs(args)
     .command(
@@ -85,9 +85,9 @@ function doLink(
 ): void {
   const asRelative = "./" + srcPath;
   const linked = registry.link(asRelative, externalDefines());
-  argv.emit && console.log(linked);
-  argv.diff && printDiff(srcPath, origWgsl, linked);
-  argv.details && printDetails(srcPath, registry);
+  if (argv.emit) console.log(linked);
+  if (argv.diff) printDiff(srcPath, origWgsl, linked);
+  if (argv.details) printDetails(srcPath, registry);
 }
 
 function externalDefines(): Record<string, string> {

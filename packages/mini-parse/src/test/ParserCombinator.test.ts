@@ -244,7 +244,7 @@ test("disablePreParse restores preParse context", () => {
 
     const { parsed } = testParse(p, src);
     expect(parsed?.value).toEqual(["za x"]);
-    expect(misParsed).false;
+    expect(misParsed).toBe(false);
   });
 });
 
@@ -299,7 +299,7 @@ test("repeat1 fails", () => {
   const p = repeatPlus("a");
   const src = "b";
   const { parsed } = testParse(p, src);
-  expect(parsed?.value).toBeNull;
+  expect(parsed?.value).toBeUndefined()
 });
 
 test("withTags blocks tags accumulation", () => {

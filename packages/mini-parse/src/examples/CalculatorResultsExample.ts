@@ -22,7 +22,6 @@ export const power: Parser<number> = seq(
   value.tag("base"),
   opt(seq("^", fn(() => power).tag("exp"))),
 ).map(r => {
-  r.value;
   const { base, exp } = r.tags;
   const exponent = exp ? exp.slice(-1)[0] : 1;
   const result = base[0] ** exponent;

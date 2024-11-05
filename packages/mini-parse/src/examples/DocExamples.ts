@@ -39,9 +39,9 @@ const quoteTokens = tokenMatcher({
 });
 
 const nonQuote = kind(quoteTokens.nonQuote);
-const quote = seq('"', tokens(quoteTokens, repeat(nonQuote)), '"');
+export const quote = seq('"', tokens(quoteTokens, repeat(nonQuote)), '"');
 
-type ASTElem = BinOpElem;
+export type ASTElem = BinOpElem;
 
 interface BinOpElem {
   kind: "binOp";

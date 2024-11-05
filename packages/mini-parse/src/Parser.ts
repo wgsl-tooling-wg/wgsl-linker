@@ -331,14 +331,14 @@ function runParser<T, N extends TagRecord>(
 
     if (result === null || result === undefined) {
       // parser failed
-      tracing && !traceSuccessOnly && parserLog(`x ${p.debugName}`);
+      if (tracing && !traceSuccessOnly) parserLog(`x ${p.debugName}`);
       // parserLog("reset position to:", origPosition)
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
     } else {
       // parser succeeded
-      tracing && parserLog(`✓ ${p.debugName}`);
+      if (tracing) parserLog(`✓ ${p.debugName}`);
       const value = result.value;
       let tags;
       if (p.tagName && result.value !== undefined) {

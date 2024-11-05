@@ -88,7 +88,7 @@ export function matchingLexer(
     const position = matcher.position();
     const elem = matcherStack.pop();
     if (!elem) {
-      console.error("too many pops"), rootMatcher;
+      console.error("too many pops");
       return;
     }
     matcher = elem.matcher;
