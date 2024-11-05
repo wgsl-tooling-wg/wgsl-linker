@@ -1,5 +1,4 @@
 import {
-  _withBaseLogger,
   enableTracing,
   matchingLexer,
   matchOneOf,
@@ -10,6 +9,7 @@ import {
   TokenMatcher,
   tokenMatcher,
   tracing,
+  _withBaseLogger,
 } from "mini-parse";
 import { expect } from "vitest";
 import { logCatch } from "./LogCatcher.js";
@@ -36,7 +36,7 @@ export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
 export function testParse<T, N extends TagRecord = NoTags, S = any>(
   p: Parser<T, N>,
   src: string,
-  tokenMatcher: TokenMatcher = testTokens
+  tokenMatcher: TokenMatcher = testTokens,
 ): TestParseResult<T, N, S> {
   const lexer = matchingLexer(src, tokenMatcher);
   const app = {

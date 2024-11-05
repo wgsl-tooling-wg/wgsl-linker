@@ -23,7 +23,10 @@ export function srcTrace(
   logInternal(parserLog, src, pos, ...msgs);
 }
 
-export function resultLog(result: ExtendedResult<any, any>, ...msgs: any[]): void {
+export function resultLog(
+  result: ExtendedResult<any, any>,
+  ...msgs: any[]
+): void {
   const { src, srcMap, start, end } = result;
   srcLog(srcMap ?? src, [start, end - 1], ...msgs);
 }
@@ -58,14 +61,14 @@ interface SrcPositions {
 
 function mapSrcPositions(
   srcMap: SrcMap,
-  destPos: number | [number, number]
+  destPos: number | [number, number],
 ): SrcPositions {
   const srcPos = srcMap.mapPositions(...[destPos].flat());
   const { src } = srcPos[0];
 
   let positions: [number, number] | number;
   if (srcPos[1]?.src === src) {
-    positions = srcPos.map((p) => p.position) as [number, number];
+    positions = srcPos.map(p => p.position) as [number, number];
   } else {
     positions = srcPos[0].position;
   }
@@ -115,7 +118,7 @@ interface SrcLine {
 /** return the line in the src containing a given character postion */
 export function srcLine(
   src: string,
-  position: number | [number, number]
+  position: number | [number, number],
 ): SrcLine {
   let pos: number;
   let pos2: number | undefined;
@@ -163,7 +166,7 @@ export function srcLine(
 function getStarts(src: string): number[] {
   const found = startCache.get(src);
   if (found) return found;
-  const starts = [...src.matchAll(/\n/g)].map((m) => m.index! + 1);
+  const starts = [...src.matchAll(/\n/g)].map(m => m.index! + 1);
   starts.unshift(0);
   startCache.set(src, starts);
 

@@ -1,22 +1,22 @@
 import {
-    AliasElem,
-    FnElem,
-    GlobalDirectiveElem,
-    StructElem,
-    StructMemberElem,
-    TypeRefElem,
-    VarElem
+  AliasElem,
+  FnElem,
+  GlobalDirectiveElem,
+  StructElem,
+  StructMemberElem,
+  TypeRefElem,
+  VarElem,
 } from "./AbstractElems.js";
 import { refLog } from "./LinkerLogging.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
 import { SliceReplace, sliceReplace } from "./Slicer.js";
 import {
-    FoundRef,
-    GeneratorRef,
-    refName,
-    TextRef,
-    traverseRefs
+  FoundRef,
+  GeneratorRef,
+  refName,
+  TextRef,
+  traverseRefs,
 } from "./TraverseRefs.js";
 import { partition, replaceWords } from "./Util.js";
 

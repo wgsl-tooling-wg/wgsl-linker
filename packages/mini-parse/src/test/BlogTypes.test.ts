@@ -34,7 +34,7 @@ test("types solution", () => {
   class Tags<N extends TagRecord> {
     addTag<K extends string, V>(
       name: K,
-      value: V
+      value: V,
     ): Tags<N & { [key in K]: V[] }> {
       return NYI();
     }
@@ -72,7 +72,7 @@ test("infer type parameter", () => {
   function manyParams<A, B, C, D, E, F, G, H, I>(
     a: ThreeParams<A, B, C>,
     b: ThreeParams<D, E, F>,
-    c: ThreeParams<G, H, I>
+    c: ThreeParams<G, H, I>,
   ): B {
     return NYI();
   }
@@ -117,11 +117,10 @@ test("extend a record", () => {
 });
 
 test("mapped tuple type", () => {
-  type Wrapped<T extends string | number> = T extends string
-    ? { str: T }
-    : T extends number
-      ? { num: T }
-      : T;
+  type Wrapped<T extends string | number> =
+    T extends string ? { str: T }
+    : T extends number ? { num: T }
+    : T;
 
   // prettier-ignore
   type WrapElems<T extends (string | number)[]> = 
@@ -138,9 +137,10 @@ test("mapped tuple type", () => {
 test("remove type from tuple or array", () => {
   const a = [1, "foo", true] as const;
 
-  type Stringless<T extends any[]> = T extends [infer A, ...infer R]
-    ? A extends string
-      ? Stringless<R> // A is not a string, skip it
+  type Stringless<T extends any[]> =
+    T extends [infer A, ...infer R] ?
+      A extends string ?
+        Stringless<R> // A is not a string, skip it
       : [A, ...Stringless<R>] // A is a string, include it
     : [];
 

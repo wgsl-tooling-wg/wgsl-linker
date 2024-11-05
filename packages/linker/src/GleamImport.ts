@@ -1,30 +1,30 @@
 import {
-    disablePreParse,
-    kind,
-    makeEolf,
-    matchOneOf,
-    NoTags,
-    opt,
-    or,
-    Parser,
-    repeatPlus,
-    seq,
-    setTraceName,
-    TagRecord,
-    tokenMatcher,
-    tokens,
-    tokenSkipSet,
-    tracing,
-    withSepPlus,
-    withTags
+  disablePreParse,
+  kind,
+  makeEolf,
+  matchOneOf,
+  NoTags,
+  opt,
+  or,
+  Parser,
+  repeatPlus,
+  seq,
+  setTraceName,
+  TagRecord,
+  tokenMatcher,
+  tokens,
+  tokenSkipSet,
+  tracing,
+  withSepPlus,
+  withTags,
 } from "mini-parse";
 import { TreeImportElem } from "./AbstractElems.js";
 import {
-    ImportTree,
-    PathSegment,
-    SegmentList,
-    SimpleSegment,
-    Wildcard
+  ImportTree,
+  PathSegment,
+  SegmentList,
+  SimpleSegment,
+  Wildcard,
 } from "./ImportTree.js";
 import { digits, eol, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";

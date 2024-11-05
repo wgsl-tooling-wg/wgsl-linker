@@ -1,16 +1,16 @@
 import { srcLog, SrcMap } from "mini-parse";
 import {
-    AbstractElem,
-    AliasElem,
-    ExportElem,
-    ExtendsElem,
-    FnElem,
-    GlobalDirectiveElem,
-    ModuleElem,
-    StructElem,
-    TemplateElem,
-    TreeImportElem,
-    VarElem
+  AbstractElem,
+  AliasElem,
+  ExportElem,
+  ExtendsElem,
+  FnElem,
+  GlobalDirectiveElem,
+  ModuleElem,
+  StructElem,
+  TemplateElem,
+  TreeImportElem,
+  VarElem,
 } from "./AbstractElems.js";
 import { processConditionals } from "./Conditionals.js";
 import { ApplyTemplateFn } from "./ModuleRegistry.js";

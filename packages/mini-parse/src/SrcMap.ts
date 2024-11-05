@@ -1,5 +1,3 @@
-import { dlog } from "berry-pretty";
-
 export interface SrcMapEntry {
   src: string;
   srcStart: number;
@@ -33,7 +31,7 @@ export class SrcMap {
   /** given positions in the dest string,
    * @return corresponding positions in the src strings */
   mapPositions(...positions: number[]): SrcPosition[] {
-    return positions.map((p) => this.destToSrc(p));
+    return positions.map(p => this.destToSrc(p));
   }
 
   /** internally compress adjacent entries where possible */
@@ -72,7 +70,7 @@ export class SrcMap {
   merge(other: SrcMap): SrcMap {
     if (other === this) return this;
 
-    const mappedEntries = other.entries.filter((e) => e.src === this.dest);
+    const mappedEntries = other.entries.filter(e => e.src === this.dest);
     if (mappedEntries.length === 0) {
       console.log("other source map does not link to this one");
       // dlog({ this: this });
@@ -80,7 +78,7 @@ export class SrcMap {
       return other;
     }
     sortSrc(mappedEntries);
-    const newEntries = mappedEntries.map((e) => {
+    const newEntries = mappedEntries.map(e => {
       const { src, position: srcStart } = this.destToSrc(e.srcStart);
       const { src: endSrc, position: srcEnd } = this.destToSrc(e.srcEnd);
       if (endSrc !== src) throw new Error("NYI, need to split");
@@ -95,7 +93,7 @@ export class SrcMap {
       return newEntry;
     });
 
-    const otherSources = other.entries.filter((e) => e.src !== this.dest);
+    const otherSources = other.entries.filter(e => e.src !== this.dest);
 
     const newMap = new SrcMap(other.dest, [...otherSources, ...newEntries]);
     newMap.sort();
@@ -109,7 +107,7 @@ export class SrcMap {
    */
   destToSrc(destPos: number): SrcPosition {
     const entry = this.entries.find(
-      (e) => e.destStart <= destPos && e.destEnd >= destPos
+      e => e.destStart <= destPos && e.destEnd >= destPos,
     );
     if (!entry) {
       console.log(`no SrcMapEntry for dest position: ${destPos}`);

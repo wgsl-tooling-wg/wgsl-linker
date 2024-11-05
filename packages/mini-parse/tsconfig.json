@@ -19,7 +19,7 @@
     "noEmit": true,
     "paths": {
       "mini-parse": ["./src"],
-      "mini-parse/test-util": ["./src/test-util"],
+      "mini-parse/test-util": ["./src/test-util"]
     }
   },
   "include": ["src/**/*"],

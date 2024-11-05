@@ -231,8 +231,7 @@ function matchExportImportArgs(
   if (expArgs.length !== impArgs.length) {
     if (impMod.kind === "text")
       moduleLog(impMod, imp.start, "mismatched import and export params");
-    if (expMod.kind === "text") 
-      moduleLog(expMod, (exp as ExportElem).start);
+    if (expMod.kind === "text") moduleLog(expMod, (exp as ExportElem).start);
   }
   return expArgs.map((p, i) => [p, impArgs[i]]);
 }

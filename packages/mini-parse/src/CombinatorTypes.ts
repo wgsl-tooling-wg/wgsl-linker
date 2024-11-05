@@ -12,10 +12,11 @@ import { NoTags, Parser, TagRecord } from "./Parser.js";
  *
  * (and wrapping things in conditional types with ? : never gives us a stage to place the inferencing)
  */
-export type Intersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I extends U
-) => void
-  ? I
+export type Intersection<U> =
+  (U extends any ? (k: U) => void : never) extends (
+    (k: infer I extends U) => void
+  ) ?
+    I
   : never;
 
 /**
@@ -64,23 +65,17 @@ export type ParserFromRepeatArg<A extends CombinatorArg> = Parser<
 
 /** Result value type returned by a parser specified by a CombinatorArg */
 export type ResultFromArg<A extends CombinatorArg> =
-  A extends Parser<infer R, any>
-    ? R
-    : A extends string
-      ? string
-      : A extends () => Parser<infer R, any>
-        ? R
-        : never;
+  A extends Parser<infer R, any> ? R
+  : A extends string ? string
+  : A extends () => Parser<infer R, any> ? R
+  : never;
 
 /** parser tags type returned by parser specified by a CombinatorArg */
 export type TagsFromArg<A extends CombinatorArg> =
-  A extends Parser<any, infer T>
-    ? T
-    : A extends string
-      ? NoTags
-      : A extends () => Parser<any, infer T>
-        ? T
-        : never;
+  A extends Parser<any, infer T> ? T
+  : A extends string ? NoTags
+  : A extends () => Parser<any, infer T> ? T
+  : never;
 
 /** Parser type returned by seq(),
  *    concatenates the argument result types into an array

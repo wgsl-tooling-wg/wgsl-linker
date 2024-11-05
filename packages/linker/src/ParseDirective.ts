@@ -1,25 +1,25 @@
 import {
-    anyThrough,
-    kind,
-    opt,
-    or,
-    Parser,
-    repeat,
-    req,
-    seq,
-    setTraceNames,
-    tokens,
-    tracing,
-    withSep
+  anyThrough,
+  kind,
+  opt,
+  or,
+  Parser,
+  repeat,
+  req,
+  seq,
+  setTraceNames,
+  tokens,
+  tracing,
+  withSep,
 } from "mini-parse";
 import { ExtendsElem } from "./AbstractElems.js";
 import { gleamImport } from "./GleamImport.js";
 import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import {
-    argsTokens,
-    lineCommentTokens,
-    mainTokens,
-    moduleTokens
+  argsTokens,
+  lineCommentTokens,
+  mainTokens,
+  moduleTokens,
 } from "./MatchWgslD.js";
 import { eolf, makeElem } from "./ParseSupport.js";
 

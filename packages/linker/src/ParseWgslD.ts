@@ -1,35 +1,35 @@
 import {
-    anyNot,
-    anyThrough,
-    eof,
-    ExtendedResult,
-    kind,
-    matchingLexer,
-    opt,
-    or,
-    Parser,
-    ParserContext,
-    ParserInit,
-    preParse,
-    repeat,
-    req,
-    seq,
-    setTraceName,
-    simpleParser,
-    SrcMap,
-    tokens,
-    tracing,
-    withSep
+  anyNot,
+  anyThrough,
+  eof,
+  ExtendedResult,
+  kind,
+  matchingLexer,
+  opt,
+  or,
+  Parser,
+  ParserContext,
+  ParserInit,
+  preParse,
+  repeat,
+  req,
+  seq,
+  setTraceName,
+  simpleParser,
+  SrcMap,
+  tokens,
+  tracing,
+  withSep,
 } from "mini-parse";
 import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.js";
 import { identTokens, mainTokens } from "./MatchWgslD.js";
 import { directive } from "./ParseDirective.js";
 import {
-    comment,
-    makeElem,
-    unknown,
-    word,
-    wordNumArgs
+  comment,
+  makeElem,
+  unknown,
+  word,
+  wordNumArgs,
 } from "./ParseSupport.js";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */

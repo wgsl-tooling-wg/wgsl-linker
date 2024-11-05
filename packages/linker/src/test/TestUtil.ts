@@ -3,9 +3,9 @@ import { testParse, TestParseResult } from "mini-parse/test-util";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import {
-    ModuleRegistry,
-    RegisterGenerator,
-    Template
+  ModuleRegistry,
+  RegisterGenerator,
+  Template,
 } from "../ModuleRegistry.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(

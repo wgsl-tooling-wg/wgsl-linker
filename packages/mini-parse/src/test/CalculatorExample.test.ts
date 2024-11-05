@@ -1,6 +1,5 @@
 import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
-import { matchingLexer } from "../MatchingLexer.js";
 import { calcTokens, statement } from "../examples/CalculatorExample.js";
 import {
   simpleSum,
@@ -8,6 +7,7 @@ import {
   sumResults,
   taggedSum,
 } from "../examples/DocExamples.js";
+import { matchingLexer } from "../MatchingLexer.js";
 
 test("parse 3 + 4", () => {
   const src = "3 + 4";

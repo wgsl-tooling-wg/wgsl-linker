@@ -2,13 +2,13 @@ import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
 import { linkWgslModule } from "./Linker.js";
 import {
-    GeneratorExport,
-    GeneratorModule,
-    GeneratorModuleExport,
-    ModuleExport,
-    ModuleRegistry,
-    relativeToAbsolute,
-    TextModuleExport
+  GeneratorExport,
+  GeneratorModule,
+  GeneratorModuleExport,
+  ModuleExport,
+  ModuleRegistry,
+  relativeToAbsolute,
+  TextModuleExport,
 } from "./ModuleRegistry.js";
 import { parseModule, TextExport, TextModule } from "./ParseModule.js";
 import { dirname, normalize, noSuffix } from "./PathUtil.js";

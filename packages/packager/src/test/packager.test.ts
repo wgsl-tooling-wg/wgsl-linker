@@ -1,8 +1,8 @@
-import { expect, test } from "vitest";
-import { packagerCli } from "../packagerCli.js";
-import { rimraf } from "rimraf";
-import path from "path";
 import { mkdir } from "node:fs/promises";
+import path from "path";
+import { rimraf } from "rimraf";
+import { test } from "vitest";
+import { packagerCli } from "../packagerCli.js";
 
 test("package two wgsl files", async () => {
   const projectDir = path.join(".", "src", "test", "wgsl-package");
@@ -11,7 +11,7 @@ test("package two wgsl files", async () => {
   await rimraf(distDir);
   await mkdir(distDir);
   packageCli(
-    `--projectDir ${projectDir} --rootDir ${srcDir} --outDir ${distDir}`
+    `--projectDir ${projectDir} --rootDir ${srcDir} --outDir ${distDir}`,
   );
 });
 

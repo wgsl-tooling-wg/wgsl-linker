@@ -6,9 +6,9 @@ import {
 } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import {
+  disablePreParse,
   NoTags,
   Parser,
-  disablePreParse,
   preParse,
   setTraceName,
   tokenSkipSet,
@@ -29,7 +29,7 @@ import {
   withSep,
   withTags,
 } from "../ParserCombinator.js";
-import { _withBaseLogger, enableTracing } from "../ParserTracing.js";
+import { enableTracing, _withBaseLogger } from "../ParserTracing.js";
 
 const m = testTokens;
 
@@ -108,7 +108,7 @@ test("map()", () => {
   const src = "foo";
   const p = kind(m.word)
     .tag("word")
-    .map((r) => (r.tags.word?.[0] === "foo" ? "found" : "missed"));
+    .map(r => (r.tags.word?.[0] === "foo" ? "found" : "missed"));
   const { parsed } = testParse(p, src);
   expect(parsed?.value).toBe("found");
 });
@@ -144,9 +144,9 @@ test("recurse with fn()", () => {
   const p: Parser<any> = seq(
     "{",
     repeat(or(kind(m.word).tag("word"), () => p)),
-    "}"
+    "}",
   );
-  const wrap = or(p).map((r) => r.app.state.push(r.tags.word));
+  const wrap = or(p).map(r => r.app.state.push(r.tags.word));
   const { appState: app } = testParse(wrap, src);
   expect(app[0]).toEqual(["a", "b"]);
 });
@@ -230,9 +230,9 @@ test("disablePreParse restores preParse context", () => {
       disablePreParse(
         tokenSkipSet(
           null, // disable ws skipping
-          seq(opt(kind(m.ws)), "'", repeat(anyNot("'").tag("contents")), "'")
-        )
-      ).map((r) => r.tags.contents.map((tok) => tok.text).join(""))
+          seq(opt(kind(m.ws)), "'", repeat(anyNot("'").tag("contents")), "'"),
+        ),
+      ).map(r => r.tags.contents.map(tok => tok.text).join("")),
     ).traceName("quote");
     let misParsed = false;
 
@@ -249,7 +249,7 @@ test("disablePreParse restores preParse context", () => {
 });
 
 test("tokenIgnore", () => {
-  const p = repeat(any()).map((r) => r.value.map((tok) => tok.text));
+  const p = repeat(any()).map(r => r.value.map(tok => tok.text));
   const src = "a b";
   const { parsed: parsedNoSpace } = testParse(p, src);
   expect(parsedNoSpace?.value).toEqual(["a", "b"]);
@@ -260,7 +260,7 @@ test("tokenIgnore", () => {
 
 test("token start is after ignored ws", () => {
   const src = " a";
-  const p = kind(m.word).map((r) => r.start);
+  const p = kind(m.word).map(r => r.start);
   const { parsed } = testParse(p, src);
   expect(parsed?.value).toBe(1);
 });
@@ -306,9 +306,9 @@ test("withTags blocks tags accumulation", () => {
   const p = withTags(
     kind(m.word)
       .tag("w")
-      .map((r) => r.tags.w)
+      .map(r => r.tags.w),
   );
-  const s = seq(p.tag("w")).map((r) => r.tags.w);
+  const s = seq(p.tag("w")).map(r => r.tags.w);
 
   const { parsed } = testParse(s, "a b");
   expect(parsed?.value).toEqual([["a"]]); // a prev bug returned ["a", [["a"]]]
@@ -318,13 +318,13 @@ test("withTags blocks tags from map()", () => {
   const p = kind(m.word).tag("w");
   // w/o clearing tags
   let taggedTags;
-  const tagged = p.map((r) => (taggedTags = r.tags));
+  const tagged = p.map(r => (taggedTags = r.tags));
   testParse(tagged, "foo");
 
   // w/ clearing tags
   let clearedTags;
   const c: Parser<string, NoTags> = withTags(p); // verifies return type is correct
-  const cleared = c.map((r) => (clearedTags = r.tags));
+  const cleared = c.map(r => (clearedTags = r.tags));
   testParse(cleared, "foo");
 
   expect(taggedTags).toEqual({ w: ["foo"] });

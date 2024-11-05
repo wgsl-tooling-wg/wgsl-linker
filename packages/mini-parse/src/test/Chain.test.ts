@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { expect, test } from "vitest";
+import { test } from "vitest";
 
 test("chain", () => {
   type ChainElem<I, O> = { in: I; out: O };
@@ -7,11 +7,12 @@ test("chain", () => {
   type ElemOut<T> = T extends ChainElem<any, infer O> ? O : never;
   type ElemIn<T> = T extends ChainElem<infer I, any> ? I : never;
 
-  type ChainOK<T extends Elem[]> = T extends [infer A, ...infer R]
-    ? R extends readonly [Elem, ...Elem[]]
-      ? ElemOut<A> extends ElemIn<R[0]>
-        ? R extends Elem[]
-          ? ChainOK<R>
+  type ChainOK<T extends Elem[]> =
+    T extends [infer A, ...infer R] ?
+      R extends readonly [Elem, ...Elem[]] ?
+        ElemOut<A> extends ElemIn<R[0]> ?
+          R extends Elem[] ?
+            ChainOK<R>
           : "??" // (how could R not extend Elem[]?)
         : false // fail
       : true // R is empty, so we've succeeded..
@@ -39,9 +40,10 @@ test("chain", () => {
 
 // verify that we can count elems recursively
 test("recurse count", () => {
-  type CountRecurse<T extends unknown[]> = T extends [infer A, ...infer R]
-    ? R extends readonly [unknown, ...unknown[]]
-      ? `x${CountRecurse<R>}`
+  type CountRecurse<T extends unknown[]> =
+    T extends [infer A, ...infer R] ?
+      R extends readonly [unknown, ...unknown[]] ?
+        `x${CountRecurse<R>}`
       : "y"
     : "z";
 
@@ -57,7 +59,6 @@ test("chain with error reporting", () => {
   type Elem = ChainElem<any, any>;
   type ElemOut<T> = T extends ChainElem<any, infer O> ? O : never;
   type ElemIn<T> = T extends ChainElem<infer I, any> ? I : never;
-
 
   // prettier-ignore
   type ChainOK<T extends Elem[]> = 
@@ -79,8 +80,8 @@ test("chain with error reporting", () => {
   const nn: ChainElem<number, number> = { in: 4, out: 3 };
 
   // const f2 = chain(nn, sn); // fails to compile (which is what we want here)
-  //    Argument of type '[ChainElem<number, number>, ChainElem<string, number>]' is 
-  //    not assignable to parameter of type 
+  //    Argument of type '[ChainElem<number, number>, ChainElem<string, number>]' is
+  //    not assignable to parameter of type
   //    '{ msg: "chain input doesn't match previous output"; types: [number, string]; }'
 });
 

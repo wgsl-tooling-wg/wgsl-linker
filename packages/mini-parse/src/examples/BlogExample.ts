@@ -8,20 +8,17 @@ const src = "fn foo()";
 const tokens = tokenMatcher({
   ident: /[a-z]+/,
   ws: /\s+/,
-  symbol: matchOneOf("( ) [ ] { } ; ,")
+  symbol: matchOneOf("( ) [ ] { } ; ,"),
 });
 const lexer = matchingLexer(src, tokens);
 
 // parsers
 const ident = kind(tokens.ident);
-const fnDecl = seq('fn', ident, '(', ')' );
+const fnDecl = seq("fn", ident, "(", ")");
 
 // parsing and extracing result
-const result = fnDecl.parse({lexer});
+const result = fnDecl.parse({ lexer });
 if (result) {
   const foundIdent = result.value[1];
   console.log(`found fn name: ${foundIdent}`);
 }
-
-
-

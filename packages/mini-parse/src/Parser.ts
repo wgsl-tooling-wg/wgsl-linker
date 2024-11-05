@@ -94,7 +94,7 @@ export type OptParserResult<T, N extends TagRecord> =
 
 /** Internal parsing functions return a value and also a set of tagged results from contained parser  */
 type ParseFn<T, N extends TagRecord> = (
-  context: ParserContext
+  context: ParserContext,
 ) => OptParserResult<T, N>;
 
 /** options for creating a core parser */
@@ -196,7 +196,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
 
   /** switch next parser based on results */
   toParser<U, V extends TagRecord>(
-    fn: ToParserFn<T, N, U, V>
+    fn: ToParserFn<T, N, U, V>,
   ): Parser<T | U, N & V> {
     return toParser(this, fn);
   }
@@ -246,7 +246,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
 export function parser<T, N extends TagRecord>(
   traceName: string,
   fn: ParseFn<T, N>,
-  terminal?: boolean
+  terminal?: boolean,
 ): Parser<T, N> {
   const terminalArg = terminal ? { terminal } : {};
   return new Parser<T, N>({ fn, traceName, ...terminalArg });
@@ -255,7 +255,7 @@ export function parser<T, N extends TagRecord>(
 /** Create a Parser from a function that parses and returns a value (w/no child parsers) */
 export function simpleParser<T>(
   traceName: string,
-  fn: (ctx: ParserContext) => T | null | undefined
+  fn: (ctx: ParserContext) => T | null | undefined,
 ): Parser<T, NoTags> {
   const parserFn: ParseFn<T, NoTags> = (ctx: ParserContext) => {
     const r = fn(ctx);
@@ -270,7 +270,7 @@ export function simpleParser<T>(
 /** modify the trace name of this parser */
 export function setTraceName(
   parser: Parser<any, TagRecord>,
-  traceName: string
+  traceName: string,
 ): void {
   parser._traceName = traceName;
 }
@@ -286,7 +286,7 @@ export function setTraceName(
  */
 function runParser<T, N extends TagRecord>(
   p: Parser<T, N>,
-  context: ParserContext
+  context: ParserContext,
 ): OptParserResult<T, N> {
   const { lexer, _parseCount = 0, maxParseCount } = context;
 
@@ -304,7 +304,7 @@ function runParser<T, N extends TagRecord>(
   const result = withTraceLogging<OptParserResult<T, N>>()(
     context,
     p.traceOptions,
-    runInContext
+    runInContext,
   );
 
   return result;
@@ -362,7 +362,7 @@ function execPreParsers(ctx: ParserContext): void {
   const { _preParse, lexer } = ctx;
 
   const ctxNoPre = { ...ctx, _preParse: [] };
-  _preParse.forEach((pre) => {
+  _preParse.forEach(pre => {
     const checkedCache = getPreParserCheckedCache(ctx, pre);
 
     // exec each pre-parser until it fails
@@ -383,7 +383,7 @@ function execPreParsers(ctx: ParserContext): void {
 /** get the cache of already checked positions for this pre-parser */
 function getPreParserCheckedCache(
   ctx: ParserContext,
-  pre: Parser<unknown>
+  pre: Parser<unknown>,
 ): Set<number> {
   let cache = ctx._preCacheFails.get(pre);
   if (!cache) {
@@ -394,13 +394,13 @@ function getPreParserCheckedCache(
 }
 
 type ParserMapFn<T, N extends TagRecord, U> = (
-  results: ExtendedResult<T, N>
+  results: ExtendedResult<T, N>,
 ) => U | null;
 
 /** return a parser that maps the current results */
 function map<T, N extends TagRecord, U>(
   p: Parser<T, N>,
-  fn: ParserMapFn<T, N, U>
+  fn: ParserMapFn<T, N, U>,
 ): Parser<U, N> {
   return parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
     const extended = runExtended(ctx, p);
@@ -414,12 +414,12 @@ function map<T, N extends TagRecord, U>(
 }
 
 type ToParserFn<T, N extends TagRecord, X, Y extends TagRecord> = (
-  results: ExtendedResult<T, N>
+  results: ExtendedResult<T, N>,
 ) => Parser<X, Y> | undefined;
 
 function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
   p: Parser<T, N>,
-  toParserFn: ToParserFn<T, N, O, Y>
+  toParserFn: ToParserFn<T, N, O, Y>,
 ): Parser<T | O, N & Y> {
   return parser("toParser", (ctx: ParserContext) => {
     const extended = runExtended(ctx, p);
@@ -445,14 +445,14 @@ const emptySet = new Set<string>();
  * If no parameters are provided, no tokens are ignored. */
 export function tokenSkipSet<T, N extends TagRecord>(
   ignore: Set<string> | undefined | null,
-  mainParser: Parser<T, N>
+  mainParser: Parser<T, N>,
 ): Parser<T, N> {
   const ignoreSet = ignore ?? emptySet;
   const ignoreValues = [...ignoreSet.values()].toString() || "(null)";
   return parser(
     `tokenSkipSet ${ignoreValues}`,
     (ctx: ParserContext): OptParserResult<T, N> =>
-      ctx.lexer.withIgnore(ignoreSet, () => mainParser._run(ctx))
+      ctx.lexer.withIgnore(ignoreSet, () => mainParser._run(ctx)),
   );
 }
 
@@ -460,7 +460,7 @@ export function tokenSkipSet<T, N extends TagRecord>(
  * (e.g. to recognize comments that can appear almost anywhere in the main grammar) */
 export function preParse<T, N extends TagRecord>(
   pre: Parser<unknown>,
-  mainParser: Parser<T, N>
+  mainParser: Parser<T, N>,
 ): Parser<T, N> {
   return parser("preParse", (ctx: ParserContext): OptParserResult<T, N> => {
     const newCtx = { ...ctx, _preParse: [pre, ...ctx._preParse] };
@@ -471,7 +471,7 @@ export function preParse<T, N extends TagRecord>(
 /** disable a previously attached pre-parser,
  * e.g. to disable a comment preparser in a quoted string parser */
 export function disablePreParse<A extends CombinatorArg>(
-  arg: A
+  arg: A,
 ): ParserFromArg<A> {
   const parser = parserArg(arg);
   return parser._cloneWith({ preDisabled: true });
@@ -480,7 +480,7 @@ export function disablePreParse<A extends CombinatorArg>(
 /** run parser, return enriched results (to support map(), toParser()) */
 export function runExtended<T, N extends TagRecord>(
   ctx: ParserContext,
-  p: Parser<T, N>
+  p: Parser<T, N>,
 ): ExtendedResult<T, N> | null {
   const origStart = ctx.lexer.position();
 

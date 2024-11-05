@@ -43,7 +43,7 @@ Here's a parser for nested block comments:
 export const blockComment: Parser<void> = seq(
   "/*",
   repeat(or(() => blockComment, anyNot("*/"))),
-  req("*/")
+  req("*/"),
 );
 ```
 
@@ -105,7 +105,7 @@ successful parse and do a bit of format conversion.
 This parser will return a number rather than a string:
 
 ```ts
-const int = num.map((r) => parseInt(r.value));
+const int = num.map(r => parseInt(r.value));
 ```
 
 Here's an example that even does some computation, and returns a numeric sum or
@@ -114,7 +114,7 @@ above, but converts to numbers and then adds or subtracts.
 
 ```ts
 // return the numeric sum, rather than a sequence of strings
-export const sumResults = seq(int, or("+", "-"), int).map((r) => {
+export const sumResults = seq(int, or("+", "-"), int).map(r => {
   const [a, op, b] = r.value;
   return op === "+" ? a + b : a - b;
 });
@@ -144,7 +144,7 @@ interface BinOpElem {
   op: "+" | "-";
 }
 
-export const sumElem = seq(int, or("+", "-"), int).map((r) => {
+export const sumElem = seq(int, or("+", "-"), int).map(r => {
   const [a, op, b] = r.value;
   const binOpElem: BinOpElem = {
     kind: "binOp",
@@ -169,8 +169,8 @@ const op = or("+", "-");
 
 export const namedSum = seq(
   int,
-  repeat(seq(op, int).named("opRights")) // accumulate an array of [op, int] pairs
-).map((r) => {
+  repeat(seq(op, int).named("opRights")), // accumulate an array of [op, int] pairs
+).map(r => {
   const { opRights } = r.named;
   const left = r.value[0];
   if (!opRights) return left;

@@ -30,7 +30,6 @@ export function setTraceNames(parsers: Record<string, Parser<any, any>>): void {
   }
 }
 
-
 /** options to .trace() on a parser stage */
 export interface TraceOptions {
   /** trace this parser, but not children */
@@ -74,7 +73,7 @@ export interface TraceLogging {
 type TraceLoggingFn<T> = (
   ctx: any,
   trace: TraceOptions | undefined,
-  fn: (ctx: ParserContext) => T
+  fn: (ctx: ParserContext) => T,
 ) => T;
 
 export const withTraceLogging = <T>(): TraceLoggingFn<T> =>
@@ -83,9 +82,9 @@ export const withTraceLogging = <T>(): TraceLoggingFn<T> =>
 function stubTraceLogging<T>(
   ctx: any,
   trace: TraceOptions | undefined,
-  fn: (ctx: ParserContext) => T
+  fn: (ctx: ParserContext) => T,
 ): T {
-  return fn(ctx); 
+  return fn(ctx);
 }
 
 /** setup trace logging inside a parser stage */
@@ -94,7 +93,7 @@ function withTraceLoggingInternal<T>(
   ctx: ParserContext,
   // trace has trace options set on this stage
   trace: TraceOptions | undefined,
-  fn: (ctxWithTracing: ParserContext) => T
+  fn: (ctxWithTracing: ParserContext) => T,
 ): T {
   let { _trace } = ctx;
 

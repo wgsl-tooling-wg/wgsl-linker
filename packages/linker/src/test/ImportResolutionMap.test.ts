@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
 import { importResolutionMap } from "../ImportResolutionMap.js";
 import {
-    exportsToStrings,
-    logResolveMap,
-    pathsToStrings
+  exportsToStrings,
+  logResolveMap,
+  pathsToStrings,
 } from "../LogResolveMap.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { TextExport } from "../ParseModule.js";

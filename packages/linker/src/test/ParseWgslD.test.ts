@@ -6,11 +6,11 @@ import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.js";
 import { filterElems } from "../ParseModule.js";
 import { unknown, wordNumArgs } from "../ParseSupport.js";
 import {
-    fnDecl,
-    globalVar,
-    parseWgslD,
-    structDecl,
-    typeSpecifier
+  fnDecl,
+  globalVar,
+  parseWgslD,
+  structDecl,
+  typeSpecifier,
 } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
 
