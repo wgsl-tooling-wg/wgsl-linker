@@ -11,6 +11,14 @@
     "@types/yargs": "^17.0.32",
     "esbuild": "^0.23.0",
     "fast-glob": "^3.3.2",
-    "yargs": "^17.7.2"
+    "yargs": "^17.7.2",
+    "@vitest/ui": "^2.1.4",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.1.4"
   }
 }

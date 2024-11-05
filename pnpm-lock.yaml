@@ -14,12 +14,36 @@ importers:
       '@types/yargs':
         specifier: ^17.0.32
         version: 17.0.33
+      '@vitest/ui':
+        specifier: ^2.1.4
+        version: 2.1.4(vitest@2.1.4)
       esbuild:
         specifier: ^0.23.0
         version: 0.23.1
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      tsx:
+        specifier: ^4.7.1
+        version: 4.19.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.6.3
+      vite:
+        specifier: ^5.4.2
+        version: 5.4.10(@types/node@20.17.6)(terser@5.36.0)
+      vite-tsconfig-paths:
+        specifier: ^5.0.1
+        version: 5.1.0(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.6)(terser@5.36.0))
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(terser@5.36.0)
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -35,34 +59,6 @@ importers:
       wgsl-linker:
         specifier: workspace:*
         version: link:../linker
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
-    devDependencies:
-      '@types/node':
-        specifier: ^20.11.30
-        version: 20.17.6
-      '@types/yargs':
-        specifier: ^17.0.32
-        version: 17.0.33
-      esbuild:
-        specifier: ^0.24.0
-        version: 0.24.0
-      npm-run-all:
-        specifier: ^4.1.5
-        version: 4.1.5
-      tsx:
-        specifier: ^4.7.1
-        version: 4.19.2
-      vite:
-        specifier: ^5.4.2
-        version: 5.4.10(@types/node@20.17.6)(terser@5.36.0)
-      vite-tsconfig-paths:
-        specifier: ^5.0.1
-        version: 5.1.0(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.6)(terser@5.36.0))
-      vitest:
-        specifier: ^2.1.4
-        version: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(terser@5.36.0)
 
   packages/linker:
     dependencies:
@@ -208,43 +204,6 @@ importers:
       wgsl-linker:
         specifier: workspace:*
         version: link:../linker
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
-    devDependencies:
-      '@types/node':
-        specifier: ^22.7.9
-        version: 22.9.0
-      '@types/yargs':
-        specifier: ^17.0.32
-        version: 17.0.33
-      '@vitest/ui':
-        specifier: ^2.1.4
-        version: 2.1.4(vitest@2.1.4)
-      esbuild:
-        specifier: ^0.24.0
-        version: 0.24.0
-      npm-run-all:
-        specifier: ^4.1.5
-        version: 4.1.5
-      rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
-      tsx:
-        specifier: ^4.7.1
-        version: 4.19.2
-      typescript:
-        specifier: ^5.5.4
-        version: 5.6.3
-      vite:
-        specifier: ^5.4.2
-        version: 5.4.10(@types/node@22.9.0)(terser@5.36.0)
-      vite-tsconfig-paths:
-        specifier: ^5.0.1
-        version: 5.1.0(typescript@5.6.3)(vite@5.4.10(@types/node@22.9.0)(terser@5.36.0))
-      vitest:
-        specifier: ^2.1.4
-        version: 2.1.4(@types/node@22.9.0)(@vitest/ui@2.1.4)(terser@5.36.0)
 
   packages/test-package: {}
 
@@ -3513,7 +3472,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.4(@types/node@22.9.0)(@vitest/ui@2.1.4)(terser@5.36.0)
+      vitest: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(terser@5.36.0)
 
   '@vitest/utils@2.1.4':
     dependencies:
