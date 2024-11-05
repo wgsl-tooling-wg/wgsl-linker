@@ -5,7 +5,7 @@
     "bump": "scripts/runTs bump --version",
     "build:all": "pnpm --filter './packages/**' build",
     "format:all": "pnpm --filter './packages/**' format",
-    "lint:all": "pnpm --filter './packages/**' lint",
+    "lint:all": "pnpm --no-bail --filter './packages/**' lint",
     "organize:all": "pnpm --filter './packages/**' organize",
     "publish:all": "pnpm --filter './packages/**' publish",
     "test:all": "run-s test:once",
