@@ -1,0 +1,10 @@
+{
+  "name": "@wesl/linker",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "tasks": {
+    "dev": "deno test --allow-read --watch"
+  },
+  "license": "MIT",
+  "imports": {}
+}

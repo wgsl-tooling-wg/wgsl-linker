@@ -1,0 +1,27 @@
+export const snapshot = {};
+
+snapshot[`slice middle 1`] = `
+[
+  {
+    destEnd: 3,
+    destStart: 0,
+    src: "aaabbbc",
+    srcEnd: 3,
+    srcStart: 0,
+  },
+  {
+    destEnd: 4,
+    destStart: 3,
+    src: "aaabbbc",
+    srcEnd: 6,
+    srcStart: 3,
+  },
+  {
+    destEnd: 5,
+    destStart: 4,
+    src: "aaabbbc",
+    srcEnd: 7,
+    srcStart: 6,
+  },
+]
+`;

@@ -20,3 +20,11 @@ The linker will rename one of them, and all the calls to the renamed function.
 You get only that function and its references, not the whole file.
 
 **wgsl-linker** is currently being revised to follow the upcoming community [WESL standard](https://github.com/wgsl-tooling-wg/wesl-spec).
+
+## Development
+
+Deno is used for almost everything.
+- `deno install` for setup
+- `deno lint` for linting
+- `deno test --allow-read` to run the unit tests
+  - To update the snapshots, run `deno test --allow-all -- --update`

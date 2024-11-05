@@ -1,0 +1,10 @@
+export const snapshot = {};
+
+snapshot[`mismatched import export params 1`] = `
+"mismatched import and export params  module: _root/main.wgsl
+    #import foo(A, B) from ./file1   Ln 2
+    ^
+ module: _root/file1.wgsl
+    #export(C)    Ln 2
+    ^"
+`;

@@ -1,0 +1,7 @@
+{
+  "name": "@wesl/testlib",
+  "exports": "./mod.ts",
+  "tasks": {},
+  "license": "MIT",
+  "imports": {}
+}

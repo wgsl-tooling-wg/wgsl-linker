@@ -1,0 +1,57 @@
+export const snapshot = {};
+
+snapshot[`parse #if #endif 1`] = `
+[
+  {
+    destEnd: 1,
+    destStart: 0,
+    src: "
+    #if foo
+    fn f() { }
+    #endif
+    ",
+    srcEnd: 1,
+    srcStart: 0,
+  },
+  {
+    destEnd: 16,
+    destStart: 1,
+    src: "
+    #if foo
+    fn f() { }
+    #endif
+    ",
+    srcEnd: 28,
+    srcStart: 13,
+  },
+  {
+    destEnd: 20,
+    destStart: 16,
+    src: "
+    #if foo
+    fn f() { }
+    #endif
+    ",
+    srcEnd: 43,
+    srcStart: 39,
+  },
+]
+`;
+
+snapshot[`srcLog with srcMap 1`] = `
+"found:
+  1234   Ln 3
+  ^  ^"
+`;
+
+snapshot[`unterminated #if 1`] = `
+"unmatched #if/#else
+  #if foo   Ln 2
+  ^"
+`;
+
+snapshot[`unterminated #else 1`] = `
+"unmatched #if/#else
+  #else   Ln 3
+  ^"
+`;

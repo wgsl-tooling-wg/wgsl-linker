@@ -1,0 +1,60 @@
+export const snapshot = {};
+
+snapshot[`seq() handles two element match 1`] = `
+{
+  tags: {},
+  value: [
+    "#import",
+    "foo",
+  ],
+}
+`;
+
+snapshot[`opt() makes failing match ok 1`] = `
+{
+  tags: {},
+  value: [
+    undefined,
+    "foo",
+  ],
+}
+`;
+
+snapshot[`not() success 1`] = `
+[
+  [
+    true,
+    {
+      kind: "word",
+      text: "foo",
+    },
+  ],
+  [
+    true,
+    {
+      kind: "word",
+      text: "bar",
+    },
+  ],
+]
+`;
+
+snapshot[`tracing 1`] = `
+"..repeat
+  ..wordz
+    : 'a' (word)
+    a   Ln 1
+    ^
+    ✓ kind 'word'
+  ✓ wordz
+  ..wordz
+    x kind 'word'
+  x wordz
+✓ repeat"
+`;
+
+snapshot[`req logs a message on failure 1`] = `
+"expected text 'b''
+a 1;   Ln 1
+ ^"
+`;
