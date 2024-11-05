@@ -26,5 +26,6 @@ You get only that function and its references, not the whole file.
 Deno is used for almost everything.
 - `deno install` for setup
 - `deno lint` for linting
+- `deno fmt` for formatting
 - `deno test --allow-read` to run the unit tests
   - To update the snapshots, run `deno test --allow-all -- --update`

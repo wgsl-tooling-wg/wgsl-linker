@@ -8,7 +8,7 @@
     "@std/expect": "jsr:@std/expect@1",
     "@std/testing": "jsr:@std/testing@1",
     "vitest": "./testlib/mod.ts",
-    "wesl-testsuite": "../../wesl-testsuite/src/index.ts"
+    "wesl-testsuite": "../wesl-testsuite/src/index.ts"
   },
   "workspace": [
     "./mini-parse",
