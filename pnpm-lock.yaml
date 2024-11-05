@@ -41,6 +41,9 @@ importers:
       fast-glob:
         specifier: ^3.3.2
         version: 3.3.2
+      glob:
+        specifier: ^11.0.0
+        version: 11.0.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -74,6 +77,12 @@ importers:
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
+
+  packages/bulk-test:
+    dependencies:
+      wgsl-linker:
+        specifier: workspace:*
+        version: link:../linker
 
   packages/cli:
     dependencies:
