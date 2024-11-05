@@ -8,7 +8,7 @@ export class SimpleSegment {
   constructor(
     public name: string,
     public as?: string,
-    public args?: string[] // generic args (only allowed on final segment)
+    public args?: string[], // generic args (only allowed on final segment)
   ) {}
 }
 
@@ -21,7 +21,7 @@ export class Wildcard {
 }
 
 export function treeToString(tree: ImportTree): string {
-  return tree.segments.map((s) => segmentToString(s)).join("/");
+  return tree.segments.map(s => segmentToString(s)).join("/");
 }
 
 function segmentToString(segment: PathSegment): string {
@@ -35,7 +35,7 @@ function segmentToString(segment: PathSegment): string {
     return "*";
   }
   if (segment instanceof SegmentList) {
-    return `{${segment.list.map((s) => segmentToString(s)).join(", ")}}`;
+    return `{${segment.list.map(s => segmentToString(s)).join(", ")}}`;
   }
   if (segment instanceof ImportTree) {
     return `(${treeToString(segment)})`;

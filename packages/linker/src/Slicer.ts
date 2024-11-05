@@ -31,7 +31,7 @@ export function sliceReplace(
   src: string,
   slices: SliceReplace[],
   start = 0,
-  end = src.length
+  end = src.length,
 ): SrcMap {
   const sorted = [...slices].sort((a, b) => a.start - b.start);
   const initProgress = { srcPos: start, destPos: 0, results: [], entries: [] };
@@ -46,7 +46,7 @@ export function sliceReplace(
   /** visit one slice, return progress */
   function oneSlice(
     slice: SliceReplace,
-    progress: SlicingProgress
+    progress: SlicingProgress,
   ): SlicingProgress {
     // dlog({ slice });
     // update text with copy and replacement
@@ -62,7 +62,7 @@ export function sliceReplace(
   function replaceOne(
     replacement: string,
     newSrcPos: number,
-    progress: SlicingProgress
+    progress: SlicingProgress,
   ): SlicingProgress {
     const { destPos, entries } = progress;
     const newDestPos = destPos + replacement.length;
@@ -112,12 +112,12 @@ const tokenRegex = /\b(\w+)\b/gi;
  */
 export function sliceWords(
   text: string,
-  replace: Record<string, string>
+  replace: Record<string, string>,
 ): SliceReplace[] {
   const tokens = [...text.matchAll(tokenRegex)];
   const find = Object.keys(replace);
-  const matches = tokens.filter((m) => find.includes(m[0]));
-  const slices = matches.map((m) => {
+  const matches = tokens.filter(m => find.includes(m[0]));
+  const slices = matches.map(m => {
     const start = m.index;
     const end = start + m[0].length;
     const replacement = replace[m[0]];

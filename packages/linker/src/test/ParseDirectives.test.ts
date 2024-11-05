@@ -1,4 +1,4 @@
-import { _withBaseLogger, tokens } from "mini-parse";
+import { tokens, _withBaseLogger } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
@@ -112,19 +112,19 @@ test("parse module foo.bar.ca", () => {
   expect((appState[0] as ModuleElem).name).toBe("foo.bar.ca");
 });
 
-test("module foo.bar.ca", (ctx) => {
+test("module foo.bar.ca", ctx => {
   const appState = parseWgslD(ctx.task.name);
   expect(appState[0].kind).toBe("module");
   expect((appState[0] as ModuleElem).name).toBe("foo.bar.ca");
 });
 
-test("module foo::bar::ba", (ctx) => {
+test("module foo::bar::ba", ctx => {
   const appState = parseWgslD(ctx.task.name);
   expect(appState[0].kind).toBe("module");
   expect((appState[0] as ModuleElem).name).toBe("foo/bar/ba");
 });
 
-test("module foo/bar/ba", (ctx) => {
+test("module foo/bar/ba", ctx => {
   const appState = parseWgslD(ctx.task.name);
   expect(appState[0].kind).toBe("module");
   expect((appState[0] as ModuleElem).name).toBe("foo/bar/ba");
@@ -140,24 +140,24 @@ test("parse import with numeric types", () => {
   expect(lastSegment.args).toEqual(nums);
 });
 
-test("#import foo from ./util", (ctx) => {
+test("#import foo from ./util", ctx => {
   const appState = parseWgslD(ctx.task.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
   expect(segments).toBe("./util/foo");
 });
 
-test('import { foo } from "./bar"', (ctx) => {
+test('import { foo } from "./bar"', ctx => {
   const appState = parseWgslD(ctx.task.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
   expect(segments).toBe("./bar/foo");
 });
 
-test('import { foo, bar } from "./bar"', (ctx) => {
+test('import { foo, bar } from "./bar"', ctx => {
   const appState = parseWgslD(ctx.task.name);
-  const imports = appState.filter((e) => e.kind === "treeImport");
-  const segments = imports.map((i) => treeToString(i.imports));
+  const imports = appState.filter(e => e.kind === "treeImport");
+  const segments = imports.map(i => treeToString(i.imports));
   expect(segments).toContain("./bar/foo");
   expect(segments).toContain("./bar/bar");
 });

@@ -15,7 +15,7 @@
     "build:templates": "vite build -c templates.vite.config.js",
     "test": "vitest",
     "organize": "organize-imports-cli tsconfig.json",
-    "format": "prettier-eslint \"src/**/*.ts\" --write",
+    "format": "prettier . --write",
     "lint": "eslint src"
   },
   "type": "module",

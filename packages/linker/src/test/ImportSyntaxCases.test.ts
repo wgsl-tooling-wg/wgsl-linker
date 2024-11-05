@@ -14,7 +14,7 @@ function expectParses(src: string): TestParseResult<void> {
   return result;
 }
 
-importSyntaxCases.forEach((c) => {
+importSyntaxCases.forEach(c => {
   if (c.fails) {
     test(c.src, () => expectParseFail(c.src));
   } else {

@@ -27,7 +27,7 @@ export const mainTokens = tokenMatcher(
     quote,
     ws: /\s+/,
   },
-  "main"
+  "main",
 );
 
 export const identTokens = tokenMatcher(
@@ -38,7 +38,7 @@ export const identTokens = tokenMatcher(
     digits,
     quote,
   },
-  "longIdent"
+  "longIdent",
 );
 
 export const moduleTokens = tokenMatcher(
@@ -46,7 +46,7 @@ export const moduleTokens = tokenMatcher(
     ws: /\s+/,
     moduleName: /[a-zA-Z_][\w./:-]*/,
   },
-  "moduleName"
+  "moduleName",
 );
 
 /** matching tokens at the start of a '//' line comment that might contain #directives */
@@ -56,7 +56,7 @@ export const lineCommentTokens = tokenMatcher(
     notEol: /[^\n]+/,
     eol,
   },
-  "lineComment"
+  "lineComment",
 );
 
 /** matching tokens while parsing directive parameters #export foo(param1, param2) */
@@ -70,22 +70,28 @@ export const argsTokens = tokenMatcher(
     ws: /[ \t]+/, // don't include \n, so we can find eol separately
     eol,
   },
-  "argsTokens"
+  "argsTokens",
 );
 
 const treeImportSymbolSet = ":: { } , ( ) _ . ; *";
 const importSymbol = matchOneOf(treeImportSymbolSet);
 
-export const treeImportTokens = tokenMatcher({
-  directive,
-  quote,
-  ws: /\s+/,
-  importSymbol,
-  word,
-  digits,
-}, "treeTokens");
+export const treeImportTokens = tokenMatcher(
+  {
+    directive,
+    quote,
+    ws: /\s+/,
+    importSymbol,
+    word,
+    digits,
+  },
+  "treeTokens",
+);
 
-export const rootWs = tokenMatcher({
-  blanks: /\s+/,
-  other: /[^\s]+/
-}, "rootWs");
+export const rootWs = tokenMatcher(
+  {
+    blanks: /\s+/,
+    other: /[^\s]+/,
+  },
+  "rootWs",
+);

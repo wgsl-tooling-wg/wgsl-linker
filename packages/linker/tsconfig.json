@@ -21,7 +21,7 @@
     "paths": {
       "mini-parse": ["../mini-parse/src"],
       "wgsl-linker": ["./src"],
-      "mini-parse/test-util": ["../mini-parse/src/test-util"],
+      "mini-parse/test-util": ["../mini-parse/src/test-util"]
     }
   },
   "include": ["src/**/*"],

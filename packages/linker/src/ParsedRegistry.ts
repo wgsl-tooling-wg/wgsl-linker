@@ -2,13 +2,13 @@ import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
 import { linkWgslModule } from "./Linker.js";
 import {
-  GeneratorExport,
-  GeneratorModule,
-  GeneratorModuleExport,
-  ModuleExport,
-  ModuleRegistry,
-  relativeToAbsolute,
-  TextModuleExport,
+    GeneratorExport,
+    GeneratorModule,
+    GeneratorModuleExport,
+    ModuleExport,
+    ModuleRegistry,
+    relativeToAbsolute,
+    TextModuleExport
 } from "./ModuleRegistry.js";
 import { parseModule, TextExport, TextModule } from "./ParseModule.js";
 import { dirname, normalize, noSuffix } from "./PathUtil.js";
@@ -19,7 +19,7 @@ export class ParsedRegistry {
 
   constructor(
     public registry: ModuleRegistry,
-    public conditions: Record<string, any> = {}
+    public conditions: Record<string, any> = {},
   ) {
     this.textModules = [];
     this.registry.wgslSrc.forEach((src, fileName) => {
@@ -39,7 +39,7 @@ export class ParsedRegistry {
   private parseOneModule(
     src: string,
     params: Record<string, any> = {},
-    modulePath: string
+    modulePath: string,
   ): void {
     const m = parseModule(src, modulePath, params, this.registry.templates);
     this.textModules.push(m);
@@ -48,7 +48,7 @@ export class ParsedRegistry {
   /** @return a ResolveMap to make it easier to resolve imports from the provided module */
   importResolveMap(importingModule: TextModule): ResolveMap {
     const treeImports: TreeImportElem[] = importingModule.imports.filter(
-      (i) => i.kind === "treeImport"
+      i => i.kind === "treeImport",
     ); // TODO drop filter when we drop other import kinds
 
     // TODO cache
@@ -59,7 +59,7 @@ export class ParsedRegistry {
    * reference an export in a registered module */
   getModuleExport(
     importingModule: TextModule, // TODO drop this and require pathSegments to be absolute
-    pathSegments: string[]
+    pathSegments: string[],
   ): ModuleExport | undefined {
     const exportName = pathSegments[pathSegments.length - 1];
     if (pathSegments[0] === ".") {
@@ -81,11 +81,11 @@ export class ParsedRegistry {
 
   private findExport(
     modulePath: string,
-    exportName: string
+    exportName: string,
   ): TextModuleExport | GeneratorModuleExport | undefined {
     const module = this.findTextModule(modulePath);
     // dlog({ modulePath, module: !!module });
-    const exp = module?.exports.find((e) => e.ref.name === exportName);
+    const exp = module?.exports.find(e => e.ref.name === exportName);
     if (exp && module) {
       return { module, exp: exp, kind: "text" };
     }
@@ -94,7 +94,7 @@ export class ParsedRegistry {
   }
 
   findModule(
-    moduleSpecifier: string
+    moduleSpecifier: string,
   ): TextModule | GeneratorModule | undefined {
     return (
       this.findTextModule(moduleSpecifier) ??
@@ -108,16 +108,17 @@ export class ParsedRegistry {
    */
   findTextModule(
     moduleSpecifier: string,
-    packageName = "_root"
+    packageName = "_root",
   ): TextModule | undefined {
-    const resolvedPath = moduleSpecifier.startsWith(".")
-      ? relativeToAbsolute(moduleSpecifier, packageName)
+    const resolvedPath =
+      moduleSpecifier.startsWith(".") ?
+        relativeToAbsolute(moduleSpecifier, packageName)
       : moduleSpecifier;
     // const modulePaths = this.textModules.map((m) => m.modulePath);
     // dlog({ modulePaths, resolvedPath });
     const result =
-      this.textModules.find((m) => m.modulePath === resolvedPath) ??
-      this.textModules.find((m) => noSuffix(m.modulePath) === resolvedPath);
+      this.textModules.find(m => m.modulePath === resolvedPath) ??
+      this.textModules.find(m => noSuffix(m.modulePath) === resolvedPath);
     // dlog({ moduleSpecifier, packageName, result: !!result });
     return result;
   }

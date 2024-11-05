@@ -21,7 +21,7 @@ test("trimSrc with blank line in the middle and at end", () => {
       foo
 
       bar
-     `
+     `,
   );
   expect(trimmed).toBe("foo\n\nbar");
 });

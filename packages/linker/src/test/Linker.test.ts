@@ -1,9 +1,7 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
-import { linkTestOpts, linkTest } from "./TestUtil.js";
+import { linkTest, linkTestOpts } from "./TestUtil.js";
 
 /* --- these tests rely on features not yet portable in wesl --- */
 

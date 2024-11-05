@@ -1,10 +1,9 @@
-import { dlog } from "berry-pretty";
 import { _withBaseLogger } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { refFullName } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { FoundRef, TextRef, refName, traverseRefs } from "../TraverseRefs.js";
+import { FoundRef, refName, TextRef, traverseRefs } from "../TraverseRefs.js";
 
 test("traverse a fn to struct ref", () => {
   const src = `
@@ -116,7 +115,7 @@ test.skip("traverse double importing", () => {
 
   const refs = traverseTest(src, module1, module2, module3);
 
-  const expImpArgs = refs.flatMap((r) => {
+  const expImpArgs = refs.flatMap(r => {
     const er = r as TextRef;
     return er ? [er.expInfo?.expImpArgs] : [];
   });
@@ -143,7 +142,7 @@ test.skip("traverse importing from a support fn", () => {
 
   const refs = traverseTest(src, module1, module2);
 
-  const expImpArgs = refs.flatMap((r) => {
+  const expImpArgs = refs.flatMap(r => {
     const er = r as TextRef;
     return er ? [{ name: er.elem.name, args: er.expInfo?.expImpArgs }] : [];
   });
@@ -229,7 +228,7 @@ test("traverse var to gleam style struct ref", () => {
 
   const refs = traverseTest(main, foo);
   const structRef = refs.find(
-    (ref) => ref.kind === "txt" && ref.elem.kind === "struct"
+    ref => ref.kind === "txt" && ref.elem.kind === "struct",
   );
   expect(structRef).toBeDefined();
 });
@@ -454,7 +453,7 @@ test("call cross reference", () => {
     }
   `;
   const { refs, log } = traverseWithLog(src);
-  const refNames = refs.map((r) => (r as TextRef).elem.name);
+  const refNames = refs.map(r => (r as TextRef).elem.name);
   expect(refNames).toContain("foo");
   expect(refNames).toContain("bar");
   expect(refNames.length).toBe(2);
@@ -486,7 +485,7 @@ test("struct cross reference", () => {
   `;
   const { refs, log } = traverseWithLog(src);
   expect(log).toBe("");
-  const refNames = refs.map((r) => (r as any).elem.name);
+  const refNames = refs.map(r => (r as any).elem.name);
   expect(refNames).toContain("A");
   expect(refNames).toContain("B");
   expect(refNames.length).toBe(2);
@@ -514,7 +513,7 @@ function traverseWithLog(
  */
 function traverseTest(src: string, ...modules: string[]): FoundRef[] {
   const moduleFiles = Object.fromEntries(
-    modules.map((m, i) => [`./file${i + 1}.wgsl`, m])
+    modules.map((m, i) => [`./file${i + 1}.wgsl`, m]),
   );
   const wgsl = { "./main.wgsl": src, ...moduleFiles };
   const registry = new ModuleRegistry({ wgsl });
@@ -523,7 +522,7 @@ function traverseTest(src: string, ...modules: string[]): FoundRef[] {
   const mainModule = parsed.findTextModule("./main")!;
   const seen = new Set<string>();
 
-  traverseRefs(mainModule, parsed, (ref) => {
+  traverseRefs(mainModule, parsed, ref => {
     if (unseen(ref)) {
       refs.push(ref);
       return true;

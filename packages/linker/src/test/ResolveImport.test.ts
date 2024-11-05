@@ -22,7 +22,7 @@ test("resolveImport foo() from import bar/foo", () => {
   });
   const parsedModules = registry.parsed();
   const impMod = parsedModules.findTextModule("main")!;
-  const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
+  const treeImports = impMod.imports.filter(i => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
 
   const found = resolveImport("foo", resolveMap);
@@ -48,7 +48,7 @@ test("resolveImport bar/foo() from import bar/foo", () => {
   });
   const parsedModules = registry.parsed();
   const impMod = parsedModules.findTextModule("main")!;
-  const treeImports = impMod.imports.filter((i) => i.kind === "treeImport");
+  const treeImports = impMod.imports.filter(i => i.kind === "treeImport");
   const resolveMap = importResolutionMap(impMod, treeImports, parsedModules);
   const found = resolveImport("bar.foo", resolveMap);
   expect(found).toBeDefined();

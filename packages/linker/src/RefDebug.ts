@@ -1,6 +1,6 @@
 import { dlog } from "berry-pretty";
-import { FoundRef, TextRef } from "./TraverseRefs.js";
 import { AbstractElem, CallElem, FnElem } from "./AbstractElems.js";
+import { FoundRef, TextRef } from "./TraverseRefs.js";
 
 export function printRef(r: FoundRef, msg = ""): void {
   const { kind, elem, rename } = r as TextRef;
@@ -11,7 +11,7 @@ export function printRef(r: FoundRef, msg = ""): void {
       kind,
       ...renameFields,
     },
-    elemToText("elem", elem)
+    elemToText("elem", elem),
   );
 }
 
@@ -21,9 +21,9 @@ export function elemToText(msg: string, elem?: AbstractElem): string {
   const { kind, ref, name = "", typeRefs = [] } = elem as SomeElem;
   const refText = ref ? `ref: true, ` : "";
   const typeRefsText =
-    typeRefs.length > 0
-      ? `typeRefs: [${typeRefs.map((tr) => tr.name).join(", ")}]`
-      : "";
+    typeRefs.length > 0 ?
+      `typeRefs: [${typeRefs.map(tr => tr.name).join(", ")}]`
+    : "";
 
   return `${msg}: {kind: "${kind}", name: "${name}" ${refText} ${typeRefsText}}`;
 }

@@ -95,7 +95,7 @@ test("slice with empty replacement", () => {
 function validateDestCovered(srcMap: SrcMap): void {
   const { dest, entries } = srcMap;
   let destPos = 0;
-  entries.forEach((e) => {
+  entries.forEach(e => {
     expect(e.destStart).toBe(destPos);
     destPos = e.destEnd;
   });

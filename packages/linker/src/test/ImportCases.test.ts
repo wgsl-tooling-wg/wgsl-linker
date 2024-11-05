@@ -11,9 +11,9 @@ interface LinkExpectation {
 }
 
 // wgsl example src, indexed by name
-const examplesByName = new Map(importCases.map((t) => [t.name, t.src]));
+const examplesByName = new Map(importCases.map(t => [t.name, t.src]));
 
-test("import ./bar/foo", (ctx) => {
+test("import ./bar/foo", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -25,7 +25,7 @@ test("import ./bar/foo", (ctx) => {
   });
 });
 
-test("main has other root elements", (ctx) => {
+test("main has other root elements", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       struct Uniforms {
@@ -39,7 +39,7 @@ test("main has other root elements", (ctx) => {
   });
 });
 
-test("import foo as bar", (ctx) => {
+test("import foo as bar", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -51,7 +51,7 @@ test("import foo as bar", (ctx) => {
   });
 });
 
-test("import twice doesn't get two copies", (ctx) => {
+test("import twice doesn't get two copies", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -66,7 +66,7 @@ test("import twice doesn't get two copies", (ctx) => {
   });
 });
 
-test("imported fn calls support fn with root conflict", (ctx) => {
+test("imported fn calls support fn with root conflict", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { foo(); }
@@ -83,7 +83,7 @@ test("imported fn calls support fn with root conflict", (ctx) => {
   });
 });
 
-test("import twice with two as names", (ctx) => {
+test("import twice with two as names", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() { bar(); bar(); }
@@ -93,7 +93,7 @@ test("import twice with two as names", (ctx) => {
   });
 });
 
-test("import transitive conflicts with main", (ctx) => {
+test("import transitive conflicts with main", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -111,7 +111,7 @@ test("import transitive conflicts with main", (ctx) => {
   });
 });
 
-test("multiple exports from the same module", (ctx) => {
+test("multiple exports from the same module", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -126,7 +126,7 @@ test("multiple exports from the same module", (ctx) => {
   });
 });
 
-test("import and resolve conflicting support function", (ctx) => {
+test("import and resolve conflicting support function", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn support() {
@@ -142,7 +142,7 @@ test("import and resolve conflicting support function", (ctx) => {
   });
 });
 
-test("import support fn that references another import", (ctx) => {
+test("import support fn that references another import", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn support() {
@@ -165,7 +165,7 @@ test("import support fn that references another import", (ctx) => {
   });
 });
 
-test("import support fn from two exports", (ctx) => {
+test("import support fn from two exports", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -186,7 +186,7 @@ test("import support fn from two exports", (ctx) => {
   });
 });
 
-test("import a struct", (ctx) => {
+test("import a struct", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -200,7 +200,7 @@ test("import a struct", (ctx) => {
   });
 });
 
-test("import fn with support struct constructor", (ctx) => {
+test("import fn with support struct constructor", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn main() {
@@ -218,7 +218,7 @@ test("import fn with support struct constructor", (ctx) => {
   });
 });
 
-test("import a transitive struct", (ctx) => {
+test("import a transitive struct", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       struct SrcStruct {
@@ -236,7 +236,7 @@ test("import a transitive struct", (ctx) => {
   });
 });
 
-test("'import as' a struct", (ctx) => {
+test("'import as' a struct", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       fn foo (a: AA) { }
@@ -248,7 +248,7 @@ test("'import as' a struct", (ctx) => {
   });
 });
 
-test("import a struct with name conflicting support struct", (ctx) => {
+test("import a struct with name conflicting support struct", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       struct Base {
@@ -268,7 +268,7 @@ test("import a struct with name conflicting support struct", (ctx) => {
   });
 });
 
-test("copy alias to output", (ctx) => {
+test("copy alias to output", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       alias MyType = u32;
@@ -276,7 +276,7 @@ test("copy alias to output", (ctx) => {
   });
 });
 
-test("copy diagnostics to output", (ctx) => {
+test("copy diagnostics to output", ctx => {
   linkTest(ctx.task.name, {
     linked: `
       diagnostic(off,derivative_uniformity);
@@ -284,10 +284,10 @@ test("copy diagnostics to output", (ctx) => {
   });
 });
 
-afterAll((c) => {
-  const testNameSet = new Set(c.tasks.map((t) => t.name));
-  const cases = importCases.map((c) => c.name);
-  const missing = cases.filter((name) => !testNameSet.has(name));
+afterAll(c => {
+  const testNameSet = new Set(c.tasks.map(t => t.name));
+  const cases = importCases.map(c => c.name);
+  const missing = cases.filter(name => !testNameSet.has(name));
   if (missing.length) {
     console.error("Missing tests for cases:", missing);
     expect("missing test: " + missing.toString()).toBe("");
@@ -322,12 +322,12 @@ function linkTest(name: string, expectation: LinkExpectation): void {
     }
   }
   if (includes !== undefined) {
-    includes.forEach((inc) => {
+    includes.forEach(inc => {
       expect(result).toContain(inc);
     });
   }
   if (excludes !== undefined) {
-    excludes.forEach((exc) => {
+    excludes.forEach(exc => {
       expect(result).not.toContain(exc);
     });
   }

@@ -11,7 +11,7 @@ export interface Template {
 }
 export type CodeGenFn = (
   name: string,
-  params: Record<string, string>
+  params: Record<string, string>,
 ) => string;
 
 export interface GeneratorExport {
@@ -37,7 +37,7 @@ export interface RegisterGenerator {
 
 export type ApplyTemplateFn = (
   src: string,
-  params: Record<string, any> // combination of external params and imp/exp params
+  params: Record<string, any>, // combination of external params and imp/exp params
 ) => SrcMap;
 
 /** a single export from a module */
@@ -95,21 +95,22 @@ export class ModuleRegistry {
     const { wgsl = {}, templates = [], libs = [], generators } = args;
 
     Object.entries(wgsl).forEach(([fileName, src]) =>
-      this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src)
+      this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src),
     );
 
-    libs.forEach(({ name, modules}) => {
+    libs.forEach(({ name, modules }) => {
       Object.entries(modules).forEach(([fileName, src]) => {
         const absPath = relativeToAbsolute(fileName, name);
-        const canonPath = libExp.test(absPath)
-          ? absPath.slice(0, -"/lib.wgsl".length)
+        const canonPath =
+          libExp.test(absPath) ?
+            absPath.slice(0, -"/lib.wgsl".length)
           : absPath;
         this.wgslSrc.set(canonPath, src);
       });
     });
 
     templates && this.registerTemplate(...templates);
-    generators?.map((g) => this.registerGenerator(g));
+    generators?.map(g => this.registerGenerator(g));
   }
 
   /**
@@ -146,13 +147,13 @@ export class ModuleRegistry {
 
   /** register a template processor  */
   registerTemplate(...templates: Template[]): void {
-    templates.forEach((t) => this.templates.set(t.name, t.apply));
+    templates.forEach(t => this.templates.set(t.name, t.apply));
   }
 }
 
 export function relativeToAbsolute(
   relativePath: string,
-  packageName: string
+  packageName: string,
 ): string {
   const normalPath = normalize(relativePath);
   const fullPath = `${packageName}/${normalPath}`;

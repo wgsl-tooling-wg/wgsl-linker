@@ -30,56 +30,56 @@ a build plugin could polish that.)
 
 ## Setting up to link
 
-* *build* - wgsl source files are converted into strings for runtime registration.
-* *register*  - wgsl fragments are registered in the ModuleRegistry
-for later retrieval.
-No wgsl processing is done at registration time.
-* *link* - create a merged wgsl string, starting from a root fragment
-in the registry.
-The merged wgsl string contains only vanilla wgsl,
-all extended syntax (import, export, #if) is processed and the
-extended syntax is removed.
+- _build_ - wgsl source files are converted into strings for runtime registration.
+- _register_ - wgsl fragments are registered in the ModuleRegistry
+  for later retrieval.
+  No wgsl processing is done at registration time.
+- _link_ - create a merged wgsl string, starting from a root fragment
+  in the registry.
+  The merged wgsl string contains only vanilla wgsl,
+  all extended syntax (import, export, #if) is processed and the
+  extended syntax is removed.
 
 ## Linking phases
 
 Linking is relatively straightforward.
 
 1. Preprocess and parse the registry
-    * preprocess based on runtime variables set by the caller
-      * apply #if conditionals
-      * replace text with runtime variables (e.g. using the `SimpleTemplate`)
-      * apply any user provided custom string templates
-    * parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
+   - preprocess based on runtime variables set by the caller
+     - apply #if conditionals
+     - replace text with runtime variables (e.g. using the `SimpleTemplate`)
+     - apply any user provided custom string templates
+   - parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
 1. Traverse the abstract syntax tree recursively, starting from the wgsl
-  elements in the root wgsl fragment.
-    * The accumulated list of wgsl elements (`FoundRef[]`)
-      will eventually be concatenated into the linked result string.
-    * each FoundRef has a deconflicted 'rename' name
-      so that wgsl element names will be unique in the linked result.
-      see `findReferences() handleRef()`.
-    * During the traverse, mutate the abstract elem graph to add
-      a link from referencing elements (e.g. a call, type annotation)
-      to their FoundRef target (e.g. fn, struct).
-      (so we can rename referencing elements as necessary)
+   elements in the root wgsl fragment.
+   - The accumulated list of wgsl elements (`FoundRef[]`)
+     will eventually be concatenated into the linked result string.
+   - each FoundRef has a deconflicted 'rename' name
+     so that wgsl element names will be unique in the linked result.
+     see `findReferences() handleRef()`.
+   - During the traverse, mutate the abstract elem graph to add
+     a link from referencing elements (e.g. a call, type annotation)
+     to their FoundRef target (e.g. fn, struct).
+     (so we can rename referencing elements as necessary)
 1. The text of all referenced FoundRef[] elements is extracted
-  from the source fragment, rewritten according to any renaming,
-  and concatenated into the final linked result string.
+   from the source fragment, rewritten according to any renaming,
+   and concatenated into the final linked result string.
 
 ## Embellishments
 
-* Importing is allowed from user supplied code generator functions.
+- Importing is allowed from user supplied code generator functions.
   Code generator functions expose module names and export names -
   importing from a code generator is just like importing from a package,
   but internally the code calls the generator function instead.
-* Users can plug in their own text processor to run during the preprocessing phase.
-* Struct inheritance - After traversal, refs to structures with `extends` clauses
+- Users can plug in their own text processor to run during the preprocessing phase.
+- Struct inheritance - After traversal, refs to structures with `extends` clauses
   are modified to add 'mergeRefs' a list of refs to the extension source structs.
   When the struct text is extracted, the fields from the extension source structs are
   mixed in.
-* ImportResolutionMap - Fully expand wildcard and list style imports,
+- ImportResolutionMap - Fully expand wildcard and list style imports,
   distinguish imports that refer to wgsl elements
   from (rust only) path prefix imports.
-* To support generic parameters imports/exports, a map between
+- To support generic parameters imports/exports, a map between
   export parameter names and import names is created during `ImportResolutionMap`
   construction.
   The expImpArgs map is used to rewrite generic elements during extraction.

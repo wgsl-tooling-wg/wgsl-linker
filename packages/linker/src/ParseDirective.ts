@@ -1,25 +1,25 @@
 import {
-  Parser,
-  anyThrough,
-  kind,
-  opt,
-  or,
-  repeat,
-  req,
-  seq,
-  setTraceNames,
-  tokens,
-  tracing,
-  withSep
+    anyThrough,
+    kind,
+    opt,
+    or,
+    Parser,
+    repeat,
+    req,
+    seq,
+    setTraceNames,
+    tokens,
+    tracing,
+    withSep
 } from "mini-parse";
 import { ExtendsElem } from "./AbstractElems.js";
 import { gleamImport } from "./GleamImport.js";
 import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import {
-  argsTokens,
-  lineCommentTokens,
-  mainTokens,
-  moduleTokens,
+    argsTokens,
+    lineCommentTokens,
+    mainTokens,
+    moduleTokens
 } from "./MatchWgslD.js";
 import { eolf, makeElem } from "./ParseSupport.js";
 
@@ -39,7 +39,7 @@ export const directiveArgs: Parser<string[]> =
 
 const fromClause = seq(
   "from",
-  or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"'))
+  or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"')),
 );
 
 export interface ImportClause {
@@ -72,9 +72,9 @@ const bracketedImportClause = or(
 /** <{> foo <,zip> <(A,B)> <as boo> <}> <from bar>
  * @returns array of ExtendsElem elements */
 function importPhrase<T extends ExtendsElem>(kind: T["kind"]): Parser<T[]> {
-  const p = seq(bracketedImportClause, fromClause).map((r) => {
+  const p = seq(bracketedImportClause, fromClause).map(r => {
     const from = r.tags.from?.[0];
-    return r.tags.importClause.map((impClause) => {
+    return r.tags.importClause.map(impClause => {
       const elem = makeElem(kind, r as any, [], []) as unknown as T;
       copyDefinedProps(impClause, ["name", "as", "args"], elem);
       if (from) elem.from = from;
@@ -85,15 +85,15 @@ function importPhrase<T extends ExtendsElem>(kind: T["kind"]): Parser<T[]> {
   return p;
 }
 
-const importElemPhrase = seq(bracketedImportClause, fromClause).map((r) => {
+const importElemPhrase = seq(bracketedImportClause, fromClause).map(r => {
   const from = r.tags.from?.[0];
-  return r.tags.importClause.map((impClause) => {
+  return r.tags.importClause.map(impClause => {
     const elem = makeElem("treeImport", r as any, [], []);
-    const fromSegments = from.split("/").map((s) => new SimpleSegment(s));
+    const fromSegments = from.split("/").map(s => new SimpleSegment(s));
     const lastSegment = new SimpleSegment(
       impClause.name,
       impClause.as,
-      impClause.args
+      impClause.args,
     );
     const segments = [...fromSegments, lastSegment];
     const importTree: ImportTree = new ImportTree(segments);
@@ -109,9 +109,9 @@ if (tracing) setTraceNames({ importElemPhrase, extendsElemPhrase });
 /** #import foo <(a,b)> <as boo> <from bar>  EOL */
 const importDirective = seq(
   or("#import", "import"),
-  seq(importElemPhrase.tag("imp"), opt(";"), () => eolf)
-).map((r) => {
-  r.tags.imp[0].forEach((imp) => {
+  seq(importElemPhrase.tag("imp"), opt(";"), () => eolf),
+).map(r => {
+  r.tags.imp[0].forEach(imp => {
     imp.start = r.start; // use start of #import, not import phrase
     r.app.state.push(imp);
   });
@@ -119,9 +119,9 @@ const importDirective = seq(
 
 export const extendsDirective = seq(
   or("#extends", "extends"),
-  seq(extendsElemPhrase.tag("extends"), eolf)
-).map((r) => {
-  r.tags.extends[0].map((ext) => {
+  seq(extendsElemPhrase.tag("extends"), eolf),
+).map(r => {
+  r.tags.extends[0].map(ext => {
     ext.start = r.start; // use start of #extends, not import phrase
     r.app.state.push(ext);
   });
@@ -130,14 +130,14 @@ export const extendsDirective = seq(
 export const importing = seq(
   "importing",
   seq(importElemPhrase.tag("importing")),
-  repeat(seq(",", importElemPhrase.tag("importing")))
+  repeat(seq(",", importElemPhrase.tag("importing"))),
 );
 
 /** #export <foo> <(a,b)> <importing bar(a) <zap(b)>* > EOL */
 export const exportDirective = seq(
   or("#export", "export"),
-  seq(opt(directiveArgs.tag("args")), opt(importing), opt(eolf))
-).map((r) => {
+  seq(opt(directiveArgs.tag("args")), opt(importing), opt(eolf)),
+).map(r => {
   const e = makeElem("export", r, ["args", "importing"]);
   r.app.state.push(e);
 });
@@ -145,8 +145,8 @@ export const exportDirective = seq(
 const moduleDirective = seq(
   or("module", "#module"),
   tokens(moduleTokens, req(kind(moduleTokens.moduleName).tag("name"))),
-  eolf
-).map((r) => {
+  eolf,
+).map(r => {
   const e = makeElem("module", r);
   e.name = normalizeModulePath(r.tags.name[0]);
   r.app.state.push(e);
@@ -169,9 +169,9 @@ export const directive = tokens(
       importDirective,
       gleamImport,
       extendsDirective,
-      moduleDirective
-    )
-  )
+      moduleDirective,
+    ),
+  ),
 );
 
 const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
@@ -202,9 +202,9 @@ if (tracing) {
 function copyDefinedProps<S extends Record<string, any>>(
   src: S,
   keys: (keyof S)[],
-  dest: any
+  dest: any,
 ): void {
-  keys.forEach((k) => {
+  keys.forEach(k => {
     if (src[k] !== undefined) dest[k] = src[k];
   });
 }

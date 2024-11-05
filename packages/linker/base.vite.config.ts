@@ -18,6 +18,6 @@ export function baseViteConfig(): UserConfig {
       },
       minify: false,
       sourcemap: true,
-    }
+    },
   };
 }

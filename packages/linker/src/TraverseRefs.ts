@@ -1,22 +1,22 @@
 import { dlog } from "berry-pretty";
 import {
-  AliasElem,
-  CallElem,
-  ExportElem,
-  ExtendsElem,
-  FnElem,
-  StructElem,
-  StructMemberElem,
-  TreeImportElem,
-  TypeRefElem,
-  VarElem,
+    AliasElem,
+    CallElem,
+    ExportElem,
+    ExtendsElem,
+    FnElem,
+    StructElem,
+    StructMemberElem,
+    TreeImportElem,
+    TypeRefElem,
+    VarElem
 } from "./AbstractElems.js";
 import { refFullName } from "./Linker.js";
 import { moduleLog } from "./LinkerLogging.js";
 import {
-  GeneratorExport,
-  GeneratorModule,
-  ModuleExport,
+    GeneratorExport,
+    GeneratorModule,
+    ModuleExport
 } from "./ModuleRegistry.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
@@ -98,25 +98,25 @@ export interface TextRef extends FoundRefBase {
 export function traverseRefs(
   srcModule: TextModule,
   registry: ParsedRegistry,
-  fn: (ref: FoundRef) => void
+  fn: (ref: FoundRef) => void,
 ): void {
   const { aliases, fns, structs, vars } = srcModule;
   const expMod = srcModule;
   const srcRefs: TextRef[] = [...structs, ...vars, ...fns, ...aliases].map(
-    (elem) => ({
+    elem => ({
       kind: "txt",
       proposedName: elem.name,
       expMod,
       elem,
-    })
+    }),
   );
-  srcRefs.forEach((ref) => fn(ref));
+  srcRefs.forEach(ref => fn(ref));
   if (!srcRefs.length) return;
 
   // recurse on the external refs from the src root elements
   const nonGenRefs = textRefs(srcRefs);
-  const childRefs = nonGenRefs.flatMap((srcRef) =>
-    elemRefs(srcRef, srcModule, registry)
+  const childRefs = nonGenRefs.flatMap(srcRef =>
+    elemRefs(srcRef, srcModule, registry),
   );
   const seen = new Set<string>();
   recursiveRefs(childRefs, registry, eachRef);
@@ -149,17 +149,17 @@ export function traverseRefs(
 function recursiveRefs(
   refs: FoundRef[],
   registry: ParsedRegistry,
-  fn: (ref: FoundRef) => boolean | undefined
+  fn: (ref: FoundRef) => boolean | undefined,
 ): void {
   // run the fn on each ref, and prep to recurse on each ref for which the fn returns true
-  const filtered = refs.filter((r) => fn(r));
+  const filtered = refs.filter(r => fn(r));
 
   const nonGenRefs = textRefs(filtered); // we don't need to trace generated text (and thus we don't parse it anyway)
 
-  const modGroups = groupBy(nonGenRefs, (r) => r.expMod);
+  const modGroups = groupBy(nonGenRefs, r => r.expMod);
   [...modGroups.entries()].forEach(([mod, refs]) => {
     if (refs.length) {
-      const childRefs = refs.flatMap((r) => elemRefs(r, mod, registry));
+      const childRefs = refs.flatMap(r => elemRefs(r, mod, registry));
       recursiveRefs(childRefs, registry, fn);
     }
   });
@@ -177,14 +177,14 @@ function textRef(ref: FoundRef): ref is TextRef {
 function elemRefs(
   srcRef: TextRef,
   mod: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): FoundRef[] {
   const { elem } = srcRef;
   let fnRefs: FoundRef[] = [];
   let mergeRefs: FoundRef[] = [];
   if (elem.kind === "fn") {
     const userCalls = elem.calls.filter(
-      (call) => !stdFn(call.name) && call.name !== elem.name
+      call => !stdFn(call.name) && call.name !== elem.name,
     );
     fnRefs = elemChildrenRefs(srcRef, userCalls, mod, registry);
   } else if (elem.kind === "struct") {
@@ -197,7 +197,7 @@ function elemRefs(
 
 /** return type references from an element */
 function elemTypeRefs(
-  elem: FnElem | StructElem | VarElem | AliasElem | StructMemberElem
+  elem: FnElem | StructElem | VarElem | AliasElem | StructMemberElem,
 ): TypeRefElem[] {
   let typeRefs: TypeRefElem[];
   const { kind } = elem;
@@ -209,12 +209,12 @@ function elemTypeRefs(
   ) {
     typeRefs = elem.typeRefs;
   } else if (kind === "struct") {
-    typeRefs = elem.members?.flatMap((m) => m.typeRefs) || [];
+    typeRefs = elem.members?.flatMap(m => m.typeRefs) || [];
   } else {
     console.error("unexpected kind", elem);
     typeRefs = [];
   }
-  const userTypeRefs = typeRefs.filter((ref) => !stdType(ref.name));
+  const userTypeRefs = typeRefs.filter(ref => !stdType(ref.name));
   return userTypeRefs;
 }
 
@@ -224,9 +224,9 @@ function elemChildrenRefs(
   srcRef: TextRef,
   children: (CallElem | TypeRefElem)[],
   mod: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): FoundRef[] {
-  return children.flatMap((elem) => linkedRef(elem, srcRef, mod, registry));
+  return children.flatMap(elem => linkedRef(elem, srcRef, mod, registry));
 }
 
 /** given a source elem that refers to another element (like a fn call or type reference),
@@ -235,7 +235,7 @@ function linkedRef(
   elem: CallElem | TypeRefElem,
   srcRef: TextRef,
   mod: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): FoundRef[] {
   const { name } = elem;
   if (importArgRef(srcRef, name)) return [];
@@ -265,11 +265,11 @@ function extendsRefs(
   srcRef: TextRef,
   elem: StructElem,
   mod: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): FoundRef[] {
   const merges = elem.extendsElems;
   if (!merges) return [];
-  return merges.flatMap((merge) => {
+  return merges.flatMap(merge => {
     const foundRef = importRef(srcRef, merge.name, mod, mod.imports, registry);
     if (foundRef) return [foundRef];
 
@@ -292,7 +292,7 @@ function importRef(
   name: string,
   impMod: TextModule,
   imports: (TreeImportElem | ExtendsElem)[],
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): TextRef | GeneratorRef | undefined {
   const resolveMap = registry.importResolveMap(impMod);
   const resolved = resolveImport(name, resolveMap);
@@ -422,7 +422,7 @@ function importRef(
 function importingArgs(
   imp: TreeImportElem,
   exp: ExportElem | GeneratorExport,
-  srcRef: TextRef
+  srcRef: TextRef,
 ): StringPairs {
   return [];
   // if (srcRef.expInfo === undefined) return [];
@@ -451,7 +451,7 @@ function isDefined<T>(a: T | undefined): asserts a is T {
 function matchingExport(
   imp: TreeImportElem | ExtendsElem | undefined,
   mod: TextModule,
-  registry: ParsedRegistry
+  registry: ParsedRegistry,
 ): ModuleExport | undefined {
   if (!imp) return;
 
@@ -467,8 +467,8 @@ function matchingExport(
 
 function localRef(name: string, mod: TextModule): TextRef | undefined {
   const elem =
-    mod.fns.find((fn) => fn.name === name) ??
-    mod.structs.find((s) => s.name === name);
+    mod.fns.find(fn => fn.name === name) ??
+    mod.structs.find(s => s.name === name);
   if (elem) {
     return {
       kind: "txt",

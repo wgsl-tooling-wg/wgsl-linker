@@ -1,19 +1,19 @@
 import {
-  ExtendedResult,
-  Parser,
-  any,
-  anyNot,
-  disablePreParse,
-  kind,
-  makeEolf,
-  or,
-  repeat,
-  req,
-  resultLog,
-  seq,
-  setTraceName,
-  tracing,
-  withSep,
+    any,
+    anyNot,
+    disablePreParse,
+    ExtendedResult,
+    kind,
+    makeEolf,
+    or,
+    Parser,
+    repeat,
+    req,
+    resultLog,
+    seq,
+    setTraceName,
+    tracing,
+    withSep
 } from "mini-parse";
 import { AbstractElem, AbstractElemBase } from "./AbstractElems.js";
 import { argsTokens, mainTokens } from "./MatchWgslD.js";
@@ -24,10 +24,10 @@ import { lineComment } from "./ParseDirective.js";
 export const word = kind(mainTokens.word);
 export const wordNum = or(word, kind(mainTokens.digits));
 
-export const unknown = any().map((r) => {
+export const unknown = any().map(r => {
   const { kind, text } = r.value;
   const deepName = r.ctx._debugNames.join(" > ");
-  
+
   resultLog(r, `??? ${kind}: '${text}'  ${deepName}`);
   // throw new Error("Fail fast");
 });
@@ -35,21 +35,21 @@ export const unknown = any().map((r) => {
 export const blockComment: Parser<any> = seq(
   "/*",
   repeat(or(() => blockComment, anyNot("*/"))),
-  req("*/")
+  req("*/"),
 );
 
 export const comment = or(() => lineComment, blockComment);
 
 export const eolf: Parser<any> = disablePreParse(
-  makeEolf(argsTokens, argsTokens.ws)
+  makeEolf(argsTokens, argsTokens.ws),
 );
 
 /** ( a1, b1* ) with optinoal comments, spans lines */
 export const wordNumArgs: Parser<string[]> = seq(
   "(",
   withSep(",", wordNum),
-  req(")")
-).map((r) => r.value[1]);
+  req(")"),
+).map(r => r.value[1]);
 
 type ByKind<U, T> = U extends { kind: T } ? U : never;
 
@@ -73,7 +73,7 @@ export function makeElem<
   kind: K,
   er: ExtendedResult<any, Partial<T>>,
   tags: (keyof T)[] = [],
-  tagArrays: (keyof T)[] = []
+  tagArrays: (keyof T)[] = [],
 ): Partial<E> {
   const { start, end } = er;
 
@@ -85,9 +85,9 @@ export function makeElem<
 function mapIfDefined<A>(
   keys: (keyof A)[],
   array: Partial<Record<keyof A, string[]>>,
-  firstElemOnly?: boolean
+  firstElemOnly?: boolean,
 ): Partial<Record<keyof A, string | string[]>> {
-  const entries = keys.flatMap((k) => {
+  const entries = keys.flatMap(k => {
     const ak = array[k];
     const v = firstElemOnly ? ak?.[0] : ak;
 

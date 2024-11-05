@@ -9,17 +9,17 @@ function expectParses(ctx: TaskContext): TestParseResult<void> {
 }
 /* ------  success cases  -------   */
 
-test("import ./foo/bar;", (ctx) => {
+test("import ./foo/bar;", ctx => {
   const result = expectParses(ctx);
   expect(result.position).toBe(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });
 
-test("import foo-bar/boo", (ctx) => {
+test("import foo-bar/boo", ctx => {
   expectParses(ctx);
 });
 
 /**  ----- extraction tests -----  */
-test("import foo/bar", (ctx) => {
+test("import foo/bar", ctx => {
   const { appState } = expectParses(ctx);
   expect(appState).toMatchInlineSnapshot(`
     [
@@ -46,7 +46,7 @@ test("import foo/bar", (ctx) => {
   `);
 });
 
-test("import foo/* as b", (ctx) => {
+test("import foo/* as b", ctx => {
   const { appState } = expectParses(ctx);
   expect(appState).toMatchInlineSnapshot(`
     [
@@ -71,7 +71,7 @@ test("import foo/* as b", (ctx) => {
   `);
 });
 
-test(`import a/{ b, c/{d, e}, f/* }`, (ctx) => {
+test(`import a/{ b, c/{d, e}, f/* }`, ctx => {
   const { appState } = expectParses(ctx);
   expect(appState).toMatchInlineSnapshot(`
     [
@@ -149,7 +149,7 @@ test(`import a/{ b, c/{d, e}, f/* }`, (ctx) => {
   `);
 });
 
-test("import ./foo/bar", (ctx) => {
+test("import ./foo/bar", ctx => {
   const { appState } = expectParses(ctx);
   expect(appState).toMatchInlineSnapshot(`
     [
