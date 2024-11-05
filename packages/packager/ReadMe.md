@@ -10,4 +10,3 @@ from sources in the `src/shaders` directory.
 ```sh
 npx wgsl-packager --rootDir src/shaders --outDir dist
 ```
-
