@@ -1,16 +1,16 @@
 import { ExportElem, TreeImportElem } from "./AbstractElems.js";
 import {
-    ImportTree,
-    PathSegment,
-    SegmentList,
-    SimpleSegment,
-    Wildcard
+  ImportTree,
+  PathSegment,
+  SegmentList,
+  SimpleSegment,
+  Wildcard,
 } from "./ImportTree.js";
 import { moduleLog } from "./LinkerLogging.js";
 import {
-    GeneratorExport,
-    GeneratorModule,
-    ModuleExport
+  GeneratorExport,
+  GeneratorModule,
+  ModuleExport,
 } from "./ModuleRegistry.js";
 import { exportName, ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
@@ -229,9 +229,10 @@ function matchExportImportArgs(
 ): StringPairs {
   const expArgs = exp.args ?? [];
   if (expArgs.length !== impArgs.length) {
-    impMod.kind === "text" &&
+    if (impMod.kind === "text")
       moduleLog(impMod, imp.start, "mismatched import and export params");
-    expMod.kind === "text" && moduleLog(expMod, (exp as ExportElem).start);
+    if (expMod.kind === "text") 
+      moduleLog(expMod, (exp as ExportElem).start);
   }
   return expArgs.map((p, i) => [p, impArgs[i]]);
 }

@@ -109,7 +109,7 @@ export class ModuleRegistry {
       });
     });
 
-    templates && this.registerTemplate(...templates);
+    if (templates) this.registerTemplate(...templates);
     generators?.map(g => this.registerGenerator(g));
   }
 

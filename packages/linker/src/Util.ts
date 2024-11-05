@@ -46,7 +46,8 @@ export function partition<T>(a: T[], partFn: (t: T) => boolean): [T[], T[]] {
   const yesPart: T[] = [];
   const noPart: T[] = [];
   for (const t of a) {
-    partFn(t) ? yesPart.push(t) : noPart.push(t);
+    if (partFn(t)) yesPart.push(t);
+    else noPart.push(t);
   }
   return [yesPart, noPart];
 }

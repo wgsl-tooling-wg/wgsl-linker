@@ -1,23 +1,17 @@
-import { dlog } from "berry-pretty";
 import {
-    AliasElem,
-    CallElem,
-    ExportElem,
-    ExtendsElem,
-    FnElem,
-    StructElem,
-    StructMemberElem,
-    TreeImportElem,
-    TypeRefElem,
-    VarElem
+  AliasElem,
+  CallElem,
+  ExtendsElem,
+  FnElem,
+  StructElem,
+  StructMemberElem,
+  TreeImportElem,
+  TypeRefElem,
+  VarElem,
 } from "./AbstractElems.js";
 import { refFullName } from "./Linker.js";
 import { moduleLog } from "./LinkerLogging.js";
-import {
-    GeneratorExport,
-    GeneratorModule,
-    ModuleExport
-} from "./ModuleRegistry.js";
+import { GeneratorExport, GeneratorModule } from "./ModuleRegistry.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { resolveImport } from "./ResolveImport.js";
@@ -419,51 +413,51 @@ function importRef(
  * @param exp - export matching the importing clause
  * @param srcRef - reference that led us to this import
  */
-function importingArgs(
-  imp: TreeImportElem,
-  exp: ExportElem | GeneratorExport,
-  srcRef: TextRef,
-): StringPairs {
-  return [];
-  // if (srcRef.expInfo === undefined) return [];
-  // const expImp = matchImportExportArgs(
-  //   srcRef.expInfo.fromRef.expMod,
-  //   imp,
-  //   srcRef.expMod,
-  //   exp
-  // ); // X -> D
-  // const srcExpImp = srcRef.expInfo.expImpArgs;
-  // return expImp.flatMap(([iExp, iImp]) => {
-  //   const pair = srcExpImp.find(([srcExpArg]) => srcExpArg === iImp); // D -> B
-  //   if (!pair) {
-  //     moduleLog(srcRef.expMod, imp.start, "importing arg doesn't match export");
-  //     return [];
-  //   }
-  //   const [, impArg] = pair;
-  //   return [[iExp, impArg]] as [string, string][]; // X -> B
-  // });
-}
+// function importingArgs(
+//   imp: TreeImportElem,
+//   exp: ExportElem | GeneratorExport,
+//   srcRef: TextRef,
+// ): StringPairs {
+//   return [];
+// if (srcRef.expInfo === undefined) return [];
+// const expImp = matchImportExportArgs(
+//   srcRef.expInfo.fromRef.expMod,
+//   imp,
+//   srcRef.expMod,
+//   exp
+// ); // X -> D
+// const srcExpImp = srcRef.expInfo.expImpArgs;
+// return expImp.flatMap(([iExp, iImp]) => {
+//   const pair = srcExpImp.find(([srcExpArg]) => srcExpArg === iImp); // D -> B
+//   if (!pair) {
+//     moduleLog(srcRef.expMod, imp.start, "importing arg doesn't match export");
+//     return [];
+//   }
+//   const [, impArg] = pair;
+//   return [[iExp, impArg]] as [string, string][]; // X -> B
+// });
+// }
 
-function isDefined<T>(a: T | undefined): asserts a is T {
-  /* */
-}
+// function isDefined<T>(a: T | undefined): asserts a is T {
+//   /* */
+// }
 
-function matchingExport(
-  imp: TreeImportElem | ExtendsElem | undefined,
-  mod: TextModule,
-  registry: ParsedRegistry,
-): ModuleExport | undefined {
-  if (!imp) return;
+// function matchingExport(
+//   imp: TreeImportElem | ExtendsElem | undefined,
+//   mod: TextModule,
+//   registry: ParsedRegistry,
+// ): ModuleExport | undefined {
+//   if (!imp) return;
 
-  dlog("NYI");
-  // TODO
+//   dlog("NYI");
+//   // TODO
 
-  // const modExp = registry.getModuleExportOld(mod, imp.name, imp.from);
-  // if (!modExp) {
-  //   moduleLog(mod, imp.start, "export not found for import");
-  // }
-  // return modExp;
-}
+//   // const modExp = registry.getModuleExportOld(mod, imp.name, imp.from);
+//   // if (!modExp) {
+//   //   moduleLog(mod, imp.start, "export not found for import");
+//   // }
+//   // return modExp;
+// }
 
 function localRef(name: string, mod: TextModule): TextRef | undefined {
   const elem =
@@ -480,14 +474,14 @@ function localRef(name: string, mod: TextModule): TextRef | undefined {
   }
 }
 
-interface AsNamed {
-  as?: string;
-  name: string;
-}
+// interface AsNamed {
+//   as?: string;
+//   name: string;
+// }
 
-function importName(asNamed: AsNamed): string {
-  return asNamed.as || asNamed.name;
-}
+// function importName(asNamed: AsNamed): string {
+//   return asNamed.as || asNamed.name;
+// }
 
 const stdFns = `bitcast all any select arrayLength 
   abs acos acosh asin asinh atan atanh atan2 ceil clamp cos cosh 
