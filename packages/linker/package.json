@@ -52,8 +52,7 @@
     "ncp": "^2.0.0",
     "npm-run-all": "^4.1.5",
     "organize-imports-cli": "^0.10.0",
-    "prettier-eslint-cli": "^8.0.1",
-    "wgsl-rand": "workspace:*",
+    "prettier": "^3.3.3",
     "rollup-plugin-visualizer": "^5.12.0",
     "terser": "^5.31.6",
     "typescript": "^5.5.4",
@@ -61,6 +60,7 @@
     "vite-plugin-dts": "^4.0.3",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.0.5",
-    "wesl-testsuite": "file:../../../wesl-testsuite"
+    "wesl-testsuite": "file:../../../wesl-testsuite",
+    "wgsl-rand": "workspace:*"
   }
 }

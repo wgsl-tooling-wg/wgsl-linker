@@ -103,9 +103,9 @@ importers:
       organize-imports-cli:
         specifier: ^0.10.0
         version: 0.10.0
-      prettier-eslint-cli:
-        specifier: ^8.0.1
-        version: 8.0.1(prettier-eslint@16.3.0)
+      prettier:
+        specifier: ^3.3.3
+        version: 3.3.3
       rollup-plugin-visualizer:
         specifier: ^5.12.0
         version: 5.12.0(rollup@4.24.3)
@@ -3658,7 +3658,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.4(@types/node@20.17.6)(@vitest/ui@2.1.4)(terser@5.36.0)
+      vitest: 2.1.4(@types/node@22.8.7)(@vitest/ui@2.1.4)(terser@5.36.0)
 
   '@vitest/utils@2.1.4':
     dependencies:
