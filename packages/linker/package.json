@@ -6,18 +6,18 @@
     "src"
   ],
   "scripts": {
-    "prepublishOnly": "run-s build build:readme",
     "build:readme": "ncp ../../README.md README.md",
     "build": "run-s build:main build:templates build:minified",
     "build:main": "vite build",
     "build:minified": "vite build -c minified.vite.config.js",
     "build:brotli": "brotli dist/minified.cjs && ls -l dist/minified.cjs.br",
     "build:templates": "vite build -c templates.vite.config.js",
-    "test": "vitest",
-    "test:once": "vitest run",
-    "organize": "organize-imports-cli tsconfig.json",
     "format": "prettier . --write",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "organize": "organize-imports-cli tsconfig.json",
+    "prepublishOnly": "run-s build build:readme",
+    "test": "vitest",
+    "test:once": "vitest run"
   },
   "type": "module",
   "repository": "github:wgsl-tooling-wg/wgsl-linker",
