@@ -5,7 +5,8 @@
   "scripts": {
     "prepublishOnly": "run-s build",
     "build": "esbuild --bundle --platform=node --format=esm --outfile=bin/wgsl-link src/main.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "test:once": "vitest run"
   },
   "repository": "https://github.com/wgsl-tooling-wg/wgsl-linker/tree/main/packages/cli",
   "homepage": "https://github.com/wgsl-tooling-wg/wgsl-linker/tree/main/packages/cli#readme",

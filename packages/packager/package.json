@@ -5,7 +5,8 @@
   "scripts": {
     "prepublishOnly": "run-s build",
     "build": "tsx build.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "test:once": "vitest run"
   },
   "files": [
     "bin"

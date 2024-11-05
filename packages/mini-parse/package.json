@@ -14,6 +14,7 @@
     "build:minified": "vite -c minified.vite.config.ts build",
     "build:brotli": "brotli dist/minified.cjs && ls -l dist/minified.cjs.br",
     "test": "vitest",
+    "test:once": "vitest run",
     "organize": "organize-imports-cli tsconfig.json",
     "format": "prettier-eslint \"src/**/*.ts\" --write",
     "lint": "eslint src"

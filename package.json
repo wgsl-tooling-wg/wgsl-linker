@@ -4,7 +4,9 @@
   "scripts": {
     "bump": "scripts/runTs bump --version",
     "build:all": "pnpm --filter './packages/**' build",
-    "publish:all": "pnpm --filter './packages/**' publish"
+    "publish:all": "pnpm --filter './packages/**' publish",
+    "test:all": "run-s test:once",
+    "test:once": "pnpm --filter './packages/**' test:once"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
