@@ -1,4 +1,5 @@
 import {
+  any,
   anyNot,
   anyThrough,
   eof,
@@ -12,6 +13,7 @@ import {
   ParserInit,
   preParse,
   repeat,
+  repeatPlus,
   req,
   seq,
   setTraceName,
@@ -155,11 +157,32 @@ const variableDecl = seq(
   req(typeSpecifier).tag("typeRefs")
 );
 
+const expression = repeatPlus(anyNot(or("{", ":"))); // TBD
+const statement = repeatPlus(anyNot(or("{", "}"))); // TBD
+
+const compound_statement = seq(optAttributes, "{", repeat(statement), "}");
+
+const case_selector = or("default", expression);
+const case_selectors = withSep(",", case_selector, { requireOne: true });
+const case_clause = seq("case", case_selectors, opt(":"), compound_statement);
+const default_alone_clause = seq("default", opt(":"), compound_statement);
+const switch_clause = or(case_clause, default_alone_clause);
+
+const switch_body = seq(optAttributes, "{", repeatPlus(switch_clause), "}");
+
+const switch_statement = seq(
+  optAttributes,
+  "switch",
+  expression,
+  switch_body,
+).trace();
+
 // prettier-ignore
 const block: Parser<any> = seq(
   "{",
   repeat(
     or(
+      switch_statement,
       callishKeyword,
       fnCall,
       () => block,
@@ -253,6 +276,16 @@ if (tracing) {
     fnCall,
     fnParam,
     fnParamList,
+    expression,
+    statement,
+    compound_statement,
+    case_selector,
+    case_selectors,
+    case_clause,
+    default_alone_clause,
+    switch_clause,
+    switch_body,
+    switch_statement,
     block,
     fnDecl,
     globalVar,
