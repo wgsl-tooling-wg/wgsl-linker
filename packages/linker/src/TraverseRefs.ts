@@ -519,7 +519,7 @@ const stdTypes = `array atomic bool f16 f32 i32
   vec2f vec3f vec4f vec2h vec3h vec4h
   texture_1d texture_2d texture_2d_array texture_3d 
   texture_cube texture_cube_array
-  texture_multisampled texture_depth_multisampled_2d
+  texture_multisampled_2d texture_depth_multisampled_2d
   texture_external
   texture_storage_1d texture_storage_2d texture_storage_2d_array
   texture_storage_3d
