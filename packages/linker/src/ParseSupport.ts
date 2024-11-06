@@ -23,6 +23,7 @@ import { lineComment } from "./ParseDirective.js";
 
 export const word = kind(mainTokens.word);
 export const wordNum = or(word, kind(mainTokens.digits));
+export const literal = or("true", "false", kind(mainTokens.digits));
 
 export const unknown = any().map(r => {
   const { kind, text } = r.value;

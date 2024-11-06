@@ -28,6 +28,7 @@ import { identTokens, mainTokens } from "./MatchWgslD.js";
 import { directive } from "./ParseDirective.js";
 import {
   comment,
+  literal,
   makeElem,
   unknown,
   word,
@@ -157,7 +158,80 @@ const variableDecl = seq(
   req(typeSpecifier).tag("typeRefs")
 );
 
-const expression = repeatPlus(anyNot(or("{", ":"))); // TBD
+// TODO: Fix everything else to also use this instead of "template"
+const opt_template_args = opt(
+  seq(
+    "<",
+    withSep(",", () => template_arg_expression, {
+      requireOne: true,
+    }),
+    ">",
+  ).tag("template"),
+);
+
+const primary_expression = or(
+  literal,
+  seq(
+    word,
+    opt_template_args,
+    opt(
+      seq(
+        "(",
+        withSep(",", () => expression),
+        req(")"),
+      ),
+    ),
+  ),
+  seq("(", () => expression, req(")")),
+);
+const component_or_swizzle = repeatPlus(
+  or(
+    seq(".", word),
+    seq("[", () => expression, req("]")),
+  ),
+);
+
+/**
+ * bitwise_expression.post.unary_expression
+ * & ^ |
+ * expression
+ * && ||
+ * relational_expression.post.unary_expression
+ * > >= < <= != ==
+ * shift_expression.post.unary_expression
+ * % * / + - << >>
+ */
+const makeExpressionOperator = (isTemplate: boolean) => {
+  const allowedOps = (
+    "& | ^ << <= < != == % * / + -" + (isTemplate ? "" : " && || >> >= >")
+  ).split(" ");
+  return or(...allowedOps)
+    .traceName("operator")
+    .trace({
+      shallow: true,
+    });
+};
+const unary_expression: Parser<any> = or(
+  seq(
+    or(..."! & * - ~".split(" "))
+      .traceName("unary_op")
+      .trace({
+        shallow: true,
+      }),
+    () => unary_expression,
+  ),
+  seq(primary_expression, opt(component_or_swizzle)),
+);
+const makeExpression = (isTemplate: boolean) => {
+  return seq(
+    unary_expression,
+    repeat(seq(makeExpressionOperator(isTemplate), unary_expression)),
+  );
+};
+
+export const expression = makeExpression(false);
+const template_arg_expression = makeExpression(true);
+
 const statement = repeatPlus(anyNot(or("{", "}"))); // TBD
 
 const compound_statement = seq(optAttributes, "{", repeat(statement), "}");
@@ -170,12 +244,7 @@ const switch_clause = or(case_clause, default_alone_clause);
 
 const switch_body = seq(optAttributes, "{", repeatPlus(switch_clause), "}");
 
-const switch_statement = seq(
-  optAttributes,
-  "switch",
-  expression,
-  switch_body,
-);
+const switch_statement = seq(optAttributes, "switch", expression, switch_body);
 
 // prettier-ignore
 const block: Parser<any> = seq(
@@ -276,6 +345,9 @@ if (tracing) {
     fnCall,
     fnParam,
     fnParamList,
+    opt_template_args,
+    primary_expression,
+    component_or_swizzle,
     expression,
     statement,
     compound_statement,
