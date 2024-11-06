@@ -175,7 +175,7 @@ const switch_statement = seq(
   "switch",
   expression,
   switch_body,
-).trace();
+);
 
 // prettier-ignore
 const block: Parser<any> = seq(

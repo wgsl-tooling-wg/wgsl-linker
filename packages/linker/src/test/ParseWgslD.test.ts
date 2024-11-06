@@ -13,7 +13,6 @@ import {
   typeSpecifier,
 } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
-import { dlog } from "berry-pretty";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);
@@ -351,7 +350,7 @@ test("parse var x: foo.bar;", () => {
   expect(varRef?.typeRefs[0].name).toBe("foo.bar");
 });
 
-test.only("parse switch statement", () => {
+test("parse switch statement", () => {
   const src = `
     fn main() {
       switch (x) {
