@@ -2,7 +2,7 @@ import { matchOneOf, tokenMatcher } from "mini-parse";
 
 /** token matchers for wgsl with #directives */
 
-export const eol = /\n/;
+export const eol = /\n|\r\n/;
 export const directive = /#[a-zA-Z_]\w*/;
 export const notDirective = /[^#\n]+/;
 
