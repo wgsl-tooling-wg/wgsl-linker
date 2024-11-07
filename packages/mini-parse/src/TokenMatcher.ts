@@ -24,7 +24,8 @@ class Cache<K, V> extends Map<K, V> {
 
   set(k: K, v: V): this {
     if (this.size > this.max) {
-      this.delete(this.keys().next().value);
+      const first = this.keys().next().value;
+      if (first) this.delete(first);
     }
     return super.set(k, v);
   }
