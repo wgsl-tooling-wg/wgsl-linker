@@ -75,6 +75,7 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
           startPos,
           `tokens ${debugName} skipped: '${src.slice(startPos, startEnd[0])}' to get to: '${text}'`,
         );
+        throw new Error("token matcher should match all input");
       }
       cache.set(startPos, token);
       return token;

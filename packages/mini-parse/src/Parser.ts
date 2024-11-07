@@ -221,10 +221,10 @@ export class Parser<T, N extends TagRecord = NoTags> {
         _debugNames: [],
       });
     } catch (e) {
-      if (!(e instanceof ParseError)) {
-        console.error(e);
+      if (e instanceof ParseError) {
+        return null;
       }
-      return null;
+      throw e;
     }
   }
 
