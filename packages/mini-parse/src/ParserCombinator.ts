@@ -326,7 +326,7 @@ export function tokens<A extends CombinatorArg>(
   arg: A,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  return parser(`tokens ${matcher._traceName}`, (state: ParserContext) => {
+  return parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
     return state.lexer.withMatcher(matcher, () => {
       return p._run(state);
     });

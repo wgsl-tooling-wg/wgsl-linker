@@ -13,7 +13,7 @@ export interface TokenMatcher {
   start(src: string, position?: number): void;
   next(): Token | undefined;
   position(position?: number): number;
-  _traceName?: string;
+  _debugName?: string;
 }
 
 /** size limited key value cache */
@@ -33,7 +33,7 @@ class Cache<K, V> extends Map<K, V> {
 
 export function tokenMatcher<T extends Record<string, string | RegExp>>(
   matchers: T,
-  traceName = "matcher",
+  debugName = "matcher",
 ): FullTokenMatcher<T> {
   const groups: string[] = Object.keys(matchers);
   let src: string;
@@ -69,11 +69,11 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
       const text = src.slice(startEnd[0], startEnd[1]);
       const token = { kind, text };
       if (startPos != startEnd[0]) {
-        // grammar didn't recognize something, and regex skipped ahead to match
+        // regex didn't recognize some characters and skipped ahead to match
         srcLog(
           src,
           startPos,
-          `skipped: '${src.slice(startPos, startEnd[0])}' to get to: '${text}'`,
+          `tokens ${debugName} skipped: '${src.slice(startPos, startEnd[0])}' to get to: '${text}'`,
         );
       }
       cache.set(startPos, token);
@@ -95,7 +95,7 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
     start,
     next,
     position,
-    _traceName: traceName,
+    _debugName: debugName,
   } as FullTokenMatcher<T>;
 }
 
