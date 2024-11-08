@@ -1,4 +1,4 @@
-import { or, repeat, _withBaseLogger } from "mini-parse";
+import { _withBaseLogger, or, repeat } from "mini-parse";
 import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";

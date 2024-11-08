@@ -51,6 +51,7 @@ export const gleamImportTokens = tokenMatcher({
 export const packageTokens = tokenMatcher({
   ws,
   pkg: /[a-zA-Z_][\w-]*/, // LATER follow spec
+  other: /.+/,
 });
 
 export const eolTokens = tokenMatcher({
