@@ -1,3 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --allow-read --allow-write
 import { cli } from "./cli.ts";
-cli(Deno.args);
+
+if (import.meta.main) {
+    await cli(Deno.args);
+}

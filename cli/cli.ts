@@ -1,20 +1,27 @@
-import { createTwoFilesPatch } from "diff";
-import fs from "fs";
-import { ModuleRegistry, normalize } from "wgsl-linker";
+import { ModuleRegistry, normalize } from "@wesl/linker";
 import { createTwoFilesPatch } from "diff";
 import { TypeRefElem } from "../linker/AbstractElems.ts";
+import yargs from "yargs";
 
-type CliArgs = ReturnType<typeof parseArgs>;
-let argv: CliArgs;
+// TODO: Check if these are correct, and figure out why the types are broken
+type CliArgs = {
+  define: string[];
+  baseDir: string;
+  separately: boolean;
+  details: boolean;
+  diff: boolean;
+  emit: boolean;
+  files: string[];
+};
 
 export async function cli(rawArgs: string[]): Promise<void> {
-  argv = parseArgs(rawArgs);
+  const argv = parseArgs(rawArgs);
   const files = argv.files as string[];
-  if (argv.separately) linkSeparately(files);
-  else linkNormally(files);
+  if (argv.separately) await linkSeparately(argv, files);
+  else await linkNormally(argv, files);
 }
 
-function parseArgs(args: string[]) {
+function parseArgs(args: string[]): CliArgs {
   return yargs(args)
     .command(
       "$0 <files...>",
@@ -57,40 +64,44 @@ function parseArgs(args: string[]) {
     .parseSync();
 }
 
-function linkNormally(paths: string[]): void {
-  const pathAndTexts = paths.map((f) => {
-    const text = fs.readFileSync(f, { encoding: "utf8" });
-    const basedPath = normalize(rmBaseDirPrefix(f));
-    return [basedPath, text];
-  });
-  const wgsl = Object.fromEntries(pathAndTexts);
+async function linkNormally(argv: CliArgs, paths: string[]): Promise<void> {
+  const basedPaths = paths.map((path) => ({
+    path: path,
+    basedPath: normalize(rmBaseDirPrefix(argv.baseDir, path)),
+  }));
+  const wgsl: Record<string, string> = {};
+  for (const { path, basedPath } of basedPaths) {
+    wgsl[basedPath] = await Deno.readTextFile(path);
+  }
   const registry = new ModuleRegistry({ wgsl });
-  const [srcPath, srcText] = pathAndTexts[0];
-  doLink(srcPath, registry, srcText);
+  const srcPath = basedPaths[0].basedPath;
+  const srcText = wgsl[srcPath];
+  doLink(argv, srcPath, registry, srcText);
 }
 
-function linkSeparately(paths: string[]): void {
-  paths.forEach((f) => {
-    const srcText = fs.readFileSync(f, { encoding: "utf8" });
-    const basedPath = normalize(rmBaseDirPrefix(f));
+async function linkSeparately(argv: CliArgs, paths: string[]): Promise<void> {
+  for (const path of paths) {
+    const srcText = await Deno.readTextFile(path);
+    const basedPath = normalize(rmBaseDirPrefix(argv.baseDir, path));
     const registry = new ModuleRegistry({ wgsl: { [basedPath]: srcText } });
-    doLink(basedPath, registry, srcText);
-  });
+    doLink(argv, basedPath, registry, srcText);
+  }
 }
 
 function doLink(
+  argv: CliArgs,
   srcPath: string,
   registry: ModuleRegistry,
   origWgsl: string,
 ): void {
   const asRelative = "./" + srcPath;
-  const linked = registry.link(asRelative, externalDefines());
+  const linked = registry.link(asRelative, externalDefines(argv));
   if (argv.emit) console.log(linked);
   if (argv.diff) printDiff(srcPath, origWgsl, linked);
-  if (argv.details) printDetails(srcPath, registry);
+  if (argv.details) printDetails(argv, srcPath, registry);
 }
 
-function externalDefines(): Record<string, string> {
+function externalDefines(argv: CliArgs): Record<string, string> {
   if (!argv.define) return {};
   const pairs = argv.define.map((d) => d.toString().split("="));
 
@@ -123,9 +134,13 @@ function printDiff(modulePath: string, src: string, linked: string): void {
   }
 }
 
-function printDetails(modulePath: string, registry: ModuleRegistry): void {
+function printDetails(
+  argv: CliArgs,
+  modulePath: string,
+  registry: ModuleRegistry,
+): void {
   console.log(modulePath, ":");
-  const parsed = registry.parsed(externalDefines());
+  const parsed = registry.parsed(externalDefines(argv));
   const m = parsed.findTextModule(modulePath)!;
   m.fns.forEach((f) => {
     console.log(`  fn ${f.name}`);
@@ -151,8 +166,7 @@ function printTypeRefs(hasTypeRefs: { typeRefs: TypeRefElem[] }): void {
   console.log(`    typeRefs: ${typeRefs}`);
 }
 
-function rmBaseDirPrefix(path: string): string {
-  const baseDir = argv.baseDir;
+function rmBaseDirPrefix(baseDir: string, path: string): string {
   if (baseDir) {
     const found = path.indexOf(baseDir);
     if (found !== -1) {

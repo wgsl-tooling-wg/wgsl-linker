@@ -1,36 +1,31 @@
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
+import { stub } from "@std/testing/mock";
 import { cli } from "../cli.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 /** so vitest triggers when these files change */
-import("./src/test/wgsl/main.wgsl?raw");
-import("./src/test/wgsl/util.wgsl?raw");
+// Deno doesn't support this at the moment :(
+// https://github.com/denoland/deno/issues/17994#issuecomment-1879636936 hasn't materialized yet
+// import("./src/test/wgsl/main.wgsl?raw");
+// import("./src/test/wgsl/util.wgsl?raw");
 
-test("simple link", async () => {
-  const logged = await cliLine(
-    `./src/test/wgsl/main.wgsl 
-       ./src/test/wgsl/util.wgsl`,
+test("simple link", async (ctx) => {
+  using consoleStub = stub(console, "log", () => {});
+  await cli(
+    `./test/wgsl/main.wgsl 
+       ./test/wgsl/util.wgsl`.split(/\s+/),
   );
-  expect(logged).toMatchSnapshot();
+  const logged = consoleStub.calls[0].args.join("");
+  await assertSnapshot(ctx, logged);
 });
 
 test("link with definition", async () => {
-  const logged = await cliLine(
-    `./src/test/wgsl/main.wgsl 
-       ./src/test/wgsl/util.wgsl
-       --define EXTRA=true`,
+  using consoleStub = stub(console, "log", () => {});
+  await cli(
+    `./test/wgsl/main.wgsl 
+       ./test/wgsl/util.wgsl
+       --define EXTRA=true`.split(/\s+/),
   );
+  const logged = consoleStub.calls[0].args.join("");
   expect(logged).toContain("fn extra()");
 });
-
-async function cliLine(argsLine: string): Promise<string> {
-  return await withConsoleSpy(() => cli(argsLine.split(/\s+/)));
-}
-
-async function withConsoleSpy(fn: () => Promise<void>): Promise<string> {
-  const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-  await fn();
-  const result = consoleSpy.mock.calls[0].join("");
-  vi.resetAllMocks();
-  return result;
-}

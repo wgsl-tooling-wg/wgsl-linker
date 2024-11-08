@@ -1,6 +1,6 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+export const snapshot = {};
 
-exports[`simple link 1`] = `
+snapshot[`simple link 1`] = `
 "fn main() {
   foo();
 }

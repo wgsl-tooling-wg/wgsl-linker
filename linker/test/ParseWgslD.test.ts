@@ -3,7 +3,12 @@ import { expectNoLogErr, logCatch } from "@wesl/mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import { assertSnapshot } from "@std/testing/snapshot";
-import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.ts";
+import type {
+  AbstractElem,
+  FnElem,
+  StructElem,
+  VarElem,
+} from "../AbstractElems.ts";
 import { filterElems } from "../ParseModule.ts";
 import { unknown, wordNumArgs } from "../ParseSupport.ts";
 import {
