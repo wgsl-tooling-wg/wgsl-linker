@@ -6,11 +6,14 @@
     "jsr:@std/async@^1.0.8": "1.0.8",
     "jsr:@std/data-structures@^1.0.4": "1.0.4",
     "jsr:@std/expect@1": "1.0.7",
+    "jsr:@std/fs@*": "1.0.5",
     "jsr:@std/fs@^1.0.5": "1.0.5",
     "jsr:@std/internal@^1.0.5": "1.0.5",
+    "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@^1.0.7": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
-    "jsr:@std/testing@1": "1.0.4"
+    "jsr:@std/testing@1": "1.0.4",
+    "npm:@types/node@*": "22.5.4"
   },
   "jsr": {
     "@std/assert@1.0.7": {
@@ -50,10 +53,21 @@
         "jsr:@std/assert@^1.0.7",
         "jsr:@std/async",
         "jsr:@std/data-structures",
-        "jsr:@std/fs",
+        "jsr:@std/fs@^1.0.5",
         "jsr:@std/internal",
         "jsr:@std/path@^1.0.8"
       ]
+    }
+  },
+  "npm": {
+    "@types/node@22.5.4": {
+      "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "undici-types@6.19.8": {
+      "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
     }
   },
   "redirects": {
@@ -211,6 +225,14 @@
       "jsr:@std/assert@1",
       "jsr:@std/expect@1",
       "jsr:@std/testing@1"
-    ]
+    ],
+    "members": {
+      "packager": {
+        "dependencies": [
+          "jsr:@std/fs@*",
+          "jsr:@std/path@*"
+        ]
+      }
+    }
   }
 }

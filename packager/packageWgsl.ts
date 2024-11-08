@@ -1,9 +1,31 @@
-import { CliArgs } from "./packagerCli.ts";
-import { glob } from "glob";
-import fs, { mkdir } from "node:fs/promises";
 import { WgslBundle } from "@wesl/linker";
-import wgslBundleDecl from "../../linker/src/WgslBundle.ts?raw";
-import { CliArgs } from "./packagerCli.js";
+import { expandGlob } from "@std/fs";
+import * as path from "@std/path";
+// TODO: Replace this with a proper npm dependency
+const wgslBundleDecl = `
+export interface WgslBundle {
+  /** name of the package, e.g. wgsl-rand */
+  name: string;
+
+  /** npm version of the package  e.g. 0.4.1 */
+  version: string;
+
+  /** wesl edition of the code e.g. wesl_unstable_2024_1 */
+  edition: string;
+
+  /** map of wesl/wgsl modules:
+   *    keys are file paths, relative to package root (e.g. "./lib.wgsl")
+   *    values are wgsl/wesl code strings
+   */
+  modules: Record<string, string>;
+}
+`;
+
+export type CliArgs = {
+  rootDir: string;
+  projectDir: string;
+  outDir: string;
+};
 
 export async function packageWgsl(args: CliArgs): Promise<void> {
   const { projectDir, outDir } = args;
@@ -23,14 +45,14 @@ export default wgslBundle;
 `;
   const declText = wgslBundleDecl + constDecl;
   const outPath = path.join(outDir, "wgslBundle.d.ts");
-  await fs.writeFile(outPath, declText);
+  await Deno.writeTextFile(outPath, declText);
 }
 
 async function writeJsBundle(
   wgslBundle: WgslBundle,
   outDir: string,
 ): Promise<void> {
-  await mkdir(outDir, { recursive: true });
+  await Deno.mkdir(outDir, { recursive: true });
 
   const bundleString = JSON.stringify(wgslBundle, null, 2);
   const outString = `
@@ -39,19 +61,18 @@ export const wgslBundle = ${bundleString}
 export default wgslBundle;
   `;
   const outPath = path.join(outDir, "wgslBundle.js");
-  await fs.writeFile(outPath, outString);
+  await Deno.writeTextFile(outPath, outString);
 }
 
 async function loadModules(args: CliArgs): Promise<Record<string, string>> {
   const { rootDir } = args;
-  const shaderFiles = await glob(`${rootDir}/*.w[ge]sl`, {
-    ignore: "node_modules/**",
-  });
-  const promisedSrcs = shaderFiles.map(f =>
-    fs.readFile(f, { encoding: "utf8" }),
-  );
+  const shaderFiles =
+    (await Array.fromAsync(expandGlob(`${rootDir}/*.w[ge]sl`, {
+      exclude: ["node_modules/**"],
+    }))).filter((f) => f.isFile);
+  const promisedSrcs = shaderFiles.map((f) => Deno.readTextFile(f.path));
   const src = await Promise.all(promisedSrcs);
-  const relativePaths = shaderFiles.map(p => path.relative(rootDir, p));
+  const relativePaths = shaderFiles.map((p) => path.relative(rootDir, p.path));
   const moduleEntries = zip(relativePaths, src);
   return Object.fromEntries(moduleEntries);
 }
@@ -67,7 +88,8 @@ interface PkgFields {
 }
 
 async function loadPackageFields(pkgJsonPath: string): Promise<PkgFields> {
-  const pkgJsonString = await fs.readFile(pkgJsonPath, { encoding: "utf8" });
+  console.log(pkgJsonPath);
+  const pkgJsonString = await Deno.readTextFile(pkgJsonPath);
   const pkgJson = JSON.parse(pkgJsonString);
   const { version, name, exports } = pkgJson;
   verifyField("version", version);
