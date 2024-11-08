@@ -40,7 +40,7 @@ test("structDecl parses struct member types", () => {
   const src = "struct Foo { a: f32, b: i32 }";
   const { appState } = testAppParse(structDecl, src);
   const { members } = appState[0] as StructElem;
-  const typeNames = members.flatMap(m => m.typeRefs.map(t => t.name));
+  const typeNames = members.flatMap((m) => m.typeRefs.map((t) => t.name));
   expect(typeNames).toEqual(["f32", "i32"]);
 });
 
@@ -207,7 +207,7 @@ test("parse nested template that ends with >> ", () => {
   const src = `vec2<array <MyStruct,4>>`;
 
   const { parsed } = testAppParse(typeSpecifier, src);
-  const typeRefNames = parsed?.value.map(r => r.name);
+  const typeRefNames = parsed?.value.map((r) => r.name);
   expect(typeRefNames).toEqual(["vec2", "array", "MyStruct"]);
 });
 
@@ -215,7 +215,7 @@ test("parse struct member with templated type", () => {
   const src = `struct Foo { a: vec2<array<Bar,4>> }`;
   const { appState } = testAppParse(structDecl, src);
   const members = filterElems<StructElem>(appState, "struct")[0].members;
-  const memberNames = members.flatMap(m => m.typeRefs.map(t => t.name));
+  const memberNames = members.flatMap((m) => m.typeRefs.map((t) => t.name));
   expect(memberNames).toEqual(["vec2", "array", "Bar"]);
 });
 
@@ -298,11 +298,11 @@ test("parse var x: foo.bar;", () => {
   `;
   const parsed = testParseWgsl(src);
 
-  const varRef = parsed.find(e => e.kind === "var");
+  const varRef = parsed.find((e) => e.kind === "var");
   expect(varRef?.typeRefs[0].name).toBe("foo.bar");
 });
 
-test("parse switch statement", () => {
+test("parse switch statement", async (ctx) => {
   const src = `
     fn main() {
       switch (x) {
@@ -312,5 +312,5 @@ test("parse switch statement", () => {
     }
   `;
   const parsed = testParseWgsl(src);
-  expect(parsed).toMatchSnapshot();
+  await assertSnapshot(ctx, parsed);
 });

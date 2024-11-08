@@ -415,3 +415,22 @@ snapshot[`parse let x: foo.bar;  1`] = `
   },
 ]
 `;
+
+snapshot[`parse switch statement 1`] = `
+[
+  {
+    calls: [],
+    end: 104,
+    kind: "fn",
+    name: "main",
+    nameElem: {
+      end: 12,
+      kind: "fnName",
+      name: "main",
+      start: 8,
+    },
+    start: 5,
+    typeRefs: [],
+  },
+]
+`;

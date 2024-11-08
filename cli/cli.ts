@@ -58,7 +58,7 @@ function parseArgs(args: string[]) {
 }
 
 function linkNormally(paths: string[]): void {
-  const pathAndTexts = paths.map(f => {
+  const pathAndTexts = paths.map((f) => {
     const text = fs.readFileSync(f, { encoding: "utf8" });
     const basedPath = normalize(rmBaseDirPrefix(f));
     return [basedPath, text];
@@ -70,7 +70,7 @@ function linkNormally(paths: string[]): void {
 }
 
 function linkSeparately(paths: string[]): void {
-  paths.forEach(f => {
+  paths.forEach((f) => {
     const srcText = fs.readFileSync(f, { encoding: "utf8" });
     const basedPath = normalize(rmBaseDirPrefix(f));
     const registry = new ModuleRegistry({ wgsl: { [basedPath]: srcText } });
@@ -92,9 +92,9 @@ function doLink(
 
 function externalDefines(): Record<string, string> {
   if (!argv.define) return {};
-  const pairs = argv.define.map(d => d.toString().split("="));
+  const pairs = argv.define.map((d) => d.toString().split("="));
 
-  const badPair = pairs.find(p => p.length !== 2);
+  const badPair = pairs.find((p) => p.length !== 2);
   if (badPair) {
     console.error("invalid define", badPair);
     return {};
@@ -127,27 +127,27 @@ function printDetails(modulePath: string, registry: ModuleRegistry): void {
   console.log(modulePath, ":");
   const parsed = registry.parsed(externalDefines());
   const m = parsed.findTextModule(modulePath)!;
-  m.fns.forEach(f => {
+  m.fns.forEach((f) => {
     console.log(`  fn ${f.name}`);
-    const calls = f.calls.map(c => c.name).join("  ");
+    const calls = f.calls.map((c) => c.name).join("  ");
     console.log(`    calls: ${calls}`);
     printTypeRefs(f);
   });
-  m.vars.forEach(v => {
+  m.vars.forEach((v) => {
     console.log(`  var ${v.name}`);
     printTypeRefs(v);
   });
-  m.structs.forEach(s => {
+  m.structs.forEach((s) => {
     console.log(`  struct ${s.name}`);
-    const members = (s.members ?? []).map(m => m.name).join("  ");
+    const members = (s.members ?? []).map((m) => m.name).join("  ");
     console.log(`    members: ${members}`);
-    s.members.map(m => printTypeRefs(m));
+    s.members.map((m) => printTypeRefs(m));
   });
   console.log();
 }
 
 function printTypeRefs(hasTypeRefs: { typeRefs: TypeRefElem[] }): void {
-  const typeRefs = hasTypeRefs.typeRefs.map(t => t.name).join("  ");
+  const typeRefs = hasTypeRefs.typeRefs.map((t) => t.name).join("  ");
   console.log(`    typeRefs: ${typeRefs}`);
 }
 
