@@ -5,8 +5,8 @@ import yargs from "yargs";
 
 // TODO: Check if these are correct, and figure out why the types are broken
 type CliArgs = {
-  define: string[];
-  baseDir: string;
+  define?: (string | number)[];
+  baseDir?: string;
   separately: boolean;
   details: boolean;
   diff: boolean;
@@ -166,7 +166,7 @@ function printTypeRefs(hasTypeRefs: { typeRefs: TypeRefElem[] }): void {
   console.log(`    typeRefs: ${typeRefs}`);
 }
 
-function rmBaseDirPrefix(baseDir: string, path: string): string {
+function rmBaseDirPrefix(baseDir: string | undefined, path: string): string {
   if (baseDir) {
     const found = path.indexOf(baseDir);
     if (found !== -1) {
