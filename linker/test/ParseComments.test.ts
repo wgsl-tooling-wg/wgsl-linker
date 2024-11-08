@@ -3,8 +3,12 @@ import { expectNoLogErr } from "@wesl/mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import { assertSnapshot } from "@std/testing/snapshot";
-import { lineComment } from "../ParseDirective.ts";
-import { blockComment, comment, wordNumArgs } from "../ParseSupport.ts";
+import {
+  blockComment,
+  comment,
+  lineComment,
+  wordNumArgs,
+} from "../ParseSupport.ts";
 import { parseWgslD } from "../ParseWgslD.ts";
 import { testAppParse } from "./TestUtil.ts";
 

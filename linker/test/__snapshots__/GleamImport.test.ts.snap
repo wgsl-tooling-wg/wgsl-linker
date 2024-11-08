@@ -1,0 +1,151 @@
+export const snapshot = {};
+
+snapshot[`import foo/bar 1`] = `
+[
+  {
+    end: 14,
+    imports: ImportTree {
+      segments: [
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "foo",
+        },
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "bar",
+        },
+      ],
+    },
+    kind: "treeImport",
+    start: 0,
+  },
+]
+`;
+
+snapshot[`import foo/* as b 1`] = `
+[
+  {
+    end: 17,
+    imports: ImportTree {
+      segments: [
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "foo",
+        },
+        Wildcard {
+          as: "b",
+        },
+      ],
+    },
+    kind: "treeImport",
+    start: 0,
+  },
+]
+`;
+
+snapshot[`import a/{ b, c/{d, e}, f/* } 1`] = `
+[
+  {
+    end: 29,
+    imports: ImportTree {
+      segments: [
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "a",
+        },
+        SegmentList {
+          list: [
+            ImportTree {
+              segments: [
+                SimpleSegment {
+                  args: undefined,
+                  as: undefined,
+                  name: "b",
+                },
+              ],
+            },
+            ImportTree {
+              segments: [
+                SimpleSegment {
+                  args: undefined,
+                  as: undefined,
+                  name: "c",
+                },
+                SegmentList {
+                  list: [
+                    ImportTree {
+                      segments: [
+                        SimpleSegment {
+                          args: undefined,
+                          as: undefined,
+                          name: "d",
+                        },
+                      ],
+                    },
+                    ImportTree {
+                      segments: [
+                        SimpleSegment {
+                          args: undefined,
+                          as: undefined,
+                          name: "e",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            ImportTree {
+              segments: [
+                SimpleSegment {
+                  args: undefined,
+                  as: undefined,
+                  name: "f",
+                },
+                Wildcard {
+                  as: undefined,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    kind: "treeImport",
+    start: 0,
+  },
+]
+`;
+
+snapshot[`import ./foo/bar 1`] = `
+[
+  {
+    end: 16,
+    imports: ImportTree {
+      segments: [
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: ".",
+        },
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "foo",
+        },
+        SimpleSegment {
+          args: undefined,
+          as: undefined,
+          name: "bar",
+        },
+      ],
+    },
+    kind: "treeImport",
+    start: 0,
+  },
+]
+`;

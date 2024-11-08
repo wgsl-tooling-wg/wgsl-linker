@@ -17,8 +17,6 @@ import { gleamImport } from "./GleamImport.ts";
 import { ImportTree, SimpleSegment } from "./ImportTree.ts";
 import {
   argsTokens,
-  lineCommentTokens,
-  mainTokens,
   moduleTokens,
 } from "./MatchWgslD.ts";
 import { eolf, makeElem } from "./ParseSupport.ts";
@@ -174,11 +172,6 @@ export const directive = tokens(
   ),
 );
 
-const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
-
-/** parse a line comment */
-export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
-
 if (tracing) {
   setTraceNames({
     directiveArgs,
@@ -192,8 +185,6 @@ if (tracing) {
     importDirective,
     extendsDirective,
     exportDirective,
-    skipToEol,
-    lineComment,
     moduleDirective,
     directive,
   });

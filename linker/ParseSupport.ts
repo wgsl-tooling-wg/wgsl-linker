@@ -1,6 +1,7 @@
 import {
   any,
   anyNot,
+  anyThrough,
   disablePreParse,
   ExtendedResult,
   kind,
@@ -12,19 +13,19 @@ import {
   resultLog,
   seq,
   setTraceName,
+  tokens,
   tracing,
   withSep,
 } from "@wesl/mini-parse";
-import { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
-import { argsTokens, mainTokens } from "./MatchWgslD.ts";
-import { lineComment } from "./ParseDirective.ts";
+import type { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
+import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 
 export const word = kind(mainTokens.word);
 export const wordNum = or(word, kind(mainTokens.digits));
 
-export const unknown = any().map(r => {
+export const unknown = any().map((r) => {
   const { kind, text } = r.value;
   const deepName = r.ctx._debugNames.join(" > ");
 
@@ -38,21 +39,26 @@ export const blockComment: Parser<any> = seq(
   req("*/"),
 );
 
+export const eolf: Parser<any> = disablePreParse(
+  makeEolf(argsTokens, argsTokens.ws),
+);
+
+const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
+
+/** parse a line comment */
+export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
+
 export const comment = or(() => lineComment, blockComment);
 // .trace({
 //   hide: true,
 // });
-
-export const eolf: Parser<any> = disablePreParse(
-  makeEolf(argsTokens, argsTokens.ws),
-);
 
 /** ( a1, b1* ) with optional comments */
 export const wordNumArgs: Parser<string[]> = seq(
   "(",
   withSep(",", wordNum),
   req(")"),
-).map(r => r.value[1]);
+).map((r) => r.value[1]);
 
 type ByKind<U, T> = U extends { kind: T } ? U : never;
 
@@ -71,7 +77,7 @@ export function makeElem<
   U extends AbstractElem,
   K extends U["kind"], // 'kind' of AbtractElem "fn"
   E extends ByKind<U, K>, // FnElem
-  T extends TagsType<E> // {name: string[]}
+  T extends TagsType<E>, // {name: string[]}
 >(
   kind: K,
   er: ExtendedResult<any, Partial<T>>,
@@ -90,7 +96,7 @@ function mapIfDefined<A>(
   array: Partial<Record<keyof A, string[]>>,
   firstElemOnly?: boolean,
 ): Partial<Record<keyof A, string | string[]>> {
-  const entries = keys.flatMap(k => {
+  const entries = keys.flatMap((k) => {
     const ak = array[k];
     const v = firstElemOnly ? ak?.[0] : ak;
 
