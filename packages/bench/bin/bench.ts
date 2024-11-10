@@ -2,7 +2,7 @@ import { WGSLLinker } from "@use-gpu/shader";
 import fs from "fs/promises";
 import { run } from "node:test";
 import path from "path";
-import { ModuleRegistry, parseWgslD } from "wgsl-linker";
+import { ModuleRegistry } from "wgsl-linker";
 import { WgslReflect } from "wgsl_reflect";
 import yargs from "yargs";
 
@@ -163,7 +163,8 @@ function parseOnce(
 }
 
 function wgslLinkerParse(filePath: string, text: string): void {
-  parseWgslD(text);
+  const registry = new ModuleRegistry({ wgsl: { [filePath]: text } });
+  registry.parsed();
 }
 
 function wgslReflectParse(_filePath: string, text: string): void {
