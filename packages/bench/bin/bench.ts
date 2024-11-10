@@ -1,5 +1,6 @@
 import { WGSLLinker } from "@use-gpu/shader";
 import fs from "fs/promises";
+import { run } from "node:test";
 import path from "path";
 import { ModuleRegistry } from "wgsl-linker";
 import { WgslReflect } from "wgsl_reflect";
@@ -11,7 +12,7 @@ type ParserVariant =
   | "wgsl-linker"
   | "wgsl-linker.link" // NYI
   | "wgsl_reflect"
-  | "use-gpu" // (parser fails on boat example)
+  | "use-gpu"
   | "all"; // NYI
 
 type CliArgs = ReturnType<typeof parseArgs>;
@@ -61,7 +62,7 @@ async function bench(argv: CliArgs): Promise<void> {
 
   if (argv.profile) {
     console.profile();
-    runBench(variant, texts);
+    runOnAllFiles(variant, texts);
     console.profileEnd();
   }
 }
@@ -79,8 +80,8 @@ function selectVariant(variant: string): ParserVariant {
 }
 
 function runBench(variant: ParserVariant, files: LoadedFile[]): number {
-  const warmupIterations = 1;
-  const benchIterations = 1;
+  const warmupIterations = 5;
+  const benchIterations = 20;
 
   // TODO try e.g. TinyBench instead
 
@@ -101,9 +102,13 @@ function runNTimes(
   files: LoadedFile[],
 ): void {
   for (let i = 0; i < n; i++) {
-    for (const file of files) {
-      parseOnce(variant, file.name, file.text);
-    }
+    runOnAllFiles(variant, files);
+  }
+}
+
+function runOnAllFiles(variant: ParserVariant, files: LoadedFile[]): void {
+  for (const file of files) {
+    parseOnce(variant, file.name, file.text);
   }
 }
 
@@ -113,8 +118,17 @@ interface LoadedFile {
 }
 
 async function loadAllFiles(): Promise<LoadedFile[]> {
-  const boat = await loadBoatFiles();
-  return [...boat];
+  // const boat = await loadBoatFiles();
+  // return [...boat];
+  const reduceBuffer = await loadFile(
+    "reduceBuffer",
+    "./src/examples/reduceBuffer.wgsl",
+  );
+  const particle = await loadFile(
+    "reduceBuffer",
+    "../../../community-wgsl/webgpu-samples/sample/particles/particle.wgsl",
+  );
+  return [reduceBuffer, particle];
 }
 
 async function loadFile(name: string, path: string): Promise<LoadedFile> {
@@ -153,10 +167,10 @@ function wgslLinkerParse(filePath: string, text: string): void {
   registry.parsed();
 }
 
-function wgslReflectParse(filePath: string, text: string): void {
+function wgslReflectParse(_filePath: string, text: string): void {
   new WgslReflect(text);
 }
 
-function useGpuParse(filePath: string, text: string): void {
-  WGSLLinker.linkCode(text);
+function useGpuParse(_filePath: string, text: string): void {
+  WGSLLinker.loadModule(text);
 }
