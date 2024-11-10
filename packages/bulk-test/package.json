@@ -6,11 +6,14 @@
     "format": "prettier . --write",
     "lint": "eslint src",
     "organize": "organize-imports-cli tsconfig.json",
-    "prepublishOnly": "run-s build",
     "test": "vitest",
-    "bulk-test:once": "vitest run"
+    "bulk-test": "vitest run"
   },
   "dependencies": {
     "wgsl-linker": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.0.9",
+    "diff": "^5.2.0"
   }
 }

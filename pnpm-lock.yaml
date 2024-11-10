@@ -109,15 +109,9 @@ importers:
         specifier: workspace:*
         version: link:../linker
     devDependencies:
-      0x:
-        specifier: ^5.7.0
-        version: 5.7.0
       '@types/diff':
         specifier: ^5.0.9
         version: 5.2.3
-      clinic:
-        specifier: ^13.0.0
-        version: 13.0.0
       diff:
         specifier: ^5.2.0
         version: 5.2.0
