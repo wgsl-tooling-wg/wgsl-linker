@@ -47,7 +47,6 @@
     "terser": "^5.36.0",
     "vite-plugin-dts": "^4.3.0",
     "vitest": "^2.1.4",
-    "wesl-testsuite": "file:../../../wesl-testsuite",
     "wgsl-rand": "workspace:*"
   }
 }

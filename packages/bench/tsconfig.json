@@ -3,8 +3,8 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "types": ["node"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
@@ -14,13 +14,12 @@
     "importsNotUsedAsValues": "remove",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "allowImportingTsExtensions": true,
     "noEmit": true,
     "paths": {
       "wgsl-linker": ["../linker/src"],
       "mini-parse": ["../mini-parse/src"]
     }
   },
-  "include": ["src/**/*", "src/viteTypes.d.ts"],
+  "include": ["src/**/*", "bin/**/*", "src/viteTypes.d.ts"],
   "exclude": ["node_modules"]
 }
