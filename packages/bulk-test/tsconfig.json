@@ -3,8 +3,8 @@
     "target": "ESNext",
     "lib": ["ESNext"],
     "types": ["node"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
@@ -14,6 +14,7 @@
     "importsNotUsedAsValues": "remove",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "paths": {
       "wgsl-linker": ["../linker/src"],
