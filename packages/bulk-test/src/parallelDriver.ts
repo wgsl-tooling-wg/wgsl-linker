@@ -3,11 +3,13 @@ import path from "node:path";
 import { BulkTest, bulkTests } from "wesl-testsuite";
 import { NamedPath } from "./parallelTest.ts";
 
-/* vitest parallelizes per test file,
- * so we split a large test into many files.
+/* Vitest parallelizes per .test.ts file.
  *
- * Accumulate the set of all test file paths,
- * and then splitting that set into parts.
+ * So for testing many wgsl files more quickly we want at least as many
+ * .test.ts files as there are CPU cores.
+ *
+ * Here we partition the load that wgsl file set and split it into
+ * 16 parts, which we'll later use in 16 .test.ts runners.
  */
 
 const communityRoot = path.join("..", "..", "..", "community-wgsl");
