@@ -77,6 +77,9 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@22.9.0)(@vitest/ui@2.1.4)(terser@5.36.0)
+      wesl-testsuite:
+        specifier: file:../wesl-testsuite
+        version: file:../wesl-testsuite
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -152,9 +155,6 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@22.9.0)(@vitest/ui@2.1.4)(terser@5.36.0)
-      wesl-testsuite:
-        specifier: file:../../../wesl-testsuite
-        version: file:../wesl-testsuite
       wgsl-rand:
         specifier: workspace:*
         version: link:../test-package
