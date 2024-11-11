@@ -2,7 +2,6 @@ import { glob } from "glob";
 import path from "node:path";
 import { BulkTest, bulkTests } from "wesl-testsuite";
 import { NamedPath } from "./parallelTest.ts";
-import { dlog } from "berry-pretty";
 
 /* vitest parallelizes per test file,
  * so we split a large test into many files.
@@ -56,11 +55,9 @@ async function findGlobFiles(
     const futurePaths =
       globs?.map(g => glob(g, { ignore: ["node_modules/**"] })) ?? [];
     const pathSets = await Promise.all(futurePaths);
-    dlog({fullBaseDir, globs, pathSets});
     const filePaths = pathSets.flat();
     return filePaths.filter(p => !skip.some(s => p.includes(s)));
   } finally {
-    dlog("back to", {cwd})
     process.chdir(cwd);
   }
 }
