@@ -7,7 +7,6 @@ export interface NamedPath {
   filePath: string; // path relative to project root (package.json dir)
 }
 
-
 // TODO more validation, not just parsing
 
 /** test files run this to run vite tests for all wgsl files in their partition.

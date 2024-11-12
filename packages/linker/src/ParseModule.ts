@@ -19,7 +19,7 @@ export interface TextModule {
   fns: FnElem[];
   vars: VarElem[];
   structs: StructElem[];
-  imports: (TreeImportElem)[];
+  imports: TreeImportElem[];
   aliases: AliasElem[];
   globalDirectives: GlobalDirectiveElem[];
 
@@ -54,7 +54,7 @@ export function parseModule(
   );
   const imports = parsed.filter(
     e => e.kind === "treeImport",
-  ) as (TreeImportElem)[];
+  ) as TreeImportElem[];
   const structs = filterElems<StructElem>(parsed, "struct");
   const vars = filterElems<VarElem>(parsed, "var");
   const overridePath = filterElems<ModuleElem>(parsed, "module")[0]?.name;

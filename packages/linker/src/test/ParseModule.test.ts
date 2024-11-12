@@ -1,8 +1,6 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
+import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
-import { dlog } from "berry-pretty";
 
 test("simple fn export", () => {
   const src = `
@@ -12,7 +10,7 @@ test("simple fn export", () => {
     }
   `;
   const module = testParseModule(src);
-  dlog({module});
+  dlog({ module });
   expect(module.exports.length).toBe(1);
   expect(module.exports).toMatchSnapshot();
 });
@@ -49,7 +47,6 @@ test("read #module", () => {
   const textModule = testParseModule(src);
   expect(textModule.modulePath).toBe("my.module.com");
 });
-
 
 // test.skip("parse error shows correct line after @if", () => {});
 

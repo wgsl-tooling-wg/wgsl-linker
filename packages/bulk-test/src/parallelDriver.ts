@@ -20,7 +20,7 @@ const allPaths = await loadTests();
 export const pathSets = nParts(allPaths, numParts);
 
 async function loadTests(): Promise<NamedPath[]> {
-  const pathSets:NamedPath[] = [];
+  const pathSets: NamedPath[] = [];
   for (const bulk of bulkTests) {
     const paths = await loadBulkSet(bulk);
     pathSets.push(...paths);

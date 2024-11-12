@@ -13,7 +13,6 @@ test("ext params don't replace override", () => {
   expect(linked).toContain("override workgroupSizeX = 4u;");
 });
 
-
 /** requires 'module' syntax, which may not make the shared design */
 test("import foo from zap (multiple modules)", () => {
   const module1 = `
@@ -132,7 +131,6 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   expect(linked).toContain("step < workgroupThreads");
 });
 
-
 test("reference an alias", () => {
   const src = `
     alias Num = f32;
@@ -155,4 +153,4 @@ test("handle a ptr type", () => {
     wgsl: { "./main.wgsl": src },
   });
   expectNoLog(() => registry.link("./main"));
-})
+});

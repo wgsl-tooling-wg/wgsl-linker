@@ -99,7 +99,6 @@ const importDirective = seq(
   });
 });
 
-
 /** #export <foo> <(a,b)> EOL */
 export const exportDirective = seq(
   or("#export", "export"),
@@ -131,12 +130,7 @@ export const directive = tokens(
   argsTokens,
   seq(
     repeat("\n"),
-    or(
-      exportDirective,
-      importDirective,
-      gleamImport,
-      moduleDirective,
-    ),
+    or(exportDirective, importDirective, gleamImport, moduleDirective),
   ),
 );
 

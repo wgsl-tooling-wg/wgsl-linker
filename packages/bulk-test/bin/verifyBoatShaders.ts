@@ -14,12 +14,12 @@ import { dlog } from "berry-pretty";
  *
  * This script diff compares the collected wgsl files, testing whether
  * any are duplicative of the others in the plausible set.
-*/
+ */
 export const boatAttackDir =
   "../../../community-wgsl/unity_web_research/webgpu/wgsl/boat_attack";
 
 const selected = [
-  "unity_webgpu_0000020A44565050.fs.wgsl", 
+  "unity_webgpu_0000020A44565050.fs.wgsl",
   "unity_webgpu_000001FD4EFA3030.fs.wgsl", // percent: 87.91
   "unity_webgpu_0000014DFB395020.fs.wgsl", // percent: 84.93
   "unity_webgpu_0000017E9E2D81A0.vs.wgsl", // percent: 88.46

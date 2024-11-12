@@ -1,6 +1,7 @@
-import { _withBaseLogger, or, repeat } from "mini-parse";
+import { or, repeat, _withBaseLogger } from "mini-parse";
 import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 
+import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.js";
 import { filterElems } from "../ParseModule.js";
@@ -13,7 +14,6 @@ import {
   typeSpecifier,
 } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
-import { dlog } from "berry-pretty";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);
@@ -375,7 +375,7 @@ test.skip("parse switch statement-2", () => {
     }
   `;
   const parsed = testParseWgsl(src);
-  dlog({parsed})
+  dlog({ parsed });
   // expect(parsed).toMatchSnapshot();
   expect.fail();
 });

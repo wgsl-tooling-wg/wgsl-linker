@@ -288,12 +288,7 @@ function loadFnText(
 
   slicing.push(...typeRefSlices(elem.typeRefs));
 
-  const srcMap = sliceReplace(
-    ref.expMod.src,
-    slicing,
-    elem.start,
-    elem.end,
-  );
+  const srcMap = sliceReplace(ref.expMod.src, slicing, elem.start, elem.end);
 
   return applyExpImp(srcMap.dest, ref, extParams);
 }

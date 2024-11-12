@@ -173,7 +173,7 @@ function elemRefs(
       call => !stdFn(call.name) && call.name !== elem.name,
     );
     fnRefs = elemChildrenRefs(srcRef, userCalls, mod, registry);
-  } 
+  }
   const userTypeRefs = elemTypeRefs(elem);
   const tRefs = elemChildrenRefs(srcRef, userTypeRefs, mod, registry);
   return [...fnRefs, ...tRefs];
@@ -225,8 +225,7 @@ function linkedRef(
   if (importArgRef(srcRef, name)) return [];
 
   const foundRef =
-    importRef(srcRef, name, mod, mod.imports, registry) ??
-    localRef(name, mod);
+    importRef(srcRef, name, mod, mod.imports, registry) ?? localRef(name, mod);
 
   if (foundRef) {
     if (["typeRef", "call"].includes(elem.kind)) {
@@ -256,7 +255,7 @@ function importRef(
   fromRef: TextRef,
   name: string,
   impMod: TextModule,
-  imports: (TreeImportElem)[],
+  imports: TreeImportElem[],
   registry: ParsedRegistry,
 ): TextRef | GeneratorRef | undefined {
   const resolveMap = registry.importResolveMap(impMod);

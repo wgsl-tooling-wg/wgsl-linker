@@ -1,5 +1,4 @@
 import {
-  any,
   anyNot,
   anyThrough,
   eof,
