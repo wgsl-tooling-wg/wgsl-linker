@@ -13,6 +13,7 @@ import {
   typeSpecifier,
 } from "../ParseWgslD.js";
 import { testAppParse } from "./TestUtil.js";
+import { dlog } from "berry-pretty";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);
@@ -361,4 +362,20 @@ test("parse switch statement", () => {
   `;
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
+});
+
+test.skip("parse switch statement-2", () => {
+  const src = `
+
+    fn main(x: u32) {
+      switch ( code ) {
+        case 5u: { if 1 > 0 { } }
+        default: { break; }
+      }
+    }
+  `;
+  const parsed = testParseWgsl(src);
+  dlog({parsed})
+  // expect(parsed).toMatchSnapshot();
+  expect.fail();
 });
