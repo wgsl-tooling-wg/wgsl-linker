@@ -352,7 +352,7 @@ test("parse var x: foo.bar;", () => {
 
 test("parse switch statement", () => {
   const src = `
-    fn main() {
+    fn main(x: i32) {
       switch (x) {
         case 1: { break; }
         default: { break; }
