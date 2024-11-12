@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
 
@@ -10,7 +9,6 @@ test("simple fn export", () => {
     }
   `;
   const module = testParseModule(src);
-  dlog({ module });
   expect(module.exports.length).toBe(1);
   expect(module.exports).toMatchSnapshot();
 });
