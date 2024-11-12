@@ -167,7 +167,7 @@ function textRef(ref: FoundRef): ref is TextRef {
   return ref.kind !== "gen";
 }
 
-/** return all struct/fn refs from a src element */
+/** return all struct/fn/alias refs from a src element */
 function elemRefs(
   srcRef: TextRef,
   mod: TextModule,
@@ -212,7 +212,7 @@ function elemTypeRefs(
   return userTypeRefs;
 }
 
-/** find fn/struct references from children of a fn or struct elem
+/** find fn/struct/alias references from children of a fn or struct elem
  * (children being call references and type references from the fn or struct) */
 function elemChildrenRefs(
   srcRef: TextRef,
@@ -462,7 +462,8 @@ function importRef(
 function localRef(name: string, mod: TextModule): TextRef | undefined {
   const elem =
     mod.fns.find(fn => fn.name === name) ??
-    mod.structs.find(s => s.name === name);
+    mod.structs.find(s => s.name === name) ??
+    mod.aliases.find(s => s.name === name);
   if (elem) {
     return {
       kind: "txt",

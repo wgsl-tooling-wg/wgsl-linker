@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { simpleTemplate } from "../templates/SimpleTemplate.js";
-import { linkTest, linkTestOpts } from "./TestUtil.js";
+import { expectNoLog, linkTest, linkTestOpts } from "./TestUtil.js";
 
 /* --- these tests rely on features not yet portable in wesl --- */
 
@@ -214,4 +214,16 @@ test("import with simple template", () => {
   });
   const linked = registry.link("./main", { WORKGROUP_SIZE: "128" });
   expect(linked).toContain("step < 128");
+});
+
+test("reference an alias", () => {
+  const src = `
+    alias Num = f32;
+
+    fn main() { Num(1.0); }
+  `;
+  const registry = new ModuleRegistry({
+    wgsl: { "./main.wgsl": src },
+  });
+  expectNoLog(() => registry.link("./main"));
 });
