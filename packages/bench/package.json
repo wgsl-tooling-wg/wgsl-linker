@@ -6,8 +6,7 @@
     "format": "prettier . --write",
     "lint": "eslint src",
     "organize": "organize-imports-cli tsconfig.json",
-    "test": "vitest",
-    "bulk-test": "vitest run"
+    "bench": "tsx bin/bench.ts  --bench"
   },
   "dependencies": {
     "wgsl-linker": "workspace:*"
