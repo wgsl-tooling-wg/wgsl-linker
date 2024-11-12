@@ -173,7 +173,7 @@ function loadOtherElem(
   const { expMod, elem } = ref;
   const typeRefs = (elem as VarElem | AliasElem).typeRefs ?? [];
   const slicing = typeRefSlices(typeRefs);
-  const srcMap = sliceReplace(expMod.preppedSrc, slicing, elem.start, elem.end);
+  const srcMap = sliceReplace(expMod.src, slicing, elem.start, elem.end);
   // LATER propogate srcMap
 
   return applyExpImp(srcMap.dest, ref, extParams);
@@ -289,7 +289,7 @@ function loadFnText(
   slicing.push(...typeRefSlices(elem.typeRefs));
 
   const srcMap = sliceReplace(
-    ref.expMod.preppedSrc,
+    ref.expMod.src,
     slicing,
     elem.start,
     elem.end,

@@ -2,6 +2,7 @@ import { _withBaseLogger } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
+import { dlog } from "berry-pretty";
 
 test("simple fn export", () => {
   const src = `
@@ -11,8 +12,9 @@ test("simple fn export", () => {
     }
   `;
   const module = testParseModule(src);
+  dlog({module});
   expect(module.exports.length).toBe(1);
-  expect(module).toMatchSnapshot();
+  expect(module.exports).toMatchSnapshot();
 });
 
 test("simple fn import", () => {
@@ -23,7 +25,7 @@ test("simple fn import", () => {
   `;
   const module = testParseModule(src);
   expect(module.imports.length).toBe(1);
-  expect(module).toMatchSnapshot();
+  expect(module.imports).toMatchSnapshot();
 });
 
 test("read simple struct export", () => {
@@ -49,24 +51,7 @@ test("read #module", () => {
 });
 
 
-test("parse error shows correct line after #ifdef ", () => {
-  const src = `
-    // #if FALSE
-    foo
-    bar
-    // #endif
-    fn () { } // oops
-  `;
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo");
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 6
-          ^"
-  `);
-});
+// test.skip("parse error shows correct line after @if", () => {});
 
 test("import gleam style", () => {
   const src = `

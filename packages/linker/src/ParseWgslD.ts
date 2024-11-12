@@ -43,7 +43,6 @@ const lParen = "(";
 const rParen = ")";
 
 export interface ParseState {
-  ifStack: boolean[]; // stack used while processiing nested #if #else #endif directives
   params: Record<string, any>; // user provided params to templates, code gen and #if directives
 }
 
@@ -170,12 +169,7 @@ const switch_clause = or(case_clause, default_alone_clause);
 
 const switch_body = seq(optAttributes, "{", repeatPlus(switch_clause), "}");
 
-const switch_statement = seq(
-  optAttributes,
-  "switch",
-  expression,
-  switch_body,
-);
+const switch_statement = seq(optAttributes, "switch", expression, switch_body);
 
 // prettier-ignore
 const block: Parser<any> = seq(
@@ -249,7 +243,7 @@ export function parseWgslD(
 ): AbstractElem[] {
   const lexer = matchingLexer(src, mainTokens);
   const state: AbstractElem[] = [];
-  const context: ParseState = { ifStack: [], params };
+  const context: ParseState = { params };
   const app = {
     context,
     state,

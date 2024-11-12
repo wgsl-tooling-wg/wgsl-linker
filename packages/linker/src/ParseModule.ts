@@ -10,7 +10,6 @@ import {
   TreeImportElem,
   VarElem,
 } from "./AbstractElems.js";
-import { processConditionals } from "./Conditionals.js";
 import { parseWgslD } from "./ParseWgslD.js";
 
 /** module with exportable text fragments that are optionally transformed by a templating engine */
@@ -29,9 +28,6 @@ export interface TextModule {
   /** original src for module */
   src: string;
 
-  /** src code after processing #if conditionals  */
-  preppedSrc: string;
-
   /** tracks changes through conditional processing for error reporting */
   srcMap: SrcMap;
 }
@@ -41,22 +37,14 @@ export interface TextExport extends ExportElem {
   ref: FnElem | StructElem;
 }
 
-export function preProcess(
-  src: string,
-  params: Record<string, any> = {},
-): SrcMap {
-  return processConditionals(src, params);
-}
-
 export function parseModule(
   src: string,
   naturalModulePath: string,
   params: Record<string, any> = {},
 ): TextModule {
-  const srcMap = preProcess(src, params);
+  const srcMap = new SrcMap(src);
 
-  const preppedSrc = srcMap.dest;
-  const parsed = parseWgslD(preppedSrc, srcMap);
+  const parsed = parseWgslD(src, srcMap);
   const exports = findExports(parsed, srcMap);
   const fns = filterElems<FnElem>(parsed, "fn");
   const aliases = filterElems<AliasElem>(parsed, "alias");
@@ -75,7 +63,7 @@ export function parseModule(
   // dlog({ modulePath, overridePath });
   const kind = "text";
   return {
-    ...{ kind, src, srcMap, preppedSrc, modulePath },
+    ...{ kind, src, srcMap, modulePath },
     ...{ exports, fns, structs, vars, imports },
     ...{ aliases, globalDirectives },
   };

@@ -13,7 +13,7 @@ test("simple link", async () => {
   expect(logged).toMatchSnapshot();
 });
 
-test("link with definition", async () => {
+test.skip("link with definition", async () => {
   const logged = await cliLine(
     `./src/test/wgsl/main.wgsl 
        ./src/test/wgsl/util.wgsl

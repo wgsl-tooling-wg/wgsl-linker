@@ -83,10 +83,6 @@ test("import a struct with imp/exp params", () => {
   `;
 
   const module1 = `
-    #if typecheck
-    alias elemType = u32;
-    #endif
-
     #export (elemType)
     struct AStruct { x: elemType }
   `;

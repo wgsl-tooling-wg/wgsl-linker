@@ -10,8 +10,7 @@ and extended wgsl syntax that includes
 support for modules via import and export statements
 to select wgsl elements to merge.
 Several other wgsl extensions are supported during
-processing as well: conditional compilation (via #if),
-struct inheritance, code generators (code that emits wgsl),
+processing as well: code generators (code that emits wgsl),
 and generic programming.
 
 wgsl-linker is designed to enable linking at runtime in the browser
@@ -37,7 +36,7 @@ a build plugin could polish that.)
 - _link_ - create a merged wgsl string, starting from a root fragment
   in the registry.
   The merged wgsl string contains only vanilla wgsl,
-  all extended syntax (import, export, #if) is processed and the
+  all extended syntax (import, export) is processed and the
   extended syntax is removed.
 
 ## Linking phases
@@ -45,8 +44,6 @@ a build plugin could polish that.)
 Linking is relatively straightforward.
 
 1. Preprocess and parse the registry
-   - preprocess based on runtime variables set by the caller
-     - apply #if conditionals
    - parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
 1. Traverse the abstract syntax tree recursively, starting from the wgsl
    elements in the root wgsl fragment.
