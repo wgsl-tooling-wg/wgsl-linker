@@ -1,53 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`importing parses importing bar(A) fog(B) 1`] = `
-[
-  [
-    {
-      "args": [
-        "A",
-      ],
-      "end": 25,
-      "kind": "import",
-      "name": "bar",
-      "start": 11,
-    },
-    {
-      "args": [
-        "B",
-      ],
-      "end": 25,
-      "kind": "import",
-      "name": "fog",
-      "start": 11,
-    },
-  ],
-]
-`;
-
-exports[`parse #export(A, B) importing bar(A) 1`] = `
-{
-  "args": [
-    "A",
-    "B",
-  ],
-  "end": 36,
-  "importing": [
-    {
-      "args": [
-        "A",
-      ],
-      "end": 35,
-      "kind": "import",
-      "name": "bar",
-      "start": 29,
-    },
-  ],
-  "kind": "export",
-  "start": 5,
-}
-`;
-
 exports[`parse #export(foo) with trailing space 1`] = `
 [
   {

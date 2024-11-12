@@ -41,7 +41,7 @@ test("srcLog", () => {
 
 test("srcLog on longer example", () => {
   const src = `
-    #export(C, D) importing bar(D)
+    #export(C, D) /*            */
     fn foo(c:C, d:D) { support(d); } 
     
     fn support(d:D) { bar(d); }

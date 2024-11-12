@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { ModuleElem, TreeImportElem } from "../AbstractElems.js";
 import { SimpleSegment, treeToString } from "../ImportTree.js";
 import { argsTokens } from "../MatchWgslD.js";
-import { directive, importing } from "../ParseDirective.js";
+import { directive } from "../ParseDirective.js";
 import { parseWgslD } from "../ParseWgslD.js";
 import { last } from "../Util.js";
 import { testAppParse } from "./TestUtil.js";
@@ -37,21 +37,6 @@ test("parse #export(foo) with trailing space", () => {
 
   const parsed = parseWgslD(src);
   expect(parsed).toMatchSnapshot();
-});
-
-test.skip("importing parses importing bar(A) fog(B)", () => {
-  const src = ` importing bar(A), fog(B)`;
-  const { parsed } = testAppParse(tokens(argsTokens, importing), src);
-  expect(parsed?.tags.importing).toMatchSnapshot();
-});
-
-test.skip("parse #export(A, B) importing bar(A)", () => {
-  const src = `
-    #export(A, B) importing bar(A)
-    fn foo(a:A, b:B) { bar(a); }
-  `;
-  const parsed = parseWgslD(src);
-  expect(parsed[0]).toMatchSnapshot();
 });
 
 test("#export w/o closing paren", () => {

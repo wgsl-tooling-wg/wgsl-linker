@@ -78,7 +78,6 @@ export interface StructMemberElem extends AbstractElemBase {
 export interface ExportElem extends AbstractElemBase {
   kind: "export";
   args?: string[];
-  importing?: any[]; // TODO
 }
 
 // LATER consider modeling import elems as containing multiple clauses

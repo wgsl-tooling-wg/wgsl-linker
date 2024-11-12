@@ -226,7 +226,6 @@ function linkedRef(
 
   const foundRef =
     importRef(srcRef, name, mod, mod.imports, registry) ??
-    // importingRef(srcRef, name, mod, registry) ??
     localRef(name, mod);
 
   if (foundRef) {
@@ -294,143 +293,6 @@ function importRef(
   }
 }
 
-// function matchImportExportArgs(
-//   impMod: TextModule | GeneratorModule,
-//   imp: ExtendsElem,
-//   expMod: TextModule | GeneratorModule,
-//   exp: ExportElem | GeneratorExport
-// ): StringPairs {
-//   const impArgs = imp.args ?? [];
-//   const expArgs = exp.args ?? [];
-//   if (expArgs.length !== impArgs.length) {
-//     impMod.kind === "text" &&
-//       moduleLog(impMod, imp.start, "mismatched import and export params");
-//     expMod.kind === "text" && moduleLog(expMod, (exp as ExportElem).start);
-//   }
-//   return expArgs.map((p, i) => [p, impArgs[i]]);
-// }
-
-/** If this element references an #export.. importing function
- * @return a ref describing the export to link */
-// function importingRef(
-//   srcRef: FoundRef,
-//   name: string,
-//   impMod: TextModule,
-//   registry: ParsedRegistry
-// ): TextRef | GeneratorRef | undefined {
-// let fromImport: TreeImportElem | undefined;
-
-// // find a matching 'importing' phrase in an #export
-// const textExport = impMod.exports.find((exp) => {
-//   fromImport = exp.importing?.find((i) => i.name === name);
-//   return !!fromImport;
-// });
-
-// // find the export for the importing
-// const modExp = matchingExport(fromImport, impMod, registry);
-// if (!modExp) return;
-// isDefined(fromImport);
-// isDefined(textExport);
-
-// if (srcRef.kind !== "txt") {
-//   refLog(srcRef, "unexpected srcRef", srcRef.kind);
-//   return;
-// }
-
-// const expImpArgs = importingArgs(fromImport, modExp.exp, srcRef);
-// const expInfo: ExportInfo = {
-//   fromRef: srcRef,
-//   fromImport,
-//   expImpArgs,
-// };
-// if (modExp.kind === "text") {
-//   const exp = modExp.exp;
-
-//   return {
-//     kind: "txt",
-//     expInfo,
-//     expMod: modExp.module as TextModule,
-//     elem: exp.ref,
-//     proposedName: fromImport.as ?? exp.ref.name,
-//   };
-// } else if (modExp.kind === "function") {
-//   const exp = modExp.exp;
-//   return {
-//     kind: "gen",
-//     expInfo,
-//     expMod: modExp.module,
-//     proposedName: fromImport.as ?? exp.name,
-//     name: exp.name,
-//   };
-// }
-
-//   return undefined;
-// }
-
-/**
- * @return the arguments for an importing reference, mapping through the
- * export and the original import directives.
- *
- * e.g. we're tracking a fn call that references through an 'importing':
- *   import1 -> export2 -> importing3 -> export4
- * and we want to find the mapping from export4 args to import1 args
- *
- * for example:
- *   #import foo(A, B)
- *   #export foo(C, D) importing bar(D)
- *   #export bar(X)
- * we want to return mapping of X -> B for the importing clasue
- *
- * @param imp - the importing clause
- * @param exp - export matching the importing clause
- * @param srcRef - reference that led us to this import
- */
-// function importingArgs(
-//   imp: TreeImportElem,
-//   exp: ExportElem | GeneratorExport,
-//   srcRef: TextRef,
-// ): StringPairs {
-//   return [];
-// if (srcRef.expInfo === undefined) return [];
-// const expImp = matchImportExportArgs(
-//   srcRef.expInfo.fromRef.expMod,
-//   imp,
-//   srcRef.expMod,
-//   exp
-// ); // X -> D
-// const srcExpImp = srcRef.expInfo.expImpArgs;
-// return expImp.flatMap(([iExp, iImp]) => {
-//   const pair = srcExpImp.find(([srcExpArg]) => srcExpArg === iImp); // D -> B
-//   if (!pair) {
-//     moduleLog(srcRef.expMod, imp.start, "importing arg doesn't match export");
-//     return [];
-//   }
-//   const [, impArg] = pair;
-//   return [[iExp, impArg]] as [string, string][]; // X -> B
-// });
-// }
-
-// function isDefined<T>(a: T | undefined): asserts a is T {
-//   /* */
-// }
-
-// function matchingExport(
-//   imp: TreeImportElem | ExtendsElem | undefined,
-//   mod: TextModule,
-//   registry: ParsedRegistry,
-// ): ModuleExport | undefined {
-//   if (!imp) return;
-
-//   dlog("NYI");
-//   // TODO
-
-//   // const modExp = registry.getModuleExportOld(mod, imp.name, imp.from);
-//   // if (!modExp) {
-//   //   moduleLog(mod, imp.start, "export not found for import");
-//   // }
-//   // return modExp;
-// }
-
 function localRef(name: string, mod: TextModule): TextRef | undefined {
   const elem =
     mod.fns.find(fn => fn.name === name) ??
@@ -446,15 +308,6 @@ function localRef(name: string, mod: TextModule): TextRef | undefined {
     };
   }
 }
-
-// interface AsNamed {
-//   as?: string;
-//   name: string;
-// }
-
-// function importName(asNamed: AsNamed): string {
-//   return asNamed.as || asNamed.name;
-// }
 
 const stdFns = `bitcast all any select arrayLength 
   abs acos acosh asin asinh atan atanh atan2 ceil clamp cos cosh 

@@ -100,18 +100,12 @@ const importDirective = seq(
 });
 
 
-export const importing = seq(
-  "importing",
-  seq(importElemPhrase.tag("importing")),
-  repeat(seq(",", importElemPhrase.tag("importing"))),
-);
-
-/** #export <foo> <(a,b)> <importing bar(a) <zap(b)>* > EOL */
+/** #export <foo> <(a,b)> EOL */
 export const exportDirective = seq(
   or("#export", "export"),
-  seq(opt(directiveArgs.tag("args")), opt(importing), opt(eolf)),
+  seq(opt(directiveArgs.tag("args")), opt(eolf)),
 ).map(r => {
-  const e = makeElem("export", r, ["args", "importing"]);
+  const e = makeElem("export", r, ["args"]);
   r.app.state.push(e);
 });
 
@@ -159,22 +153,11 @@ if (tracing) {
     importList,
     bracketedImportClause,
     importElemPhrase,
-    importing,
     importDirective,
     exportDirective,
     skipToEol,
     lineComment,
     moduleDirective,
     directive,
-  });
-}
-
-function copyDefinedProps<S extends Record<string, any>>(
-  src: S,
-  keys: (keyof S)[],
-  dest: any,
-): void {
-  keys.forEach(k => {
-    if (src[k] !== undefined) dest[k] = src[k];
   });
 }
