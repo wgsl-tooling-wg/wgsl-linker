@@ -41,7 +41,7 @@ export class ParsedRegistry {
     params: Record<string, any> = {},
     modulePath: string,
   ): void {
-    const m = parseModule(src, modulePath, params, this.registry.templates);
+    const m = parseModule(src, modulePath, params);
     this.textModules.push(m);
   }
 

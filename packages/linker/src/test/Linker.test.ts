@@ -1,6 +1,5 @@
 import { expect, test } from "vitest";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { simpleTemplate } from "../templates/SimpleTemplate.js";
 import { expectNoLog, linkTest, linkTestOpts } from "./TestUtil.js";
 
 /* --- these tests rely on features not yet portable in wesl --- */
@@ -14,41 +13,6 @@ test("ext params don't replace override", () => {
   expect(linked).toContain("override workgroupSizeX = 4u;");
 });
 
-test("import using replace template and ext param", () => {
-  const src = `
-    import ./file1/foo
-
-    fn main() { foo(); }
-  `;
-
-  const module1 = `
-    #template simple
-
-    export fn foo () {
-      for (var step = 0; step < Threads; step++) { 
-      }
-    }
-  `;
-
-  const templates = [simpleTemplate];
-  const runtimeParams = { Threads: 128 };
-  const linked = linkTestOpts({ templates, runtimeParams }, src, module1);
-  expect(linked).toContain("step < 128");
-});
-
-test("#template in src", () => {
-  const src = `
-    #template simple
-    fn main() {
-      for (var step = 0; step < threads; step++) { 
-      }
-    }
-  `;
-  const templates = [simpleTemplate];
-  const runtimeParams = { threads: 128 };
-  const linked = linkTestOpts({ templates, runtimeParams }, src);
-  expect(linked).toContain("step < 128");
-});
 
 /** requires 'module' syntax, which may not make the shared design */
 test("import foo from zap (multiple modules)", () => {
@@ -131,31 +95,6 @@ test("import a struct with imp/exp params", () => {
   expect(linked).toContain("x: i32");
 });
 
-test("#import using simple template and imp/exp param", () => {
-  const src = `
-    #import foo(128) from ./file1
-
-    fn main() { foo(); }
-  `;
-
-  const module1 = `
-    #template simple
-
-    #export(threads)
-    fn foo () {
-      for (var step = 0; step < threads; step++) {
-        /* Foo */
-      }
-    }
-  `;
-
-  const templates = [simpleTemplate];
-  const runtimeParams = { Foo: "Bar" };
-  const linked = linkTestOpts({ templates, runtimeParams }, src, module1);
-  expect(linked).toContain("step < 128");
-  expect(linked).toContain("/* Bar */");
-});
-
 test("#import using external param", () => {
   const src = `
     import foo(ext.workgroupSize) from ./file1
@@ -197,24 +136,6 @@ test("external param w/o ext. prefix doesn't override imp/exp params", () => {
   expect(linked).toContain("step < workgroupThreads");
 });
 
-test("import with simple template", () => {
-  const src = `
-    import ./file1/foo
-    fn main() { foo(); }
-  `;
-  const file1 = `
-    #template simple
-    export fn foo() {
-      for (var step = 0; step < WORKGROUP_SIZE; step++) { }
-    }
-  `;
-  const registry = new ModuleRegistry({
-    wgsl: { "./main.wgsl": src, "./file1.wgsl": file1 },
-    templates: [simpleTemplate],
-  });
-  const linked = registry.link("./main", { WORKGROUP_SIZE: "128" });
-  expect(linked).toContain("step < 128");
-});
 
 test("reference an alias", () => {
   const src = `

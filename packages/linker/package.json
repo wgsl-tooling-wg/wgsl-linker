@@ -7,11 +7,10 @@
   ],
   "scripts": {
     "build:readme": "ncp ../../README.md README.md",
-    "build": "run-s build:main build:templates build:minified",
+    "build": "run-s build:main build:minified",
     "build:main": "vite build",
     "build:minified": "vite build -c minified.vite.config.js",
     "build:brotli": "brotli dist/minified.cjs && ls -l dist/minified.cjs.br",
-    "build:templates": "vite build -c templates.vite.config.js",
     "format": "prettier . --write",
     "lint": "eslint src",
     "organize": "organize-imports-cli tsconfig.json",
@@ -26,11 +25,6 @@
       "types": "./dist/linker/src/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./templates": {
-      "types": "./dist/linker/src/templates/index.d.ts",
-      "import": "./dist/templates.js",
-      "require": "./dist/templates.cjs"
     },
     "./minified": {
       "types": "./dist/linker/src/index.d.ts",

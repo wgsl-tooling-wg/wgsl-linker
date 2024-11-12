@@ -47,8 +47,6 @@ Linking is relatively straightforward.
 1. Preprocess and parse the registry
    - preprocess based on runtime variables set by the caller
      - apply #if conditionals
-     - replace text with runtime variables (e.g. using the `SimpleTemplate`)
-     - apply any user provided custom string templates
    - parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
 1. Traverse the abstract syntax tree recursively, starting from the wgsl
    elements in the root wgsl fragment.

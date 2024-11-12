@@ -6,7 +6,6 @@ import { mainTokens } from "../MatchWgslD.js";
 import {
   ModuleRegistry,
   RegisterGenerator,
-  Template,
 } from "../ModuleRegistry.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
@@ -24,7 +23,6 @@ export function linkTest(...rawWgsl: string[]): string {
 }
 
 export interface LinkTestOpts {
-  templates?: Template[];
   generators?: RegisterGenerator[];
   runtimeParams?: Record<string, any>;
 }
@@ -32,14 +30,14 @@ export interface LinkTestOpts {
 /** Convenience wrapper to link wgsl for tests, with load and link options. */
 export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
-  const { templates, generators, runtimeParams } = opts;
+  const { generators, runtimeParams } = opts;
 
   const restWgsl = Object.fromEntries(
     rest.map((src, i) => [`./file${i + 1}.wgsl`, src]),
   );
   const wgsl = { "./root.wgsl": root, ...restWgsl };
 
-  const registry = new ModuleRegistry({ wgsl, templates, generators });
+  const registry = new ModuleRegistry({ wgsl, generators });
   return registry.link("./root", runtimeParams);
 }
 

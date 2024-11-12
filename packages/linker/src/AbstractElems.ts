@@ -9,7 +9,6 @@ export type AbstractElem =
   | ExtendsElem
   | ExportElem
   | ModuleElem
-  | TemplateElem
   | FnElem
   | GlobalDirectiveElem
   | TypeNameElem
@@ -110,11 +109,6 @@ export interface VarElem extends AbstractElemBase {
   name: string;
   nameElem: VarNameElem;
   typeRefs: TypeRefElem[];
-}
-
-export interface TemplateElem extends AbstractElemBase {
-  kind: "template";
-  name: string;
 }
 
 export interface AliasElem extends AbstractElemBase {

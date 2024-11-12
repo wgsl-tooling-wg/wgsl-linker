@@ -2,7 +2,6 @@ import { _withBaseLogger } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
-import { simpleTemplate } from "../templates/SimpleTemplate.js";
 
 test("simple fn export", () => {
   const src = `
@@ -63,38 +62,6 @@ test("read #module", () => {
   expect(textModule.modulePath).toBe("my.module.com");
 });
 
-test.skip("simple #template preserves src map", () => {
-  const src = `
-    #template simple
-    fn foo() { XX }
-  `;
-  const expected = `
-    fn foo() { /**/ }
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const textModule = parseModule(src, "./foo", { XX: "/**/" }, templates);
-  expect(textModule.preppedSrc).toContain("fn foo() { /**/ }");
-  expect(textModule.preppedSrc).toBe(expected);
-  expect(textModule.srcMap.entries.length).toBe(3);
-});
-
-test.skip("parse error shows correct line after simple #template", () => {
-  const src = `
-    #template simple
-    fn foo () { XX }
-    fn () { } // oops
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 4
-          ^"
-  `);
-});
 
 test("parse error shows correct line after #ifdef ", () => {
   const src = `
@@ -104,36 +71,13 @@ test("parse error shows correct line after #ifdef ", () => {
     // #endif
     fn () { } // oops
   `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
   const { log, logged } = logCatch();
   _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
+    parseModule(src, "./foo");
   });
   expect(logged()).toMatchInlineSnapshot(`
     "missing fn name
         fn () { } // oops   Ln 6
-          ^"
-  `);
-});
-
-test("parse error shows correct line after #ifdef and simple #template", () => {
-  const src = `
-    // #if FALSE
-    foo
-    bar
-    // #endif
-    // #template simple
-    fn foo () { XX }
-    fn () { } // oops
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 8
           ^"
   `);
 });

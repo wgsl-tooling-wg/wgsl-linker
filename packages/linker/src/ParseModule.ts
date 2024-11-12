@@ -8,19 +8,15 @@ import {
   GlobalDirectiveElem,
   ModuleElem,
   StructElem,
-  TemplateElem,
   TreeImportElem,
   VarElem,
 } from "./AbstractElems.js";
 import { processConditionals } from "./Conditionals.js";
-import { ApplyTemplateFn } from "./ModuleRegistry.js";
 import { parseWgslD } from "./ParseWgslD.js";
-import { SliceReplace, sliceReplace } from "./Slicer.js";
 
 /** module with exportable text fragments that are optionally transformed by a templating engine */
 export interface TextModule {
   kind: "text";
-  template?: TemplateElem;
   exports: TextExport[];
   fns: FnElem[];
   vars: VarElem[];
@@ -49,19 +45,16 @@ export interface TextExport extends ExportElem {
 export function preProcess(
   src: string,
   params: Record<string, any> = {},
-  templates: Map<string, ApplyTemplateFn> = new Map(),
 ): SrcMap {
-  const condSrcMap = processConditionals(src, params);
-  return applyTemplate(condSrcMap, templates, params);
+  return processConditionals(src, params);
 }
 
 export function parseModule(
   src: string,
   naturalModulePath: string,
   params: Record<string, any> = {},
-  templates: Map<string, ApplyTemplateFn> = new Map(),
 ): TextModule {
-  const srcMap = preProcess(src, params, templates);
+  const srcMap = preProcess(src, params);
 
   const preppedSrc = srcMap.dest;
   const parsed = parseWgslD(preppedSrc, srcMap);
@@ -77,7 +70,6 @@ export function parseModule(
   ) as (ExtendsElem | TreeImportElem)[];
   const structs = filterElems<StructElem>(parsed, "struct");
   const vars = filterElems<VarElem>(parsed, "var");
-  const template = filterElems<TemplateElem>(parsed, "template")?.[0];
   const overridePath = filterElems<ModuleElem>(parsed, "module")[0]?.name;
   matchMergeImports(parsed, srcMap);
 
@@ -86,7 +78,7 @@ export function parseModule(
   const kind = "text";
   return {
     ...{ kind, src, srcMap, preppedSrc, modulePath },
-    ...{ exports, fns, structs, vars, imports, template },
+    ...{ exports, fns, structs, vars, imports },
     ...{ aliases, globalDirectives },
   };
 }
@@ -142,46 +134,4 @@ function findKind<T extends AbstractElem>(
   return parsed.flatMap((elem, i) =>
     elem.kind === kind ? ([[elem, i]] as [T, number][]) : [],
   );
-}
-
-const templateRegex = /#template\s+([/[a-zA-Z_][\w./-]*)/;
-
-function applyTemplate(
-  priorSrcMap: SrcMap,
-  templates: Map<string, ApplyTemplateFn>,
-  params: Record<string, any>,
-): SrcMap {
-  const src = priorSrcMap.dest;
-  const foundTemplate = src.match(templateRegex);
-  if (!foundTemplate) {
-    return priorSrcMap;
-  }
-  const templateName = foundTemplate[1];
-  const templateFn = templates.get(templateName);
-  if (!templateFn) {
-    srcLog(
-      priorSrcMap,
-      foundTemplate.index!,
-      `template '${templateName}' not found in ModuleRegistry`,
-    );
-    return priorSrcMap;
-  }
-
-  // dlog({priorSrcMap})
-
-  const start = foundTemplate.index!;
-  const end = start + foundTemplate[0].length;
-  const rmDirective: SliceReplace = { start, end, replacement: "" };
-  const removedMap = sliceReplace(src, [rmDirective]);
-  // dlog({ removedMap });
-  const removeMerged = priorSrcMap.merge(removedMap);
-  // dlog({ removeMerged });
-
-  const templatedMap = templateFn(removeMerged.dest, params);
-  // dlog({ templatedMap});
-
-  const srcMap = removeMerged.merge(templatedMap);
-  // dlog({ srcMap });
-
-  return srcMap;
 }

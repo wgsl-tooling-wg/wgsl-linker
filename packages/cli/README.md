@@ -18,8 +18,7 @@ found in the libraryWgsl files and outputs a bundled wgsl to stdout.
 ### Options
 
 `--define name=value` &ensp;
-defines variables for conditional compilation
-and template preocessing. Mutliple name=value pairs can be specified.
+defines variables for conditional compilation. Multiple name=value pairs can be specified.
 
 `--base-dir <path element>` &ensp;
 sets the base directory for resolving relative paths.

@@ -1,14 +1,8 @@
-import { SrcMap } from "mini-parse";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { normalize } from "./PathUtil.js";
 import { WgslBundle } from "./WgslBundle.js";
 
-/** A named function to transform code fragments (e.g. by inserting parameters) */
-export interface Template {
-  name: string;
-  apply: ApplyTemplateFn;
-}
 export type CodeGenFn = (
   name: string,
   params: Record<string, string>,
@@ -34,11 +28,6 @@ export interface RegisterGenerator {
   /** arguments to pass when importing from this generator */
   args?: string[];
 }
-
-export type ApplyTemplateFn = (
-  src: string,
-  params: Record<string, any>, // combination of external params and imp/exp params
-) => SrcMap;
 
 /** a single export from a module */
 export type ModuleExport = TextModuleExport | GeneratorModuleExport;
@@ -68,9 +57,6 @@ export interface RegistryParams {
   /** record of file names and wgsl text for modules */
   libs?: WgslBundle[];
 
-  /** string template handlers for processing exported functions and structs */
-  templates?: Template[];
-
   /** code generation functions */
   generators?: RegisterGenerator[];
 }
@@ -78,21 +64,19 @@ export interface RegistryParams {
 const libExp = /\/lib\.w[eg]sl/i;
 
 /**
- * A ModuleRegistry collects exportable code fragments, code generator functions,
- * and template processors.
+ * A ModuleRegistry collects exportable code fragments, code generator functions.
  *
  * The ModuleRegistry provides everything required for linkWgsl to process
  * #import statements and generate a complete wgsl shader.
  */
 export class ModuleRegistry {
-  templates = new Map<string, ApplyTemplateFn>();
   // map from absolute module path to wgsl/wesl src text
   wgslSrc = new Map<string, string>();
   generators = new Map<string, GeneratorModuleExport>();
 
   constructor(args?: RegistryParams) {
     if (!args) return;
-    const { wgsl = {}, templates = [], libs = [], generators } = args;
+    const { wgsl = {}, libs = [], generators } = args;
 
     Object.entries(wgsl).forEach(([fileName, src]) =>
       this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src),
@@ -109,7 +93,6 @@ export class ModuleRegistry {
       });
     });
 
-    if (templates) this.registerTemplate(...templates);
     generators?.map(g => this.registerGenerator(g));
   }
 
@@ -143,11 +126,6 @@ export class ModuleRegistry {
     };
 
     this.generators.set(module.modulePath, { kind: "function", module, exp });
-  }
-
-  /** register a template processor  */
-  registerTemplate(...templates: Template[]): void {
-    templates.forEach(t => this.templates.set(t.name, t.apply));
   }
 }
 
