@@ -1,7 +1,6 @@
 import {
   AliasElem,
   CallElem,
-  ExtendsElem,
   FnElem,
   StructElem,
   StructMemberElem,
@@ -42,7 +41,7 @@ export interface ExportInfo {
   fromRef: FoundRef;
 
   /** import or extends elem that resolved to this export (so we can later separate out extends) */
-  fromImport: ExtendsElem | TreeImportElem;
+  fromImport: TreeImportElem;
 
   /** mapping from export arguments to import arguments
    * (could be mapping to import args prior to this import, via chain of importing) */
@@ -59,8 +58,6 @@ export interface GeneratorRef extends FoundRefBase {
 
   /** name of the generated function (may be renamed by import as) */
   name: string;
-
-  mergeRefs?: undefined;
 }
 
 /** A reference to a target wgsl element (e.g. a function). */
@@ -75,10 +72,6 @@ export interface TextRef extends FoundRefBase {
 
   /** extra data if the referenced element is from another module */
   expInfo?: ExportInfo;
-
-  /** refs to extends elements on this struct element
-   * (added in a post processing step after traverse) */
-  mergeRefs?: TextRef[];
 }
 
 /**
@@ -175,18 +168,15 @@ function elemRefs(
 ): FoundRef[] {
   const { elem } = srcRef;
   let fnRefs: FoundRef[] = [];
-  let mergeRefs: FoundRef[] = [];
   if (elem.kind === "fn") {
     const userCalls = elem.calls.filter(
       call => !stdFn(call.name) && call.name !== elem.name,
     );
     fnRefs = elemChildrenRefs(srcRef, userCalls, mod, registry);
-  } else if (elem.kind === "struct") {
-    mergeRefs = extendsRefs(srcRef, elem, mod, registry);
-  }
+  } 
   const userTypeRefs = elemTypeRefs(elem);
   const tRefs = elemChildrenRefs(srcRef, userTypeRefs, mod, registry);
-  return [...fnRefs, ...tRefs, ...mergeRefs];
+  return [...fnRefs, ...tRefs];
 }
 
 /** return type references from an element */
@@ -254,24 +244,6 @@ function linkedRef(
   return [];
 }
 
-/** create references to any extends elements attached to this struct */
-function extendsRefs(
-  srcRef: TextRef,
-  elem: StructElem,
-  mod: TextModule,
-  registry: ParsedRegistry,
-): FoundRef[] {
-  const merges = elem.extendsElems;
-  if (!merges) return [];
-  return merges.flatMap(merge => {
-    const foundRef = importRef(srcRef, merge.name, mod, mod.imports, registry);
-    if (foundRef) return [foundRef];
-
-    moduleLog(srcRef.expMod, merge.start, `import merge reference not found`);
-    return [];
-  });
-}
-
 /** @return true if the ref is to an import parameter */
 function importArgRef(srcRef: FoundRef, name: string): boolean | undefined {
   if (srcRef.expInfo) {
@@ -285,7 +257,7 @@ function importRef(
   fromRef: TextRef,
   name: string,
   impMod: TextModule,
-  imports: (TreeImportElem | ExtendsElem)[],
+  imports: (TreeImportElem)[],
   registry: ParsedRegistry,
 ): TextRef | GeneratorRef | undefined {
   const resolveMap = registry.importResolveMap(impMod);

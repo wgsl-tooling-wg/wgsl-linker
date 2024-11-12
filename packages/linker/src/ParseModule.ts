@@ -3,7 +3,6 @@ import {
   AbstractElem,
   AliasElem,
   ExportElem,
-  ExtendsElem,
   FnElem,
   GlobalDirectiveElem,
   ModuleElem,
@@ -21,7 +20,7 @@ export interface TextModule {
   fns: FnElem[];
   vars: VarElem[];
   structs: StructElem[];
-  imports: (ExtendsElem | TreeImportElem)[];
+  imports: (TreeImportElem)[];
   aliases: AliasElem[];
   globalDirectives: GlobalDirectiveElem[];
 
@@ -66,12 +65,11 @@ export function parseModule(
     "globalDirective",
   );
   const imports = parsed.filter(
-    e => e.kind === "extends" || e.kind === "treeImport",
-  ) as (ExtendsElem | TreeImportElem)[];
+    e => e.kind === "treeImport",
+  ) as (TreeImportElem)[];
   const structs = filterElems<StructElem>(parsed, "struct");
   const vars = filterElems<VarElem>(parsed, "var");
   const overridePath = filterElems<ModuleElem>(parsed, "module")[0]?.name;
-  matchMergeImports(parsed, srcMap);
 
   const modulePath = overridePath ?? naturalModulePath;
   // dlog({ modulePath, overridePath });
@@ -95,10 +93,8 @@ function findExports(parsed: AbstractElem[], srcMap: SrcMap): TextExport[] {
   const exports = findKind<ExportElem>(parsed, "export");
 
   exports.forEach(([elem, i]) => {
-    let next: AbstractElem | undefined;
-    do {
-      next = parsed[++i];
-    } while (next?.kind === "extends");
+    const next = parsed[i + 1];
+
     if (elem.kind === "export") {
       if (next?.kind === "fn" || next?.kind === "struct") {
         results.push({ ...elem, ref: next });
@@ -108,23 +104,6 @@ function findExports(parsed: AbstractElem[], srcMap: SrcMap): TextExport[] {
     }
   });
   return results;
-}
-
-/** fill in extendsElem field of structs */
-function matchMergeImports(parsed: AbstractElem[], srcMap: SrcMap): void {
-  const extendsElems = findKind<ExtendsElem>(parsed, "extends");
-  extendsElems.forEach(([extendsElem, i]) => {
-    let next: AbstractElem | undefined;
-    do {
-      next = parsed[++i];
-    } while (next?.kind === "extends" || next?.kind === "export");
-    if (next?.kind === "struct") {
-      next.extendsElems = next.extendsElems ?? [];
-      next.extendsElems.push(extendsElem);
-    } else {
-      srcLog(srcMap, extendsElem.start, `#extends not followed by a struct`);
-    }
-  });
 }
 
 function findKind<T extends AbstractElem>(

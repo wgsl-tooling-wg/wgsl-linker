@@ -19,7 +19,7 @@ import {
   TextRef,
   traverseRefs,
 } from "./TraverseRefs.js";
-import { partition, replaceWords } from "./Util.js";
+import { replaceWords } from "./Util.js";
 
 type DirectiveRef = {
   kind: "dir";
@@ -30,7 +30,7 @@ type DirectiveRef = {
 type LoadableRef = TextRef | GeneratorRef | DirectiveRef;
 
 /** TBD a simple */
-export function link(args: RegistryParams) { }
+export function link(args: RegistryParams) {}
 
 /**
  * Produce a linked wgsl string with all directives processed
@@ -133,73 +133,15 @@ export function refFullName(ref: FoundRef): string {
 
 /**
  * Perpare the refs found in the traverse for loading:
- * . sort through found refs, and attach merge refs to normal export refs
- *   so that the export can be rewritten with the merged struct members
+ * . sort through found refs
  *
  * @return the set of refs that will be loaded
  */
 function prepRefsMergeAndLoad(refs: FoundRef[]): FoundRef[] {
-  const { generatorRefs, mergeRefs, nonMergeRefs } = partitionRefTypes(refs);
-  const expRefs = combineMergeRefs(mergeRefs, nonMergeRefs);
+  const textRefs = refs.filter(r => r.kind === "txt") as TextRef[];
+  const generatorRefs = refs.filter(r => r.kind === "gen") as GeneratorRef[];
 
-  return [...generatorRefs, ...expRefs];
-}
-
-/** combine export refs with any merge refs for the same element */
-function combineMergeRefs(
-  mergeRefs: TextRef[],
-  nonMergeRefs: TextRef[],
-): TextRef[] {
-  // map from the element name of a struct annotated with #extends to the merge refs
-  const mergeMap = new Map<string, TextRef[]>();
-  mergeRefs.forEach(r => {
-    if (r.expInfo) {
-      // LATER support merges from local refs too
-      const fullName = refFullName(r.expInfo.fromRef);
-      const merges = mergeMap.get(fullName) || [];
-      merges.push(r);
-      mergeMap.set(fullName, merges);
-    }
-  });
-
-  // combine the merge refs into the export refs on the same element
-  const expRefs: TextRef[] = nonMergeRefs.map(ref => ({
-    ...ref,
-    mergeRefs: recursiveMerges(ref),
-  }));
-
-  return expRefs;
-
-  /** find any extends on this element,
-   * and recurse to find any extends on the merging source element */
-  function recursiveMerges(ref: TextRef): TextRef[] {
-    const fullName = refFullName(ref);
-    const merges = mergeMap.get(fullName) ?? [];
-    const transitiveMerges = merges.flatMap(recursiveMerges);
-    return [...merges, ...transitiveMerges];
-  }
-}
-
-interface RefTypes {
-  mergeRefs: TextRef[];
-  nonMergeRefs: TextRef[];
-  generatorRefs: GeneratorRef[];
-}
-
-/** separate refs into local, gen, merge, and non-merge refs */
-function partitionRefTypes(refs: FoundRef[]): RefTypes {
-  const txt = refs.filter(r => r.kind === "txt") as TextRef[];
-  const gen = refs.filter(r => r.kind === "gen") as GeneratorRef[];
-  const [merge, nonMerge] = partition(
-    txt,
-    r => r.expInfo?.fromImport.kind === "extends",
-  );
-
-  return {
-    generatorRefs: gen,
-    mergeRefs: merge,
-    nonMergeRefs: nonMerge,
-  };
+  return [...generatorRefs, ...textRefs];
 }
 
 /** construct DirectiveRefs for from globalDirective elements
@@ -290,15 +232,7 @@ function loadStruct(ref: TextRef, extParams: Record<string, string>): string {
   const rootMembers =
     structElem.members?.map(m => loadMemberText(m, ref, extParams)) ?? [];
 
-  const newMembers =
-    ref.mergeRefs?.flatMap(mergeRef => {
-      const mergeStruct = mergeRef.elem as StructElem;
-      return mergeStruct.members?.map(member =>
-        loadMemberText(member, mergeRef, extParams),
-      );
-    }) ?? [];
-
-  const allMembers = [rootMembers, newMembers].flat().map(m => "  " + m);
+  const allMembers = rootMembers.flat().map(m => "  " + m);
   const membersText = allMembers.join(",\n");
   const name = ref.rename || structElem.name;
   return `struct ${name} {\n${membersText}\n}`;

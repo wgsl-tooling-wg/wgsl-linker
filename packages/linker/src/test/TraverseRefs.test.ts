@@ -350,23 +350,6 @@ test("traverse ref from struct constructor", () => {
   expect(refName(refs[1])).toBe("AStruct");
 });
 
-test.skip("traverse #extends", () => {
-  const src = `
-    #extends A 
-    struct B {
-      x: u32
-    }
-  `;
-  const module1 = `
-    #export
-    struct A {
-      z: u32
-    }
-  `;
-  const refs = traverseTest(src, module1);
-  expect(refName(refs[1])).toBe("A");
-});
-
 test("traverse with local support struct", () => {
   const src = `
     #import A from ./file1

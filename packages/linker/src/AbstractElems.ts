@@ -6,7 +6,6 @@ import { FoundRef } from "./TraverseRefs.js";
 export type AbstractElem =
   | AliasElem
   | TreeImportElem
-  | ExtendsElem
   | ExportElem
   | ModuleElem
   | FnElem
@@ -68,7 +67,6 @@ export interface StructElem extends AbstractElemBase {
   name: string;
   nameElem: TypeNameElem;
   members: StructMemberElem[];
-  extendsElems?: ExtendsElem[];
 }
 
 export interface StructMemberElem extends AbstractElemBase {
@@ -89,14 +87,6 @@ export interface ExportElem extends AbstractElemBase {
 export interface TreeImportElem extends AbstractElemBase {
   kind: "treeImport";
   imports: ImportTree;
-}
-
-export interface ExtendsElem extends AbstractElemBase {
-  kind: "extends";
-  name: string;
-  args?: string[];
-  as?: string;
-  from?: string;
 }
 
 export interface ModuleElem extends AbstractElemBase {

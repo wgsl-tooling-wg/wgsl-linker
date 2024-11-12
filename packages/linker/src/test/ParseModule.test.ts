@@ -26,20 +26,6 @@ test("simple fn import", () => {
   expect(module).toMatchSnapshot();
 });
 
-test.skip("match #extends", () => {
-  const src = `
-    // #extends Foo from pkg
-    // #extends Bar from pkg
-    struct Elem {
-      sum: f32
-    }
-  `;
-  const module = testParseModule(src);
-  const merges = module.structs[0].extendsElems!;
-  expect(merges[0].name).toBe("Foo");
-  expect(merges[1].name).toBe("Bar");
-});
-
 test("read simple struct export", () => {
   const exportPrefix = `export`;
   const src = `

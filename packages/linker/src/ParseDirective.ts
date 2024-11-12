@@ -12,7 +12,6 @@ import {
   tracing,
   withSep,
 } from "mini-parse";
-import { ExtendsElem } from "./AbstractElems.js";
 import { gleamImport } from "./GleamImport.js";
 import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import {
@@ -69,22 +68,6 @@ const bracketedImportClause = or(
   seq("{", importList, "}")
 );
 
-/** <{> foo <,zip> <(A,B)> <as boo> <}> <from bar>
- * @returns array of ExtendsElem elements */
-function importPhrase<T extends ExtendsElem>(kind: T["kind"]): Parser<T[]> {
-  const p = seq(bracketedImportClause, fromClause).map(r => {
-    const from = r.tags.from?.[0];
-    return r.tags.importClause.map(impClause => {
-      const elem = makeElem(kind, r as any, [], []) as unknown as T;
-      copyDefinedProps(impClause, ["name", "as", "args"], elem);
-      if (from) elem.from = from;
-      return elem;
-    });
-  });
-
-  return p;
-}
-
 const importElemPhrase = seq(bracketedImportClause, fromClause).map(r => {
   const from = r.tags.from?.[0];
   return r.tags.importClause.map(impClause => {
@@ -103,8 +86,7 @@ const importElemPhrase = seq(bracketedImportClause, fromClause).map(r => {
   });
 });
 
-const extendsElemPhrase = importPhrase<ExtendsElem>("extends");
-if (tracing) setTraceNames({ importElemPhrase, extendsElemPhrase });
+if (tracing) setTraceNames({ importElemPhrase });
 
 /** #import foo <(a,b)> <as boo> <from bar>  EOL */
 const importDirective = seq(
@@ -117,15 +99,6 @@ const importDirective = seq(
   });
 });
 
-export const extendsDirective = seq(
-  or("#extends", "extends"),
-  seq(extendsElemPhrase.tag("extends"), eolf),
-).map(r => {
-  r.tags.extends[0].map(ext => {
-    ext.start = r.start; // use start of #extends, not import phrase
-    r.app.state.push(ext);
-  });
-});
 
 export const importing = seq(
   "importing",
@@ -168,7 +141,6 @@ export const directive = tokens(
       exportDirective,
       importDirective,
       gleamImport,
-      extendsDirective,
       moduleDirective,
     ),
   ),
@@ -187,10 +159,8 @@ if (tracing) {
     importList,
     bracketedImportClause,
     importElemPhrase,
-    extendsElemPhrase,
     importing,
     importDirective,
-    extendsDirective,
     exportDirective,
     skipToEol,
     lineComment,
