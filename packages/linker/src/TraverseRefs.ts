@@ -491,7 +491,7 @@ const stdFns = `bitcast all any select arrayLength
   exp exp2 extractBits faceForward firstLeadingBit firstTrailingBit 
   floor fma fract frexp inserBits inverseSqrt ldexp length log log2
   max min mix modf normalize pow quantizeToF16 radians reflect refract
-  reverseBits round saturate sin sinh smoothstep sqrt step tan tanh
+  reverseBits round saturate sign sin sinh smoothstep sqrt step tan tanh
   transpose trunc
   dpdx dpdxCoarse dpdxFine dpdy dpdyCoarse dpdyFine fwidth 
   fwdithCoarse fwidthFine
