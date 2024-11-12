@@ -8,6 +8,7 @@ import {
   VarElem,
 } from "./AbstractElems.js";
 import { refLog } from "./LinkerLogging.js";
+import { RegistryParams } from "./ModuleRegistry.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
 import { SliceReplace, sliceReplace } from "./Slicer.js";
@@ -27,6 +28,9 @@ type DirectiveRef = {
 };
 
 type LoadableRef = TextRef | GeneratorRef | DirectiveRef;
+
+/** TBD a simple */
+export function link(args: RegistryParams) { }
 
 /**
  * Produce a linked wgsl string with all directives processed
