@@ -532,7 +532,8 @@ const stdTypes = `array atomic bool f16 f32 i32
   r32uint r32sint r32float rg32uint rg32sint rg32float
   rgba32uint rgba32sint rgba32float
   bgra8unorm 
-  `.split(/\s+/);
+  function
+  `.split(/\s+/); // LATER handle 'function' in template parser?
 
 /* Note the texel formats like rgba8unorm are here because they appear in type position
  in <templates> for texture_storage_* types. 
