@@ -1,14 +1,10 @@
-import { logger, srcLog } from "mini-parse";
+import { srcLog } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.js";
 import { TextModule } from "./ParseModule.js";
 import { FoundRef } from "./TraverseRefs.js";
 
 export function refLog(ref: FoundRef, ...msgs: any[]): void {
-  if (ref.kind !== "gen") {
-    moduleLog(ref.expMod, [ref.elem.start, ref.elem.end], ...msgs);
-  } else {
-    logger(ref.name, ...msgs);
-  }
+  moduleLog(ref.expMod, [ref.elem.start, ref.elem.end], ...msgs);
 }
 
 export function moduleLog(

@@ -1,6 +1,7 @@
-import { _withBaseLogger, or, repeat } from "mini-parse";
+import { or, repeat, _withBaseLogger } from "mini-parse";
 import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 
+import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.js";
 import { filterElems } from "../ParseModule.js";
@@ -340,7 +341,6 @@ test("parse let x: foo.bar; ", () => {
 test("parse var x: foo.bar;", () => {
   const src = `
      import foo/bar;
-     module main
      var x: foo.bar;
      fn main() { }
   `;
@@ -352,7 +352,7 @@ test("parse var x: foo.bar;", () => {
 
 test("parse switch statement", () => {
   const src = `
-    fn main() {
+    fn main(x: i32) {
       switch (x) {
         case 1: { break; }
         default: { break; }
@@ -361,4 +361,20 @@ test("parse switch statement", () => {
   `;
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
+});
+
+test.skip("parse switch statement-2", () => {
+  const src = `
+
+    fn main(x: u32) {
+      switch ( code ) {
+        case 5u: { if 1 > 0 { } }
+        default: { break; }
+      }
+    }
+  `;
+  const parsed = testParseWgsl(src);
+  dlog({ parsed });
+  // expect(parsed).toMatchSnapshot();
+  expect.fail();
 });

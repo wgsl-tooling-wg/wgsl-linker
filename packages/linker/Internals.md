@@ -9,10 +9,6 @@ The fragments are merged together by following an
 and extended wgsl syntax that includes
 support for modules via import and export statements
 to select wgsl elements to merge.
-Several other wgsl extensions are supported during
-processing as well: conditional compilation (via #if),
-struct inheritance, code generators (code that emits wgsl),
-and generic programming.
 
 wgsl-linker is designed to enable linking at runtime in the browser
 to enable conditional compiling and conditional linking based
@@ -37,7 +33,7 @@ a build plugin could polish that.)
 - _link_ - create a merged wgsl string, starting from a root fragment
   in the registry.
   The merged wgsl string contains only vanilla wgsl,
-  all extended syntax (import, export, #if) is processed and the
+  all extended syntax (import, export) is processed and the
   extended syntax is removed.
 
 ## Linking phases
@@ -45,10 +41,6 @@ a build plugin could polish that.)
 Linking is relatively straightforward.
 
 1. Preprocess and parse the registry
-   - preprocess based on runtime variables set by the caller
-     - apply #if conditionals
-     - replace text with runtime variables (e.g. using the `SimpleTemplate`)
-     - apply any user provided custom string templates
    - parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
 1. Traverse the abstract syntax tree recursively, starting from the wgsl
    elements in the root wgsl fragment.
@@ -67,22 +59,9 @@ Linking is relatively straightforward.
 
 ## Embellishments
 
-- Importing is allowed from user supplied code generator functions.
-  Code generator functions expose module names and export names -
-  importing from a code generator is just like importing from a package,
-  but internally the code calls the generator function instead.
-- Users can plug in their own text processor to run during the preprocessing phase.
-- Struct inheritance - After traversal, refs to structures with `extends` clauses
-  are modified to add 'mergeRefs' a list of refs to the extension source structs.
-  When the struct text is extracted, the fields from the extension source structs are
-  mixed in.
 - ImportResolutionMap - Fully expand wildcard and list style imports,
   distinguish imports that refer to wgsl elements
   from (rust only) path prefix imports.
-- To support generic parameters imports/exports, a map between
-  export parameter names and import names is created during `ImportResolutionMap`
-  construction.
-  The expImpArgs map is used to rewrite generic elements during extraction.
 
 ## Error Reporting
 
@@ -111,8 +90,6 @@ translated to the original source.
 Consider rewriting graph mutations as separate passes
 producing new data structures to improve clarity (rather
 than mutating optional fields in existing data structures).
-
-Simplify internal differences between generator imports and regular imports.
 
 Simplify internal differences between local refs and non-local refs,
 e.g. provide ExportInfo for local refs too.

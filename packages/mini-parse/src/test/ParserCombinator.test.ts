@@ -299,7 +299,7 @@ test("repeat1 fails", () => {
   const p = repeatPlus("a");
   const src = "b";
   const { parsed } = testParse(p, src);
-  expect(parsed?.value).toBeUndefined()
+  expect(parsed?.value).toBeUndefined();
 });
 
 test("withTags blocks tags accumulation", () => {

@@ -39,10 +39,9 @@ export const blockComment: Parser<any> = seq(
   req("*/"),
 );
 
-export const comment = or(() => lineComment, blockComment);
-// .trace({
-//   hide: true,
-// });
+export const comment = or(() => lineComment, blockComment).trace({
+  hide: true,
+});
 
 export const eolf: Parser<any> = disablePreParse(
   makeEolf(argsTokens, argsTokens.ws),

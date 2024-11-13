@@ -2,9 +2,6 @@ import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
 import { linkWgslModule } from "./Linker.js";
 import {
-  GeneratorExport,
-  GeneratorModule,
-  GeneratorModuleExport,
   ModuleExport,
   ModuleRegistry,
   relativeToAbsolute,
@@ -41,7 +38,7 @@ export class ParsedRegistry {
     params: Record<string, any> = {},
     modulePath: string,
   ): void {
-    const m = parseModule(src, modulePath, params, this.registry.templates);
+    const m = parseModule(src, modulePath, params);
     this.textModules.push(m);
   }
 
@@ -82,7 +79,7 @@ export class ParsedRegistry {
   private findExport(
     modulePath: string,
     exportName: string,
-  ): TextModuleExport | GeneratorModuleExport | undefined {
+  ): TextModuleExport | undefined {
     const module = this.findTextModule(modulePath);
     // dlog({ modulePath, module: !!module });
     const exp = module?.exports.find(e => e.ref.name === exportName);
@@ -90,16 +87,7 @@ export class ParsedRegistry {
       return { module, exp: exp, kind: "text" };
     }
 
-    return this.registry.generators.get(modulePath);
-  }
-
-  findModule(
-    moduleSpecifier: string,
-  ): TextModule | GeneratorModule | undefined {
-    return (
-      this.findTextModule(moduleSpecifier) ??
-      this.registry.generators.get(moduleSpecifier)?.module
-    );
+    return undefined;
   }
 
   /**
@@ -122,11 +110,4 @@ export class ParsedRegistry {
     // dlog({ moduleSpecifier, packageName, result: !!result });
     return result;
   }
-}
-
-export function exportName(exp: TextExport | GeneratorExport): string {
-  // TODO make TextExport into a class or give kinds to avoid unsound casts
-  const asTextExport = exp as TextExport;
-  const asGenExport = exp as GeneratorExport;
-  return asTextExport.ref?.name ?? asGenExport.name;
 }

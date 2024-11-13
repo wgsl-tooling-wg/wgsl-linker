@@ -6,10 +6,8 @@ import { FoundRef } from "./TraverseRefs.js";
 export type AbstractElem =
   | AliasElem
   | TreeImportElem
-  | ExtendsElem
   | ExportElem
   | ModuleElem
-  | TemplateElem
   | FnElem
   | GlobalDirectiveElem
   | TypeNameElem
@@ -69,7 +67,6 @@ export interface StructElem extends AbstractElemBase {
   name: string;
   nameElem: TypeNameElem;
   members: StructMemberElem[];
-  extendsElems?: ExtendsElem[];
 }
 
 export interface StructMemberElem extends AbstractElemBase {
@@ -81,7 +78,6 @@ export interface StructMemberElem extends AbstractElemBase {
 export interface ExportElem extends AbstractElemBase {
   kind: "export";
   args?: string[];
-  importing?: any[]; // TODO
 }
 
 // LATER consider modeling import elems as containing multiple clauses
@@ -90,14 +86,6 @@ export interface ExportElem extends AbstractElemBase {
 export interface TreeImportElem extends AbstractElemBase {
   kind: "treeImport";
   imports: ImportTree;
-}
-
-export interface ExtendsElem extends AbstractElemBase {
-  kind: "extends";
-  name: string;
-  args?: string[];
-  as?: string;
-  from?: string;
 }
 
 export interface ModuleElem extends AbstractElemBase {
@@ -110,11 +98,6 @@ export interface VarElem extends AbstractElemBase {
   name: string;
   nameElem: VarNameElem;
   typeRefs: TypeRefElem[];
-}
-
-export interface TemplateElem extends AbstractElemBase {
-  kind: "template";
-  name: string;
 }
 
 export interface AliasElem extends AbstractElemBase {

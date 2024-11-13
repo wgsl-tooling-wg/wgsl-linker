@@ -1,6 +1,5 @@
 import { WGSLLinker } from "@use-gpu/shader";
 import fs from "fs/promises";
-import { run } from "node:test";
 import path from "path";
 import { ModuleRegistry } from "wgsl-linker";
 import { WgslReflect } from "wgsl_reflect";

@@ -1,8 +1,5 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
-import { simpleTemplate } from "../templates/SimpleTemplate.js";
 
 test("simple fn export", () => {
   const src = `
@@ -13,7 +10,7 @@ test("simple fn export", () => {
   `;
   const module = testParseModule(src);
   expect(module.exports.length).toBe(1);
-  expect(module).toMatchSnapshot();
+  expect(module.exports).toMatchSnapshot();
 });
 
 test("simple fn import", () => {
@@ -24,21 +21,7 @@ test("simple fn import", () => {
   `;
   const module = testParseModule(src);
   expect(module.imports.length).toBe(1);
-  expect(module).toMatchSnapshot();
-});
-
-test.skip("match #extends", () => {
-  const src = `
-    // #extends Foo from pkg
-    // #extends Bar from pkg
-    struct Elem {
-      sum: f32
-    }
-  `;
-  const module = testParseModule(src);
-  const merges = module.structs[0].extendsElems!;
-  expect(merges[0].name).toBe("Foo");
-  expect(merges[1].name).toBe("Bar");
+  expect(module.imports).toMatchSnapshot();
 });
 
 test("read simple struct export", () => {
@@ -63,80 +46,7 @@ test("read #module", () => {
   expect(textModule.modulePath).toBe("my.module.com");
 });
 
-test.skip("simple #template preserves src map", () => {
-  const src = `
-    #template simple
-    fn foo() { XX }
-  `;
-  const expected = `
-    fn foo() { /**/ }
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const textModule = parseModule(src, "./foo", { XX: "/**/" }, templates);
-  expect(textModule.preppedSrc).toContain("fn foo() { /**/ }");
-  expect(textModule.preppedSrc).toBe(expected);
-  expect(textModule.srcMap.entries.length).toBe(3);
-});
-
-test.skip("parse error shows correct line after simple #template", () => {
-  const src = `
-    #template simple
-    fn foo () { XX }
-    fn () { } // oops
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 4
-          ^"
-  `);
-});
-
-test("parse error shows correct line after #ifdef ", () => {
-  const src = `
-    // #if FALSE
-    foo
-    bar
-    // #endif
-    fn () { } // oops
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 6
-          ^"
-  `);
-});
-
-test("parse error shows correct line after #ifdef and simple #template", () => {
-  const src = `
-    // #if FALSE
-    foo
-    bar
-    // #endif
-    // #template simple
-    fn foo () { XX }
-    fn () { } // oops
-  `;
-  const templates = new Map([["simple", simpleTemplate.apply]]);
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => {
-    parseModule(src, "./foo", { XX: "/**/" }, templates);
-  });
-  expect(logged()).toMatchInlineSnapshot(`
-    "missing fn name
-        fn () { } // oops   Ln 8
-          ^"
-  `);
-});
+// test.skip("parse error shows correct line after @if", () => {});
 
 test("import gleam style", () => {
   const src = `

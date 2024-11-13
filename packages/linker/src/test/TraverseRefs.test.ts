@@ -3,7 +3,7 @@ import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { refFullName } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { FoundRef, refName, TextRef, traverseRefs } from "../TraverseRefs.js";
+import { FoundRef, TextRef, traverseRefs } from "../TraverseRefs.js";
 
 test("traverse a fn to struct ref", () => {
   const src = `
@@ -43,178 +43,6 @@ test("traverse simple gleam style import", () => {
   expect(exp.elem.name).toBe("foo");
 });
 
-test("traverse nested import with params and support fn", () => {
-  const src = `
-    import foo(u32) from ./file1
-    fn bar() {
-      foo(8u);
-    }
-  `;
-
-  const module1 = `
-    import zap from ./file2
-  
-    export (A)
-    fn foo(a: A) { 
-      support(a);
-      zap();
-    }
-
-    fn support() {}
-  `;
-
-  const module2 = `
-    export 
-    fn zap() {}
-  `;
-
-  const refs = traverseTest(src, module1, module2);
-  const first = refs[1] as TextRef;
-  const second = refs[2] as TextRef;
-  expect(first.kind).toBe("txt");
-  expect(first.expInfo?.expImpArgs).toEqual([["A", "u32"]]);
-  expect(second.kind).toBe("txt");
-  expect(second.elem.name).toBe("support");
-});
-
-test.skip("traverse importing", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-
-  const module1 = `
-    #export(C, D) importing bar(D) from ./file2
-    fn foo(c:C, d:D) { bar(d); } `;
-  const module2 = `
-    #export(X)
-    fn bar(x:X) { } `;
-
-  const refs = traverseTest(src, module1, module2);
-
-  const importingRef = refs[2] as TextRef;
-  expect(importingRef.expInfo?.expImpArgs).toEqual([["X", "B"]]);
-});
-
-test.skip("traverse double importing", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C, D) importing bar(D) from ./file2
-    fn foo(c:C, d:D) { bar(d); } `;
-  const module2 = `
-    #export(X) importing zap(X) from ./file3
-    fn bar(x:X) { zap(x); } `;
-  const module3 = `
-    #export(Y) 
-    fn zap(y:Y) { } `;
-
-  const refs = traverseTest(src, module1, module2, module3);
-
-  const expImpArgs = refs.flatMap(r => {
-    const er = r as TextRef;
-    return er ? [er.expInfo?.expImpArgs] : [];
-  });
-  expect(expImpArgs[2]).toEqual([["X", "B"]]);
-  expect(expImpArgs[3]).toEqual([["Y", "B"]]);
-});
-
-test.skip("traverse importing from a support fn", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C, D) importing support(D) from ./file1
-    fn foo(c:C, d:D) { support(d); } 
-    
-    #export(D) importing bar(D) from ./file2
-    fn support(d:D) { bar(d); }
-    `;
-  const module2 = `
-    #export(X)
-    fn bar(x:X) { } `;
-
-  const refs = traverseTest(src, module1, module2);
-
-  const expImpArgs = refs.flatMap(r => {
-    const er = r as TextRef;
-    return er ? [{ name: er.elem.name, args: er.expInfo?.expImpArgs }] : [];
-  });
-  expect(expImpArgs).toMatchSnapshot();
-});
-
-test.skip("traverse importing from a local call fails", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C, D) importing bar(D) 
-    fn foo(c:C, d:D) { support(d); } 
-    
-    fn support(d:D) { bar(d); } //  need to mark this as an export with importing, so we can map params
-    `;
-  const module2 = `
-    #export(X)
-    fn bar(x:X) { } `;
-
-  const { log } = traverseWithLog(src, module1, module2);
-  expect(log.length).not.toBe(0);
-});
-
-test.skip("importing args don't match", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C, D) importing bar(E) from ./file2
-    fn foo(c:C, d:D) { bar(d); } `;
-  const module2 = `
-    #export(X)
-    fn bar(x:X) { } `;
-
-  const { log } = traverseWithLog(src, module1, module2);
-
-  expect(log).toMatchInlineSnapshot(`
-    "importing arg doesn't match export  module: moduleFile0 moduleFile0
-        #export(C, D) importing bar(E)   Ln 2
-                                ^
-    reference not found: X  module: moduleFile1 moduleFile1
-        fn bar(x:X) { }    Ln 3
-                 ^"
-  `);
-});
-
-test("mismatched import export params", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C) 
-    fn foo(c:C) { } `;
-
-  const { log } = traverseWithLog(src, module1);
-  expect(log).toMatchInlineSnapshot(`
-    "mismatched import and export params  module: _root/main.wgsl
-        #import foo(A, B) from ./file1   Ln 2
-        ^
-     module: _root/file1.wgsl
-        #export(C)    Ln 2
-        ^"
-  `);
-});
-
 test("traverse var to gleam style struct ref", () => {
   const main = `
      import foo/Bar;
@@ -235,33 +63,31 @@ test("traverse var to gleam style struct ref", () => {
 
 test("traverse a struct to struct ref", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct;
 
     struct SrcStruct {
       a: AStruct,
     }
   `;
   const module1 = `
-    #export
-    struct AStruct {
+    export struct AStruct {
       x: u32,
     }
   `;
 
   const refs = traverseTest(src, module1);
   expect(refs[1].kind).toBe("txt");
-  expect(refName(refs[1])).toBe("AStruct");
+  expect(refs[1].elem.name).toBe("AStruct");
 });
 
 test("traverse a global var to struct ref", () => {
   const src = `
-    #import Uniforms from ./file1
+    import ./file1/Uniforms;
 
     @group(0) @binding(0) var<uniform> u: Uniforms;      
     `;
   const module1 = `
-    #export
-    struct Uniforms {
+    export struct Uniforms {
       model: mat4x4<f32>,
     }
   `;
@@ -275,65 +101,35 @@ test("traverse a global var to struct ref", () => {
 
 test("traverse transitive struct refs", () => {
   const src = `
-    #import AStruct  from ./file1
+    import ./file1/AStruct
 
     struct SrcStruct {
       a: AStruct,
     }
   `;
   const module1 = `
-    #import BStruct from ./file2
+    import ./file2/BStruct
 
-    #export
+    export
     struct AStruct {
       s: BStruct,
     }
   `;
   const module2 = `
-    #export
+    export
     struct BStruct {
       x: u32,
     }
   `;
 
   const refs = traverseTest(src, module1, module2);
-  expect(refName(refs[1])).toBe("AStruct");
-  expect(refName(refs[2])).toBe("BStruct");
-});
-
-test.skip("traverse #export importing struct to struct", () => {
-  const src = `
-    #import AStruct(MyStruct)
-
-    struct MyStuct {
-      x: u32
-    }
-
-    struct HomeStruct {
-      a:AStruct
-    }
-  `;
-  const module1 = `
-    #export(B) importing BStruct(B)
-    struct AStruct {
-      b: BStruct
-    }
-  `;
-
-  const module2 = `
-    #export(Y) 
-    struct BStruct {
-      Y: Y
-    }
-  `;
-  const refs = traverseTest(src, module1, module2);
-  expect(refName(refs[2])).toBe("AStruct");
-  expect(refName(refs[3])).toBe("BStruct");
+  expect(refs[1].elem.name).toBe("AStruct");
+  expect(refs[2].elem.name).toBe("BStruct");
 });
 
 test("traverse ref from struct constructor", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct
 
     fn main() {
       var x = AStruct(1u);
@@ -347,47 +143,30 @@ test("traverse ref from struct constructor", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  expect(refName(refs[1])).toBe("AStruct");
-});
-
-test.skip("traverse #extends", () => {
-  const src = `
-    #extends A 
-    struct B {
-      x: u32
-    }
-  `;
-  const module1 = `
-    #export
-    struct A {
-      z: u32
-    }
-  `;
-  const refs = traverseTest(src, module1);
-  expect(refName(refs[1])).toBe("A");
+  expect(refs[1].elem.name).toBe("AStruct");
 });
 
 test("traverse with local support struct", () => {
   const src = `
-    #import A from ./file1
+    import ./file1/A
 
     fn b() { var a: A; var b: B; }
 
     struct B { x: u32 }
   `;
   const module1 = `
-    #export
+    export
     struct A { y: i32 }
   `;
 
   const refs = traverseTest(src, module1);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   expect(refNames).toEqual(["B", "b", "A"]);
 });
 
 test("traverse from return type of function", () => {
   const src = `
-    #import A from ./file1
+    import ./file1/A
 
     fn b() -> A { }
   `;
@@ -397,7 +176,7 @@ test("traverse from return type of function", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   expect(refNames).toEqual(["b", "A"]);
 });
 
@@ -412,7 +191,7 @@ test("traverse skips built in fn and type", () => {
   `;
 
   const { refs, log } = traverseWithLog(src);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   // refs.map(r => refLog(r));
   expect(refNames).toEqual(["foo", "bar"]);
   expect(log).toBe("");

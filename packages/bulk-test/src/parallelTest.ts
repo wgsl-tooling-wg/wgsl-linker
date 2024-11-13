@@ -7,7 +7,6 @@ export interface NamedPath {
   filePath: string; // path relative to project root (package.json dir)
 }
 
-
 // TODO more validation, not just parsing
 
 /** test files run this to run vite tests for all wgsl files in their partition.
@@ -15,11 +14,12 @@ export interface NamedPath {
  * @param fileNames wgsl file paths to load and parse */
 export function testWgslFiles(namedPaths: NamedPath[]) {
   namedPaths.forEach(({ name, filePath }) => {
+    const shortPath = "./" + name;
     test(name, async () => {
       const text = await fs.readFile(filePath, { encoding: "utf8" });
-      const registry = new ModuleRegistry({ wgsl: { [name]: text } });
+      const registry = new ModuleRegistry({ wgsl: { [shortPath]: text } });
       registry.parsed();
-      // registry.link(name);
+      // registry.link(shortPath);
     });
   });
 }

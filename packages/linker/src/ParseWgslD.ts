@@ -1,5 +1,4 @@
 import {
-  any,
   anyNot,
   anyThrough,
   eof,
@@ -44,7 +43,6 @@ const lParen = "(";
 const rParen = ")";
 
 export interface ParseState {
-  ifStack: boolean[]; // stack used while processiing nested #if #else #endif directives
   params: Record<string, any>; // user provided params to templates, code gen and #if directives
 }
 
@@ -318,7 +316,7 @@ export function parseWgslD(
 ): AbstractElem[] {
   const lexer = matchingLexer(src, mainTokens);
   const state: AbstractElem[] = [];
-  const context: ParseState = { ifStack: [], params };
+  const context: ParseState = { params };
   const app = {
     context,
     state,
