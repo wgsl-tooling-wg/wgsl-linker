@@ -12,7 +12,7 @@ import { expandGlob } from "@std/fs";
  * 16 parts, which we'll later use in 16 .test.ts runners.
  */
 
-const communityRoot = path.join("..", "..", "..", "community-wgsl");
+const communityRoot = path.join("..", "..", "community-wgsl");
 const numParts = 16;
 const allPaths = await loadTests();
 
@@ -49,26 +49,19 @@ async function findGlobFiles(
   globs: string[] | undefined,
   exclude: string[] | undefined,
 ): Promise<string[]> {
-  const fullBaseDir = path.resolve(baseDir);
-  const cwd = Deno.cwd();
   const skip = exclude ?? [];
-  try {
-    // TODO: Don't use chdir (Deno bug)
-    Deno.chdir(fullBaseDir);
-    const futurePaths = (globs ?? []).map((g) =>
-      Array.fromAsync(expandGlob(g, {
-        exclude: ["node_modules/**"],
-      }))
-    );
+  const futurePaths = (globs ?? []).map((g) =>
+    Array.fromAsync(expandGlob(g, {
+      root: baseDir,
+      exclude: ["node_modules/**"],
+    }))
+  );
 
-    const pathSets = await Promise.all(futurePaths);
-    const filePaths = pathSets.flat().filter((f) => f.isFile).map((f) =>
-      f.path
-    );
-    return filePaths.filter((p) => !skip.some((s) => p.includes(s)));
-  } finally {
-    Deno.chdir(cwd);
-  }
+  const pathSets = await Promise.all(futurePaths);
+  const filePaths = pathSets.flat().filter((f) => f.isFile).map((f) =>
+    path.relative(baseDir, f.path)
+  );
+  return filePaths.filter((p) => !skip.some((s) => p.includes(s)));
 }
 
 /** split an array into n partitions */

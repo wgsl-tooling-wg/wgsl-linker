@@ -6,7 +6,6 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.ts";
-} from "./ImportTree.ts";
 import { ModuleExport } from "./ModuleRegistry.ts";
 import { ParsedRegistry } from "./ParsedRegistry.ts";
 import { TextModule } from "./ParseModule.ts";
@@ -69,14 +68,14 @@ export function importResolutionMap(
   imports: TreeImportElem[],
   registry: ParsedRegistry,
 ): ResolveMap {
-  const resolveEntries = imports.flatMap(imp =>
-    resolveTreeImport(importingModule, imp, registry),
+  const resolveEntries = imports.flatMap((imp) =>
+    resolveTreeImport(importingModule, imp, registry)
   );
 
   const exportEntries: [string, ExportPathToExport][] = [];
   const pathEntries: [string[], string][] = [];
 
-  resolveEntries.forEach(e => {
+  resolveEntries.forEach((e) => {
     if (e instanceof ExportPathToExport) {
       exportEntries.push([e.exportPath, e]);
     } else {
@@ -122,7 +121,7 @@ function resolveTreeImport(
     }
     if (segment instanceof SegmentList) {
       // resolve path with each element in the list
-      return segment.list.flatMap(elem => {
+      return segment.list.flatMap((elem) => {
         const rPath = [elem, ...rest];
         return recursiveResolve(resolvedImportPath, resolvedExportPath, rPath);
       });
@@ -153,7 +152,7 @@ function resolveTreeImport(
     resolvedImportPath: string[],
     resolvedExportPath: string[],
   ): ResolvedEntry[] {
-    return m.exports.flatMap(exp => {
+    return m.exports.flatMap((exp) => {
       const expPath = [...resolvedExportPath, exp.ref.name];
       const impPath = [...resolvedImportPath, exp.ref.name];
       const modExp = { kind: m.kind, module: m, exp } as ModuleExport;

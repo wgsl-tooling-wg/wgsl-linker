@@ -1,11 +1,9 @@
 import { WGSLLinker } from "@use-gpu/shader";
-import fs from "fs/promises";
-import path from "path";
-import { ModuleRegistry } from "wgsl-linker";
+import * as path from "@std/path";
+import { ModuleRegistry } from "@wesl/linker";
 import { WgslReflect } from "wgsl_reflect";
 import yargs from "yargs";
-
-import { hideBin } from "yargs/helpers";
+import { profile, profileEnd } from "node:console";
 
 type ParserVariant =
   | "wgsl-linker"
@@ -16,8 +14,9 @@ type ParserVariant =
 
 type CliArgs = ReturnType<typeof parseArgs>;
 
-const rawArgs = hideBin(process.argv);
-main(rawArgs);
+if (import.meta.main) {
+  await main(Deno.args);
+}
 
 async function main(args: string[]): Promise<void> {
   const argv = parseArgs(args);
@@ -52,7 +51,7 @@ async function bench(argv: CliArgs): Promise<void> {
   if (argv.bench) {
     const ms = runBench(variant, texts);
     const codeLines = texts
-      .map(t => t.text.split("\n").length)
+      .map((t) => t.text.split("\n").length)
       .reduce((a, b) => a + b, 0);
     const locSec = codeLines / ms;
     const locSecStr = new Intl.NumberFormat().format(Math.round(locSec));
@@ -60,9 +59,9 @@ async function bench(argv: CliArgs): Promise<void> {
   }
 
   if (argv.profile) {
-    console.profile();
+    profile();
     runOnAllFiles(variant, texts);
-    console.profileEnd();
+    profileEnd();
   }
 }
 
@@ -131,7 +130,7 @@ async function loadAllFiles(): Promise<LoadedFile[]> {
 }
 
 async function loadFile(name: string, path: string): Promise<LoadedFile> {
-  const text = await fs.readFile(path, { encoding: "utf8" });
+  const text = await Deno.readTextFile(path);
 
   return { name, text };
 }

@@ -11,6 +11,7 @@
     "wesl-testsuite": "../wesl-testsuite/src/index.ts"
   },
   "workspace": [
+    "./bench",
     "./bulk-test",
     "./cli",
     "./linker",

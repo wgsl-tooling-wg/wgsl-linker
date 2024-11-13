@@ -14,7 +14,9 @@
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/testing@1": "1.0.4",
     "npm:@types/node@*": "22.5.4",
-    "npm:diff@*": "7.0.0"
+    "npm:@use-gpu/shader@0.12.0": "0.12.0",
+    "npm:diff@*": "7.0.0",
+    "npm:wgsl_reflect@1.0.16": "1.0.16"
   },
   "jsr": {
     "@std/assert@1.0.7": {
@@ -61,17 +63,93 @@
     }
   },
   "npm": {
+    "@jridgewell/sourcemap-codec@1.5.0": {
+      "integrity": "sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ=="
+    },
+    "@lezer/common@1.2.3": {
+      "integrity": "sha512-w7ojc8ejBqr2REPsWxJjrMFsA/ysDCFICn8zEOR9mrqzOu2amhITYuLD8ag6XZf0CFXDrhKqw7+tW8cX66NaDA=="
+    },
+    "@lezer/generator@1.7.1": {
+      "integrity": "sha512-MgPJN9Si+ccxzXl3OAmCeZuUKw4XiPl4y664FX/hnnyG9CTqUPq65N3/VGPA2jD23D7QgMTtNqflta+cPN+5mQ==",
+      "dependencies": [
+        "@lezer/common",
+        "@lezer/lr"
+      ]
+    },
+    "@lezer/lr@1.4.2": {
+      "integrity": "sha512-pu0K1jCIdnQ12aWNaAVU5bzi7Bd1w54J3ECgANPmYLtQKP0HBj2cE/5coBD66MT10xbtIuUr7tg0Shbsvk0mDA==",
+      "dependencies": [
+        "@lezer/common"
+      ]
+    },
+    "@types/command-line-args@5.2.3": {
+      "integrity": "sha512-uv0aG6R0Y8WHZLTamZwtfsDLVRnOa+n+n5rEvFWL5Na5gZ8V2Teab/duDPFzIIIhs9qizDpcavCusCLJZu62Kw=="
+    },
     "@types/node@22.5.4": {
       "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
       "dependencies": [
         "undici-types"
       ]
     },
+    "@use-gpu/shader@0.12.0": {
+      "integrity": "sha512-fVMXsKSuhvknOJecLX8j80nu8Jg5C/ALAWkDEjodooGzIFQeUXI0QfGw03GK7Adqsd8GfjbDUqRERE6vtvE5JQ==",
+      "dependencies": [
+        "@lezer/generator",
+        "@lezer/lr",
+        "@types/command-line-args",
+        "command-line-args",
+        "lodash",
+        "lru-cache",
+        "magic-string"
+      ]
+    },
+    "array-back@6.2.2": {
+      "integrity": "sha512-gUAZ7HPyb4SJczXAMUXMGAvI976JoK3qEx9v1FTmeYuJj0IBiaKttG1ydtGKdkfqWkIkouke7nG8ufGy77+Cvw=="
+    },
+    "command-line-args@6.0.1": {
+      "integrity": "sha512-Jr3eByUjqyK0qd8W0SGFW1nZwqCaNCtbXjRo2cRJC1OYxWl3MZ5t1US3jq+cO4sPavqgw4l9BMGX0CBe+trepg==",
+      "dependencies": [
+        "array-back",
+        "find-replace",
+        "lodash.camelcase",
+        "typical"
+      ]
+    },
     "diff@7.0.0": {
       "integrity": "sha512-PJWHUb1RFevKCwaFA9RlG5tCd+FO5iRh9A8HEtkmBH2Li03iJriB6m6JIN4rGz3K3JLawI7/veA1xzRKP6ISBw=="
     },
+    "find-replace@5.0.2": {
+      "integrity": "sha512-Y45BAiE3mz2QsrN2fb5QEtO4qb44NcS7en/0y9PEVsg351HsLeVclP8QPMH79Le9sH3rs5RSwJu99W0WPZO43Q=="
+    },
+    "lodash.camelcase@4.3.0": {
+      "integrity": "sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA=="
+    },
+    "lodash@4.17.21": {
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
+    },
+    "lru-cache@6.0.0": {
+      "integrity": "sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==",
+      "dependencies": [
+        "yallist"
+      ]
+    },
+    "magic-string@0.30.12": {
+      "integrity": "sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==",
+      "dependencies": [
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
+    "typical@7.3.0": {
+      "integrity": "sha512-ya4mg/30vm+DOWfBg4YK3j2WD6TWtRkCbasOJr40CseYENzCUby/7rIvXA99JGsQHeNxLbnXdyLLxKSv3tauFw=="
+    },
     "undici-types@6.19.8": {
       "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
+    },
+    "wgsl_reflect@1.0.16": {
+      "integrity": "sha512-OE3urfXXbHMD5lhKZwxOxC9SFYynEGEkWXQmvi7B1gzzr5jb9+drh9A8MeBvVqKqznCoBuh8WOzVuSGSZs4CkQ=="
+    },
+    "yallist@4.0.0": {
+      "integrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
     }
   },
   "redirects": {
@@ -231,6 +309,15 @@
       "jsr:@std/testing@1"
     ],
     "members": {
+      "bench": {
+        "dependencies": [
+          "jsr:@std/fs@*",
+          "jsr:@std/path@*",
+          "npm:@use-gpu/shader@0.12.0",
+          "npm:diff@*",
+          "npm:wgsl_reflect@1.0.16"
+        ]
+      },
       "bulk-test": {
         "dependencies": [
           "jsr:@std/fs@*",

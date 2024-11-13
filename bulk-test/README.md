@@ -3,5 +3,5 @@
 Test the parser/linker on community projects.
 
 ```sh
-pnpm bulk-test
+deno test --allow-read
 ```

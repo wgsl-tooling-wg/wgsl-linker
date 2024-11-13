@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import { test } from "vitest";
 import { ModuleRegistry } from "@wesl/linker";
 
@@ -16,7 +15,7 @@ export function testWgslFiles(namedPaths: NamedPath[]) {
   namedPaths.forEach(({ name, filePath }) => {
     const shortPath = "./" + name;
     test(name, async () => {
-      const text = await fs.readFile(filePath, { encoding: "utf8" });
+      const text = await Deno.readTextFile(filePath);
       const registry = new ModuleRegistry({ wgsl: { [shortPath]: text } });
       registry.parsed();
       // registry.link(shortPath);
