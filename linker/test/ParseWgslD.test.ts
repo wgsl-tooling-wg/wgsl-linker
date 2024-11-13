@@ -1,6 +1,7 @@
 import { _withBaseLogger, or, repeat } from "@wesl/mini-parse";
 import { expectNoLogErr, logCatch } from "@wesl/mini-parse/test-util";
 
+import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { assertSnapshot } from "@std/testing/snapshot";
 import type {
@@ -297,7 +298,6 @@ test("parse let x: foo.bar; ", async (ctx) => {
 test("parse var x: foo.bar;", () => {
   const src = `
      import foo/bar;
-     module main
      var x: foo.bar;
      fn main() { }
   `;
@@ -309,7 +309,7 @@ test("parse var x: foo.bar;", () => {
 
 test("parse switch statement", async (ctx) => {
   const src = `
-    fn main() {
+    fn main(x: i32) {
       switch (x) {
         case 1: { break; }
         default: { break; }
@@ -318,4 +318,20 @@ test("parse switch statement", async (ctx) => {
   `;
   const parsed = testParseWgsl(src);
   await assertSnapshot(ctx, parsed);
+});
+
+test.skip("parse switch statement-2", () => {
+  const src = `
+
+    fn main(x: u32) {
+      switch ( code ) {
+        case 5u: { if 1 > 0 { } }
+        default: { break; }
+      }
+    }
+  `;
+  const parsed = testParseWgsl(src);
+  dlog({ parsed });
+  // expect(parsed).toMatchSnapshot();
+  expect.fail();
 });

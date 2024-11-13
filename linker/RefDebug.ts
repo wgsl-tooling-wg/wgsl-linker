@@ -1,5 +1,6 @@
 import { FoundRef, TextRef } from "./TraverseRefs.ts";
 import { AbstractElem, CallElem, FnElem } from "./AbstractElems.ts";
+import { FoundRef, TextRef } from "./TraverseRefs.ts";
 
 export function printRef(r: FoundRef, msg = ""): void {
   const { kind, elem, rename } = r as TextRef;

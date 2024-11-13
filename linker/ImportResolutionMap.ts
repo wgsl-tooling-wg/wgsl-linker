@@ -6,16 +6,11 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.ts";
-import { moduleLog } from "./LinkerLogging.ts";
-import {
-  GeneratorExport,
-  GeneratorModule,
-  ModuleExport,
-} from "./ModuleRegistry.ts";
-import { exportName, ParsedRegistry } from "./ParsedRegistry.ts";
+} from "./ImportTree.ts";
+import { ModuleExport } from "./ModuleRegistry.ts";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
 import { TextModule } from "./ParseModule.ts";
 import { dirname, normalize } from "./PathUtil.ts";
-import { StringPairs } from "./TraverseRefs.ts";
 
 /**
  * Maps to resolve imports to exports.
@@ -55,7 +50,6 @@ class ExportPathToExport {
   constructor(
     public exportPath: string,
     public modExp: ModuleExport,
-    public expImpArgs: StringPairs,
   ) {}
 }
 
@@ -135,7 +129,7 @@ function resolveTreeImport(
     }
     if (segment instanceof Wildcard) {
       const modulePath = resolvedExportPath.join("/");
-      const m = registry.findModule(modulePath);
+      const m = registry.findTextModule(modulePath);
       if (m) {
         return wildCardExports(m, resolvedImportPath, resolvedExportPath);
       } else {
@@ -155,18 +149,17 @@ function resolveTreeImport(
   }
 
   function wildCardExports(
-    m: GeneratorModule | TextModule,
+    m: TextModule,
     resolvedImportPath: string[],
     resolvedExportPath: string[],
   ): ResolvedEntry[] {
-    const exportKind = m.kind === "generator" ? "function" : "text";
     return m.exports.flatMap(exp => {
-      const expPath = [...resolvedExportPath, exportName(exp)];
-      const impPath = [...resolvedImportPath, exportName(exp)];
-      const modExp = { kind: exportKind, module: m, exp } as ModuleExport;
+      const expPath = [...resolvedExportPath, exp.ref.name];
+      const impPath = [...resolvedImportPath, exp.ref.name];
+      const modExp = { kind: m.kind, module: m, exp } as ModuleExport;
       return [
         new ImportToExportPath(impPath, expPath.join("/")),
-        new ExportPathToExport(impPath.join("/"), modExp, []),
+        new ExportPathToExport(impPath.join("/"), modExp),
       ];
     });
   }
@@ -193,14 +186,7 @@ function resolveTreeImport(
     const modExp = registry.getModuleExport(importingModule, resolvedExp);
     // dlog({ modExp: !!modExp, resolvedExp });
     if (modExp) {
-      const expImpArgs = matchExportImportArgs(
-        importingModule,
-        imp,
-        impArgs ?? [],
-        modExp.module,
-        modExp.exp,
-      );
-      entries.push(new ExportPathToExport(expPathStr, modExp, expImpArgs));
+      entries.push(new ExportPathToExport(expPathStr, modExp));
     }
     return entries;
   }
@@ -215,20 +201,4 @@ function absolutePath(pathSegments: string[], mod: TextModule): string[] {
   } else {
     return pathSegments;
   }
-}
-
-function matchExportImportArgs(
-  impMod: TextModule | GeneratorModule,
-  imp: TreeImportElem,
-  impArgs: string[],
-  expMod: TextModule | GeneratorModule,
-  exp: ExportElem | GeneratorExport,
-): StringPairs {
-  const expArgs = exp.args ?? [];
-  if (expArgs.length !== impArgs.length) {
-    if (impMod.kind === "text")
-      moduleLog(impMod, imp.start, "mismatched import and export params");
-    if (expMod.kind === "text") moduleLog(expMod, (exp as ExportElem).start);
-  }
-  return expArgs.map((p, i) => [p, impArgs[i]]);
 }

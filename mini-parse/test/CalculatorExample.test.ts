@@ -1,6 +1,5 @@
 import { testParse } from "@wesl/mini-parse/test-util";
 import { expect, test } from "vitest";
-import { matchingLexer } from "../MatchingLexer.ts";
 import { calcTokens, statement } from "../examples/CalculatorExample.ts";
 import {
   simpleSum,
@@ -8,6 +7,7 @@ import {
   sumResults,
   taggedSum,
 } from "../examples/DocExamples.ts";
+import { matchingLexer } from "../MatchingLexer.ts";
 
 test("parse 3 + 4", () => {
   const src = "3 + 4";

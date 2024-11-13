@@ -1,12 +1,9 @@
-import { NoTags, Parser, TagRecord } from "@wesl/mini-parse";
-import { testParse, TestParseResult } from "@wesl/mini-parse/test-util";
+import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
+import { logCatch, testParse, TestParseResult } from "mini-parse/test-util";
+import { expect } from "vitest";
 import { AbstractElem } from "../AbstractElems.ts";
 import { mainTokens } from "../MatchWgslD.ts";
-import {
-  ModuleRegistry,
-  RegisterGenerator,
-  Template,
-} from "../ModuleRegistry.ts";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
@@ -23,21 +20,29 @@ export function linkTest(...rawWgsl: string[]): string {
 }
 
 export interface LinkTestOpts {
-  templates?: Template[];
-  generators?: RegisterGenerator[];
   runtimeParams?: Record<string, any>;
 }
 
 /** Convenience wrapper to link wgsl for tests, with load and link options. */
 export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
-  const { templates, generators, runtimeParams } = opts;
+  const { runtimeParams } = opts;
 
   const restWgsl = Object.fromEntries(
     rest.map((src, i) => [`./file${i + 1}.wgsl`, src]),
   );
   const wgsl = { "./root.wgsl": root, ...restWgsl };
 
-  const registry = new ModuleRegistry({ wgsl, templates, generators });
+  const registry = new ModuleRegistry({ wgsl });
   return registry.link("./root", runtimeParams);
+}
+
+export function expectNoLog<T>(fn: () => T): T {
+  const { log, logged } = logCatch();
+  const result = _withBaseLogger(log, fn);
+  if (logged()) {
+    console.log(logged());
+  }
+  expect(logged()).toBe("");
+  return result;
 }

@@ -7,7 +7,6 @@ import {
   sum,
 } from "../examples/CalculatorResultsExample.ts";
 import { Parser } from "../Parser.ts";
-import { testParse } from "@wesl/mini-parse/test-util";
 
 test("power 2 ^ 4", () => {
   const { parsed } = testParse(power, "2 ^ 3", calcTokens);

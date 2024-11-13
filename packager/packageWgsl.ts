@@ -60,7 +60,6 @@ export const wgslBundle = ${bundleString}
 
 export default wgslBundle;
   `;
-  const outPath = path.join(outDir, "wgslBundle.js");
   await Deno.writeTextFile(outPath, outString);
 }
 

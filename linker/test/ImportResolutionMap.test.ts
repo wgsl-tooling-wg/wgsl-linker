@@ -97,5 +97,4 @@ test.ignore("tree with trailing wildcard", () => {
   // ]);
 });
 
-test.ignore("tree with generator", () => {});
 test.ignore("tree with segment list of trees", () => {});

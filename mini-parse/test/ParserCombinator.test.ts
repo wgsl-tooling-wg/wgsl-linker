@@ -30,7 +30,7 @@ import {
   withSep,
   withTags,
 } from "../ParserCombinator.ts";
-import { _withBaseLogger, enableTracing } from "../ParserTracing.ts";
+import { enableTracing, _withBaseLogger } from "../ParserTracing.ts";
 
 const m = testTokens;
 
@@ -297,7 +297,7 @@ test("repeat1 fails", () => {
   const p = repeatPlus("a");
   const src = "b";
   const { parsed } = testParse(p, src);
-  expect(parsed?.value).toBeUndefined()
+  expect(parsed?.value).toBeUndefined();
 });
 
 test("withTags blocks tags accumulation", () => {
