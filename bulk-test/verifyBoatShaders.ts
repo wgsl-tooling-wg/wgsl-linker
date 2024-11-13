@@ -1,11 +1,9 @@
-import fs from "fs/promises";
 import {
   DifferenceOptions,
   differentText,
   SavedText,
   sortBySize,
-} from "../src/util/uniqueDocs.ts";
-import { dlog } from "berry-pretty";
+} from "./util/uniqueDocs.ts";
 
 /*
  * The pickBoatShaders script diff compares hlsl files, incrementally and
@@ -47,10 +45,11 @@ const texts = await loadTexts(selected);
 checkDifferences(texts);
 
 async function loadTexts(paths: string[]): Promise<SavedText[]> {
-  process.chdir(boatAttackDir);
+  // TODO: Don't use chdir
+  Deno.chdir(boatAttackDir);
   const sorted = await sortBySize(paths);
-  const futureTexts = sorted.map(async path => {
-    const text = await fs.readFile(path, { encoding: "utf8" });
+  const futureTexts = sorted.map(async (path) => {
+    const text = await Deno.readTextFile(path);
     return { path, text };
   });
 
@@ -68,6 +67,6 @@ function checkDifferences(texts: SavedText[]): void {
       minAddPercent: 0,
     };
     const percent = differentText(otherTexts, t.text, opts);
-    dlog({ path: t.path, percent });
+    console.log({ path: t.path, percent });
   });
 }

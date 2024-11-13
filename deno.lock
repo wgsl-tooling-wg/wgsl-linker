@@ -231,6 +231,13 @@
       "jsr:@std/testing@1"
     ],
     "members": {
+      "bulk-test": {
+        "dependencies": [
+          "jsr:@std/fs@*",
+          "jsr:@std/path@*",
+          "npm:diff@*"
+        ]
+      },
       "cli": {
         "dependencies": [
           "npm:diff@*"

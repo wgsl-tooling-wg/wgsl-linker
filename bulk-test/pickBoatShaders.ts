@@ -1,5 +1,4 @@
-import { dlogOpt } from "berry-pretty";
-import { uniquishFiles } from "../src/util/uniqueDocs.ts";
+import { uniquishFiles } from "./util/uniqueDocs.ts";
 
 /* The boat_attack sample shaders have significantly internal duplication
  * This script tries to find the relatively unique shaders for testing.
@@ -21,8 +20,8 @@ const uniqueHlsl = await uniquishFiles({
   // limitSearch: 100,
   // limitCheck: 5
 });
-const wgsl = uniqueHlsl.map(p => p.replace(/hlsl$/, "wgsl"));
-dlogOpt({ maxArray: 500 }, { wgsl });
+const wgsl = uniqueHlsl.map((p) => p.replace(/hlsl$/, "wgsl"));
+console.log({ maxArray: 500 }, { wgsl });
 
 function removeDirectiveLines(text: string): string {
   return text.replace(/^#.*$/gm, "");

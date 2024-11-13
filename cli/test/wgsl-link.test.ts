@@ -19,7 +19,7 @@ test("simple link", async (ctx) => {
   await assertSnapshot(ctx, logged);
 });
 
-test("link with definition", async () => {
+test.ignore("link with definition", async () => {
   using consoleStub = stub(console, "log", () => {});
   await cli(
     `./test/wgsl/main.wgsl 

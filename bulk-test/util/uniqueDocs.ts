@@ -1,7 +1,5 @@
-import { dlog } from "berry-pretty";
 import { Change, diffLines } from "diff";
-import { glob } from "glob";
-import fs from "node:fs/promises";
+import { expandGlob } from "@std/fs";
 
 /* Search through a set of files to find the uniquest ones.
  * Uses a diff library to compare files with each other
@@ -52,8 +50,11 @@ export async function uniquishFiles(
   const { preprocessFn = (s: string) => s } = options;
   const { minAddLines, minAddPercent, limitCheck } = options;
 
-  process.chdir(rootDir);
-  const files = await glob(`./**/*.${suffix}`, { ignore: ["node_modules/**"] });
+  // TODO: Don't use chdir ( https://github.com/denoland/deno/issues/25559 )
+  Deno.chdir(rootDir);
+  const files = (await Array.fromAsync(
+    expandGlob(`./**/*.${suffix}`, { exclude: ["node_modules/**"] }),
+  )).filter((f) => f.isFile).map((f) => f.path);
   const sorted = await sortBySize(files); // consider shaders in largest first order
 
   const saved: SavedText[] = [];
@@ -62,20 +63,20 @@ export async function uniquishFiles(
   let totalLines = 0;
   let nth = 0;
   for (const path of paths) {
-    const orig = await fs.readFile(path, { encoding: "utf8" });
+    const orig = await Deno.readTextFile(path);
     const text = preprocessFn(orig);
 
-    dlog("checking", { nth: ++nth, path });
+    console.log("checking", { nth: ++nth, path });
     const diffOpts = { minAddLines, minAddPercent, limitCheck };
     const percentDiff = differentText(saved, text, diffOpts);
     if (percentDiff !== undefined) {
       totalLines += text.split("\n").length;
-      dlog("saving", { path, percentDiff, totalLines });
+      console.log("saving", { path, percentDiff, totalLines });
       saved.push({ path, text });
     }
   }
 
-  return saved.map(s => s.path);
+  return saved.map((s) => s.path);
 }
 
 /** return % difference if the the text differs significantly from saved texts,
@@ -98,7 +99,7 @@ export function differentText(
     const addCount = addLines(changes);
     if (addCount < minAddLines) {
       const failedNth = saved.length - i;
-      if (limitCheck > 0 && failedNth > limitCheck) dlog({ failedNth });
+      if (limitCheck > 0 && failedNth > limitCheck) console.log({ failedNth });
 
       return undefined;
     }
@@ -112,25 +113,25 @@ export function differentText(
 
 /** count the number of lines added in these changes */
 function addLines(changes: Change[]): number {
-  const addChanges = changes.filter(c => c.added);
-  // dlog({addChanges})
+  const addChanges = changes.filter((c) => c.added);
+  // console.log({addChanges})
   // addChanges.forEach(c => {
-  //   dlog({c});
+  //   console.log({c});
   // });
-  const addLineCounts = addChanges.map(c => c.value.split("\n").length);
+  const addLineCounts = addChanges.map((c) => c.value.split("\n").length);
   const totalLines = addLineCounts.reduce((a, b) => a + b, 0);
-  // dlog({ totalLines });
+  // console.log({ totalLines });
   return totalLines;
 }
 
 /** sort a set of files by size, largest first */
 export async function sortBySize(paths: string[]): Promise<string[]> {
   const sizes = await Promise.all(
-    paths.map(async path => {
-      const stats = await fs.stat(path);
+    paths.map(async (path) => {
+      const stats = await Deno.stat(path);
       return { path, size: stats.size };
     }),
   );
   sizes.sort((a, b) => b.size - a.size);
-  return sizes.map(s => s.path);
+  return sizes.map((s) => s.path);
 }

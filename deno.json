@@ -11,10 +11,11 @@
     "wesl-testsuite": "../wesl-testsuite/src/index.ts"
   },
   "workspace": [
-    "./mini-parse",
-    "./packager",
+    "./bulk-test",
     "./cli",
     "./linker",
+    "./mini-parse",
+    "./packager",
     "./testlib"
   ],
   "compilerOptions": {

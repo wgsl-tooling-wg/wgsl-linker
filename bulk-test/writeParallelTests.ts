@@ -1,5 +1,4 @@
-import fs from "node:fs/promises";
-import path from "node:path";
+import * as path from "@std/path";
 
 const numParts = 16;
 
@@ -10,7 +9,7 @@ async function writeFiles(): Promise<void> {
     const fileName = `parallel-${i}.test.ts`;
     const filePath = path.join("src", "test", fileName);
     console.log(`Writing ${filePath}`);
-    return fs.writeFile(filePath, testText(i), { encoding: "utf8" });
+    return Deno.writeTextFile(filePath, testText(i));
   });
 
   await Promise.all(writes);
