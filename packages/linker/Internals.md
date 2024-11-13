@@ -9,9 +9,6 @@ The fragments are merged together by following an
 and extended wgsl syntax that includes
 support for modules via import and export statements
 to select wgsl elements to merge.
-Several other wgsl extensions are supported during
-processing as well: code generators (code that emits wgsl),
-and generic programming.
 
 wgsl-linker is designed to enable linking at runtime in the browser
 to enable conditional compiling and conditional linking based
@@ -62,11 +59,6 @@ Linking is relatively straightforward.
 
 ## Embellishments
 
-- Importing is allowed from user supplied code generator functions.
-  Code generator functions expose module names and export names -
-  importing from a code generator is just like importing from a package,
-  but internally the code calls the generator function instead.
-- Users can plug in their own text processor to run during the preprocessing phase.
 - ImportResolutionMap - Fully expand wildcard and list style imports,
   distinguish imports that refer to wgsl elements
   from (rust only) path prefix imports.
@@ -98,8 +90,6 @@ translated to the original source.
 Consider rewriting graph mutations as separate passes
 producing new data structures to improve clarity (rather
 than mutating optional fields in existing data structures).
-
-Simplify internal differences between generator imports and regular imports.
 
 Simplify internal differences between local refs and non-local refs,
 e.g. provide ExportInfo for local refs too.

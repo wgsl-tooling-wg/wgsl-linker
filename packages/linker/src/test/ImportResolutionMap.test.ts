@@ -97,5 +97,4 @@ test.skip("tree with trailing wildcard", () => {
   // ]);
 });
 
-test.skip("tree with generator");
 test.skip("tree with segment list of trees");

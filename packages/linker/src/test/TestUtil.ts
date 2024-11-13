@@ -1,9 +1,9 @@
-import { NoTags, Parser, TagRecord, _withBaseLogger } from "mini-parse";
+import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
 import { logCatch, testParse, TestParseResult } from "mini-parse/test-util";
 import { expect } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
-import { ModuleRegistry, RegisterGenerator } from "../ModuleRegistry.js";
+import { ModuleRegistry } from "../ModuleRegistry.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
@@ -20,21 +20,20 @@ export function linkTest(...rawWgsl: string[]): string {
 }
 
 export interface LinkTestOpts {
-  generators?: RegisterGenerator[];
   runtimeParams?: Record<string, any>;
 }
 
 /** Convenience wrapper to link wgsl for tests, with load and link options. */
 export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
-  const { generators, runtimeParams } = opts;
+  const { runtimeParams } = opts;
 
   const restWgsl = Object.fromEntries(
     rest.map((src, i) => [`./file${i + 1}.wgsl`, src]),
   );
   const wgsl = { "./root.wgsl": root, ...restWgsl };
 
-  const registry = new ModuleRegistry({ wgsl, generators });
+  const registry = new ModuleRegistry({ wgsl });
   return registry.link("./root", runtimeParams);
 }
 

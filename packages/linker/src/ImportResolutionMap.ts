@@ -1,4 +1,4 @@
-import { ExportElem, TreeImportElem } from "./AbstractElems.js";
+import { TreeImportElem } from "./AbstractElems.js";
 import {
   ImportTree,
   PathSegment,
@@ -6,16 +6,10 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.js";
-import { moduleLog } from "./LinkerLogging.js";
-import {
-  GeneratorExport,
-  GeneratorModule,
-  ModuleExport,
-} from "./ModuleRegistry.js";
-import { exportName, ParsedRegistry } from "./ParsedRegistry.js";
+import { ModuleExport } from "./ModuleRegistry.js";
+import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
 import { dirname, normalize } from "./PathUtil.js";
-import { StringPairs } from "./TraverseRefs.js";
 
 /**
  * Maps to resolve imports to exports.
@@ -137,7 +131,7 @@ function resolveTreeImport(
     }
     if (segment instanceof Wildcard) {
       const modulePath = resolvedExportPath.join("/");
-      const m = registry.findModule(modulePath);
+      const m = registry.findTextModule(modulePath);
       if (m) {
         return wildCardExports(m, resolvedImportPath, resolvedExportPath);
       } else {
@@ -157,15 +151,14 @@ function resolveTreeImport(
   }
 
   function wildCardExports(
-    m: GeneratorModule | TextModule,
+    m: TextModule,
     resolvedImportPath: string[],
     resolvedExportPath: string[],
   ): ResolvedEntry[] {
-    const exportKind = m.kind === "generator" ? "function" : "text";
     return m.exports.flatMap(exp => {
-      const expPath = [...resolvedExportPath, exportName(exp)];
-      const impPath = [...resolvedImportPath, exportName(exp)];
-      const modExp = { kind: exportKind, module: m, exp } as ModuleExport;
+      const expPath = [...resolvedExportPath, exp.ref.name];
+      const impPath = [...resolvedImportPath, exp.ref.name];
+      const modExp = { kind: m.kind, module: m, exp } as ModuleExport;
       return [
         new ImportToExportPath(impPath, expPath.join("/")),
         new ExportPathToExport(impPath.join("/"), modExp),

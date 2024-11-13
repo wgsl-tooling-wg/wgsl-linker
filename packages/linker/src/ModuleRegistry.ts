@@ -3,51 +3,13 @@ import { TextExport, TextModule } from "./ParseModule.js";
 import { normalize } from "./PathUtil.js";
 import { WgslBundle } from "./WgslBundle.js";
 
-export type CodeGenFn = (
-  name: string,
-  params: Record<string, string>,
-) => string;
-
-export interface GeneratorExport {
-  name: string;
-  args: string[];
-  generate: CodeGenFn;
-}
-
-/** a named code generation function */
-export interface RegisterGenerator {
-  /** export name for this generator */
-  name: string;
-
-  /** module namespace for this generator */
-  moduleName: string;
-
-  /** function to generate code at runtime */
-  generate: CodeGenFn;
-
-  /** arguments to pass when importing from this generator */
-  args?: string[];
-}
-
 /** a single export from a module */
-export type ModuleExport = TextModuleExport | GeneratorModuleExport;
+export type ModuleExport = TextModuleExport;
 
 export interface TextModuleExport {
   module: TextModule;
   exp: TextExport;
   kind: "text";
-}
-
-export interface GeneratorModule {
-  kind: "generator";
-  modulePath: string;
-  exports: GeneratorExport[];
-}
-
-export interface GeneratorModuleExport {
-  module: GeneratorModule;
-  exp: GeneratorExport;
-  kind: "function";
 }
 
 export interface RegistryParams {
@@ -56,27 +18,23 @@ export interface RegistryParams {
 
   /** record of file names and wgsl text for modules */
   libs?: WgslBundle[];
-
-  /** code generation functions */
-  generators?: RegisterGenerator[];
 }
 
 const libExp = /\/lib\.w[eg]sl/i;
 
 /**
- * A ModuleRegistry collects exportable code fragments, code generator functions.
+ * A ModuleRegistry collects exportable code fragments.
  *
  * The ModuleRegistry provides everything required for linkWgsl to process
- * #import statements and generate a complete wgsl shader.
+ * import statements and generate a complete wgsl shader.
  */
 export class ModuleRegistry {
   // map from absolute module path to wgsl/wesl src text
   wgslSrc = new Map<string, string>();
-  generators = new Map<string, GeneratorModuleExport>();
 
   constructor(args?: RegistryParams) {
     if (!args) return;
-    const { wgsl = {}, libs = [], generators } = args;
+    const { wgsl = {}, libs = [] } = args;
 
     Object.entries(wgsl).forEach(([fileName, src]) =>
       this.wgslSrc.set(relativeToAbsolute(fileName, "_root"), src),
@@ -92,8 +50,6 @@ export class ModuleRegistry {
         this.wgslSrc.set(canonPath, src);
       });
     });
-
-    generators?.map(g => this.registerGenerator(g));
   }
 
   /**
@@ -110,22 +66,6 @@ export class ModuleRegistry {
   /** Parse the text modules in the registry */
   parsed(runtimeParams: Record<string, any> = {}): ParsedRegistry {
     return new ParsedRegistry(this, runtimeParams);
-  }
-
-  /** register a function that generates code on demand */
-  registerGenerator(reg: RegisterGenerator): void {
-    const exp: GeneratorExport = {
-      name: reg.name,
-      args: reg.args ?? [],
-      generate: reg.generate,
-    };
-    const module: GeneratorModule = {
-      kind: "generator",
-      modulePath: reg.moduleName,
-      exports: [exp],
-    };
-
-    this.generators.set(module.modulePath, { kind: "function", module, exp });
   }
 }
 

@@ -3,7 +3,7 @@ import { logCatch } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { refFullName } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { FoundRef, refName, TextRef, traverseRefs } from "../TraverseRefs.js";
+import { FoundRef, TextRef, traverseRefs } from "../TraverseRefs.js";
 
 test("traverse a fn to struct ref", () => {
   const src = `
@@ -77,7 +77,7 @@ test("traverse a struct to struct ref", () => {
 
   const refs = traverseTest(src, module1);
   expect(refs[1].kind).toBe("txt");
-  expect(refName(refs[1])).toBe("AStruct");
+  expect(refs[1].elem.name).toBe("AStruct");
 });
 
 test("traverse a global var to struct ref", () => {
@@ -123,8 +123,8 @@ test("traverse transitive struct refs", () => {
   `;
 
   const refs = traverseTest(src, module1, module2);
-  expect(refName(refs[1])).toBe("AStruct");
-  expect(refName(refs[2])).toBe("BStruct");
+  expect(refs[1].elem.name).toBe("AStruct");
+  expect(refs[2].elem.name).toBe("BStruct");
 });
 
 test("traverse ref from struct constructor", () => {
@@ -143,7 +143,7 @@ test("traverse ref from struct constructor", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  expect(refName(refs[1])).toBe("AStruct");
+  expect(refs[1].elem.name).toBe("AStruct");
 });
 
 test("traverse with local support struct", () => {
@@ -160,7 +160,7 @@ test("traverse with local support struct", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   expect(refNames).toEqual(["B", "b", "A"]);
 });
 
@@ -176,7 +176,7 @@ test("traverse from return type of function", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   expect(refNames).toEqual(["b", "A"]);
 });
 
@@ -191,7 +191,7 @@ test("traverse skips built in fn and type", () => {
   `;
 
   const { refs, log } = traverseWithLog(src);
-  const refNames = refs.map(refName);
+  const refNames = refs.map(r => r.elem.name);
   // refs.map(r => refLog(r));
   expect(refNames).toEqual(["foo", "bar"]);
   expect(log).toBe("");

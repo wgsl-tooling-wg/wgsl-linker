@@ -10,7 +10,6 @@ import {
 } from "./AbstractElems.js";
 import { refFullName } from "./Linker.js";
 import { moduleLog } from "./LinkerLogging.js";
-import { GeneratorExport, GeneratorModule } from "./ModuleRegistry.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextExport, TextModule } from "./ParseModule.js";
 import { resolveImport } from "./ResolveImport.js";
@@ -23,7 +22,7 @@ import { groupBy, last } from "./Util.js";
  * . But multiple versions of a target element from generic expansion
  *   result in multiple FoundRefs.
  */
-export type FoundRef = TextRef | GeneratorRef;
+export type FoundRef = TextRef;
 
 export type StringPairs = [string, string][];
 
@@ -42,18 +41,6 @@ export interface ExportInfo {
 
   /** import or extends elem that resolved to this export (so we can later separate out extends) */
   fromImport: TreeImportElem;
-}
-
-export interface GeneratorRef extends FoundRefBase {
-  kind: "gen";
-
-  expInfo: ExportInfo;
-
-  /** module containing the exported function */
-  expMod: GeneratorModule;
-
-  /** name of the generated function (may be renamed by import as) */
-  name: string;
 }
 
 /** A reference to a target wgsl element (e.g. a function). */
@@ -97,8 +84,7 @@ export function traverseRefs(
   if (!srcRefs.length) return;
 
   // recurse on the external refs from the src root elements
-  const nonGenRefs = textRefs(srcRefs);
-  const childRefs = nonGenRefs.flatMap(srcRef =>
+  const childRefs = srcRefs.flatMap(srcRef =>
     elemRefs(srcRef, srcModule, registry),
   );
   const seen = new Set<string>();
@@ -137,23 +123,13 @@ function recursiveRefs(
   // run the fn on each ref, and prep to recurse on each ref for which the fn returns true
   const filtered = refs.filter(r => fn(r));
 
-  const nonGenRefs = textRefs(filtered); // we don't need to trace generated text (and thus we don't parse it anyway)
-
-  const modGroups = groupBy(nonGenRefs, r => r.expMod);
+  const modGroups = groupBy(filtered, r => r.expMod);
   [...modGroups.entries()].forEach(([mod, refs]) => {
     if (refs.length) {
       const childRefs = refs.flatMap(r => elemRefs(r, mod, registry));
       recursiveRefs(childRefs, registry, fn);
     }
   });
-}
-
-export function textRefs(refs: FoundRef[]): TextRef[] {
-  return refs.filter(textRef);
-}
-
-function textRef(ref: FoundRef): ref is TextRef {
-  return ref.kind !== "gen";
 }
 
 /** return all struct/fn/alias refs from a src element */
@@ -245,7 +221,7 @@ function importRef(
   impMod: TextModule,
   imports: TreeImportElem[],
   registry: ParsedRegistry,
-): TextRef | GeneratorRef | undefined {
+): TextRef | undefined {
   const resolveMap = registry.importResolveMap(impMod);
   const resolved = resolveImport(name, resolveMap);
   const fromImport = imports[0]; // TODO implement
@@ -265,15 +241,6 @@ function importRef(
         expMod,
         elem: exp.ref,
         proposedName,
-      };
-    } else if (expMod.kind === "generator") {
-      const exp = modExp.exp as GeneratorExport;
-      return {
-        kind: "gen",
-        expInfo,
-        expMod,
-        proposedName,
-        name: exp.name,
       };
     }
   }
@@ -358,7 +325,7 @@ function stdType(name: string): boolean {
 }
 
 export function refName(ref: FoundRef): string {
-  return ref.kind === "gen" ? ref.name : ref.elem.name;
+  return ref.elem.name;
 }
 
 /** return true if the name is for a built in fn (not a user function) */

@@ -7,18 +7,11 @@ import {
   TypeRefElem,
   VarElem,
 } from "./AbstractElems.js";
-import { refLog } from "./LinkerLogging.js";
 import { RegistryParams } from "./ModuleRegistry.js";
 import { ParsedRegistry } from "./ParsedRegistry.js";
 import { TextModule } from "./ParseModule.js";
 import { SliceReplace, sliceReplace } from "./Slicer.js";
-import {
-  FoundRef,
-  GeneratorRef,
-  refName,
-  TextRef,
-  traverseRefs,
-} from "./TraverseRefs.js";
+import { FoundRef, TextRef, traverseRefs } from "./TraverseRefs.js";
 
 type DirectiveRef = {
   kind: "dir";
@@ -26,7 +19,7 @@ type DirectiveRef = {
   elem: GlobalDirectiveElem;
 };
 
-type LoadableRef = TextRef | GeneratorRef | DirectiveRef;
+type LoadableRef = TextRef | DirectiveRef;
 
 /** TBD a simple */
 export function link(args: RegistryParams) {}
@@ -42,10 +35,7 @@ export function linkWgslModule(
   registry: ParsedRegistry,
   extParams: Record<string, any> = {},
 ): string {
-  const refs = findReferences(srcModule, registry); // all recursively referenced structs and fns
-
-  // mix the merge refs into the import/export refs
-  const loadRefs = prepRefsMergeAndLoad(refs);
+  const loadRefs = findReferences(srcModule, registry); // all recursively referenced structs and fns
 
   // convert global directives into LoadableRefs
   const directiveRefs = globalDirectiveRefs(srcModule);
@@ -61,7 +51,7 @@ export function linkWgslModule(
 export function findReferences(
   srcModule: TextModule,
   registry: ParsedRegistry,
-): FoundRef[] {
+): LoadableRef[] {
   // map full export name (with generic params from import) to name for linked result
   const visited = new Map<string, string>();
 
@@ -69,7 +59,7 @@ export function findReferences(
   const rootNames = new Set<string>();
 
   // accumulates all elements to add to the linked result
-  const found: FoundRef[] = [];
+  const found: LoadableRef[] = [];
 
   traverseRefs(srcModule, registry, refVisit);
   return found;
@@ -123,20 +113,7 @@ function uniquifyName(
  * in the linked source.
  */
 export function refFullName(ref: FoundRef): string {
-  return ref.expMod.modulePath + "." + refName(ref);
-}
-
-/**
- * Perpare the refs found in the traverse for loading:
- * . sort through found refs
- *
- * @return the set of refs that will be loaded
- */
-function prepRefsMergeAndLoad(refs: FoundRef[]): FoundRef[] {
-  const textRefs = refs.filter(r => r.kind === "txt") as TextRef[];
-  const generatorRefs = refs.filter(r => r.kind === "gen") as GeneratorRef[];
-
-  return [...generatorRefs, ...textRefs];
+  return ref.expMod.modulePath + "." + ref.elem.name;
 }
 
 /** construct DirectiveRefs for from globalDirective elements
@@ -171,26 +148,10 @@ function loadOtherElem(ref: TextRef | DirectiveRef): string {
   return srcMap.dest;
 }
 
-function loadGeneratedElem(ref: GeneratorRef): string {
-  const genExp = ref.expMod.exports.find(e => e.name === ref.name);
-  if (!genExp) {
-    refLog(ref, "missing generator", ref.name);
-    return "//?";
-  }
-  const fnName = ref.rename ?? ref.proposedName ?? ref.name;
-  const params = {};
-
-  const text = genExp?.generate(fnName, params);
-  return text;
-}
-
 /** load exported text for an import */
 function extractTexts(refs: LoadableRef[]): string {
   return refs
     .map(r => {
-      if (r.kind === "gen") {
-        return loadGeneratedElem(r);
-      }
       if (r.kind === "txt") {
         const elemKind = r.elem.kind;
         if (elemKind === "fn") {
