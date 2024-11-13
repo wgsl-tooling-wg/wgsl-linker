@@ -6,7 +6,6 @@ import { overlapTail } from "./Util.js";
 export interface ResolvedImport {
   modExp: ModuleExport;
   callSegments: string[];
-  expImpArgs: StringPairs;
 }
 
 /** resolve an import to an export using the resolveMap
@@ -37,8 +36,8 @@ export function resolveImport(
     // dlog({ callSegments, expPath, impToExp: !!impToExp });
 
     if (impToExp) {
-      const { modExp, expImpArgs } = impToExp;
-      return { modExp, callSegments, expImpArgs };
+      const { modExp } = impToExp;
+      return { modExp, callSegments };
     }
   } else {
     // dlog({ callSegments, expPath });

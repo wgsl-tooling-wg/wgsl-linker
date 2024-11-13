@@ -18,9 +18,7 @@ export function exportsToStrings(resolveMap: ResolveMap): string[] {
   return [...resolveMap.exportMap].map(([imp, exp]) => {
     const modulePath = exp.modExp.module.modulePath;
     const expPath = `${modulePath}/${exportName(exp.modExp)}`;
-    const expImpArgs =
-      exp.expImpArgs.length ? ` (${exp.expImpArgs.join(", ")})` : "";
-    return `${imp} -> ${expPath}${expImpArgs}`;
+    return `${imp} -> ${expPath}`;
   });
 }
 

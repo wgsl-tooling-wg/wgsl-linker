@@ -55,7 +55,6 @@ class ExportPathToExport {
   constructor(
     public exportPath: string,
     public modExp: ModuleExport,
-    public expImpArgs: StringPairs,
   ) {}
 }
 
@@ -169,7 +168,7 @@ function resolveTreeImport(
       const modExp = { kind: exportKind, module: m, exp } as ModuleExport;
       return [
         new ImportToExportPath(impPath, expPath.join("/")),
-        new ExportPathToExport(impPath.join("/"), modExp, []),
+        new ExportPathToExport(impPath.join("/"), modExp),
       ];
     });
   }
@@ -203,7 +202,7 @@ function resolveTreeImport(
         modExp.module,
         modExp.exp,
       );
-      entries.push(new ExportPathToExport(expPathStr, modExp, expImpArgs));
+      entries.push(new ExportPathToExport(expPathStr, modExp));
     }
     return entries;
   }

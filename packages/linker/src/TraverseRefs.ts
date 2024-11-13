@@ -262,13 +262,13 @@ function importRef(
   const resolved = resolveImport(name, resolveMap);
   const fromImport = imports[0]; // TODO implement
   if (resolved) {
-    const { modExp, callSegments, expImpArgs } = resolved;
+    const { modExp, callSegments } = resolved;
     const proposedName = last(callSegments)!;
     const expMod = modExp.module;
     const expInfo: ExportInfo = {
       fromImport,
       fromRef,
-      expImpArgs,
+      expImpArgs: [],
     };
     if (expMod.kind === "text") {
       const exp = modExp.exp as TextExport;
