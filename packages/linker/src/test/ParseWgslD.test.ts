@@ -252,6 +252,23 @@ test("parse simple templated type", () => {
   expect(parsed?.value.length).toBe(2);
 });
 
+test("parse vec templated type", () => {
+  const src = `vec2<f32>`;
+
+  const { parsed } = testAppParse(typeSpecifier, src);
+  expect(parsed?.value[0].name).toBe("vec2");
+  expect(parsed?.value[1].name).toBe("f32");
+  expect(parsed?.value.length).toBe(2);
+});
+
+test("parse template ending with >=", () => {
+  const src = `
+  var foo: vec2<f32 >= vec2( 0.5, -0.5);`;
+
+  const { parsed } = testAppParse(globalVar, src);
+  expect(parsed).not.toBeNull();
+});
+
 test("parse nested template that ends with >> ", () => {
   const src = `vec2<array <MyStruct,4>>`;
 
