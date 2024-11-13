@@ -77,27 +77,6 @@ test("traverse nested import with params and support fn", () => {
   expect(second.elem.name).toBe("support");
 });
 
-test("mismatched import export params", () => {
-  const src = `
-    #import foo(A, B) from ./file1
-    fn main() {
-      foo(k, l);
-    } `;
-  const module1 = `
-    #export(C) 
-    fn foo(c:C) { } `;
-
-  const { log } = traverseWithLog(src, module1);
-  expect(log).toMatchInlineSnapshot(`
-    "mismatched import and export params  module: _root/main.wgsl
-        #import foo(A, B) from ./file1   Ln 2
-        ^
-     module: _root/file1.wgsl
-        #export(C)    Ln 2
-        ^"
-  `);
-});
-
 test("traverse var to gleam style struct ref", () => {
   const main = `
      import foo/Bar;
