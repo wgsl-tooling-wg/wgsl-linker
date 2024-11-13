@@ -1,25 +1,37 @@
 import { matchOneOf, tokenMatcher } from "@wesl/mini-parse";
 
-/** token matchers for wgsl with #directives */
+// https://www.w3.org/TR/WGSL/#line-break
+// deno-lint-ignore no-control-regex
+export const eol = /\n|\u{000B}|\u{000C}|\r\n?|\u{0085}|\u{2028}|\u{2029}/u;
 
-export const eol = /\n|\r\n/;
-export const directive = /#[a-zA-Z_]\w*/;
-export const notDirective = /[^#\n]+/;
-
-const symbolSet =
-  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + // '>>' elided for template parsing, e.g. vec2<vec2<u8>>
+const symbolSet = "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + // '>>' elided for template parsing, e.g. vec2<vec2<u8>>
   ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
-const longIdent = /[a-zA-Z_][\w.:]*/; // identifier that can include module path
-export const word = /[a-zA-Z_]\w*/; // LATER consider making this 'ident' per wgsl spec (incl. non-ascii)
-export const digits = /(?:0x)?[\d.]+[iuf]?/; // LATER parse more wgsl number variants
+const longIdent =
+  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}.:]+)|(?:[\p{XID_Start}]))/u; // identifier that can include module path
+export const word =
+  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
+export const digits = new RegExp(
+  // decimal_int_literal
+  /(?:0[iu]?)|(?:[1-9][0-9]*[iu]?)/.source +
+    // hex_int_literal
+    /|(?:0[xX][0-9a-fA-F]+[iu]?)/.source +
+    // decimal_float_literal
+    /|(?:0[fh])|(?:[1-9][0-9]*[fh])/.source +
+    /|(?:[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)?[fh]?)/.source +
+    /|(?:[0-9]+\.[0-9]*(?:[eE][+-]?[0-9]+)?[fh]?)/.source +
+    /|(?:[0-9]+[eE][+-]?[0-9]+[fh]?)/.source +
+    // hex_float_literal
+    /|(?:0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+(?:[pP][+-]?[0-9]+[fh]?)?)/.source +
+    /|(?:0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*(?:[pP][+-]?[0-9]+[fh]?)?)/.source +
+    /|(?:0[xX][0-9a-fA-F]+[pP][+-]?[0-9]+[fh]?)/.source,
+);
 
 /** matching tokens at wgsl root level */
 export const mainTokens = tokenMatcher(
   {
-    directive,
     attr: /@[a-zA-Z_]\w*/,
     word,
     digits,
@@ -62,7 +74,6 @@ export const lineCommentTokens = tokenMatcher(
 /** matching tokens while parsing directive parameters #export foo(param1, param2) */
 export const argsTokens = tokenMatcher(
   {
-    directive,
     quote,
     relPath: /[.][/\w._-]+/,
     arg: /[\w._-]+/,
@@ -78,14 +89,13 @@ const importSymbol = matchOneOf(treeImportSymbolSet);
 
 export const treeImportTokens = tokenMatcher(
   {
-    directive,
     quote,
     ws: /\s+/,
     importSymbol,
     word,
     digits,
   },
-  "treeTokens"
+  "treeTokens",
 );
 
 export const rootWs = tokenMatcher(
@@ -93,5 +103,5 @@ export const rootWs = tokenMatcher(
     blanks: /\s+/,
     other: /[^\s]+/,
   },
-  "rootWs"
+  "rootWs",
 );
