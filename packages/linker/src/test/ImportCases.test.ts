@@ -65,7 +65,6 @@ test("import twice doesn't get two copies", ctx => {
     `,
   });
 });
-
 test("imported fn calls support fn with root conflict", ctx => {
   linkTest(ctx.task.name, {
     linked: `
@@ -314,6 +313,7 @@ function linkTest(name: string, expectation: LinkExpectation): void {
     const expectTrimmed = trimSrc(linked);
     const resultTrimmed = trimSrc(result);
     if (resultTrimmed !== expectTrimmed) {
+      console.log("result\n", resultTrimmed, "\nexpect\n", expectTrimmed);
       const expectLines = expectTrimmed.split("\n");
       const resultLines = result.split("\n");
       expectLines.forEach((line, i) => {

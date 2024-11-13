@@ -130,7 +130,7 @@ export const directive = tokens(
   argsTokens,
   seq(
     repeat("\n"),
-    or(exportDirective, importDirective, gleamImport, moduleDirective),
+    or(exportDirective, gleamImport, moduleDirective),
   ),
 );
 

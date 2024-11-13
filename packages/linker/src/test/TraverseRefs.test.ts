@@ -43,40 +43,6 @@ test("traverse simple gleam style import", () => {
   expect(exp.elem.name).toBe("foo");
 });
 
-test("traverse nested import with params and support fn", () => {
-  const src = `
-    import foo(u32) from ./file1
-    fn bar() {
-      foo(8u);
-    }
-  `;
-
-  const module1 = `
-    import zap from ./file2
-  
-    export (A)
-    fn foo(a: A) { 
-      support(a);
-      zap();
-    }
-
-    fn support() {}
-  `;
-
-  const module2 = `
-    export 
-    fn zap() {}
-  `;
-
-  const refs = traverseTest(src, module1, module2);
-  const first = refs[1] as TextRef;
-  const second = refs[2] as TextRef;
-  expect(first.kind).toBe("txt");
-  expect(first.expInfo?.expImpArgs).toEqual([["A", "u32"]]);
-  expect(second.kind).toBe("txt");
-  expect(second.elem.name).toBe("support");
-});
-
 test("traverse var to gleam style struct ref", () => {
   const main = `
      import foo/Bar;
@@ -97,15 +63,14 @@ test("traverse var to gleam style struct ref", () => {
 
 test("traverse a struct to struct ref", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct;
 
     struct SrcStruct {
       a: AStruct,
     }
   `;
   const module1 = `
-    #export
-    struct AStruct {
+    export struct AStruct {
       x: u32,
     }
   `;
@@ -117,13 +82,12 @@ test("traverse a struct to struct ref", () => {
 
 test("traverse a global var to struct ref", () => {
   const src = `
-    #import Uniforms from ./file1
+    import ./file1/Uniforms;
 
     @group(0) @binding(0) var<uniform> u: Uniforms;      
     `;
   const module1 = `
-    #export
-    struct Uniforms {
+    export struct Uniforms {
       model: mat4x4<f32>,
     }
   `;
@@ -137,22 +101,22 @@ test("traverse a global var to struct ref", () => {
 
 test("traverse transitive struct refs", () => {
   const src = `
-    #import AStruct  from ./file1
+    import ./file1/AStruct
 
     struct SrcStruct {
       a: AStruct,
     }
   `;
   const module1 = `
-    #import BStruct from ./file2
+    import ./file2/BStruct
 
-    #export
+    export
     struct AStruct {
       s: BStruct,
     }
   `;
   const module2 = `
-    #export
+    export
     struct BStruct {
       x: u32,
     }
@@ -165,7 +129,7 @@ test("traverse transitive struct refs", () => {
 
 test("traverse ref from struct constructor", () => {
   const src = `
-    #import AStruct from ./file1
+    import ./file1/AStruct
 
     fn main() {
       var x = AStruct(1u);
@@ -184,14 +148,14 @@ test("traverse ref from struct constructor", () => {
 
 test("traverse with local support struct", () => {
   const src = `
-    #import A from ./file1
+    import ./file1/A
 
     fn b() { var a: A; var b: B; }
 
     struct B { x: u32 }
   `;
   const module1 = `
-    #export
+    export
     struct A { y: i32 }
   `;
 
@@ -202,7 +166,7 @@ test("traverse with local support struct", () => {
 
 test("traverse from return type of function", () => {
   const src = `
-    #import A from ./file1
+    import ./file1/A
 
     fn b() -> A { }
   `;
