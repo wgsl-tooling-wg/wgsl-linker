@@ -341,7 +341,6 @@ test("parse let x: foo.bar; ", () => {
 test("parse var x: foo.bar;", () => {
   const src = `
      import foo/bar;
-     module main
      var x: foo.bar;
      fn main() { }
   `;
