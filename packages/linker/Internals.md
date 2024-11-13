@@ -70,10 +70,6 @@ Linking is relatively straightforward.
 - ImportResolutionMap - Fully expand wildcard and list style imports,
   distinguish imports that refer to wgsl elements
   from (rust only) path prefix imports.
-- To support generic parameters imports/exports, a map between
-  export parameter names and import names is created during `ImportResolutionMap`
-  construction.
-  The expImpArgs map is used to rewrite generic elements during extraction.
 
 ## Error Reporting
 

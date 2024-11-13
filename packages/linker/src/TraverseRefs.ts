@@ -42,10 +42,6 @@ export interface ExportInfo {
 
   /** import or extends elem that resolved to this export (so we can later separate out extends) */
   fromImport: TreeImportElem;
-
-  /** mapping from export arguments to import arguments
-   * (could be mapping to import args prior to this import, via chain of importing) */
-  expImpArgs: [string, string][];
 }
 
 export interface GeneratorRef extends FoundRefBase {
@@ -222,7 +218,6 @@ function linkedRef(
   registry: ParsedRegistry,
 ): FoundRef[] {
   const { name } = elem;
-  if (importArgRef(srcRef, name)) return [];
 
   const foundRef =
     importRef(srcRef, name, mod, mod.imports, registry) ?? localRef(name, mod);
@@ -240,13 +235,6 @@ function linkedRef(
 
   moduleLog(srcRef.expMod, elem.start, `reference not found: ${name}`);
   return [];
-}
-
-/** @return true if the ref is to an import parameter */
-function importArgRef(srcRef: FoundRef, name: string): boolean | undefined {
-  if (srcRef.expInfo) {
-    return !!srcRef.expInfo.expImpArgs.find(([expArg]) => expArg === name);
-  }
 }
 
 /** If this src element references an #import function
@@ -268,7 +256,6 @@ function importRef(
     const expInfo: ExportInfo = {
       fromImport,
       fromRef,
-      expImpArgs: [],
     };
     if (expMod.kind === "text") {
       const exp = modExp.exp as TextExport;

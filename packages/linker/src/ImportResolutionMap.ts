@@ -195,13 +195,6 @@ function resolveTreeImport(
     const modExp = registry.getModuleExport(importingModule, resolvedExp);
     // dlog({ modExp: !!modExp, resolvedExp });
     if (modExp) {
-      const expImpArgs = matchExportImportArgs(
-        importingModule,
-        imp,
-        impArgs ?? [],
-        modExp.module,
-        modExp.exp,
-      );
       entries.push(new ExportPathToExport(expPathStr, modExp));
     }
     return entries;
@@ -217,20 +210,4 @@ function absolutePath(pathSegments: string[], mod: TextModule): string[] {
   } else {
     return pathSegments;
   }
-}
-
-function matchExportImportArgs(
-  impMod: TextModule | GeneratorModule,
-  imp: TreeImportElem,
-  impArgs: string[],
-  expMod: TextModule | GeneratorModule,
-  exp: ExportElem | GeneratorExport,
-): StringPairs {
-  const expArgs = exp.args ?? [];
-  if (expArgs.length !== impArgs.length) {
-    if (impMod.kind === "text")
-      moduleLog(impMod, imp.start, "mismatched import and export params");
-    if (expMod.kind === "text") moduleLog(expMod, (exp as ExportElem).start);
-  }
-  return expArgs.map((p, i) => [p, impArgs[i]]);
 }

@@ -125,10 +125,7 @@ function uniquifyName(
  * in the linked source.
  */
 export function refFullName(ref: FoundRef): string {
-  const expImpArgs = ref.expInfo?.expImpArgs ?? [];
-  const impArgs = expImpArgs.map(([, arg]) => arg);
-  const argsStr = "(" + impArgs.join(",") + ")";
-  return ref.expMod.modulePath + "." + refName(ref) + argsStr;
+  return ref.expMod.modulePath + "." + refName(ref);
 }
 
 /**
@@ -176,7 +173,7 @@ function loadOtherElem(
   const srcMap = sliceReplace(expMod.src, slicing, elem.start, elem.end);
   // LATER propogate srcMap
 
-  return applyExpImp(srcMap.dest, ref, extParams);
+  return srcMap.dest;
 }
 
 function loadGeneratedElem(
@@ -189,7 +186,7 @@ function loadGeneratedElem(
     return "//?";
   }
   const fnName = ref.rename ?? ref.proposedName ?? ref.name;
-  const params = refExpImp(ref, extParams);
+  const params = {}
 
   const text = genExp?.generate(fnName, params);
   return text;
@@ -247,24 +244,6 @@ function loadMemberText(
   return loadOtherElem(newRef, extParams);
 }
 
-/** get the export/import param map if appropriate for this ref */
-function refExpImp(
-  ref: FoundRef,
-  extParams: Record<string, string>,
-): Record<string, string> {
-  const expImp = ref.expInfo?.expImpArgs ?? [];
-  const entries = expImp.map(([exp, imp]) => {
-    if (imp.startsWith("ext.")) {
-      const value = extParams[imp.slice(4)];
-      if (value) return [exp, value];
-
-      refLog(ref, "missing ext param", imp, extParams);
-    }
-    return [exp, imp];
-  });
-  return Object.fromEntries(entries);
-}
-
 function loadFnText(
   elem: FnElem,
   ref: TextRef,
@@ -290,17 +269,7 @@ function loadFnText(
 
   const srcMap = sliceReplace(ref.expMod.src, slicing, elem.start, elem.end);
 
-  return applyExpImp(srcMap.dest, ref, extParams);
-}
-
-/** rewrite the src text according to module templating and exp/imp params */
-function applyExpImp(
-  src: string,
-  ref: TextRef | DirectiveRef,
-  extParams: Record<string, string>,
-): string {
-  const params = ref.kind === "txt" ? refExpImp(ref, extParams) : {};
-  return replaceWords(src, params);
+  return srcMap.dest;
 }
 
 function typeRefSlices(typeRefs: TypeRefElem[]): SliceReplace[] {
