@@ -5,7 +5,7 @@
 Launch with:
 
 ```sh
-deno --inspect-brk bench.ts  --profile
+deno --allow-read --allow-env --inspect-brk bench.ts --profile
 ```
 
 And then launch the chrome debugger and press the green node button, and press play
@@ -15,5 +15,5 @@ See instructions [here](https://developer.chrome.com/docs/devtools/performance/n
 ## Benchmark
 
 ```sh
-deno bench.ts --bench
+deno --allow-read --allow-env bench.ts --bench
 ```

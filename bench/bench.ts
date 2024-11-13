@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run --allow-read --allow-env
+
 import { WGSLLinker } from "@use-gpu/shader";
 import * as path from "@std/path";
 import { ModuleRegistry } from "@wesl/linker";
@@ -120,11 +122,11 @@ async function loadAllFiles(): Promise<LoadedFile[]> {
   // return [...boat];
   const reduceBuffer = await loadFile(
     "reduceBuffer",
-    "./src/examples/reduceBuffer.wgsl",
+    "./examples/reduceBuffer.wgsl",
   );
   const particle = await loadFile(
     "reduceBuffer",
-    "../../../community-wgsl/webgpu-samples/sample/particles/particle.wgsl",
+    "../../community-wgsl/webgpu-samples/sample/particles/particle.wgsl",
   );
   return [reduceBuffer, particle];
 }
@@ -137,7 +139,7 @@ async function loadFile(name: string, path: string): Promise<LoadedFile> {
 
 async function loadBoatFiles(): Promise<LoadedFile[]> {
   const boatAttackDir =
-    "../../../community-wgsl/unity_web_research/webgpu/wgsl/boat_attack";
+    "../../community-wgsl/unity_web_research/webgpu/wgsl/boat_attack";
 
   const boatName = "unity_webgpu_0000026E5689B260.fs.wgsl";
   const boatPath = path.join(boatAttackDir, boatName);
