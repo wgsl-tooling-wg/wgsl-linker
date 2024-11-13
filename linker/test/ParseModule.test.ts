@@ -49,7 +49,7 @@ test("read #module", () => {
 
 // test.skip("parse error shows correct line after @if", () => {});
 
-test("import gleam style", () => {
+test("import gleam style", async (ctx) => {
   const src = `
     import my/foo
 

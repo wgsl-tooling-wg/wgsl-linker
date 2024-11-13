@@ -58,12 +58,6 @@ snapshot[`simple fn export 1`] = `
   imports: [],
   kind: "text",
   modulePath: "./test.wgsl",
-  preppedSrc: "
-    export
-    fn one() -> i32 {
-      return 1;
-    }
-  ",
   src: "
     export
     fn one() -> i32 {
@@ -77,23 +71,9 @@ snapshot[`simple fn export 1`] = `
       return 1;
     }
   ",
-    entries: [
-      {
-        destEnd: 58,
-        destStart: 0,
-        src: "
-    export
-    fn one() -> i32 {
-      return 1;
-    }
-  ",
-        srcEnd: 58,
-        srcStart: 0,
-      },
-    ],
+    entries: [],
   },
   structs: [],
-  template: undefined,
   vars: [],
 }
 `;
@@ -149,11 +129,6 @@ snapshot[`simple fn import 1`] = `
   ],
   kind: "text",
   modulePath: "./test.wgsl",
-  preppedSrc: "
-    import bar/foo
-
-    fn bar() { foo(); }
-  ",
   src: "
     import bar/foo
 
@@ -165,36 +140,11 @@ snapshot[`simple fn import 1`] = `
 
     fn bar() { foo(); }
   ",
-    entries: [
-      {
-        destEnd: 47,
-        destStart: 0,
-        src: "
-    import bar/foo
-
-    fn bar() { foo(); }
-  ",
-        srcEnd: 47,
-        srcStart: 0,
-      },
-    ],
+    entries: [],
   },
   structs: [],
-  template: undefined,
   vars: [],
 }
-`;
-
-snapshot[`parse error shows correct line after #ifdef  1`] = `
-"missing fn name
-    fn () { } // oops   Ln 6
-      ^"
-`;
-
-snapshot[`parse error shows correct line after #ifdef and simple #template 1`] = `
-"missing fn name
-    fn () { } // oops   Ln 8
-      ^"
 `;
 
 snapshot[`import gleam style 1`] = `

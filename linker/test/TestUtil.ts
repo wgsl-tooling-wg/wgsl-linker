@@ -1,5 +1,9 @@
-import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
-import { logCatch, testParse, TestParseResult } from "mini-parse/test-util";
+import { _withBaseLogger, NoTags, Parser, TagRecord } from "@wesl/mini-parse";
+import {
+  logCatch,
+  testParse,
+  TestParseResult,
+} from "@wesl/mini-parse/test-util";
 import { expect } from "vitest";
 import { AbstractElem } from "../AbstractElems.ts";
 import { mainTokens } from "../MatchWgslD.ts";

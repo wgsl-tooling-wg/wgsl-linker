@@ -84,23 +84,23 @@ export const template: Parser<any> = seq(
 );
 
 /** find possible references to user structs in this type specifier and any templates */
-export const typeSpecifier: Parser<TypeRefElem[]> = seq(
+export const type_specifier: Parser<TypeRefElem[]> = seq(
   tokens(identTokens, longIdent.tag(possibleTypeRef)),
   opt(template),
-).map(r =>
-  r.tags[possibleTypeRef].map(name => {
+).map((r) =>
+  r.tags[possibleTypeRef].map((name) => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
     e.name = name;
     return e as Required<typeof e>;
-  }),
+  })
 );
 
 export const structMember = seq(
   optAttributes,
   word.tag("name"),
   ":",
-  req(typeSpecifier.tag("typeRefs")),
-).map(r => {
+  req(type_specifier.tag("typeRefs")),
+).map((r) => {
   return makeElem("member", r, ["name", "typeRefs"]);
 });
 
@@ -143,17 +143,17 @@ export const fnCall = tokens(
 const fnParam = seq(
   optAttributes,
   word,
-  opt(seq(":", req(typeSpecifier.tag("typeRefs"))))
+  opt(seq(":", req(type_specifier.tag("typeRefs")))),
 );
 
 const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
 
 // prettier-ignore
 const variableDecl = seq(
-  or("const", "var", "let", "override"), 
-  word, 
-  ":", 
-  req(typeSpecifier).tag("typeRefs")
+  or("const", "var", "let", "override"),
+  word,
+  ":",
+  req(type_specifier).tag("typeRefs"),
 );
 
 // TODO: Fix everything else to also use this instead of "template"
@@ -170,7 +170,7 @@ const opt_template_args = opt(
 const primary_expression = or(
   literal,
   seq(
-    word,
+    word.tag("ident"),
     opt_template_args,
     opt(
       seq(
@@ -265,9 +265,9 @@ export const fnDecl = seq(
   "fn",
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList),
-  opt(seq("->", optAttributes, typeSpecifier.tag("typeRefs"))),
+  opt(seq("->", optAttributes, type_specifier.tag("typeRefs"))),
   req(block),
-).map(r => {
+).map((r) => {
   const e = makeElem("fn", r);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
@@ -282,9 +282,9 @@ export const globalVar = seq(
   or("const", "override", "var"),
   opt(template),
   word.tag("name"),
-  opt(seq(":", req(typeSpecifier.tag("typeRefs")))),
+  opt(seq(":", req(type_specifier.tag("typeRefs")))),
   req(anyThrough(";")),
-).map(r => {
+).map((r) => {
   const e = makeElem("var", r, ["name"]);
   e.typeRefs = r.tags.typeRefs?.flat() || [];
   r.app.state.push(e);
@@ -294,9 +294,9 @@ export const globalAlias = seq(
   "alias",
   req(word.tag("name")),
   req("="),
-  req(typeSpecifier).tag("typeRefs"),
+  req(type_specifier).tag("typeRefs"),
   req(";"),
-).map(r => {
+).map((r) => {
   const e = makeElem("alias", r, ["name", "typeRefs"]);
   r.app.state.push(e);
 });
@@ -337,7 +337,7 @@ if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     globalDirectiveOrAssert,
     template,
-    typeSpecifier,
+    type_specifier,
     structMember,
     structDecl,
     fnCall,

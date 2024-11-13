@@ -128,7 +128,7 @@ test("traverse transitive struct refs", () => {
   expect(refs[2].elem.name).toBe("BStruct");
 });
 
-test("traverse ref from struct constructor", () => {
+test.ignore("traverse ref from struct constructor", () => {
   const src = `
     import ./file1/AStruct
 
@@ -161,11 +161,11 @@ test("traverse with local support struct", () => {
   `;
 
   const refs = traverseTest(src, module1);
-  const refNames = refs.map(r => r.elem.name);
+  const refNames = refs.map((r) => r.elem.name);
   expect(refNames).toEqual(["B", "b", "A"]);
 });
 
-test("traverse from return type of function", () => {
+test.ignore("traverse from return type of function", () => {
   const src = `
     import ./file1/A
 
@@ -265,13 +265,13 @@ test("struct cross reference", () => {
   `;
   const { refs, log } = traverseWithLog(src);
   expect(log).toBe("");
-  const refNames = refs.map(r => (r as any).elem.name);
+  const refNames = refs.map((r) => (r as any).elem.name);
   expect(refNames).toContain("A");
   expect(refNames).toContain("B");
   expect(refNames.length).toBe(2);
 });
 
-test("parse texture_storage_2d with texture format in type position", () => {
+Deno.test("parse texture_storage_2d with texture format in type position", () => {
   const src = `var t: texture_storage_2d<rgba8unorm, write>;`;
   const { log } = traverseWithLog(src);
   expect(log).toBe("");

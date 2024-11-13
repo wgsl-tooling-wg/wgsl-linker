@@ -42,7 +42,7 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
   // cache of tokens by position, so we don't have to reparse after backtracking
   const cache = new Cache<number, Token>(5);
   const expParts = Object.entries(matchers).map(toRegexSource).join("|");
-  const exp = new RegExp(expParts, "midg");
+  const exp = new RegExp(expParts, "midgu");
 
   function start(text: string, position = 0): void {
     if (src !== text) {

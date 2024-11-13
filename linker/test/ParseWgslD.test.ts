@@ -1,7 +1,6 @@
 import { _withBaseLogger, or, repeat } from "@wesl/mini-parse";
 import { expectNoLogErr, logCatch } from "@wesl/mini-parse/test-util";
 
-import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
 import { assertSnapshot } from "@std/testing/snapshot";
 import type {
@@ -17,7 +16,7 @@ import {
   globalVar,
   parseWgslD,
   structDecl,
-  typeSpecifier,
+  type_specifier,
 } from "../ParseWgslD.ts";
 import { testAppParse } from "./TestUtil.ts";
 
@@ -203,7 +202,7 @@ test("parse type in <template> in fn args", () => {
 test("parse simple templated type", () => {
   const src = `array<MyStruct,4>`;
 
-  const { parsed } = testAppParse(typeSpecifier, src);
+  const { parsed } = testAppParse(type_specifier, src);
   expect(parsed?.value[0].name).toBe("array");
   expect(parsed?.value[1].name).toBe("MyStruct");
   expect(parsed?.value.length).toBe(2);
@@ -212,7 +211,7 @@ test("parse simple templated type", () => {
 test("parse nested template that ends with >> ", () => {
   const src = `vec2<array <MyStruct,4>>`;
 
-  const { parsed } = testAppParse(typeSpecifier, src);
+  const { parsed } = testAppParse(type_specifier, src);
   const typeRefNames = parsed?.value.map((r) => r.name);
   expect(typeRefNames).toEqual(["vec2", "array", "MyStruct"]);
 });
@@ -320,7 +319,7 @@ test("parse switch statement", async (ctx) => {
   await assertSnapshot(ctx, parsed);
 });
 
-test.skip("parse switch statement-2", () => {
+test.ignore("parse switch statement-2", () => {
   const src = `
 
     fn main(x: u32) {
@@ -331,7 +330,7 @@ test.skip("parse switch statement-2", () => {
     }
   `;
   const parsed = testParseWgsl(src);
-  dlog({ parsed });
+  // dlog({ parsed });
   // expect(parsed).toMatchSnapshot();
-  expect.fail();
+  // expect.fail();
 });

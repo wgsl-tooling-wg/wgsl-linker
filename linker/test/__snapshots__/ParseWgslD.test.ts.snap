@@ -420,7 +420,7 @@ snapshot[`parse switch statement 1`] = `
 [
   {
     calls: [],
-    end: 104,
+    end: 110,
     kind: "fn",
     name: "main",
     nameElem: {
@@ -430,7 +430,14 @@ snapshot[`parse switch statement 1`] = `
       start: 8,
     },
     start: 5,
-    typeRefs: [],
+    typeRefs: [
+      {
+        end: 19,
+        kind: "typeRef",
+        name: "i32",
+        start: 16,
+      },
+    ],
   },
 ]
 `;

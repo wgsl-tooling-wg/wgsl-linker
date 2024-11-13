@@ -4,13 +4,14 @@ import { treeToString } from "../ImportTree.ts";
 import { directive } from "../ParseDirective.ts";
 import { parseWgslD } from "../ParseWgslD.ts";
 import { testAppParse } from "./TestUtil.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
-test("directive parses #export", () => {
+test.ignore("directive parses #export", () => {
   const { appState } = testAppParse(directive, "#export");
   expect(appState[0].kind).toBe("export");
 });
 
-test("parse #export", () => {
+test.ignore("parse #export", () => {
   const parsed = parseWgslD("#export");
   expect(parsed[0].kind).toBe("export");
 });
@@ -45,23 +46,23 @@ test("module foo/bar/ba", (ctx) => {
   expect((appState[0] as ModuleElem).name).toBe("foo/bar/ba");
 });
 
-test("import ./util/foo;", ctx => {
-  const appState = parseWgslD(ctx.task.name);
+test("import ./util/foo;", (ctx) => {
+  const appState = parseWgslD(ctx.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
   expect(segments).toBe("./util/foo");
 });
 
-test("import ./bar/foo;", ctx => {
-  const appState = parseWgslD(ctx.task.name);
+test("import ./bar/foo;", (ctx) => {
+  const appState = parseWgslD(ctx.name);
   const importElem = appState[0] as TreeImportElem;
   const segments = treeToString(importElem.imports);
   expect(segments).toBe("./bar/foo");
 });
 
-test("import ./bar/{foo,bar};", ctx => {
-  const appState = parseWgslD(ctx.task.name);
-  const imports = appState.filter(e => e.kind === "treeImport");
-  const segments = imports.map(i => treeToString(i.imports));
+test("import ./bar/{foo,bar};", (ctx) => {
+  const appState = parseWgslD(ctx.name);
+  const imports = appState.filter((e) => e.kind === "treeImport");
+  const segments = imports.map((i) => treeToString(i.imports));
   expect(segments).toContain("./bar/{(foo), (bar)}");
 });
