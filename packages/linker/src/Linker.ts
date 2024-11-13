@@ -19,7 +19,6 @@ import {
   TextRef,
   traverseRefs,
 } from "./TraverseRefs.js";
-import { replaceWords } from "./Util.js";
 
 type DirectiveRef = {
   kind: "dir";
@@ -36,8 +35,7 @@ export function link(args: RegistryParams) {}
  * Produce a linked wgsl string with all directives processed
  * (e.g. #import'd functions from other modules are inserted into the resulting string).
  *
- * @param runtimeParams runtime parameters for #import/#export values,
- *  template values, and code generation parameters
+ * @param runtimeParams runtime parameters for future codnitional compilation
  */
 export function linkWgslModule(
   srcModule: TextModule,
@@ -54,7 +52,7 @@ export function linkWgslModule(
 
   // extract export texts, rewriting via rename map and exp/imp args
   const extractRefs = [...loadRefs, ...directiveRefs];
-  return extractTexts(extractRefs, extParams);
+  return extractTexts(extractRefs);
 }
 
 /** Find references to elements like structs and fns to import into the linked result.
@@ -163,10 +161,7 @@ function toDirectiveRef(
 }
 
 // LATER rename imported vars or aliases
-function loadOtherElem(
-  ref: TextRef | DirectiveRef,
-  extParams: Record<string, string>,
-): string {
+function loadOtherElem(ref: TextRef | DirectiveRef): string {
   const { expMod, elem } = ref;
   const typeRefs = (elem as VarElem | AliasElem).typeRefs ?? [];
   const slicing = typeRefSlices(typeRefs);
@@ -176,58 +171,52 @@ function loadOtherElem(
   return srcMap.dest;
 }
 
-function loadGeneratedElem(
-  ref: GeneratorRef,
-  extParams: Record<string, string>,
-): string {
+function loadGeneratedElem(ref: GeneratorRef): string {
   const genExp = ref.expMod.exports.find(e => e.name === ref.name);
   if (!genExp) {
     refLog(ref, "missing generator", ref.name);
     return "//?";
   }
   const fnName = ref.rename ?? ref.proposedName ?? ref.name;
-  const params = {}
+  const params = {};
 
   const text = genExp?.generate(fnName, params);
   return text;
 }
 
 /** load exported text for an import */
-function extractTexts(
-  refs: LoadableRef[],
-  extParams: Record<string, string>,
-): string {
+function extractTexts(refs: LoadableRef[]): string {
   return refs
     .map(r => {
       if (r.kind === "gen") {
-        return loadGeneratedElem(r, extParams);
+        return loadGeneratedElem(r);
       }
       if (r.kind === "txt") {
         const elemKind = r.elem.kind;
         if (elemKind === "fn") {
-          return loadFnText(r.elem, r, extParams);
+          return loadFnText(r.elem, r);
         }
         if (elemKind === "struct") {
-          return loadStruct(r, extParams);
+          return loadStruct(r);
         }
         if (elemKind === "var" || elemKind === "alias") {
-          return loadOtherElem(r, extParams);
+          return loadOtherElem(r);
         }
         console.warn("can't extract. unexpected elem kind:", elemKind, r.elem);
       }
       if (r.kind === "dir") {
-        return loadOtherElem(r, extParams);
+        return loadOtherElem(r);
       }
     })
     .join("\n\n");
 }
 
 /** load a struct text, mixing in any elements from #extends */
-function loadStruct(ref: TextRef, extParams: Record<string, string>): string {
+function loadStruct(ref: TextRef): string {
   const structElem = ref.elem as StructElem;
 
   const rootMembers =
-    structElem.members?.map(m => loadMemberText(m, ref, extParams)) ?? [];
+    structElem.members?.map(m => loadMemberText(m, ref)) ?? [];
 
   const allMembers = rootMembers.flat().map(m => "  " + m);
   const membersText = allMembers.join(",\n");
@@ -235,20 +224,12 @@ function loadStruct(ref: TextRef, extParams: Record<string, string>): string {
   return `struct ${name} {\n${membersText}\n}`;
 }
 
-function loadMemberText(
-  member: StructMemberElem,
-  ref: TextRef,
-  extParams: Record<string, string>,
-): string {
+function loadMemberText(member: StructMemberElem, ref: TextRef): string {
   const newRef = { ...ref, elem: member };
-  return loadOtherElem(newRef, extParams);
+  return loadOtherElem(newRef);
 }
 
-function loadFnText(
-  elem: FnElem,
-  ref: TextRef,
-  extParams: Record<string, string>,
-): string {
+function loadFnText(elem: FnElem, ref: TextRef): string {
   const { rename } = ref;
   const slicing: SliceReplace[] = [];
 
