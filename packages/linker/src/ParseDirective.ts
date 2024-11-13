@@ -13,7 +13,6 @@ import {
   withSep,
 } from "mini-parse";
 import { gleamImport } from "./GleamImport.js";
-import { ImportTree, SimpleSegment } from "./ImportTree.js";
 import {
   argsTokens,
   lineCommentTokens,
@@ -22,7 +21,7 @@ import {
 } from "./MatchWgslD.js";
 import { eolf, makeElem } from "./ParseSupport.js";
 
-/* parse #directive enhancements to wgsl: #import, #export, etc. */
+/* parse #directive enhancements to wgsl: #export, etc. */
 
 const argsWord = kind(argsTokens.arg);
 const fromWord = or(argsWord, kind(argsTokens.relPath));
@@ -40,64 +39,6 @@ const fromClause = seq(
   "from",
   or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"')),
 );
-
-export interface ImportClause {
-  name: string;
-  as?: string;
-  args?: string[];
-}
-
-// prettier-ignore
-/** foo <(A,B)> <as bar> */
-const importClause = seq(
-  argsWord.tag("name"),
-  opt(directiveArgs.tag("args")),
-  opt(seq("as", argsWord.tag("as")))
-).map(r =>
-  ({ name: r.tags.name[0],
-    as: r.tags.as?.[0],
-    args: r.tags.args?.[0],
-  }) as ImportClause
-).tag("importClause");
-
-const importList = withSep(",", importClause, { requireOne: true });
-
-// prettier-ignore
-const bracketedImportClause = or(
-  importList, 
-  seq("{", importList, "}")
-);
-
-const importElemPhrase = seq(bracketedImportClause, fromClause).map(r => {
-  const from = r.tags.from?.[0];
-  return r.tags.importClause.map(impClause => {
-    const elem = makeElem("treeImport", r as any, [], []);
-    const fromSegments = from.split("/").map(s => new SimpleSegment(s));
-    const lastSegment = new SimpleSegment(
-      impClause.name,
-      impClause.as,
-      impClause.args,
-    );
-    const segments = [...fromSegments, lastSegment];
-    const importTree: ImportTree = new ImportTree(segments);
-    elem.imports = importTree;
-    // TODO wildcards
-    return elem;
-  });
-});
-
-if (tracing) setTraceNames({ importElemPhrase });
-
-/** #import foo <(a,b)> <as boo> <from bar>  EOL */
-const importDirective = seq(
-  or("#import", "import"),
-  seq(importElemPhrase.tag("imp"), opt(";"), () => eolf),
-).map(r => {
-  r.tags.imp[0].forEach(imp => {
-    imp.start = r.start; // use start of #import, not import phrase
-    r.app.state.push(imp);
-  });
-});
 
 /** #export <foo> <(a,b)> EOL */
 export const exportDirective = seq(
@@ -143,11 +84,6 @@ if (tracing) {
   setTraceNames({
     directiveArgs,
     fromClause,
-    importClause,
-    importList,
-    bracketedImportClause,
-    importElemPhrase,
-    importDirective,
     exportDirective,
     skipToEol,
     lineComment,
