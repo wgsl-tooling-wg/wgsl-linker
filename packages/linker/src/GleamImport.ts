@@ -18,16 +18,16 @@ import {
   withSepPlus,
   withTags,
 } from "mini-parse";
-import { TreeImportElem } from "./AbstractElems.js";
+import { TreeImportElem } from "./AbstractElems.ts";
 import {
   ImportTree,
   PathSegment,
   SegmentList,
   SimpleSegment,
   Wildcard,
-} from "./ImportTree.js";
-import { digits, eol, word } from "./MatchWgslD.js";
-import { makeElem } from "./ParseSupport.js";
+} from "./ImportTree.ts";
+import { digits, eol, word } from "./MatchWgslD.ts";
+import { makeElem } from "./ParseSupport.ts";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);

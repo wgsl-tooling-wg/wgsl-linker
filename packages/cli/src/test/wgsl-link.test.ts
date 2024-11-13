@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { cli } from "../cli.js";
+import { cli } from "../cli.ts";
 
 /** so vitest triggers when these files change */
 import("./src/test/wgsl/main.wgsl?raw");

@@ -1,7 +1,7 @@
 import { srcLog } from "mini-parse";
-import { AbstractElem } from "./AbstractElems.js";
-import { TextModule } from "./ParseModule.js";
-import { FoundRef } from "./TraverseRefs.js";
+import { AbstractElem } from "./AbstractElems.ts";
+import { TextModule } from "./ParseModule.ts";
+import { FoundRef } from "./TraverseRefs.ts";
 
 export function refLog(ref: FoundRef, ...msgs: any[]): void {
   moduleLog(ref.expMod, [ref.elem.start, ref.elem.end], ...msgs);

@@ -1,13 +1,13 @@
 import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
-import { calcTokens } from "../examples/CalculatorExample.js";
+import { calcTokens } from "../examples/CalculatorExample.ts";
 import {
   power,
   product,
   resultsStatement,
   sum,
-} from "../examples/CalculatorResultsExample.js";
-import { Parser } from "../Parser.js";
+} from "../examples/CalculatorResultsExample.ts";
+import { Parser } from "../Parser.ts";
 
 test("power 2 ^ 4", () => {
   const { parsed } = testParse(power, "2 ^ 3", calcTokens);

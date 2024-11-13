@@ -18,8 +18,8 @@ async function writeFiles(): Promise<void> {
 
 function testText(i: number) {
   return `
-import { pathSets } from "../parallelDriver.js";
-import { testWgslFiles } from "../parallelTest.js";
+import { pathSets } from "../parallelDriver.ts";
+import { testWgslFiles } from "../parallelTest.ts";
 
 testWgslFiles(pathSets[${i}]);
 `;

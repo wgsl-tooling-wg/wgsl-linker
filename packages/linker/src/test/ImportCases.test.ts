@@ -1,8 +1,8 @@
 import { afterAll, expect, test } from "vitest";
 import { importCases } from "wesl-testsuite";
 
-import { ModuleRegistry } from "../ModuleRegistry.js";
-import { trimSrc } from "./shared/StringUtil.js";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
+import { trimSrc } from "./shared/StringUtil.ts";
 
 interface LinkExpectation {
   includes?: string[];

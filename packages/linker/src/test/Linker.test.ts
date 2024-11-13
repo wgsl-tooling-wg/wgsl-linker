@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
-import { ModuleRegistry } from "../ModuleRegistry.js";
-import { expectNoLog, linkTest, linkTestOpts } from "./TestUtil.js";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
+import { expectNoLog, linkTest, linkTestOpts } from "./TestUtil.ts";
 
 /* --- these tests rely on features not yet portable in wesl --- */
 

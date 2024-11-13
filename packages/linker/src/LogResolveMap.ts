@@ -1,4 +1,4 @@
-import { ResolveMap } from "./ImportResolutionMap.js";
+import { ResolveMap } from "./ImportResolutionMap.ts";
 
 export function logResolveMap(resolveMap: ResolveMap): void {
   const pathEntries = pathsToStrings(resolveMap);

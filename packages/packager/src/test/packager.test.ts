@@ -2,7 +2,7 @@ import { mkdir } from "node:fs/promises";
 import path from "path";
 import { rimraf } from "rimraf";
 import { test } from "vitest";
-import { packagerCli } from "../packagerCli.js";
+import { packagerCli } from "../packagerCli.ts";
 
 test("package two wgsl files", async () => {
   const projectDir = path.join(".", "src", "test", "wgsl-package");

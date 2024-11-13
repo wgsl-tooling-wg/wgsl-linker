@@ -1,7 +1,7 @@
-import { ResolveMap } from "./ImportResolutionMap.js";
-import { ModuleExport } from "./ModuleRegistry.js";
-import { StringPairs } from "./TraverseRefs.js";
-import { overlapTail } from "./Util.js";
+import { ResolveMap } from "./ImportResolutionMap.ts";
+import { ModuleExport } from "./ModuleRegistry.ts";
+import { StringPairs } from "./TraverseRefs.ts";
+import { overlapTail } from "./Util.ts";
 
 export interface ResolvedImport {
   modExp: ModuleExport;

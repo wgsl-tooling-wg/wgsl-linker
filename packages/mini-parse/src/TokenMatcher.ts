@@ -1,4 +1,4 @@
-import { srcLog } from "./ParserLogging.js";
+import { srcLog } from "./ParserLogging.ts";
 
 export interface Token {
   kind: string;

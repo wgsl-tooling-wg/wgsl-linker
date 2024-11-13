@@ -1,6 +1,6 @@
 import { SrcMap } from "mini-parse";
 import { expect, test } from "vitest";
-import { sliceReplace } from "../Slicer.js";
+import { sliceReplace } from "../Slicer.ts";
 
 test("slice middle", () => {
   const src = "aaabbbc";

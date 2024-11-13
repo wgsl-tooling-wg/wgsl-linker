@@ -1,7 +1,7 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { importSyntaxCases } from "wesl-testsuite";
-import { gleamImport } from "../GleamImport.js";
+import { gleamImport } from "../GleamImport.ts";
 
 function expectParseFail(src: string): void {
   const result = testParse(gleamImport, src);

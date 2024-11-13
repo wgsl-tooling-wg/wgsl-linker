@@ -1,8 +1,8 @@
 import { expect, test } from "vitest";
-import { importResolutionMap } from "../ImportResolutionMap.js";
-import { ModuleRegistry } from "../ModuleRegistry.js";
-import { TextExport } from "../ParseModule.js";
-import { resolveImport } from "../ResolveImport.js";
+import { importResolutionMap } from "../ImportResolutionMap.ts";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
+import { TextExport } from "../ParseModule.ts";
+import { resolveImport } from "../ResolveImport.ts";
 
 test("resolveImport foo() from import bar/foo", () => {
   const registry = new ModuleRegistry({

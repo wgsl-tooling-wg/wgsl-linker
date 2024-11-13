@@ -1,15 +1,15 @@
-import { TreeImportElem } from "./AbstractElems.js";
+import { TreeImportElem } from "./AbstractElems.ts";
 import {
   ImportTree,
   PathSegment,
   SegmentList,
   SimpleSegment,
   Wildcard,
-} from "./ImportTree.js";
-import { ModuleExport } from "./ModuleRegistry.js";
-import { ParsedRegistry } from "./ParsedRegistry.js";
-import { TextModule } from "./ParseModule.js";
-import { dirname, normalize } from "./PathUtil.js";
+} from "./ImportTree.ts";
+import { ModuleExport } from "./ModuleRegistry.ts";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
+import { TextModule } from "./ParseModule.ts";
+import { dirname, normalize } from "./PathUtil.ts";
 
 /**
  * Maps to resolve imports to exports.

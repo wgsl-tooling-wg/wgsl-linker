@@ -9,8 +9,8 @@ import {
   StructElem,
   TreeImportElem,
   VarElem,
-} from "./AbstractElems.js";
-import { parseWgslD } from "./ParseWgslD.js";
+} from "./AbstractElems.ts";
+import { parseWgslD } from "./ParseWgslD.ts";
 
 /** module with exportable text fragments that are optionally transformed by a templating engine */
 export interface TextModule {

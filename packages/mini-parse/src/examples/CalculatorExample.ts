@@ -1,7 +1,7 @@
-import { Parser, setTraceName } from "../Parser.js";
-import { kind, opt, or, repeat, seq } from "../ParserCombinator.js";
-import { tracing } from "../ParserTracing.js";
-import { matchOneOf, tokenMatcher } from "../TokenMatcher.js";
+import { Parser, setTraceName } from "../Parser.ts";
+import { kind, opt, or, repeat, seq } from "../ParserCombinator.ts";
+import { tracing } from "../ParserTracing.ts";
+import { matchOneOf, tokenMatcher } from "../TokenMatcher.ts";
 
 export const calcTokens = tokenMatcher({
   number: /\d+/,

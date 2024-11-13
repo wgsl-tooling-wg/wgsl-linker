@@ -1,5 +1,5 @@
 import yargs from "yargs";
-import { packageWgsl } from "./packageWgsl.js";
+import { packageWgsl } from "./packageWgsl.ts";
 
 export type CliArgs = ReturnType<typeof parseArgs>;
 let cliArgs: CliArgs;

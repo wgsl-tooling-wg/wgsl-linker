@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { expect, test } from "vitest";
-import { ModuleRegistry } from "../ModuleRegistry.js";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
 
 const wgsl1: Record<string, string> = import.meta.glob("./wgsl_1/*.wgsl", {
   query: "?raw",

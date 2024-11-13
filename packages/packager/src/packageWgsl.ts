@@ -3,7 +3,7 @@ import fs, { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { WgslBundle } from "wgsl-linker";
 import wgslBundleDecl from "../../linker/src/WgslBundle.ts?raw";
-import { CliArgs } from "./packagerCli.js";
+import { CliArgs } from "./packagerCli.ts";
 
 export async function packageWgsl(args: CliArgs): Promise<void> {
   const { projectDir, outDir } = args;
@@ -38,7 +38,7 @@ export const wgslBundle = ${bundleString}
 
 export default wgslBundle;
   `;
-  const outPath = path.join(outDir, "wgslBundle.js");
+  const outPath = path.join(outDir, "wgslBundle.ts");
   await fs.writeFile(outPath, outString);
 }
 

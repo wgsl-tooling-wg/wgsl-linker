@@ -1,4 +1,4 @@
-import { enableTracing } from "../ParserTracing.js";
+import { enableTracing } from "../ParserTracing.ts";
 
 // enable parser tracing features
 enableTracing();

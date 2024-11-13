@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { tokenMatcher } from "../TokenMatcher.js";
+import { tokenMatcher } from "../TokenMatcher.ts";
 
 test("token matcher", () => {
   const m = tokenMatcher({

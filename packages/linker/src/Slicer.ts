@@ -1,5 +1,5 @@
 import { SrcMap, SrcMapEntry } from "mini-parse";
-import { last, scan } from "./Util.js";
+import { last, scan } from "./Util.ts";
 
 /** specify a start,end portion of a string to be replaced */
 export interface SliceReplace {

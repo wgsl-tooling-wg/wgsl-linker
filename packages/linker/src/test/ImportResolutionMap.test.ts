@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
-import { importResolutionMap } from "../ImportResolutionMap.js";
+import { importResolutionMap } from "../ImportResolutionMap.ts";
 import {
   exportsToStrings,
   logResolveMap,
   pathsToStrings,
-} from "../LogResolveMap.js";
-import { ModuleRegistry } from "../ModuleRegistry.js";
-import { TextExport } from "../ParseModule.js";
+} from "../LogResolveMap.ts";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
+import { TextExport } from "../ParseModule.ts";
 
 test("simple tree", () => {
   const registry = new ModuleRegistry({

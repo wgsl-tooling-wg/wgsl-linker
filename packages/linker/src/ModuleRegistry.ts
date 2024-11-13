@@ -1,7 +1,7 @@
-import { ParsedRegistry } from "./ParsedRegistry.js";
-import { TextExport, TextModule } from "./ParseModule.js";
-import { normalize } from "./PathUtil.js";
-import { WgslBundle } from "./WgslBundle.js";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
+import { TextExport, TextModule } from "./ParseModule.ts";
+import { normalize } from "./PathUtil.ts";
+import { WgslBundle } from "./WgslBundle.ts";
 
 /** a single export from a module */
 export type ModuleExport = TextModuleExport;

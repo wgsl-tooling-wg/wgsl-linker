@@ -9,7 +9,7 @@
     "build:readme": "ncp ../../README.md README.md",
     "build": "run-s build:main build:minified",
     "build:main": "vite build",
-    "build:minified": "vite build -c minified.vite.config.js",
+    "build:minified": "vite build -c minified.vite.config.ts",
     "build:brotli": "brotli -f dist/minified.cjs && ls -l dist/minified.cjs.br",
     "build:size": "run-s build:minified build:brotli",
     "format": "prettier . --write",

@@ -7,8 +7,8 @@ import {
   SeqParser,
   SeqValues,
   TagsFromArg,
-} from "./CombinatorTypes.js";
-import { quotedText } from "./MatchingLexer.js";
+} from "./CombinatorTypes.ts";
+import { quotedText } from "./MatchingLexer.ts";
 import {
   ExtendedResult,
   NoTags,
@@ -21,10 +21,10 @@ import {
   simpleParser,
   TagRecord,
   tokenSkipSet,
-} from "./Parser.js";
-import { ctxLog } from "./ParserLogging.js";
-import { mergeTags } from "./ParserUtil.js";
-import { Token, TokenMatcher } from "./TokenMatcher.js";
+} from "./Parser.ts";
+import { ctxLog } from "./ParserLogging.ts";
+import { mergeTags } from "./ParserUtil.ts";
+import { Token, TokenMatcher } from "./TokenMatcher.ts";
 
 /** Parsing Combinators
  *

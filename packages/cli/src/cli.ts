@@ -2,7 +2,7 @@ import { createTwoFilesPatch } from "diff";
 import fs from "fs";
 import { ModuleRegistry, normalize } from "wgsl-linker";
 import yargs from "yargs";
-import { TypeRefElem } from "../../linker/src/AbstractElems.js";
+import { TypeRefElem } from "../../linker/src/AbstractElems.ts";
 
 type CliArgs = ReturnType<typeof parseArgs>;
 let argv: CliArgs;

@@ -12,7 +12,7 @@ import {
   _withBaseLogger,
 } from "mini-parse";
 import { expect } from "vitest";
-import { logCatch } from "./LogCatcher.js";
+import { logCatch } from "./LogCatcher.ts";
 
 const symbolSet =
   "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- ' \"" +

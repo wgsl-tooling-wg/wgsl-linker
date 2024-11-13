@@ -1,2 +1,2 @@
-export * from "./LogCatcher.js";
-export * from "./TestParse.js";
+export * from "./LogCatcher.ts";
+export * from "./TestParse.ts";

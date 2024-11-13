@@ -7,13 +7,13 @@ import {
   TreeImportElem,
   TypeRefElem,
   VarElem,
-} from "./AbstractElems.js";
-import { refFullName } from "./Linker.js";
-import { moduleLog } from "./LinkerLogging.js";
-import { ParsedRegistry } from "./ParsedRegistry.js";
-import { TextExport, TextModule } from "./ParseModule.js";
-import { resolveImport } from "./ResolveImport.js";
-import { groupBy, last } from "./Util.js";
+} from "./AbstractElems.ts";
+import { refFullName } from "./Linker.ts";
+import { moduleLog } from "./LinkerLogging.ts";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
+import { TextExport, TextModule } from "./ParseModule.ts";
+import { resolveImport } from "./ResolveImport.ts";
+import { groupBy, last } from "./Util.ts";
 
 /**
  * A wrapper around a wgsl element targeted for inclusion in the link

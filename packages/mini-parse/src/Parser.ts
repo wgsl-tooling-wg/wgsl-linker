@@ -1,7 +1,7 @@
-import { CombinatorArg, ParserFromArg } from "./CombinatorTypes.js";
-import { Lexer } from "./MatchingLexer.js";
-import { ParseError, parserArg } from "./ParserCombinator.js";
-import { srcLog } from "./ParserLogging.js";
+import { CombinatorArg, ParserFromArg } from "./CombinatorTypes.ts";
+import { Lexer } from "./MatchingLexer.ts";
+import { ParseError, parserArg } from "./ParserCombinator.ts";
+import { srcLog } from "./ParserLogging.ts";
 import {
   debugNames,
   parserLog,
@@ -9,9 +9,9 @@ import {
   TraceOptions,
   tracing,
   withTraceLogging,
-} from "./ParserTracing.js";
-import { mergeTags } from "./ParserUtil.js";
-import { SrcMap } from "./SrcMap.js";
+} from "./ParserTracing.ts";
+import { mergeTags } from "./ParserUtil.ts";
+import { SrcMap } from "./SrcMap.ts";
 
 export interface AppState<A> {
   /**

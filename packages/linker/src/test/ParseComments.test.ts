@@ -2,10 +2,10 @@ import { preParse } from "mini-parse";
 import { expectNoLogErr } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import { lineComment } from "../ParseDirective.js";
-import { blockComment, comment, wordNumArgs } from "../ParseSupport.js";
-import { parseWgslD } from "../ParseWgslD.js";
-import { testAppParse } from "./TestUtil.js";
+import { lineComment } from "../ParseDirective.ts";
+import { blockComment, comment, wordNumArgs } from "../ParseSupport.ts";
+import { parseWgslD } from "../ParseWgslD.ts";
+import { testAppParse } from "./TestUtil.ts";
 
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";

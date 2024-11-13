@@ -1,9 +1,9 @@
 import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
 import { logCatch, testParse, TestParseResult } from "mini-parse/test-util";
 import { expect } from "vitest";
-import { AbstractElem } from "../AbstractElems.js";
-import { mainTokens } from "../MatchWgslD.js";
-import { ModuleRegistry } from "../ModuleRegistry.js";
+import { AbstractElem } from "../AbstractElems.ts";
+import { mainTokens } from "../MatchWgslD.ts";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,

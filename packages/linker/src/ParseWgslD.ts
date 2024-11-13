@@ -22,9 +22,9 @@ import {
   tracing,
   withSep,
 } from "mini-parse";
-import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.js";
-import { identTokens, mainTokens } from "./MatchWgslD.js";
-import { directive } from "./ParseDirective.js";
+import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
+import { identTokens, mainTokens } from "./MatchWgslD.ts";
+import { directive } from "./ParseDirective.ts";
 import {
   comment,
   literal,
@@ -32,7 +32,7 @@ import {
   unknown,
   word,
   wordNumArgs,
-} from "./ParseSupport.js";
+} from "./ParseSupport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 

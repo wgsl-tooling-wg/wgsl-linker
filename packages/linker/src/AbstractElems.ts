@@ -1,7 +1,7 @@
 /** Structures for the abstract syntax tree constructed by the parser. */
 
-import { ImportTree } from "./ImportTree.js";
-import { FoundRef } from "./TraverseRefs.js";
+import { ImportTree } from "./ImportTree.ts";
+import { FoundRef } from "./TraverseRefs.ts";
 
 export type AbstractElem =
   | AliasElem

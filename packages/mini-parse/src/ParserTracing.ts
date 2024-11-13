@@ -1,4 +1,4 @@
-import { Parser, ParserContext, setTraceName } from "./Parser.js";
+import { Parser, ParserContext, setTraceName } from "./Parser.ts";
 
 /** true if parser tracing is enabled */
 export let tracing = false;

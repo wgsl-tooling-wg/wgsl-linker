@@ -1,6 +1,6 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, TaskContext, test } from "vitest";
-import { gleamImport } from "../GleamImport.js";
+import { gleamImport } from "../GleamImport.ts";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
   const result = testParse(gleamImport, ctx.task.name);

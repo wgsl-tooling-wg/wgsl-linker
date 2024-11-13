@@ -12,7 +12,7 @@ import {
   preParse,
   setTraceName,
   tokenSkipSet,
-} from "../Parser.js";
+} from "../Parser.ts";
 import {
   any,
   anyNot,
@@ -28,8 +28,8 @@ import {
   text,
   withSep,
   withTags,
-} from "../ParserCombinator.js";
-import { enableTracing, _withBaseLogger } from "../ParserTracing.js";
+} from "../ParserCombinator.ts";
+import { enableTracing, _withBaseLogger } from "../ParserTracing.ts";
 
 const m = testTokens;
 

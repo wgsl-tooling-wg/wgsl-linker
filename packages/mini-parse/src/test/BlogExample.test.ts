@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
-import { matchingLexer } from "../MatchingLexer.js";
-import { kind, opt, repeat, seq } from "../ParserCombinator.js";
-import { matchOneOf, tokenMatcher } from "../TokenMatcher.js";
+import { matchingLexer } from "../MatchingLexer.ts";
+import { kind, opt, repeat, seq } from "../ParserCombinator.ts";
+import { matchOneOf, tokenMatcher } from "../TokenMatcher.ts";
 
 test("parse fn foo()", () => {
   const src = "fn foo()";

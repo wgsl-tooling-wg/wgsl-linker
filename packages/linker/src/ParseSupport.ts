@@ -15,9 +15,9 @@ import {
   tracing,
   withSep,
 } from "mini-parse";
-import { AbstractElem, AbstractElemBase } from "./AbstractElems.js";
-import { argsTokens, mainTokens } from "./MatchWgslD.js";
-import { lineComment } from "./ParseDirective.js";
+import { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
+import { argsTokens, mainTokens } from "./MatchWgslD.ts";
+import { lineComment } from "./ParseDirective.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 

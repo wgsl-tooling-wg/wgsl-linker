@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { parseModule, TextModule } from "../ParseModule.js";
+import { parseModule, TextModule } from "../ParseModule.ts";
 
 test("simple fn export", () => {
   const src = `

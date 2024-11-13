@@ -1,5 +1,5 @@
 import { dlogOpt } from "berry-pretty";
-import { uniquishFiles } from "../src/util/uniqueDocs.js";
+import { uniquishFiles } from "../src/util/uniqueDocs.ts";
 
 /* The boat_attack sample shaders have significantly internal duplication
  * This script tries to find the relatively unique shaders for testing.

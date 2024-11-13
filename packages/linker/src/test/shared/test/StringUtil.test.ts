@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { trimSrc } from "../StringUtil.js";
+import { trimSrc } from "../StringUtil.ts";
 
 test("trimSrc on blank", () => {
   const trimmed = trimSrc(``);

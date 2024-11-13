@@ -1,14 +1,14 @@
-import { TreeImportElem } from "./AbstractElems.js";
-import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
-import { linkWgslModule } from "./Linker.js";
+import { TreeImportElem } from "./AbstractElems.ts";
+import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.ts";
+import { linkWgslModule } from "./Linker.ts";
 import {
   ModuleExport,
   ModuleRegistry,
   relativeToAbsolute,
   TextModuleExport,
-} from "./ModuleRegistry.js";
-import { parseModule, TextExport, TextModule } from "./ParseModule.js";
-import { dirname, normalize, noSuffix } from "./PathUtil.js";
+} from "./ModuleRegistry.ts";
+import { parseModule, TextExport, TextModule } from "./ParseModule.ts";
+import { dirname, normalize, noSuffix } from "./PathUtil.ts";
 
 /** parse wgsl files and provided indexed access to modules and exports */
 export class ParsedRegistry {

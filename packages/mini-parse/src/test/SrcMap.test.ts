@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { SrcMap } from "../SrcMap.js";
+import { SrcMap } from "../SrcMap.ts";
 
 test("compact", () => {
   const src = "a b";

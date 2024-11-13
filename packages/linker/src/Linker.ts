@@ -6,12 +6,12 @@ import {
   StructMemberElem,
   TypeRefElem,
   VarElem,
-} from "./AbstractElems.js";
-import { RegistryParams } from "./ModuleRegistry.js";
-import { ParsedRegistry } from "./ParsedRegistry.js";
-import { TextModule } from "./ParseModule.js";
-import { SliceReplace, sliceReplace } from "./Slicer.js";
-import { FoundRef, TextRef, traverseRefs } from "./TraverseRefs.js";
+} from "./AbstractElems.ts";
+import { RegistryParams } from "./ModuleRegistry.ts";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
+import { TextModule } from "./ParseModule.ts";
+import { SliceReplace, sliceReplace } from "./Slicer.ts";
+import { FoundRef, TextRef, traverseRefs } from "./TraverseRefs.ts";
 
 type DirectiveRef = {
   kind: "dir";

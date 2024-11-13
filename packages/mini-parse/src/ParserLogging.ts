@@ -1,6 +1,6 @@
-import { ExtendedResult, ParserContext } from "./Parser.js";
-import { logger, parserLog } from "./ParserTracing.js";
-import { SrcMap } from "./SrcMap.js";
+import { ExtendedResult, ParserContext } from "./Parser.ts";
+import { logger, parserLog } from "./ParserTracing.ts";
+import { SrcMap } from "./SrcMap.ts";
 
 /** log an message along with the source line and a caret indicating the error position in the line
  * @param pos is the position the source string, or if src is a SrcMap, then

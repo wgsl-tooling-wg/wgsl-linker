@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { overlapTail, scan } from "../Util.js";
+import { overlapTail, scan } from "../Util.ts";
 
 test("scan", () => {
   const result = scan([1, 2, 1], (a, b: string) => b.slice(a), "foobar");

@@ -1,4 +1,4 @@
-import { NoTags, Parser, TagRecord } from "./Parser.js";
+import { NoTags, Parser, TagRecord } from "./Parser.ts";
 
 /** Typescript types for parser combinators */
 

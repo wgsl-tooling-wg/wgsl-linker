@@ -3,17 +3,17 @@ import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 
 import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
-import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.js";
-import { filterElems } from "../ParseModule.js";
-import { unknown, wordNumArgs } from "../ParseSupport.js";
+import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.ts";
+import { filterElems } from "../ParseModule.ts";
+import { unknown, wordNumArgs } from "../ParseSupport.ts";
 import {
   fnDecl,
   globalVar,
   parseWgslD,
   structDecl,
   typeSpecifier,
-} from "../ParseWgslD.js";
-import { testAppParse } from "./TestUtil.js";
+} from "../ParseWgslD.ts";
+import { testAppParse } from "./TestUtil.ts";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);

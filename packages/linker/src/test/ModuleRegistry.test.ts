@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { ModuleRegistry } from "../ModuleRegistry.js";
+import { ModuleRegistry } from "../ModuleRegistry.ts";
 
 test("findTextModule", () => {
   const registry = new ModuleRegistry({

@@ -1,13 +1,13 @@
 import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
-import { calcTokens, statement } from "../examples/CalculatorExample.js";
+import { calcTokens, statement } from "../examples/CalculatorExample.ts";
 import {
   simpleSum,
   simpleTokens,
   sumResults,
   taggedSum,
-} from "../examples/DocExamples.js";
-import { matchingLexer } from "../MatchingLexer.js";
+} from "../examples/DocExamples.ts";
+import { matchingLexer } from "../MatchingLexer.ts";
 
 test("parse 3 + 4", () => {
   const src = "3 + 4";

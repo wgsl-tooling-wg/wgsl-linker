@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
-import { ModuleElem, TreeImportElem } from "../AbstractElems.js";
-import { treeToString } from "../ImportTree.js";
-import { directive } from "../ParseDirective.js";
-import { parseWgslD } from "../ParseWgslD.js";
-import { testAppParse } from "./TestUtil.js";
+import { ModuleElem, TreeImportElem } from "../AbstractElems.ts";
+import { treeToString } from "../ImportTree.ts";
+import { directive } from "../ParseDirective.ts";
+import { parseWgslD } from "../ParseWgslD.ts";
+import { testAppParse } from "./TestUtil.ts";
 
 test("directive parses #export", () => {
   const { appState } = testAppParse(directive, "#export");
