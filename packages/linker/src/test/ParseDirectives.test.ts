@@ -1,6 +1,3 @@
-import { _withBaseLogger } from "mini-parse";
-import { logCatch } from "mini-parse/test-util";
-
 import { expect, test } from "vitest";
 import { ModuleElem, TreeImportElem } from "../AbstractElems.js";
 import { treeToString } from "../ImportTree.js";
@@ -21,28 +18,6 @@ test("parse #export", () => {
 test("parse import foo/bar", () => {
   const parsed = parseWgslD("import foo/bar");
   expect(parsed).toMatchSnapshot();
-});
-
-test("parse #export(foo) with trailing space", () => {
-  const src = `
-    export (Elem) 
-  `;
-
-  const parsed = parseWgslD(src);
-  expect(parsed).toMatchSnapshot();
-});
-
-test("#export w/o closing paren", () => {
-  const src = `#export (A
-    )
-    `;
-  const { log, logged } = logCatch();
-  _withBaseLogger(log, () => parseWgslD(src));
-  expect(logged()).toMatchInlineSnapshot(`
-    "expected text ')''
-    #export (A   Ln 1
-              ^"
-  `);
 });
 
 test("parse module foo.bar.ca", () => {

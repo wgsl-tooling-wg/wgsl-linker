@@ -3,14 +3,12 @@ import {
   kind,
   opt,
   or,
-  Parser,
   repeat,
   req,
   seq,
   setTraceNames,
   tokens,
-  tracing,
-  withSep,
+  tracing
 } from "mini-parse";
 import { gleamImport } from "./GleamImport.js";
 import {
@@ -26,15 +24,6 @@ import { eolf, makeElem } from "./ParseSupport.js";
 const argsWord = kind(argsTokens.arg);
 const fromWord = or(argsWord, kind(argsTokens.relPath));
 
-// prettier-ignore
-/** ( <a> <,b>* ) */
-export const directiveArgs: Parser<string[]> = 
-  seq(
-    "(", 
-    withSep(",", argsWord), 
-    req(")")
-  ).map((r) => r.value[1]);
-
 const fromClause = seq(
   "from",
   or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"')),
@@ -43,7 +32,7 @@ const fromClause = seq(
 /** #export <foo> <(a,b)> EOL */
 export const exportDirective = seq(
   or("#export", "export"),
-  seq(opt(directiveArgs.tag("args")), opt(eolf)),
+  opt(eolf)
 ).map(r => {
   const e = makeElem("export", r, ["args"]);
   r.app.state.push(e);
@@ -82,7 +71,6 @@ export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
 
 if (tracing) {
   setTraceNames({
-    directiveArgs,
     fromClause,
     exportDirective,
     skipToEol,
