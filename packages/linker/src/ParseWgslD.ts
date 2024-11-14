@@ -1,5 +1,4 @@
 import {
-  anyNot,
   anyThrough,
   eof,
   ExtendedResult,
@@ -8,7 +7,6 @@ import {
   opt,
   or,
   Parser,
-  ParserContext,
   ParserInit,
   preParse,
   repeat,
@@ -16,7 +14,6 @@ import {
   req,
   seq,
   setTraceName,
-  simpleParser,
   SrcMap,
   tokens,
   tracing,
@@ -56,31 +53,36 @@ export interface ParseState {
 
 const attribute = seq(
   "@",
-  req(or(
-    // These attributes have no arguments
-    or("compute", "const", "fragment", "invariant", "must_use", "vertex"),
-    // These attributes have arguments, but the argument doesn't have any identifiers
-    seq(
-      or("interpolate", "builtin", "diagnostic"),
-      req(() => argument_expression_list), // TODO: Throw away the identifiers
-    ),
-    // These are normal attributes
-    seq(
-      or(
-        "workgroup_size",
-        "align",
-        "binding",
-        "blend_src",
-        "group",
-        "id",
-        "location",
-        "size",
+  req(
+    or(
+      // These attributes have no arguments
+      or("compute", "const", "fragment", "invariant", "must_use", "vertex"),
+      // These attributes have arguments, but the argument doesn't have any identifiers
+      seq(
+        or("interpolate", "builtin", "diagnostic"),
+        req(() => argument_expression_list), // TODO: Throw away the identifiers
       ),
-      req(() => argument_expression_list),
+      // These are normal attributes
+      seq(
+        or(
+          "workgroup_size",
+          "align",
+          "binding",
+          "blend_src",
+          "group",
+          "id",
+          "location",
+          "size",
+        ),
+        req(() => argument_expression_list),
+      ),
+      // Everything else is also a normal attribute, it might have an expression list
+      seq(
+        kind(mainTokens.word),
+        opt(() => argument_expression_list),
+      ),
     ),
-    // Everything else is also a normal attribute, it might have an expression list
-    seq(kind(mainTokens.word), opt(() => argument_expression_list)),
-  )),
+  ),
 );
 
 const argument_expression_list = seq(
@@ -95,18 +97,18 @@ const possibleTypeRef = Symbol("typeRef");
 const globalDirectiveOrAssert = seq(
   or("diagnostic", "enable", "requires", "const_assert"),
   req(anyThrough(";")),
-).map((r) => {
+).map(r => {
   const e = makeElem("globalDirective", r);
   r.app.state.push(e);
 });
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.tag("name")).map((r) => {
+export const typeNameDecl = req(word.tag("name")).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem; // fix?
 });
 
 /** parse an identifier into a TypeNameElem */
-export const fnNameDecl = req(word.tag("name"), "missing fn name").map((r) => {
+export const fnNameDecl = req(word.tag("name"), "missing fn name").map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
@@ -114,12 +116,12 @@ export const fnNameDecl = req(word.tag("name"), "missing fn name").map((r) => {
 export const type_specifier: Parser<TypeRefElem[]> = seq(
   tokens(identTokens, longIdent.tag(possibleTypeRef)),
   () => opt_template_args,
-).map((r) =>
-  r.tags[possibleTypeRef].map((name) => {
+).map(r =>
+  r.tags[possibleTypeRef].map(name => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
     e.name = name;
     return e as Required<typeof e>;
-  })
+  }),
 );
 
 const optionally_typed_ident = seq(
@@ -132,7 +134,7 @@ export const structMember = seq(
   word.tag("name"),
   ":",
   req(type_specifier.tag("typeRefs")),
-).map((r) => {
+).map(r => {
   return makeElem("member", r, ["name", "typeRefs"]);
 });
 
@@ -142,7 +144,7 @@ export const structDecl = seq(
   req("{"),
   withSep(",", structMember).tag("members"),
   req("}"),
-).map((r) => {
+).map(r => {
   const e = makeElem("struct", r, ["members"]);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem;
@@ -154,7 +156,7 @@ export const structDecl = seq(
 export const fn_call = seq(
   word // TODO should be longIdent, but not using that tokenizer in mainTokens yet
     .tag("name")
-    .map((r) => makeElem("call", r, ["name"]))
+    .map(r => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
   () => opt_template_args,
   argument_expression_list,
@@ -190,13 +192,7 @@ const opt_template_args = opt(
 
 const primary_expression = or(
   literal,
-  seq(
-    word.tag("ident"),
-    opt_template_args,
-    opt(
-      argument_expression_list,
-    ),
-  ),
+  seq(word.tag("ident"), opt_template_args, opt(argument_expression_list)),
   seq("(", () => expression, req(")")),
 );
 const component_or_swizzle = repeatPlus(
@@ -219,19 +215,16 @@ const component_or_swizzle = repeatPlus(
 const makeExpressionOperator = (isTemplate: boolean) => {
   const allowedOps = (
     "& | ^ << <= < != == % * / + -" + (isTemplate ? "" : " && || >> >= >")
-  ).split(" ").map(op);
-  return or(...allowedOps)
-    .traceName("operator")
-    // .trace({ shallow: true, })
-    ;
+  )
+    .split(" ")
+    .map(op);
+  return or(...allowedOps).traceName("operator");
+  // .trace({ shallow: true, })
 };
 const unary_expression: Parser<any> = or(
   seq(
-    or(..."! & * - ~".split(" "))
-      .traceName("unary_op")
-      .trace({
-        shallow: true,
-      }),
+    or(..."! & * - ~".split(" ")).traceName("unary_op"),
+    // .trace({ shallow: true, })
     () => unary_expression,
   ),
   seq(primary_expression, opt(component_or_swizzle)),
@@ -259,10 +252,7 @@ const for_init = or(
   () => variable_updating_statement,
 );
 
-const for_update = or(
-  fn_call,
-  () => variable_updating_statement,
-);
+const for_update = or(fn_call, () => variable_updating_statement);
 
 const for_statement = seq(
   opt_attributes,
@@ -273,30 +263,30 @@ const if_statement = seq(
   opt_attributes,
   "if",
   req(seq(expression, compound_statement)),
-  repeat(
-    seq("else", "if", req(seq(expression, compound_statement))),
-  ),
+  repeat(seq("else", "if", req(seq(expression, compound_statement)))),
   opt(seq("else", req(compound_statement))),
 );
 const loop_statement = seq(
   opt_attributes,
   "loop",
   opt_attributes,
-  req(seq(
-    "{",
-    repeat(() => statement),
-    opt(
-      seq(
-        "continuing",
-        opt_attributes,
-        "{",
-        repeat(() => statement),
-        opt(seq("break", "if", expression, ";")),
-        "}",
+  req(
+    seq(
+      "{",
+      repeat(() => statement),
+      opt(
+        seq(
+          "continuing",
+          opt_attributes,
+          "{",
+          repeat(() => statement),
+          opt(seq("break", "if", expression, ";")),
+          "}",
+        ),
       ),
+      "}",
     ),
-    "}",
-  )),
+  ),
 );
 
 const case_selector = or("default", expression);
@@ -339,10 +329,7 @@ const statement: Parser<any> = or(
 );
 
 const lhs_expression: Parser<any> = or(
-  seq(
-    word.tag("ident"),
-    opt(component_or_swizzle),
-  ),
+  seq(word.tag("ident"), opt(component_or_swizzle)),
   seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
   seq("&", () => lhs_expression),
   seq("*", () => lhs_expression),
@@ -400,7 +387,7 @@ export const globalVar = seq(
   word.tag("name"),
   opt(seq(":", req(type_specifier.tag("typeRefs")))),
   req(anyThrough(";")),
-).map((r) => {
+).map(r => {
   const e = makeElem("var", r, ["name"]);
   e.typeRefs = r.tags.typeRefs?.flat() || [];
   r.app.state.push(e);
@@ -412,7 +399,7 @@ export const globalAlias = seq(
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),
-).map((r) => {
+).map(r => {
   const e = makeElem("alias", r, ["name", "typeRefs"]);
   r.app.state.push(e);
 });
