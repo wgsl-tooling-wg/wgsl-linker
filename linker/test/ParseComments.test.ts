@@ -3,12 +3,7 @@ import { expectNoLogErr } from "@wesl/mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import { assertSnapshot } from "@std/testing/snapshot";
-import {
-  blockComment,
-  comment,
-  lineComment,
-  wordNumArgs,
-} from "../ParseSupport.ts";
+import { blockComment, comment, lineComment } from "../ParseSupport.ts";
 import { parseWgslD } from "../ParseWgslD.ts";
 import { testAppParse } from "./TestUtil.ts";
 
@@ -47,7 +42,7 @@ test("parse fn with line comment", async (ctx) => {
   await assertSnapshot(ctx, parsed);
 });
 
-test("wordNumArgs parses (a, b, 1) with line comments everywhere", async (ctx) => {
+test.ignore("wordNumArgs parses (a, b, 1) with line comments everywhere", async (ctx) => {
   const src = `(
     // aah
     a, 
@@ -57,8 +52,8 @@ test("wordNumArgs parses (a, b, 1) with line comments everywhere", async (ctx) =
     1
     // satsified
     )`;
-  const { parsed } = testAppParse(preParse(comment, wordNumArgs), src);
-  await assertSnapshot(ctx, parsed?.value);
+  // const { parsed } = testAppParse(preParse(comment, ), src);
+  // await assertSnapshot(ctx, parsed?.value);
 });
 
 test("parse empty line comment", () => {

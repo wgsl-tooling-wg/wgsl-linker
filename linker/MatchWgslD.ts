@@ -7,8 +7,8 @@ export const eol = /[\n\v\f\u{0085}\u{2028}\u{2029}]|\r\n?/u;
 export const blankspaces =
   /[ \t\n\v\f\r\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}]+/u;
 
-const symbolSet = "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + // '>>' elided for template parsing, e.g. vec2<vec2<u8>>
-  ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
+/** Parser simplification: Bigger WGSL symbols consist of individual tokens, sequenced one after another */
+const symbolSet = "& @ / ! [ ] { } : , = ! > < % - . + | ( ) ; * ~ ^ // /* */";
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
@@ -35,7 +35,6 @@ export const digits = new RegExp(
 /** matching tokens at wgsl root level */
 export const mainTokens = tokenMatcher(
   {
-    attr: /@[a-zA-Z_]\w*/,
     word,
     digits,
     symbol,

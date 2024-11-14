@@ -10,15 +10,16 @@ import type {
   VarElem,
 } from "../AbstractElems.ts";
 import { filterElems } from "../ParseModule.ts";
-import { unknown, wordNumArgs } from "../ParseSupport.ts";
+import { unknown } from "../ParseSupport.ts";
 import {
-  fnDecl,
+  fn_decl,
   globalVar,
   parseWgslD,
   structDecl,
   type_specifier,
 } from "../ParseWgslD.ts";
 import { testAppParse } from "./TestUtil.ts";
+import { enableTracing } from "../../mini-parse/ParserTracing.ts";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);
@@ -35,7 +36,8 @@ test("parse fn foo() { }", async (ctx) => {
   await assertSnapshot(ctx, parsed);
 });
 
-test("parse fn with calls", async (ctx) => {
+Deno.test("parse fn with calls", async (ctx) => {
+  enableTracing(true);
   const src = "fn foo() { foo(); bar(); }";
   const parsed = testParseWgsl(src);
   await assertSnapshot(ctx, parsed);
@@ -62,12 +64,6 @@ test("parse @attribute before fn", async (ctx) => {
     `;
   const parsed = testParseWgsl(src);
   await assertSnapshot(ctx, parsed);
-});
-
-test("wordNumArgs parses (a, b, 1)", async (ctx) => {
-  const src = `(a, b, 1)`;
-  const { parsed } = testAppParse(wordNumArgs, src);
-  await assertSnapshot(ctx, parsed?.value);
 });
 
 test("parse @compute @workgroup_size(a, b, 1) before fn", async (ctx) => {
@@ -166,7 +162,7 @@ test("fnDecl parses fn with return type", () => {
   const src = `
     fn foo() -> MyType { }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
@@ -174,7 +170,7 @@ test("fnDecl parses :type specifier in fn args", () => {
   const src = `
     fn foo(a: MyType) { }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   const { typeRefs } = appState[0] as FnElem;
   expect(typeRefs[0].name).toBe("MyType");
 });
@@ -185,7 +181,7 @@ test("fnDecl parses :type specifier in fn block", () => {
       var b:MyType;
     }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
@@ -193,7 +189,7 @@ test("parse type in <template> in fn args", () => {
   const src = `
     fn foo(a: vec2<MyStruct>) { };`;
 
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   const { typeRefs } = appState[0] as FnElem;
   expect(typeRefs[0].name).toBe("vec2");
   expect(typeRefs[1].name).toBe("MyStruct");
