@@ -222,9 +222,8 @@ const makeExpressionOperator = (isTemplate: boolean) => {
   ).split(" ").map(op);
   return or(...allowedOps)
     .traceName("operator")
-    .trace({
-      shallow: true,
-    });
+    // .trace({ shallow: true, })
+    ;
 };
 const unary_expression: Parser<any> = or(
   seq(
@@ -384,7 +383,7 @@ export const fn_decl = seq(
   req(fnParamList),
   opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
   req(compound_statement),
-).trace().map((r) => {
+).map(r => {
   const e = makeElem("fn", r);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
