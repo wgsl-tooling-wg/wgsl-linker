@@ -20,7 +20,6 @@ export const digits = /(?:0x)?[\d.]+[iuf]?/; // LATER parse more wgsl number var
 export const mainTokens = tokenMatcher(
   {
     directive,
-    attr: /@[a-zA-Z_]\w*/,
     word,
     digits,
     symbol,
