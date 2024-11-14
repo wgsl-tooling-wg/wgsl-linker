@@ -22,16 +22,17 @@ import {
   tracing,
   withSep,
 } from "mini-parse";
-import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.js";
-import { identTokens, mainTokens } from "./MatchWgslD.js";
-import { directive } from "./ParseDirective.js";
+import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
+import { identTokens, mainTokens } from "./MatchWgslD.ts";
+import { directive } from "./ParseDirective.ts";
 import {
   comment,
+  literal,
   makeElem,
+  op,
   unknown,
   word,
-  wordNumArgs,
-} from "./ParseSupport.js";
+} from "./ParseSupport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -45,61 +46,93 @@ export interface ParseState {
   params: Record<string, any>; // user provided params to templates, code gen and #if directives
 }
 
-const optAttributes = repeat(seq(kind(mainTokens.attr), opt(wordNumArgs)));
+// TODO: Check the following
+// - translation_unit
+// - global_decl
+// - global_value_decl
+// - global_directive
+// - diagnostic_rule_name
+// - diagnostic_control
+
+const attribute = seq(
+  "@",
+  req(or(
+    // These attributes have no arguments
+    or("compute", "const", "fragment", "invariant", "must_use", "vertex"),
+    // These attributes have arguments, but the argument doesn't have any identifiers
+    seq(
+      or("interpolate", "builtin", "diagnostic"),
+      req(() => argument_expression_list), // TODO: Throw away the identifiers
+    ),
+    // These are normal attributes
+    seq(
+      or(
+        "workgroup_size",
+        "align",
+        "binding",
+        "blend_src",
+        "group",
+        "id",
+        "location",
+        "size",
+      ),
+      req(() => argument_expression_list),
+    ),
+    // Everything else is also a normal attribute, it might have an expression list
+    seq(kind(mainTokens.word), opt(() => argument_expression_list)),
+  )),
+);
+
+const argument_expression_list = seq(
+  "(",
+  withSep(",", () => expression),
+  req(")"),
+);
+
+const opt_attributes = repeat(attribute);
 const possibleTypeRef = Symbol("typeRef");
 
 const globalDirectiveOrAssert = seq(
   or("diagnostic", "enable", "requires", "const_assert"),
   req(anyThrough(";")),
-).map(r => {
+).map((r) => {
   const e = makeElem("globalDirective", r);
   r.app.state.push(e);
 });
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.tag("name")).map(r => {
+export const typeNameDecl = req(word.tag("name")).map((r) => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem; // fix?
 });
 
 /** parse an identifier into a TypeNameElem */
-export const fnNameDecl = req(word.tag("name"), "missing fn name").map(r => {
+export const fnNameDecl = req(word.tag("name"), "missing fn name").map((r) => {
   return makeElem("fnName", r, ["name"]);
 });
 
-/** find possible references to user types (structs) in this possibly nested template */
-export const template: Parser<any> = seq(
-  "<",
-  or(
-    word.tag(possibleTypeRef), // only the first element of the template can be a type
-    () => template,
-  ),
-  repeat(
-    or(
-      () => template,
-      anyNot(">"), // we don't care about the rest of the template
-    ),
-  ),
-  req(">"),
-);
-
 /** find possible references to user structs in this type specifier and any templates */
-export const typeSpecifier: Parser<TypeRefElem[]> = seq(
+export const type_specifier: Parser<TypeRefElem[]> = seq(
   tokens(identTokens, longIdent.tag(possibleTypeRef)),
-  opt(template),
-).map(r =>
-  r.tags[possibleTypeRef].map(name => {
+  () => opt_template_args,
+).map((r) =>
+  r.tags[possibleTypeRef].map((name) => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
     e.name = name;
     return e as Required<typeof e>;
-  }),
+  })
+);
+
+const optionally_typed_ident = seq(
+  word,
+  opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
 export const structMember = seq(
-  optAttributes,
+  opt_attributes,
   word.tag("name"),
   ":",
-  req(typeSpecifier.tag("typeRefs")),
-).map(r => {
+  req(type_specifier.tag("typeRefs")),
+).map((r) => {
   return makeElem("member", r, ["name", "typeRefs"]);
 });
 
@@ -109,7 +142,7 @@ export const structDecl = seq(
   req("{"),
   withSep(",", structMember).tag("members"),
   req("}"),
-).map(r => {
+).map((r) => {
   const e = makeElem("struct", r, ["members"]);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem;
@@ -117,83 +150,241 @@ export const structDecl = seq(
   r.app.state.push(e);
 });
 
-// keywords that can be followed by (), not to be confused with fn calls
-const callishKeyword = simpleParser("keyword", (ctx: ParserContext) => {
-  const keywords = ["if", "for", "while", "const_assert", "return"];
-  const token = ctx.lexer.next();
-  const text = token?.text;
-  if (text && keywords.includes(text)) {
-    return text;
-  }
-});
-
-export const fnCall = tokens(
-  identTokens,
-  seq(
-    longIdent
-      .tag("name")
-      .map(r => makeElem("call", r, ["name"]))
-      .tag("calls"), // we collect this in fnDecl, to attach to FnElem
-    "(",
-  ),
+/** Also covers func_call_statement.post.ident */
+export const fn_call = seq(
+  longIdent
+    .tag("name")
+    .map((r) => makeElem("call", r, ["name"]))
+    .tag("calls"), // we collect this in fnDecl, to attach to FnElem
+  () => opt_template_args,
+  argument_expression_list,
 );
 
 // prettier-ignore
 const fnParam = seq(
-  optAttributes,
+  opt_attributes,
   word,
-  opt(seq(":", req(typeSpecifier.tag("typeRefs"))))
+  opt(seq(":", req(type_specifier.tag("typeRefs")))),
 );
 
 const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
 
-// prettier-ignore
-const variableDecl = seq(
-  or("const", "var", "let", "override"), 
-  word, 
-  ":", 
-  req(typeSpecifier).tag("typeRefs")
+/** Covers variable_decl and the 'var' case in global_decl */
+const variable_decl = seq(
+  "var",
+  () => opt_template_args,
+  optionally_typed_ident,
+  opt(seq("=", () => expression)),
 );
 
-const expression = repeatPlus(anyNot(or("{", ":"))); // TBD
-const statement = repeatPlus(anyNot(or("{", "}"))); // TBD
+/** Aka template_elaborated_ident.post.ident */
+const opt_template_args = opt(
+  seq(
+    "<",
+    withSep(",", () => template_arg_expression, {
+      requireOne: true,
+    }),
+    ">",
+  ).tag("template"),
+);
 
-const compound_statement = seq(optAttributes, "{", repeat(statement), "}");
+const primary_expression = or(
+  literal,
+  seq(
+    word.tag("ident"),
+    opt_template_args,
+    opt(
+      argument_expression_list,
+    ),
+  ),
+  seq("(", () => expression, req(")")),
+);
+const component_or_swizzle = repeatPlus(
+  or(
+    seq(".", word),
+    seq("[", () => expression, req("]")),
+  ),
+);
+
+/**
+ * bitwise_expression.post.unary_expression
+ * & ^ |
+ * expression
+ * && ||
+ * relational_expression.post.unary_expression
+ * > >= < <= != ==
+ * shift_expression.post.unary_expression
+ * % * / + - << >>
+ */
+const makeExpressionOperator = (isTemplate: boolean) => {
+  const allowedOps = (
+    "& | ^ << <= < != == % * / + -" + (isTemplate ? "" : " && || >> >= >")
+  ).split(" ").map(op);
+  return or(...allowedOps)
+    .traceName("operator")
+    .trace({
+      shallow: true,
+    });
+};
+const unary_expression: Parser<any> = or(
+  seq(
+    or(..."! & * - ~".split(" "))
+      .traceName("unary_op")
+      .trace({
+        shallow: true,
+      }),
+    () => unary_expression,
+  ),
+  seq(primary_expression, opt(component_or_swizzle)),
+);
+const makeExpression = (isTemplate: boolean) => {
+  return seq(
+    unary_expression,
+    repeat(seq(makeExpressionOperator(isTemplate), unary_expression)),
+  );
+};
+
+export const expression = makeExpression(false);
+const template_arg_expression = makeExpression(true);
+
+const compound_statement = seq(
+  opt_attributes,
+  "{",
+  repeat(() => statement),
+  "}",
+);
+
+const for_init = or(
+  fn_call,
+  () => variable_or_value_statement,
+  () => variable_updating_statement,
+);
+
+const for_update = or(
+  fn_call,
+  () => variable_updating_statement,
+);
+
+const for_statement = seq(
+  opt_attributes,
+  "for",
+  req(seq("(", opt(for_init), ";", opt(expression), ";", opt(for_update), ")")),
+);
+const if_statement = seq(
+  opt_attributes,
+  "if",
+  req(seq(expression, compound_statement)),
+  repeat(
+    seq("else", "if", req(seq(expression, compound_statement))),
+  ),
+  opt(seq("else", req(compound_statement))),
+);
+const loop_statement = seq(
+  opt_attributes,
+  "loop",
+  opt_attributes,
+  req(seq(
+    "{",
+    repeat(() => statement),
+    opt(
+      seq(
+        "continuing",
+        opt_attributes,
+        "{",
+        repeat(() => statement),
+        opt(seq("break", "if", expression, ";")),
+        "}",
+      ),
+    ),
+    "}",
+  )),
+);
 
 const case_selector = or("default", expression);
-const case_selectors = withSep(",", case_selector, { requireOne: true });
-const case_clause = seq("case", case_selectors, opt(":"), compound_statement);
-const default_alone_clause = seq("default", opt(":"), compound_statement);
-const switch_clause = or(case_clause, default_alone_clause);
-
-const switch_body = seq(optAttributes, "{", repeatPlus(switch_clause), "}");
-
-const switch_statement = seq(optAttributes, "switch", expression, switch_body);
-
-// prettier-ignore
-const block: Parser<any> = seq(
-  "{",
-  repeat(
-    or(
-      switch_statement,
-      callishKeyword,
-      fnCall,
-      () => block,
-      variableDecl,
-      anyNot("}")
-    )
+const switch_clause = or(
+  seq(
+    "case",
+    withSep(",", case_selector, { requireOne: true }),
+    opt(":"),
+    compound_statement,
   ),
-  req("}")
+  seq("default", opt(":"), compound_statement),
 );
 
-export const fnDecl = seq(
-  optAttributes,
+const switch_body = seq(opt_attributes, "{", repeatPlus(switch_clause), "}");
+const switch_statement = seq(opt_attributes, "switch", expression, switch_body);
+
+const while_statement = seq(
+  opt_attributes,
+  "while",
+  expression,
+  compound_statement,
+);
+
+const statement: Parser<any> = or(
+  for_statement,
+  if_statement,
+  loop_statement,
+  switch_statement,
+  while_statement,
+  compound_statement,
+  seq("break", ";"),
+  seq("continue", ";"),
+  seq(";"),
+  seq("const_assert", expression, ";"),
+  seq("discard", ";"),
+  seq("return", opt(expression), ";"),
+  seq(fn_call, ";"),
+  seq(() => variable_or_value_statement, ";"),
+  seq(() => variable_updating_statement, ";"),
+);
+
+const lhs_expression: Parser<any> = or(
+  seq(
+    word.tag("ident"),
+    opt(component_or_swizzle),
+  ),
+  seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
+  seq("&", () => lhs_expression),
+  seq("*", () => lhs_expression),
+);
+
+const variable_or_value_statement = or(
+  // Also covers the = expression case
+  variable_decl,
+  seq("const", optionally_typed_ident, "=", expression),
+  seq("let", optionally_typed_ident, "=", expression),
+);
+const variable_updating_statement = or(
+  seq(
+    lhs_expression,
+    or(
+      "=",
+      op("<<="),
+      op(">>="),
+      op("%="),
+      op("&="),
+      op("*="),
+      op("+="),
+      op("-="),
+      op("/="),
+      op("^="),
+      op("|="),
+    ),
+    expression,
+  ),
+  seq(lhs_expression, or(op("++"), op("--"))),
+  seq("_", "=", expression),
+);
+
+export const fn_decl = seq(
+  opt_attributes,
   "fn",
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList),
-  opt(seq("->", optAttributes, typeSpecifier.tag("typeRefs"))),
-  req(block),
-).map(r => {
+  opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
+  req(compound_statement),
+).trace().map((r) => {
   const e = makeElem("fn", r);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
@@ -204,13 +395,13 @@ export const fnDecl = seq(
 });
 
 export const globalVar = seq(
-  optAttributes,
+  opt_attributes,
   or("const", "override", "var"),
-  opt(template),
+  opt_template_args,
   word.tag("name"),
-  opt(seq(":", req(typeSpecifier.tag("typeRefs")))),
+  opt(seq(":", req(type_specifier.tag("typeRefs")))),
   req(anyThrough(";")),
-).map(r => {
+).map((r) => {
   const e = makeElem("var", r, ["name"]);
   e.typeRefs = r.tags.typeRefs?.flat() || [];
   r.app.state.push(e);
@@ -220,14 +411,14 @@ export const globalAlias = seq(
   "alias",
   req(word.tag("name")),
   req("="),
-  req(typeSpecifier).tag("typeRefs"),
+  req(type_specifier).tag("typeRefs"),
   req(";"),
-).map(r => {
+).map((r) => {
   const e = makeElem("alias", r, ["name", "typeRefs"]);
   r.app.state.push(e);
 });
 
-const globalDecl = or(fnDecl, globalVar, globalAlias, structDecl, ";");
+const globalDecl = or(fn_decl, globalVar, globalAlias, structDecl, ";");
 
 const rootDecl = or(globalDirectiveOrAssert, globalDecl, directive, unknown);
 
@@ -262,25 +453,23 @@ export function parseWgslD(
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     globalDirectiveOrAssert,
-    template,
-    typeSpecifier,
+    type_specifier,
     structMember,
     structDecl,
-    fnCall,
+    fn_call,
     fnParam,
     fnParamList,
+    opt_template_args,
+    primary_expression,
+    component_or_swizzle,
     expression,
     statement,
     compound_statement,
     case_selector,
-    case_selectors,
-    case_clause,
-    default_alone_clause,
     switch_clause,
     switch_body,
     switch_statement,
-    block,
-    fnDecl,
+    fn_decl,
     globalVar,
     globalAlias,
     globalDecl,

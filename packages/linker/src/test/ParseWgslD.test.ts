@@ -1,19 +1,25 @@
-import { or, repeat, _withBaseLogger } from "mini-parse";
+import { _withBaseLogger, or, repeat } from "mini-parse";
 import { expectNoLogErr, logCatch } from "mini-parse/test-util";
 
-import { dlog } from "berry-pretty";
 import { expect, test } from "vitest";
-import { AbstractElem, FnElem, StructElem, VarElem } from "../AbstractElems.js";
-import { filterElems } from "../ParseModule.js";
-import { unknown, wordNumArgs } from "../ParseSupport.js";
+import type {
+  AbstractElem,
+  FnElem,
+  StructElem,
+  VarElem,
+} from "../AbstractElems.ts";
+import { filterElems } from "../ParseModule.ts";
+import { unknown } from "../ParseSupport.ts";
 import {
-  fnDecl,
+  fn_decl,
   globalVar,
   parseWgslD,
   structDecl,
-  typeSpecifier,
-} from "../ParseWgslD.js";
-import { testAppParse } from "./TestUtil.js";
+  type_specifier,
+} from "../ParseWgslD.ts";
+import { testAppParse } from "./TestUtil.ts";
+import { enableTracing } from "mini-parse";
+import { dlog } from "berry-pretty";
 
 function testParseWgsl(src: string): AbstractElem[] {
   return parseWgslD(src, undefined, {}, 500);
@@ -102,12 +108,6 @@ test("parse @attribute before fn", () => {
     `;
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
-});
-
-test("wordNumArgs parses (a, b, 1)", () => {
-  const src = `(a, b, 1)`;
-  const { parsed } = testAppParse(wordNumArgs, src);
-  expect(parsed?.value).toMatchSnapshot();
 });
 
 test("parse @compute @workgroup_size(a, b, 1) before fn", () => {
@@ -210,7 +210,7 @@ test("fnDecl parses fn with return type", () => {
   const src = `
     fn foo() -> MyType { }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
@@ -218,7 +218,7 @@ test("fnDecl parses :type specifier in fn args", () => {
   const src = `
     fn foo(a: MyType) { }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   const { typeRefs } = appState[0] as FnElem;
   expect(typeRefs[0].name).toBe("MyType");
 });
@@ -229,7 +229,7 @@ test("fnDecl parses :type specifier in fn block", () => {
       var b:MyType;
     }
   `;
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
@@ -237,7 +237,7 @@ test("parse type in <template> in fn args", () => {
   const src = `
     fn foo(a: vec2<MyStruct>) { };`;
 
-  const { appState } = testAppParse(fnDecl, src);
+  const { appState } = testAppParse(fn_decl, src);
   const { typeRefs } = appState[0] as FnElem;
   expect(typeRefs[0].name).toBe("vec2");
   expect(typeRefs[1].name).toBe("MyStruct");
@@ -246,7 +246,7 @@ test("parse type in <template> in fn args", () => {
 test("parse simple templated type", () => {
   const src = `array<MyStruct,4>`;
 
-  const { parsed } = testAppParse(typeSpecifier, src);
+  const { parsed } = testAppParse(type_specifier, src);
   expect(parsed?.value[0].name).toBe("array");
   expect(parsed?.value[1].name).toBe("MyStruct");
   expect(parsed?.value.length).toBe(2);
@@ -255,7 +255,7 @@ test("parse simple templated type", () => {
 test("parse nested template that ends with >> ", () => {
   const src = `vec2<array <MyStruct,4>>`;
 
-  const { parsed } = testAppParse(typeSpecifier, src);
+  const { parsed } = testAppParse(type_specifier, src);
   const typeRefNames = parsed?.value.map(r => r.name);
   expect(typeRefNames).toEqual(["vec2", "array", "MyStruct"]);
 });
