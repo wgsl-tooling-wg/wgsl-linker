@@ -1,6 +1,7 @@
 import {
   any,
   anyNot,
+  anyThrough,
   disablePreParse,
   ExtendedResult,
   kind,
@@ -12,17 +13,19 @@ import {
   resultLog,
   seq,
   setTraceName,
+  tokens,
   tracing,
   withSep,
 } from "mini-parse";
-import { AbstractElem, AbstractElemBase } from "./AbstractElems.js";
-import { argsTokens, mainTokens } from "./MatchWgslD.js";
-import { lineComment } from "./ParseDirective.js";
+import type { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
+import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 
 export const word = kind(mainTokens.word);
-export const wordNum = or(word, kind(mainTokens.digits));
+export const literal = or("true", "false", kind(mainTokens.digits));
+/** WGSL combined tokens consist of individual tokens, one after another. */
+export const op = (tokens: string) => seq(...tokens.split(""));
 
 export const unknown = any().map(r => {
   const { kind, text } = r.value;
@@ -38,20 +41,19 @@ export const blockComment: Parser<any> = seq(
   req("*/"),
 );
 
-export const comment = or(() => lineComment, blockComment).trace({
-  hide: true,
-});
-
 export const eolf: Parser<any> = disablePreParse(
   makeEolf(argsTokens, argsTokens.ws),
 );
 
-/** ( a1, b1* ) with optional comments */
-export const wordNumArgs: Parser<string[]> = seq(
-  "(",
-  withSep(",", wordNum),
-  req(")"),
-).map(r => r.value[1]);
+const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
+
+/** parse a line comment */
+export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
+
+export const comment = or(() => lineComment, blockComment);
+// .trace({
+//   hide: true,
+// });
 
 type ByKind<U, T> = U extends { kind: T } ? U : never;
 
@@ -103,7 +105,6 @@ if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     skipBlockComment: blockComment,
     comment,
-    wordNumArgs,
   };
 
   Object.entries(names).forEach(([name, parser]) => {
