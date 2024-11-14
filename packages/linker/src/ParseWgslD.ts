@@ -152,7 +152,7 @@ export const structDecl = seq(
 
 /** Also covers func_call_statement.post.ident */
 export const fn_call = seq(
-  longIdent
+  word // TODO should be longIdent, but not using that tokenizer in mainTokens yet
     .tag("name")
     .map((r) => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
