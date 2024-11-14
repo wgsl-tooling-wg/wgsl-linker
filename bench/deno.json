@@ -1,0 +1,14 @@
+{
+    "version": "0.1.0",
+    "tasks": {
+        "dev": "deno run --watch main.ts"
+    },
+    "imports": {
+        "@std/fs": "jsr:@std/fs",
+        "@std/path": "jsr:@std/path",
+        "yargs": "https://deno.land/x/yargs@v17.7.2-deno/deno.ts",
+        "diff": "npm:diff",
+        "wgsl_reflect": "npm:wgsl_reflect@1.0.16",
+        "@use-gpu/shader": "npm:@use-gpu/shader@0.12.0"
+    }
+}

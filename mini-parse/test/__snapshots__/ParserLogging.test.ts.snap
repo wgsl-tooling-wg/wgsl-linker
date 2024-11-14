@@ -1,0 +1,19 @@
+export const snapshot = {};
+
+snapshot[`srcLog 1`] = `
+"uh-oh:
+12345   Ln 2
+   ^"
+`;
+
+snapshot[`srcLog on longer example 1`] = `
+"ugh:
+    fn support(d:D) { bar(d); }   Ln 5
+                      ^"
+`;
+
+snapshot[`srcLog with two carets 1`] = `
+"found:
+12345   Ln 2
+^    ^"
+`;

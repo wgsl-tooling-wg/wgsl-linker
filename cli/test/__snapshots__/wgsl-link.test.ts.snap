@@ -1,0 +1,11 @@
+export const snapshot = {};
+
+snapshot[`simple link 1`] = `
+"fn main() {
+  foo();
+}
+
+fn foo() {
+  // fooImpl
+}"
+`;

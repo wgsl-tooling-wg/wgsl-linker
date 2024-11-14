@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": {
+    "@std/fs": "jsr:@std/fs",
+    "@std/path": "jsr:@std/path",
+    "yargs": "https://deno.land/x/yargs@v17.7.2-deno/deno.ts"
+  }
+}

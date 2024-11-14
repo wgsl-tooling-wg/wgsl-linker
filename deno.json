@@ -1,0 +1,30 @@
+{
+  "tasks": {
+    "dev": "deno test --watch --allow-read"
+  },
+  "license": "MIT",
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/expect": "jsr:@std/expect@1",
+    "@std/testing": "jsr:@std/testing@1",
+    "vitest": "./testlib/mod.ts",
+    "wesl-testsuite": "../wesl-testsuite/src/index.ts"
+  },
+  "workspace": [
+    "./bench",
+    "./bulk-test",
+    "./cli",
+    "./linker",
+    "./mini-parse",
+    "./packager",
+    "./testlib"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns"
+    ]
+  }
+}

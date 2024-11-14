@@ -1,0 +1,13 @@
+{
+  "name": "@wesl/mini-parse",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./mod.ts",
+    "./test-util": "./test-util/index.ts"
+  },
+  "tasks": {
+    "dev": "deno test --allow-read --watch"
+  },
+  "license": "MIT",
+  "imports": {}
+}

@@ -1,0 +1,32 @@
+export const snapshot = {};
+
+snapshot[`compact 1`] = `
+[
+  {
+    destEnd: 4,
+    destStart: 1,
+    src: "a b",
+    srcEnd: 3,
+    srcStart: 0,
+  },
+]
+`;
+
+snapshot[`merge 1`] = `
+[
+  {
+    destEnd: 6,
+    destStart: 3,
+    src: "a b",
+    srcEnd: 3,
+    srcStart: 0,
+  },
+  {
+    destEnd: 9,
+    destStart: 8,
+    src: "d",
+    srcEnd: 1,
+    srcStart: 0,
+  },
+]
+`;
