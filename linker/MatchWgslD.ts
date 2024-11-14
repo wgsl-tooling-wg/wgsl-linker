@@ -1,8 +1,11 @@
 import { matchOneOf, tokenMatcher } from "@wesl/mini-parse";
 
-// https://www.w3.org/TR/WGSL/#line-break
-// deno-lint-ignore no-control-regex
-export const eol = /\n|\u{000B}|\u{000C}|\r\n?|\u{0085}|\u{2028}|\u{2029}/u;
+// https://www.w3.org/TR/WGSL/#blankspace-and-line-breaks
+/** New lines */
+export const eol = /[\n\v\f\u{0085}\u{2028}\u{2029}]|\r\n?/u;
+/** Whitespaces including new lines */
+export const blankspaces =
+  /[ \t\n\v\f\r\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}]+/u;
 
 const symbolSet = "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + // '>>' elided for template parsing, e.g. vec2<vec2<u8>>
   ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
@@ -37,7 +40,7 @@ export const mainTokens = tokenMatcher(
     digits,
     symbol,
     quote,
-    ws: /\s+/,
+    ws: blankspaces,
   },
   "main",
 );
@@ -45,7 +48,7 @@ export const mainTokens = tokenMatcher(
 export const identTokens = tokenMatcher(
   {
     longIdent,
-    ws: /\s+/,
+    ws: blankspaces,
     symbol,
     digits,
     quote,
@@ -55,7 +58,7 @@ export const identTokens = tokenMatcher(
 
 export const moduleTokens = tokenMatcher(
   {
-    ws: /\s+/,
+    ws: blankspaces,
     moduleName: /[a-zA-Z_][\w./:-]*/,
   },
   "moduleName",
@@ -90,7 +93,7 @@ const importSymbol = matchOneOf(treeImportSymbolSet);
 export const treeImportTokens = tokenMatcher(
   {
     quote,
-    ws: /\s+/,
+    ws: blankspaces,
     importSymbol,
     word,
     digits,
