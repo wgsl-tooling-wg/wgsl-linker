@@ -357,7 +357,7 @@ const variable_updating_statement = or(
     ),
     expression,
   ),
-  seq(lhs_expression, or(op("++"), op("--"))),
+  seq(lhs_expression, or("++", "--")), // TODO was op("++"), but this fixes the 'parse for' test ..
   seq("_", "=", expression),
 );
 
