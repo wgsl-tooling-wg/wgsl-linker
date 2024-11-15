@@ -10,17 +10,16 @@ test("traverse a fn to struct ref", () => {
     import ./file1/AStruct;
 
     fn main() {
-      let a:AStruct; 
+      var a:AStruct; 
     }
   `;
   const module1 = `
-    export
-    struct AStruct {
+    export struct AStruct {
       x: u32,
     }
   `;
 
-  const refs = traverseTest(src, module1);
+  const refs = traverseTest(src, module1); //?
   const exp = refs[1] as TextRef;
   expect(exp.kind).toBe("txt");
   expect(exp.elem.kind).toBe("struct");
