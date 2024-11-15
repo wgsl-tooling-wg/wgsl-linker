@@ -363,7 +363,7 @@ test("parse switch statement", () => {
   expect(parsed).toMatchSnapshot();
 });
 
-test.skip("parse switch statement-2", () => {
+test("parse switch statement-2", () => {
   const src = `
 
     fn main(x: u32) {
@@ -374,7 +374,7 @@ test.skip("parse switch statement-2", () => {
     }
   `;
   const parsed = testParseWgsl(src);
-  dlog({ parsed });
-  // expect(parsed).toMatchSnapshot();
-  expect.fail();
+  expect(parsed.length).toEqual(1);
+  const fn = parsed[0] as FnElem;
+  expect(fn.calls).toEqual([]);
 });
