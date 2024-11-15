@@ -445,6 +445,7 @@ export function parseWgslD(
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
+    literal,
     globalDirectiveOrAssert,
     type_specifier,
     structMember,
@@ -457,7 +458,13 @@ if (tracing) {
     component_or_swizzle,
     expression,
     statement,
+    lhs_expression,
+    variable_or_value_statement,
+    variable_updating_statement,
     compound_statement,
+    for_init,
+    for_update,
+    for_statement,
     case_selector,
     switch_clause,
     switch_body,
