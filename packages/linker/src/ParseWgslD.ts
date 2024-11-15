@@ -192,7 +192,7 @@ const opt_template_args = opt(
 
 const primary_expression = or(
   literal,
-  seq(word.tag("ident"), opt_template_args, opt(argument_expression_list)),
+  seq(type_specifier, opt_template_args, opt(argument_expression_list)), // TODO should be ident, not type_specifier. But for now, linker likes to see a TypeRef here
   seq("(", () => expression, req(")")),
 );
 const component_or_swizzle = repeatPlus(
