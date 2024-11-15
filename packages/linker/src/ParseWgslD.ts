@@ -353,12 +353,13 @@ const variable_or_value_statement = or(
   seq("const", optionally_typed_ident, "=", expression),
   seq("let", optionally_typed_ident, "=", expression),
 );
+
 const variable_updating_statement = or(
   seq(
     lhs_expression,
     or(
       "=",
-      op("<<="),
+      op("<<="), // TODO could this be handled with a lexer rule?
       op(">>="),
       op("%="),
       op("&="),
