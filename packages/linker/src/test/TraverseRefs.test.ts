@@ -135,14 +135,14 @@ test("traverse ref from struct constructor", () => {
     }
   `;
   const module1 = `
-    #export
-    struct AStruct {
+    export struct AStruct {
       b: u32
     }
   `;
 
-  const refs = traverseTest(src, module1);
-  expect(refs[1].elem.name).toBe("AStruct");
+  const refs = traverseTest(src, module1); 
+  const elemNames = refs.map(r => r.elem.name)
+  expect(elemNames).toEqual(["main", "AStruct"]);
 });
 
 test("traverse with local support struct", () => {
