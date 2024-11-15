@@ -183,9 +183,7 @@ const variable_decl = seq(
 const opt_template_args = opt(
   seq(
     "<",
-    withSep(",", () => template_arg_expression, {
-      requireOne: true,
-    }),
+    withSep(",", () => template_arg_expression, { requireOne: true }),
     ">",
   ).tag("template"),
 );
