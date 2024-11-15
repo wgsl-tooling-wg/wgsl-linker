@@ -255,8 +255,17 @@ const for_update = or(fn_call, () => variable_updating_statement);
 const for_statement = seq(
   opt_attributes,
   "for",
-  req(seq("(", opt(for_init), ";", opt(expression), ";", opt(for_update), ")")),
+  seq(
+    req("("),
+    opt(for_init),
+    req(";"),
+    opt(expression),
+    req(";"),
+    opt(for_update),
+    req(")"),
+  ),
 );
+
 const if_statement = seq(
   opt_attributes,
   "if",
