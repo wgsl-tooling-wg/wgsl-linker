@@ -142,7 +142,7 @@ export const structDecl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
   req("{"),
-  withSep(",", structMember).tag("members"),
+  withSep(",", structMember, { requireOne: true }).tag("members"),
   req("}"),
 ).map(r => {
   const e = makeElem("struct", r, ["members"]);
