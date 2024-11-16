@@ -50,10 +50,10 @@ const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
 /** parse a line comment */
 export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
 
-export const comment = or(() => lineComment, blockComment);
-// .trace({
-//   hide: true,
-// });
+export const comment = or(() => lineComment, blockComment)
+.trace({
+  hide: true,
+});
 
 type ByKind<U, T> = U extends { kind: T } ? U : never;
 
