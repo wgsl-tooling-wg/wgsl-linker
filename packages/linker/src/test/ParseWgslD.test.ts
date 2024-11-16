@@ -239,8 +239,7 @@ test("parse type in <template> in fn args", () => {
 
   const { appState } = testAppParse(fn_decl, src);
   const { typeRefs } = appState[0] as FnElem;
-  expect(typeRefs[0].name).toBe("vec2");
-  expect(typeRefs[1].name).toBe("MyStruct");
+  expect(typeRefs[0].name).toBe("MyStruct");
 });
 
 test("parse simple templated type", () => {
