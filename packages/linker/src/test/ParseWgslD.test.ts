@@ -394,3 +394,13 @@ test("parse struct constructor in assignment, produce a TypeRef", () => {
   expect(fn.typeRefs[0].name).toEqual("AStruct");
 });
 
+test("parse struct.member (component_or_swizzle)", () => {
+  const src = `
+    fn main() {
+        let x = u.frame;
+    }
+  `;
+  const parsed = testParseWgsl(src);
+  const fn = parsed[0] as FnElem;
+  expect(fn?.name).toEqual("main");
+});
