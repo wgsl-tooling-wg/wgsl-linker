@@ -216,17 +216,21 @@ const makeExpressionOperator = (isTemplate: boolean) => {
   )
     .split(" ")
     .map(op);
-  return or(...allowedOps).traceName("operator");
-  // .trace({ shallow: true, })
+  return or(...allowedOps);
+  // .traceName("operator")
+  // .trace({ hide: true });
 };
+
 const unary_expression: Parser<any> = or(
   seq(
-    or(..."! & * - ~".split(" ")).traceName("unary_op"),
-    // .trace({ shallow: true, })
+    or(..."! & * - ~".split(" ")),
+    // .traceName("unary_op")
+    // .trace({ hide: true })
     () => unary_expression,
   ),
   seq(primary_expression, opt(component_or_swizzle)),
 );
+
 const makeExpression = (isTemplate: boolean) => {
   return seq(
     unary_expression,
