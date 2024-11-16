@@ -174,7 +174,7 @@ const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
 /** Covers variable_decl and the 'var' case in global_decl */
 const variable_decl = seq(
   "var",
-  () => opt_template_args,
+  () => opt_template_list,
   optionally_typed_ident,
   opt(seq("=", () => expression)),
 );
