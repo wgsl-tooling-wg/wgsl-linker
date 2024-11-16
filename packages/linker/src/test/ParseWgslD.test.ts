@@ -378,3 +378,17 @@ test("parse switch statement-2", () => {
   const fn = parsed[0] as FnElem;
   expect(fn.calls).toEqual([]);
 });
+
+test("parse struct constructor in assignment, produce a TypeRef", () => {
+  const src = `
+    fn main() {
+      var x = AStruct(1u);
+    }
+   `;
+  const parsed = testParseWgsl(src);
+  expect(parsed.length).toEqual(1);
+  const fn = parsed[0] as FnElem;
+  expect(fn.typeRefs.length).toEqual(1);
+  expect(fn.typeRefs[0].name).toEqual("AStruct");
+});
+
