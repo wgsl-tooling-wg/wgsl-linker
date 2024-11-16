@@ -18,9 +18,15 @@ import {
   tokens,
   tracing,
   withSep,
+  withSepPlus,
 } from "mini-parse";
-import { AbstractElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
-import { identTokens, mainTokens } from "./MatchWgslD.ts";
+import {
+  AbstractElem,
+  CallElem,
+  TypeNameElem,
+  TypeRefElem,
+} from "./AbstractElems.ts";
+import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
 import {
   comment,
@@ -34,6 +40,7 @@ import {
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
 const longIdent = kind(identTokens.longIdent);
+const ident = word; // TODO longIdent?
 
 // prettier gets confused if we leave the quoted parens inline so make consts for them here
 const lParen = "(";
@@ -188,11 +195,24 @@ const opt_template_list = opt(
   ).tag("template"),
 );
 
+const template_elaborated_ident = seq(
+  ident.map(identToTypeRefOrLocation).tag("identLoc"),
+  opt_template_list,
+);
+
+const paren_expression = seq("(", () => expression, req(")"));
+
+const call_expression = seq(template_elaborated_ident, argument_expression_list)
+  .map(identLocToCallElem)
+  .tag("calls");
+
 const primary_expression = or(
   literal,
-  seq(type_specifier, opt_template_args, opt(argument_expression_list)), // TODO should be ident, not type_specifier. But for now, linker likes to see a TypeRef here
-  seq("(", () => expression, req(")")),
+  paren_expression,
+  call_expression,
+  template_elaborated_ident,
 );
+
 const component_or_swizzle = repeatPlus(
   or(
     seq(".", word),
@@ -387,7 +407,7 @@ export const fn_decl = seq(
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
   e.name = nameElem.name;
-  e.calls = r.tags.calls || [];
+  e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
   e.typeRefs = r.tags.typeRefs?.flat() || [];
   r.app.state.push(e);
 });
@@ -459,6 +479,9 @@ if (tracing) {
     fnParam,
     fnParamList,
     opt_template_list,
+    template_elaborated_ident,
+    paren_expression,
+    call_expression,
     primary_expression,
     component_or_swizzle,
     expression,
@@ -485,4 +508,53 @@ if (tracing) {
   Object.entries(names).forEach(([name, parser]) => {
     setTraceName(parser, name);
   });
+}
+
+
+interface IdentLocation {
+  name: string;
+  start: number;
+  end: number;
+}
+
+/** Make a TypeRefElem if the ident value starts with an upper case letter,
+ * and push the elem into the result tags.
+ * Otherwise, make and IdentLocation and return that.
+ * TODO this keeps some tests alive, but drop this hack soon, when we get rid of typeRefs.
+ */
+function identToTypeRefOrLocation(r: ExtendedResult<any>): IdentLocation[] {
+  const firstChar = r.value[0];
+  if (firstChar === firstChar.toUpperCase()) {
+    // ctxLog(r.ctx, `making typeRef ${r.value}`);
+    const e = makeElem("typeRef", r as ExtendedResult<any>);
+    e.name = r.value;
+    const typeRef = e as Required<typeof e>;
+    const tags = r.tags as Record<string, any>;
+    const refs = (tags.typeRefs as TypeRefElem[]) || [];
+    refs.push(typeRef);
+    tags.typeRefs = refs;
+    return [];
+  } else {
+    const identLocation: IdentLocation = {
+      name: r.value,
+      start: r.start,
+      end: r.end,
+    };
+    return [identLocation];
+  }
+}
+
+/** Make a call elem if there's an "identLoc" tag from identToTypeRefOrLocation.
+ *
+ * TODO this keeps some tests alive, but drop this hack soon.
+ */
+function identLocToCallElem(r: ExtendedResult<any>): CallElem[] {
+  const idents = (r.tags.identLoc as IdentLocation[][]).flat();
+  const calls: CallElem[] = idents.map(i => ({
+    kind: "call",
+    name: i.name,
+    start: i.start,
+    end: i.end,
+  }));
+  return calls;
 }
