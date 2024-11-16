@@ -110,7 +110,11 @@ export class SrcMap {
       e => e.destStart <= destPos && e.destEnd >= destPos,
     );
     if (!entry) {
-      console.log(`no SrcMapEntry for dest position: ${destPos}`);
+      /* TODO this console.log triggers during debugging, now that preprocessing doesn't produce a real srcMap. 
+        remove the warning or fix the reason for the warning?
+       */
+
+      // console.log(`no SrcMapEntry for dest position: ${destPos}`);
       return {
         src: this.dest,
         position: destPos,
