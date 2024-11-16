@@ -13,6 +13,6 @@ test.skip("example", () => {
   `;
 
   expectNoLog(() => {
-    const app = testParseWgsl(src);
+    testParseWgsl(src);
   });
 });
