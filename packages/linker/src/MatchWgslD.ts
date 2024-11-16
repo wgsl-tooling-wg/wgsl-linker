@@ -29,6 +29,14 @@ export const mainTokens = tokenMatcher(
   "main",
 );
 
+export const bracketTokens = tokenMatcher(
+  {
+    bracket: /<|>/,
+    other: /[^<>]+/,
+  },
+  "bracket",
+);
+
 export const identTokens = tokenMatcher(
   {
     longIdent,

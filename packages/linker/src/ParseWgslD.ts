@@ -182,9 +182,9 @@ const variable_decl = seq(
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
   seq(
-    "<",
-    withSep(",", () => template_arg_expression, { requireOne: true }),
-    ">",
+    tokens(bracketTokens, "<"),
+    withSepPlus(",", () => template_arg_expression),
+    tokens(bracketTokens, ">"),
   ).tag("template"),
 );
 
