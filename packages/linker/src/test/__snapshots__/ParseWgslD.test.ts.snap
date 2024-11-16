@@ -45,20 +45,12 @@ exports[`parse array alias 1`] = `
     "kind": "alias",
     "name": "Points3",
     "start": 5,
-    "typeRefs": [
-      {
-        "end": 36,
-        "kind": "typeRef",
-        "name": "array",
-        "start": 21,
-      },
-      {
-        "end": 36,
-        "kind": "typeRef",
-        "name": "Point",
-        "start": 21,
-      },
-    ],
+    "typeRefs": {
+      "end": 32,
+      "kind": "typeRef",
+      "name": "Point",
+      "start": 27,
+    },
   },
 ]
 `;
@@ -378,13 +370,5 @@ exports[`parse top level var 1`] = `
     "start": 64,
     "typeRefs": [],
   },
-]
-`;
-
-exports[`wordNumArgs parses (a, b, 1) 1`] = `
-[
-  "a",
-  "b",
-  "1",
 ]
 `;
