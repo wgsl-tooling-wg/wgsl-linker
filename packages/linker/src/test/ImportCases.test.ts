@@ -254,7 +254,7 @@ test("import a struct with name conflicting support struct", ctx => {
         b: i32
       }
 
-      fn foo() -> AStruct {let a:AStruct; return a;}
+      fn foo() -> AStruct {var a:AStruct; return a;}
 
       struct AStruct {
         x: Base0
