@@ -1,29 +1,17 @@
 import { _withBaseLogger, or, repeat } from "mini-parse";
-import { expectNoLogErr, logCatch } from "mini-parse/test-util";
+import { logCatch } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import type {
-  AbstractElem,
-  FnElem,
-  StructElem,
-  VarElem,
-} from "../AbstractElems.ts";
+import type { FnElem, StructElem, VarElem } from "../AbstractElems.ts";
 import { filterElems } from "../ParseModule.ts";
 import { unknown } from "../ParseSupport.ts";
 import {
   fn_decl,
   globalVar,
-  parseWgslD,
   structDecl,
   type_specifier,
 } from "../ParseWgslD.ts";
-import { testAppParse } from "./TestUtil.ts";
-import { enableTracing } from "mini-parse";
-import { dlog } from "berry-pretty";
-
-function testParseWgsl(src: string): AbstractElem[] {
-  return parseWgslD(src, undefined, {}, 500);
-}
+import { testAppParse, testParseWgsl } from "./TestUtil.ts";
 
 test("parse empty string", () => {
   const parsed = testParseWgsl("");
@@ -126,10 +114,8 @@ test("parse global diagnostic", () => {
 
     fn main() {}
     `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse const_assert", () => {
@@ -138,10 +124,8 @@ test("parse const_assert", () => {
 
     fn main() {}
     `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse top level var", () => {
@@ -150,10 +134,8 @@ test("parse top level var", () => {
 
     fn main() {}
   `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse top level override and const", () => {
@@ -163,36 +145,28 @@ test("parse top level override and const", () => {
 
     fn main() {}
   `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse root level ;;", () => {
   const src = ";;";
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse simple alias", () => {
   const src = `alias NewType = OldType;`;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("parse array alias", () => {
   const src = `
     alias Points3 = array<Point, 3>;
   `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    expect(parsed).toMatchSnapshot();
-  });
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
 });
 
 test("unexpected token", () => {
@@ -296,7 +270,7 @@ test("eolf followed by blank line", () => {
   const src = `
     export fn foo() { }
   `;
-  expectNoLogErr(() => testParseWgsl(src));
+  testParseWgsl(src);
 });
 
 test("parse fn with attributes and suffix comma", () => {
@@ -308,12 +282,10 @@ test("parse fn with attributes and suffix comma", () => {
       @builtin(local_invocation_index) localIndex: u32,  
   ) { }
   `;
-  expectNoLogErr(() => {
-    const parsed = testParseWgsl(src);
-    const first = parsed[0] as FnElem;
-    expect(first.kind).toBe("fn");
-    expect(first.name).toBe("main");
-  });
+  const parsed = testParseWgsl(src);
+  const first = parsed[0] as FnElem;
+  expect(first.kind).toBe("fn");
+  expect(first.name).toBe("main");
 });
 
 test("parse foo::bar(); ", () => {
