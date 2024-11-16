@@ -47,6 +47,7 @@ export function testParse<T, N extends TagRecord = NoTags, S = any>(
   return { parsed, position: lexer.position(), appState: app.state };
 }
 
+// TODO drop this
 /** run a test function and expect that no error logs are produced */
 export function expectNoLogErr<T>(fn: () => T): T {
   const { log, logged } = logCatch();
@@ -54,6 +55,18 @@ export function expectNoLogErr<T>(fn: () => T): T {
   expect(logged()).toBe("");
   return result;
 }
+
+/** run a test function and expect that no error logs are produced */
+export function expectNoLog<T>(fn: () => T): T {
+  const { log, logged } = logCatch();
+  const result = _withBaseLogger(log, fn);
+  if (logged()) {
+    console.log(logged());
+  }
+  expect(logged()).toBe("");
+  return result;
+}
+
 
 /** run a test with tracing facility disabled
  * (e.g. if the tracing facility might interfere with the test) */

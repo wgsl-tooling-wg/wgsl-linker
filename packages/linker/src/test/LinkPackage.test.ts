@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import lib from "wgsl-rand";
 import { ModuleRegistry } from "../ModuleRegistry.js";
+import { expectNoLog } from "./TestUtil.js";
 
 test("import rand() from a package", () => {
   const src = `
@@ -17,8 +18,9 @@ test("import rand() from a package", () => {
   `;
 
   const wgsl = { "./main.wesl": src };
-
-  const registry = new ModuleRegistry({ wgsl, libs: [lib] });
-  const result = registry.link("./main");
+  const result = expectNoLog(() => {
+    const registry = new ModuleRegistry({ wgsl, libs: [lib] });
+    return registry.link("./main");
+  });
   expect(result).toContain("fn pcg_2u_3f");
 });

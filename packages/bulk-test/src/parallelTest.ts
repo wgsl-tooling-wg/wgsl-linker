@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { test } from "vitest";
 import { ModuleRegistry } from "wgsl-linker";
+import { expectNoLog } from "mini-parse/test-util";
 
 export interface NamedPath {
   name: string; // test name
@@ -17,8 +18,10 @@ export function testWgslFiles(namedPaths: NamedPath[]) {
     const shortPath = "./" + name;
     test(name, async () => {
       const text = await fs.readFile(filePath, { encoding: "utf8" });
-      const registry = new ModuleRegistry({ wgsl: { [shortPath]: text } });
-      registry.parsed();
+      expectNoLog(() => {
+        const registry = new ModuleRegistry({ wgsl: { [shortPath]: text } });
+        registry.parsed();
+      });
       // registry.link(shortPath);
     });
   });

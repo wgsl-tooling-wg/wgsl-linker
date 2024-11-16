@@ -37,6 +37,7 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   return registry.link("./root", runtimeParams);
 }
 
+// TODO drop this in favor of mini-parse/test-util
 export function expectNoLog<T>(fn: () => T): T {
   const { log, logged } = logCatch();
   const result = _withBaseLogger(log, fn);
