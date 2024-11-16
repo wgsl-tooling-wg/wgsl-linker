@@ -115,7 +115,7 @@ export const fnNameDecl = req(word.tag("name"), "missing fn name").map(r => {
 /** find possible references to user structs in this type specifier and any templates */
 export const type_specifier: Parser<TypeRefElem[]> = seq(
   tokens(identTokens, longIdent.tag(possibleTypeRef)),
-  () => opt_template_args,
+  () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
@@ -158,7 +158,7 @@ export const fn_call = seq(
     .tag("name")
     .map(r => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
-  () => opt_template_args,
+  () => opt_template_list,
   argument_expression_list,
 );
 
@@ -180,7 +180,7 @@ const variable_decl = seq(
 );
 
 /** Aka template_elaborated_ident.post.ident */
-const opt_template_args = opt(
+const opt_template_list = opt(
   seq(
     "<",
     withSep(",", () => template_arg_expression, { requireOne: true }),
@@ -391,7 +391,7 @@ export const fn_decl = seq(
 export const globalVar = seq(
   opt_attributes,
   or("const", "override", "var"),
-  opt_template_args,
+  opt_template_list,
   word.tag("name"),
   opt(seq(":", req(type_specifier.tag("typeRefs")))),
   req(anyThrough(";")),
@@ -454,7 +454,7 @@ if (tracing) {
     fn_call,
     fnParam,
     fnParamList,
-    opt_template_args,
+    opt_template_list,
     primary_expression,
     component_or_swizzle,
     expression,
