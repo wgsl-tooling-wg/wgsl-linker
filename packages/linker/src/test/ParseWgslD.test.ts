@@ -404,3 +404,14 @@ test("parse struct.member (component_or_swizzle)", () => {
   const fn = parsed[0] as FnElem;
   expect(fn?.name).toEqual("main");
 });
+
+/* TODO fix this. probably related to ops() operator parsing */
+test.skip("parse ^= assignment", () => {
+  const src = `
+    fn main() {
+      var v = 1;
+      v ^= 1;
+    }
+  `;
+  testParseWgsl(src);
+});
