@@ -4,6 +4,7 @@ import { expect } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
+import { parseWgslD } from "../ParseWgslD.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
@@ -46,4 +47,8 @@ export function expectNoLog<T>(fn: () => T): T {
   }
   expect(logged()).toBe("");
   return result;
+}
+
+export function testParseWgsl(src: string): AbstractElem[] {
+  return expectNoLog(() => parseWgslD(src, undefined, {}, 500));
 }
