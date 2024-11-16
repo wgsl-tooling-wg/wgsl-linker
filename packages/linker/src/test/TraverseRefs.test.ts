@@ -204,7 +204,7 @@ test("type inside fn with same name as fn", () => {
   // this will fail wgsl compilation, but as long as it doesn't hang the linker, we're ok
   const src = `
     fn foo() {
-      let a:foo;
+      var a:foo;
     }
     fn bar() {}
   `;
