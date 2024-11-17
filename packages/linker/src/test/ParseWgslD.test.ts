@@ -377,7 +377,6 @@ test("parse struct.member (component_or_swizzle)", () => {
   expect(fn?.name).toEqual("main");
 });
 
-/* TODO fix this. probably related to ops() operator parsing */
 test("parse ^= assignment", () => {
   const src = `
     fn main() {
