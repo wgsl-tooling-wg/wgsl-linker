@@ -25,3 +25,27 @@ test("parse comparisons with && ||", () => {
     ],
   ]);
 });
+
+test("parse vec templated type", () => {
+  const src = `vec2<f32>`;
+
+  const { parsed } = testAppParse(seq(expression, eof), src);
+  expect(parsed?.tags.identLoc).toEqual([
+    [
+      {
+        name: "vec2",
+        start: 0,
+        end: 4,
+      },
+    ],
+    [
+      {
+        name: "f32",
+        start: 5,
+        end: 8,
+      },
+    ],
+  ]);
+
+  expect((parsed?.tags.template as any).length).toBe(1);
+});

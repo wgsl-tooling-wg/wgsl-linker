@@ -43,7 +43,7 @@ export interface ParseState {
   params: Record<string, any>; // user provided params to templates, code gen and #if directives
 }
 
-// TODO: Check the following
+// TODO: stef Check the following
 // - translation_unit
 // - global_decl
 // - global_value_decl
