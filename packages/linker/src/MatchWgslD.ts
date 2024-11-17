@@ -56,6 +56,7 @@ export const mainTokens = tokenMatcher(
 export const bracketTokens = tokenMatcher(
   {
     bracket: /<|>/,
+    ws: blankspaces,
     other: /[^<>]+/,
   },
   "bracket",

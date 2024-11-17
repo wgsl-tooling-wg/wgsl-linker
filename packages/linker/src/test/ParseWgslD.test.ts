@@ -390,5 +390,4 @@ test("parse ^= assignment", () => {
 // TODO fixme (breaks bench)
 test("var <workgroup> work: array<u32, 128>;", expectWgsl);
 
-// TODO fixme (breaks bulk tests)
-test.only("fn f() { _ = 1; }", expectWgsl);
+test("fn f() { _ = 1; }", expectWgsl);
