@@ -267,7 +267,8 @@ export function req<A extends CombinatorArg>(
   return parser("req", (ctx: ParserContext) => {
     const result = p._run(ctx);
     if (result === null) {
-      ctxLog(ctx, msg ?? `expected ${p.debugName}`);
+      const deepName = ctx._debugNames.join(" > "); // TODO DRY this
+      ctxLog(ctx, msg ?? `expected ${p.debugName} ${deepName}`);
       throw new ParseError();
     }
     return result;
