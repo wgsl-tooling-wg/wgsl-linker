@@ -22,7 +22,21 @@ const longIdent =
 export const word =
   /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
 
-export const digits = /(?:0x)?(?:[\d]+\.?[\d]*|\.[\d]+)[iuf]?(?![a-zA-Z])/; // LATER parse more wgsl number variants
+export const digits = new RegExp(
+  // decimal_float_literal
+  /(?:0[fh])|(?:[1-9][0-9]*[fh])/.source +
+    /|(?:[0-9]*\.[0-9]+(?:[eE][+-]?[0-9]+)?[fh]?)/.source +
+    /|(?:[0-9]+\.[0-9]*(?:[eE][+-]?[0-9]+)?[fh]?)/.source +
+    /|(?:[0-9]+[eE][+-]?[0-9]+[fh]?)/.source +
+    // hex_float_literal
+    /|(?:0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+(?:[pP][+-]?[0-9]+[fh]?)?)/.source +
+    /|(?:0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*(?:[pP][+-]?[0-9]+[fh]?)?)/.source +
+    /|(?:0[xX][0-9a-fA-F]+[pP][+-]?[0-9]+[fh]?)/.source +
+    // hex_int_literal
+    /|(?:0[xX][0-9a-fA-F]+[iu]?)/.source +
+    // decimal_int_literal
+    /|(?:0[iu]?)|(?:[1-9][0-9]*[iu]?)/.source,
+);
 
 /** matching tokens at wgsl root level */
 export const mainTokens = tokenMatcher(
