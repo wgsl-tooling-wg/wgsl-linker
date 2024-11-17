@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import lib from "wgsl-rand";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { expectNoLog } from "./TestUtil.js";
+import { expectNoLog } from "mini-parse/test-util";
 
 test("import rand() from a package", () => {
   const src = `
