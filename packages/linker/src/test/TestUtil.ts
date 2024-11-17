@@ -1,6 +1,6 @@
-import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
-import { expectNoLog, logCatch, testParse, TestParseResult } from "mini-parse/test-util";
-import { expect } from "vitest";
+import { NoTags, Parser, TagRecord } from "mini-parse";
+import { expectNoLog, testParse, TestParseResult } from "mini-parse/test-util";
+import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
@@ -40,4 +40,8 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
 
 export function testParseWgsl(src: string): AbstractElem[] {
   return expectNoLog(() => parseWgslD(src, undefined, {}, 500));
+}
+
+export function expectWgsl(ctx: TaskContext): void {
+  testParseWgsl(ctx.task.name);
 }
