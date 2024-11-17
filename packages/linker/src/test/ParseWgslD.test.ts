@@ -216,7 +216,7 @@ test("parse type in <template> in fn args", () => {
   expect(typeRefs[0].name).toBe("MyStruct");
 });
 
-// TODO thinking about skipping the typeRef cases..
+// TODO-lee thinking about skipping the typeRef cases..
 test.skip("parse simple templated type", () => {
   const src = `array<MyStruct,4>`;
 
@@ -225,7 +225,7 @@ test.skip("parse simple templated type", () => {
   expect(typeRefNames).toContain("MyStruct");
 });
 
-// TODO thinking about skipping the typeRef cases..
+// TODO-lee thinking about skipping the typeRef cases..
 test.skip("parse nested template that ends with >> ", () => {
   const src = `vec2<array <MyStruct,4>>`;
 
@@ -234,7 +234,7 @@ test.skip("parse nested template that ends with >> ", () => {
   expect(typeRefNames).toEqual(["vec2", "array", "MyStruct"]);
 });
 
-// TODO thinking about skipping the typeRef cases..
+// TODO-lee thinking about skipping the typeRef cases..
 test.skip("parse struct member with templated type", () => {
   const src = `struct Foo { a: vec2<array<Bar,4>> }`;
   const { appState } = testAppParse(structDecl, src);
@@ -243,7 +243,7 @@ test.skip("parse struct member with templated type", () => {
   expect(memberNames).toEqual(["vec2", "array", "Bar"]);
 });
 
-// TODO thinking about skipping the typeRef cases..
+// TODO-lee thinking about skipping the typeRef cases..
 test.skip("parse type in <template> in global var", () => {
   const src = `
     var x:vec2<MyStruct> = { x: 1, y: 2 };`;
@@ -387,8 +387,8 @@ test("parse ^= assignment", () => {
   testParseWgsl(src);
 });
 
-// TODO fixme
+// TODO fixme (breaks bench)
 test("var <workgroup> work: array<u32, 128>;", expectWgsl);
 
-// TODO fixme
+// TODO fixme (breaks bulk tests)
 test.only("fn f() { _ = 1; }", expectWgsl);

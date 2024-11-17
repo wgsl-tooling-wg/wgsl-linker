@@ -506,7 +506,7 @@ interface IdentLocation {
 /** Make a TypeRefElem if the ident value starts with an upper case letter,
  * and push the elem into the result tags.
  * Otherwise, make and IdentLocation and return that.
- * TODO this keeps some tests alive, but drop this hack soon, when we get rid of typeRefs.
+ * TODO-lee this keeps some tests alive, but drop this hack soon, when we get rid of typeRefs.
  */
 function identToTypeRefOrLocation(r: ExtendedResult<any>): IdentLocation[] {
   const firstChar = r.value[0];
@@ -532,7 +532,7 @@ function identToTypeRefOrLocation(r: ExtendedResult<any>): IdentLocation[] {
 
 /** Make a call elem if there's an "identLoc" tag from identToTypeRefOrLocation.
  *
- * TODO this keeps some tests alive, but drop this hack soon.
+ * TODO-lee this keeps some tests alive, but drop this hack soon.
  */
 function identLocToCallElem(r: ExtendedResult<any>): CallElem[] {
   const idents = (r.tags.identLoc as IdentLocation[][]).flat();
