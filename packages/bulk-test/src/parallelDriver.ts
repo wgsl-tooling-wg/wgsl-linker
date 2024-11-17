@@ -1,7 +1,7 @@
 import { glob } from "glob";
 import path from "node:path";
 import { BulkTest, bulkTests } from "wesl-testsuite";
-import { NamedPath } from "./parallelTest.ts";
+import { NamedPath } from "./test/parallelTest.test.ts";
 
 /* Vitest parallelizes per .test.ts file.
  *
@@ -13,13 +13,8 @@ import { NamedPath } from "./parallelTest.ts";
  */
 
 const communityRoot = path.join("..", "..", "..", "community-wgsl");
-const numParts = 16;
-const allPaths = await loadTests();
 
-/** each parallel-[N].test.ts will use its Nth part of the total test set */
-export const pathSets = nParts(allPaths, numParts);
-
-async function loadTests(): Promise<NamedPath[]> {
+export async function findBulkTestPaths(): Promise<NamedPath[]> {
   const pathSets: NamedPath[] = [];
   for (const bulk of bulkTests) {
     const paths = await loadBulkSet(bulk);
@@ -62,11 +57,4 @@ async function findGlobFiles(
   } finally {
     process.chdir(cwd);
   }
-}
-
-/** split an array into n partitions */
-function nParts<T>(a: T[], n: number): T[][] {
-  const parts: T[][] = new Array(n).fill(0).map(() => []);
-  a.forEach((v, i) => parts[i % n].push(v));
-  return parts;
 }
