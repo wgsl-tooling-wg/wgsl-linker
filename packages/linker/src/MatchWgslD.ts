@@ -1,8 +1,12 @@
 import { matchOneOf, tokenMatcher } from "mini-parse";
 
-/** token matchers for wgsl with #directives */
+// https://www.w3.org/TR/WGSL/#blankspace-and-line-breaks
+/** New lines */
+export const eol = /[\n\v\f\u{0085}\u{2028}\u{2029}]|\r\n?/u;
+/** Whitespaces including new lines */
+export const blankspaces =
+  /[ \t\n\v\f\r\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}]+/u;
 
-export const eol = /\n|\r\n/;
 export const directive = /#[a-zA-Z_]\w*/;
 export const notDirective = /[^#\n]+/;
 
@@ -25,7 +29,7 @@ export const mainTokens = tokenMatcher(
     digits,
     symbol,
     quote,
-    ws: /\s+/,
+    ws: blankspaces,
   },
   "main",
 );
@@ -41,7 +45,7 @@ export const bracketTokens = tokenMatcher(
 export const identTokens = tokenMatcher(
   {
     longIdent,
-    ws: /\s+/,
+    ws: blankspaces,
     symbol,
     digits,
     quote,
@@ -51,7 +55,7 @@ export const identTokens = tokenMatcher(
 
 export const moduleTokens = tokenMatcher(
   {
-    ws: /\s+/,
+    ws: blankspaces,
     moduleName: /[a-zA-Z_][\w./:-]*/,
   },
   "moduleName",
@@ -88,7 +92,7 @@ export const treeImportTokens = tokenMatcher(
   {
     directive,
     quote,
-    ws: /\s+/,
+    ws: blankspaces,
     importSymbol,
     word,
     digits,

@@ -28,7 +28,7 @@ import {
 } from "./AbstractElems.ts";
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
-import { comment, literal, makeElem, unknown, word } from "./ParseSupport.ts";
+import { comment, makeElem, unknown, word } from "./ParseSupport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -192,6 +192,8 @@ const template_elaborated_ident = seq(
   ident.map(identToTypeRefOrLocation).tag("identLoc"),
   opt_template_list,
 );
+
+const literal = or("true", "false", kind(mainTokens.digits));
 
 const paren_expression = seq("(", () => expression, req(")"));
 
@@ -455,7 +457,6 @@ export function parseWgslD(
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     attribute,
-    literal,
     globalDirectiveOrAssert,
     type_specifier,
     structMember,
@@ -465,6 +466,7 @@ if (tracing) {
     fnParamList,
     opt_template_list,
     template_elaborated_ident,
+    literal,
     paren_expression,
     call_expression,
     primary_expression,
