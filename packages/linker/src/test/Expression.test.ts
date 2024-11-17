@@ -14,7 +14,6 @@ test("parse number", () => {
 test("parse comparisons with && ||", () => {
   const src = `a<3   &&   4>(5)`;
   const { parsed } = testAppParse(seq(expression, eof), src);
-  dlog({ parsed });
   expect(parsed).not.toBeNull();
   expect(parsed!.tags.identLoc).toEqual([
     [
