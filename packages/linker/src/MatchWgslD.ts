@@ -11,8 +11,10 @@ export const directive = /#[a-zA-Z_]\w*/;
 export const notDirective = /[^#\n]+/;
 
 const symbolSet =
-  "& && -> @ / ! [ ] { } : , = == != > >> >= < << <= % - -- " +
-  ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
+  "& && -> @ / ! [ ] { } : , = == != > >> >= < << <= % - --" +
+  " . + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<" +
+  // For the _ = expr; syntax
+  " _";
 
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
