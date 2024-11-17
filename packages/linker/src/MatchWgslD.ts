@@ -7,8 +7,9 @@ export const directive = /#[a-zA-Z_]\w*/;
 export const notDirective = /[^#\n]+/;
 
 const symbolSet =
-  "& && -> @ / ! [ ] { } : , = == != > >= < << <= % - -- " + // '>>' elided for template parsing, e.g. vec2<vec2<u8>>
+  "& && -> @ / ! [ ] { } : , = == != > >> >= < << <= % - -- " +
   ". + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^= >>= <<= <<";
+
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 

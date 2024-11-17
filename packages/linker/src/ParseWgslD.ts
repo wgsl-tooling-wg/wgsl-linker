@@ -28,14 +28,7 @@ import {
 } from "./AbstractElems.ts";
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
-import {
-  comment,
-  literal,
-  makeElem,
-  op,
-  unknown,
-  word,
-} from "./ParseSupport.ts";
+import { comment, literal, makeElem, unknown, word } from "./ParseSupport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -233,21 +226,12 @@ const component_or_swizzle = repeatPlus(
 const makeExpressionOperator = (isTemplate: boolean) => {
   const allowedOps = (
     "& | ^ << <= < != == % * / + -" + (isTemplate ? "" : " && || >> >= >")
-  )
-    .split(" ")
-    .map(op);
+  ).split(" ");
   return or(...allowedOps);
-  // .traceName("operator")
-  // .trace({ hide: true });
 };
 
 const unary_expression: Parser<any> = or(
-  seq(
-    or(..."! & * - ~".split(" ")),
-    // .traceName("unary_op")
-    // .trace({ hide: true })
-    () => unary_expression,
-  ),
+  seq(or(..."! & * - ~".split(" ")), () => unary_expression),
   seq(primary_expression, opt(component_or_swizzle)),
 );
 
@@ -378,16 +362,16 @@ const variable_updating_statement = or(
     lhs_expression,
     or(
       "=",
-      op("<<="), // TODO could this be handled with a lexer rule?
-      op(">>="),
-      op("%="),
-      op("&="),
-      op("*="),
-      op("+="),
-      op("-="),
-      op("/="),
-      op("^="),
-      op("|="),
+      "<<=", // TODO could this be handled with a lexer rule?
+      ">>=",
+      "%=",
+      "&=",
+      "*=",
+      "+=",
+      "-=",
+      "/=",
+      "^=",
+      "|=",
     ),
     expression,
   ),

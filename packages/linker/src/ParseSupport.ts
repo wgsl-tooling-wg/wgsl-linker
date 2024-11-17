@@ -24,8 +24,6 @@ import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 export const word = kind(mainTokens.word);
 export const literal = or("true", "false", kind(mainTokens.digits));
-/** WGSL combined tokens consist of individual tokens, one after another. */
-export const op = (tokens: string) => seq(...tokens.split(""));
 
 export const unknown = any().map(r => {
   const { kind, text } = r.value;
@@ -50,8 +48,7 @@ const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
 /** parse a line comment */
 export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
 
-export const comment = or(() => lineComment, blockComment)
-.trace({
+export const comment = or(() => lineComment, blockComment).trace({
   hide: true,
 });
 

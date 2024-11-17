@@ -378,7 +378,7 @@ test("parse struct.member (component_or_swizzle)", () => {
 });
 
 /* TODO fix this. probably related to ops() operator parsing */
-test.skip("parse ^= assignment", () => {
+test("parse ^= assignment", () => {
   const src = `
     fn main() {
       var v = 1;
