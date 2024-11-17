@@ -11,11 +11,18 @@ test("parse number", () => {
   expect(parsed!.tags.ident).toBeUndefined();
 });
 
-// TODO fixme
-test.skip("parse comparisons with && ||", () => {
-  const src = `array<3 && 4>(5)`;
+test("parse comparisons with && ||", () => {
+  const src = `a<3   &&   4>(5)`;
   const { parsed } = testAppParse(seq(expression, eof), src);
   dlog({ parsed });
   expect(parsed).not.toBeNull();
-  expect(parsed!.tags.ident).toEqual(["array"]);
+  expect(parsed!.tags.identLoc).toEqual([
+    [
+      {
+        name: "a",
+        start: 0,
+        end: 1,
+      },
+    ],
+  ]);
 });
