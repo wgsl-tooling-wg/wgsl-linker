@@ -1,7 +1,7 @@
 import { _withBaseLogger, or, repeat } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 
-import { expect, test } from "vitest";
+import { expect, TaskContext, test } from "vitest";
 import type { FnElem, StructElem, VarElem } from "../AbstractElems.ts";
 import { filterElems } from "../ParseModule.ts";
 import { unknown } from "../ParseSupport.ts";
@@ -11,7 +11,7 @@ import {
   structDecl,
   type_specifier,
 } from "../ParseWgslD.ts";
-import { testAppParse, testParseWgsl } from "./TestUtil.ts";
+import { expectWgsl, testAppParse, testParseWgsl } from "./TestUtil.ts";
 
 test("parse empty string", () => {
   const parsed = testParseWgsl("");
@@ -386,3 +386,6 @@ test("parse ^= assignment", () => {
   `;
   testParseWgsl(src);
 });
+
+// TODO fixme
+test("var <workgroup> work: array<u32, 128>;", expectWgsl);
