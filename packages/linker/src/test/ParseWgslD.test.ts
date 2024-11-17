@@ -391,3 +391,5 @@ test("parse ^= assignment", () => {
 test("var <workgroup> work: array<u32, 128>;", expectWgsl);
 
 test("fn f() { _ = 1; }", expectWgsl);
+
+test("var foo: vec2<f32 >= vec2( 0.5, -0.5);", expectWgsl);

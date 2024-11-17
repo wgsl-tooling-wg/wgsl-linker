@@ -1,5 +1,7 @@
 {
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "node:inspector/promises"
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "node:inspector/promises",
+    "inspector/promises",
+    "inspector"
   ]
 }
