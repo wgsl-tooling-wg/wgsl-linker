@@ -369,8 +369,8 @@ const lhs_expression: Parser<any> = or(
 const variable_or_value_statement = or(
   // Also covers the = expression case
   variable_decl,
-  seq("const", optionally_typed_ident, "=", expression),
-  seq("let", optionally_typed_ident, "=", expression),
+  seq("const", optionally_typed_ident, req("="), expression),
+  seq("let", optionally_typed_ident, req("="), expression),
 );
 
 const variable_updating_statement = or(
@@ -470,6 +470,7 @@ export function parseWgslD(
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
+    attribute,
     literal,
     globalDirectiveOrAssert,
     type_specifier,
@@ -509,7 +510,6 @@ if (tracing) {
     setTraceName(parser, name);
   });
 }
-
 
 interface IdentLocation {
   name: string;
