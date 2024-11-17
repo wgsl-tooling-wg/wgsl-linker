@@ -1,0 +1,5 @@
+{
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "node:inspector/promises"
+  ]
+}
