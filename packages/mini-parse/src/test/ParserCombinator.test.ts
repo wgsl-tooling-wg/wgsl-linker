@@ -274,7 +274,7 @@ test("req logs a message on failure", () => {
     testParse(p, src);
   });
   expect(logged()).toMatchInlineSnapshot(`
-    "expected text 'b''
+    "expected text 'b'' seq > req
     a 1;   Ln 1
      ^"
   `);
