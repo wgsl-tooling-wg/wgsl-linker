@@ -17,8 +17,11 @@ const symbolSet =
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
-const longIdent = /[a-zA-Z_][\w.:]*/; // identifier that can include module path
-export const word = /[a-zA-Z_]\w*/; // LATER consider making this 'ident' per wgsl spec (incl. non-ascii)
+const longIdent =
+  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}.:]+)|(?:[\p{XID_Start}]))/u; // identifier that can include module path
+export const word =
+  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
+
 export const digits = /(?:0x)?(?:[\d]+\.?[\d]*|\.[\d]+)[iuf]?(?![a-zA-Z])/; // LATER parse more wgsl number variants
 
 /** matching tokens at wgsl root level */
