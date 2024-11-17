@@ -37,5 +37,6 @@
     "vitest": "^2.1.4",
     "wesl-testsuite": "file:../wesl-testsuite",
     "yargs": "^17.7.2"
-  }
+  },
+  "packageManager": "pnpm@9.12.3"
 }
