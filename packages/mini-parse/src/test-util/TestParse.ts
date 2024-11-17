@@ -59,11 +59,16 @@ export function expectNoLogErr<T>(fn: () => T): T {
 /** run a test function and expect that no error logs are produced */
 export function expectNoLog<T>(fn: () => T): T {
   const { log, logged } = logCatch();
-  const result = _withBaseLogger(log, fn);
-  if (logged()) {
-    console.log(logged());
+  let result: T | undefined = undefined;
+
+  try {
+    result = _withBaseLogger(log, fn);
+  } finally {
+    if (logged()) {
+      console.log(logged());
+    }
+    expect(logged()).toBe("");
   }
-  expect(logged()).toBe("");
   return result;
 }
 
