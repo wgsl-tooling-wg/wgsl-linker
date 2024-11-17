@@ -389,3 +389,6 @@ test("parse ^= assignment", () => {
 
 // TODO fixme
 test("var <workgroup> work: array<u32, 128>;", expectWgsl);
+
+// TODO fixme
+test.only("fn f() { _ = 1; }", expectWgsl);
