@@ -1,8 +1,5 @@
 import {
-  disablePreParse,
   kind,
-  makeEolf,
-  matchOneOf,
   NoTags,
   opt,
   or,
@@ -11,9 +8,6 @@ import {
   seq,
   setTraceName,
   TagRecord,
-  tokenMatcher,
-  tokens,
-  tokenSkipSet,
   tracing,
   withSepPlus,
   withTags,
@@ -26,44 +20,10 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.js";
-import { digits, eol, word } from "./MatchWgslD.js";
+import { mainTokens } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
 
-const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
-const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
-
-const skipWsSet = new Set(["ws"]);
-function skipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
-  return tokenSkipSet(skipWsSet, p);
-}
-function noSkipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
-  return tokenSkipSet(null, p);
-}
-const ws = /\s+/;
-
-export const gleamImportTokens = tokenMatcher({
-  ws,
-  gleamImportSymbol,
-  word,
-  digits,
-});
-
-export const packageTokens = tokenMatcher({
-  ws,
-  pkg: /[a-zA-Z_][\w-]*/, // LATER follow spec
-  other: /.+/,
-});
-
-export const eolTokens = tokenMatcher({
-  ws: /[ \t]+/, // don't include \n, for eolf
-  eol,
-});
-
-const eolf = disablePreParse(
-  makeEolf(eolTokens, gleamImportTokens.ws).traceName("gleam_eolf"),
-);
-const wordToken = kind(gleamImportTokens.word);
-const pkgToken = kind(packageTokens.pkg);
+const wordToken = kind(mainTokens.word);
 
 // forward references (for mutual recursion)
 let pathTail: Parser<PathSegment[], NoTags> = null as any;
@@ -74,18 +34,15 @@ const simpleSegment = wordToken.map(r => {
 });
 
 const itemImport = withTags(
-  seq(
-    wordToken.tag("segment"),
-    skipWs(opt(seq("as", wordToken.tag("as")))),
-  ).map(r => {
+  seq(wordToken.tag("segment"), opt(seq("as", wordToken.tag("as")))).map(r => {
     const segment = r.tags.segment[0];
     return new SimpleSegment(segment, r.tags.as?.[0]);
   }),
 );
 
-const starImport = seq(
-  skipWs(seq("*", opt(seq("as", wordToken.tag("as"))))),
-).map(r => new Wildcard(r.tags.as?.[0]));
+const starImport = seq(seq("*", opt(seq("as", wordToken.tag("as"))))).map(
+  r => new Wildcard(r.tags.as?.[0]),
+);
 
 const collectionItem = or(
   () => packagePath,
@@ -95,11 +52,9 @@ const collectionItem = or(
 const importCollection = withTags(
   seq(
     "{",
-    skipWs(
-      seq(
-        withSepPlus(",", () => collectionItem).tag("list"),
-        "}", //
-      ),
+    seq(
+      withSepPlus(",", () => collectionItem).tag("list"),
+      "}", //
     ),
   ).map(r => {
     const elems = r.tags.list.flat().map(l => new ImportTree(l));
@@ -129,7 +84,13 @@ pathTail = withTags(
 // so ../foo or foo/
 
 const relativeSegment = withTags(
-  seq(or(".", "..").tag("dir"), "/").map(r => new SimpleSegment(r.tags.dir[0])),
+  seq(
+    or(
+      seq(".", ".").map(() => ".."),
+      ".",
+    ).tag("dir"),
+    "/",
+  ).map(r => new SimpleSegment(r.tags.dir[0])),
 );
 
 const relativePrefix = withTags(
@@ -147,28 +108,23 @@ const relativePath = withTags(
 );
 
 const packagePrefix = withTags(
-  seq(tokens(packageTokens, pkgToken.tag("pkg")), "/").map(r => [
-    new SimpleSegment(r.tags.pkg[0]),
-  ]),
+  seq(wordToken.tag("pkg"), "/").map(r => [new SimpleSegment(r.tags.pkg[0])]),
 );
 
 packagePath = seq(packagePrefix, pathTail).map(r => r.value.flat());
 
-const fullPath = noSkipWs(
-  seq(kind(gleamImportTokens.ws), or(relativePath, packagePath).tag("path")),
-).map(r => {
-  return new ImportTree(r.tags.path.flat());
-});
+const fullPath = or(relativePath, packagePath)
+  .tag("path")
+  .map(r => {
+    return new ImportTree(r.tags.path.flat());
+  });
 
 /** parse a Gleam style wgsl import statement. */
 export const gleamImport = withTags(
-  tokens(
-    gleamImportTokens,
-    seq("import", fullPath.tag("imports"), opt(";"), eolf).map(r => {
-      const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
-      r.app.state.push(e);
-    }),
-  ),
+  seq("import", fullPath.tag("imports"), opt(";")).map(r => {
+    const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
+    r.app.state.push(e);
+  }),
 );
 
 if (tracing) {

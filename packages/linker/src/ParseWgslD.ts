@@ -29,27 +29,25 @@ import {
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, makeElem, unknown, word } from "./ParseSupport.ts";
+import { gleamImport } from "./GleamImport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
-const longIdent = kind(identTokens.longIdent);
-const ident = word; // TODO longIdent?
-
-// prettier gets confused if we leave the quoted parens inline so make consts for them here
-const lParen = "(";
-const rParen = ")";
+const ident = word;
 
 export interface ParseState {
   params: Record<string, any>; // user provided params to templates, code gen and #if directives
 }
 
-// TODO: stef Check the following
-// - translation_unit
-// - global_decl
-// - global_value_decl
-// - global_directive
-// - diagnostic_rule_name
-// - diagnostic_control
+const diagnostic_rule_name = withSep(".", word, { requireOne: true });
+const diagnostic_control = seq(
+  "(",
+  word,
+  ",",
+  diagnostic_rule_name,
+  opt(","),
+  ")",
+);
 
 const attribute = seq(
   "@",
@@ -59,9 +57,10 @@ const attribute = seq(
       or("compute", "const", "fragment", "invariant", "must_use", "vertex"),
       // These attributes have arguments, but the argument doesn't have any identifiers
       seq(
-        or("interpolate", "builtin", "diagnostic"),
+        or("interpolate", "builtin"),
         req(() => argument_expression_list), // TODO: Throw away the identifiers
       ),
+      seq("diagnostic", diagnostic_control),
       // These are normal attributes
       seq(
         or(
@@ -92,15 +91,7 @@ const argument_expression_list = seq(
 );
 
 const opt_attributes = repeat(attribute);
-const possibleTypeRef = Symbol("typeRef");
-
-const globalDirectiveOrAssert = seq(
-  or("diagnostic", "enable", "requires", "const_assert"),
-  req(anyThrough(";")),
-).map(r => {
-  const e = makeElem("globalDirective", r);
-  r.app.state.push(e);
-});
+const possibleTypeRef = "typeRef";
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(word.tag("name")).map(r => {
@@ -112,9 +103,8 @@ export const fnNameDecl = req(word.tag("name"), "missing fn name").map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
-/** find possible references to user structs in this type specifier and any templates */
 export const type_specifier: Parser<TypeRefElem[]> = seq(
-  tokens(identTokens, longIdent.tag(possibleTypeRef)),
+  word.tag(possibleTypeRef),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -125,11 +115,11 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
 );
 
 const optionally_typed_ident = seq(
-  word,
+  word.tag("name"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
-export const structMember = seq(
+export const struct_member = seq(
   opt_attributes,
   word.tag("name"),
   ":",
@@ -138,11 +128,11 @@ export const structMember = seq(
   return makeElem("member", r, ["name", "typeRefs"]);
 });
 
-export const structDecl = seq(
+export const struct_decl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
   req("{"),
-  withSep(",", structMember, { requireOne: true }).tag("members"),
+  withSep(",", struct_member, { requireOne: true }).tag("members"),
   req("}"),
 ).map(r => {
   const e = makeElem("struct", r, ["members"]);
@@ -154,7 +144,7 @@ export const structDecl = seq(
 
 /** Also covers func_call_statement.post.ident */
 export const fn_call = seq(
-  tokens(identTokens, longIdent) // TODO should longIdent be in mainTokens?
+  word
     .tag("name")
     .map(r => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
@@ -169,7 +159,7 @@ const fnParam = seq(
   opt(seq(":", req(type_specifier.tag("typeRefs")))),
 );
 
-const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
+const fnParamList = seq("(", withSep(",", fnParam), ")");
 
 /** Covers variable_decl and the 'var' case in global_decl */
 const variable_decl = seq(
@@ -337,7 +327,7 @@ const statement: Parser<any> = or(
   seq("break", ";"),
   seq("continue", ";"),
   seq(";"),
-  seq("const_assert", expression, ";"),
+  () => const_assert,
   seq("discard", ";"),
   seq("return", opt(expression), ";"),
   seq(fn_call, ";"),
@@ -362,22 +352,10 @@ const variable_or_value_statement = or(
 const variable_updating_statement = or(
   seq(
     lhs_expression,
-    or(
-      "=",
-      "<<=", // TODO could this be handled with a lexer rule?
-      ">>=",
-      "%=",
-      "&=",
-      "*=",
-      "+=",
-      "-=",
-      "/=",
-      "^=",
-      "|=",
-    ),
+    or("=", "<<=", ">>=", "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|="),
     expression,
   ),
-  seq(lhs_expression, or("++", "--")), // TODO was op("++"), but this fixes the 'parse for' test ..
+  seq(lhs_expression, or("++", "--")),
   seq("_", "=", expression),
 );
 
@@ -398,20 +376,17 @@ export const fn_decl = seq(
   r.app.state.push(e);
 });
 
-export const globalVar = seq(
-  opt_attributes,
-  or("const", "override", "var"),
-  opt_template_list,
-  word.tag("name"),
-  opt(seq(":", req(type_specifier.tag("typeRefs")))),
-  req(anyThrough(";")),
-).map(r => {
-  const e = makeElem("var", r, ["name"]);
-  e.typeRefs = r.tags.typeRefs?.flat() || [];
-  r.app.state.push(e);
-});
+const global_value_decl = or(
+  seq(
+    opt_attributes,
+    "override",
+    optionally_typed_ident,
+    opt(seq("=", expression)),
+  ),
+  seq("const", optionally_typed_ident, "=", expression),
+);
 
-export const globalAlias = seq(
+export const global_alias = seq(
   "alias",
   req(word.tag("name")),
   req("="),
@@ -422,11 +397,49 @@ export const globalAlias = seq(
   r.app.state.push(e);
 });
 
-const globalDecl = or(fn_decl, globalVar, globalAlias, structDecl, ";");
+const const_assert = seq("const_assert", req(expression), ";");
 
-const rootDecl = or(globalDirectiveOrAssert, globalDecl, directive, unknown);
+const import_statement = gleamImport;
 
-const root = preParse(comment, seq(repeat(rootDecl), eof()));
+const global_directive = seq(
+  or(
+    seq("diagnostic", diagnostic_control),
+    seq("enable", withSep(",", word, { requireOne: true })),
+    seq("requires", withSep(",", word, { requireOne: true })),
+  ),
+  ";",
+).map(r => {
+  const e = makeElem("globalDirective", r);
+  r.app.state.push(e);
+});
+
+export const global_decl = or(
+  fn_decl,
+  seq(opt_attributes, variable_decl, ";").map(r => {
+    const e = makeElem("var", r, ["name"]);
+    e.typeRefs = r.tags.typeRefs?.flat() || [];
+    r.app.state.push(e);
+  }),
+  seq(global_value_decl, ";").map(r => {
+    const e = makeElem("var", r, ["name"]);
+    e.typeRefs = r.tags.typeRefs?.flat() || [];
+    r.app.state.push(e);
+  }),
+  ";",
+  global_alias,
+  const_assert,
+  struct_decl,
+);
+
+const root = preParse(
+  comment,
+  seq(
+    repeat(or(import_statement, directive)),
+    repeat(or(global_directive, directive)),
+    repeat(or(global_decl, directive)),
+    eof(),
+  ),
+);
 
 export function parseWgslD(
   src: string,
@@ -457,10 +470,9 @@ export function parseWgslD(
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
     attribute,
-    globalDirectiveOrAssert,
     type_specifier,
-    structMember,
-    structDecl,
+    structMember: struct_member,
+    structDecl: struct_decl,
     fn_call,
     fnParam,
     fnParamList,
@@ -485,10 +497,8 @@ if (tracing) {
     switch_body,
     switch_statement,
     fn_decl,
-    globalVar,
-    globalAlias,
-    globalDecl,
-    rootDecl,
+    globalAlias: global_alias,
+    globalDecl: global_decl,
     root,
   };
 

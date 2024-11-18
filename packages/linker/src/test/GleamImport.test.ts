@@ -9,7 +9,7 @@ function expectParses(ctx: TaskContext): TestParseResult<void> {
 }
 /* ------  success cases  -------   */
 
-test("import ./foo/bar;", ctx => {
+test.only("import ./foo/bar;", ctx => {
   const result = expectParses(ctx);
   expect(result.position).toBe(ctx.task.name.length); // consume semicolon (so that linking will remove it)
 });

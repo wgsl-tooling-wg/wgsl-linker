@@ -19,8 +19,6 @@ const symbolSet =
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
-const longIdent =
-  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}.:]+)|(?:[\p{XID_Start}]))/u; // identifier that can include module path
 export const word =
   /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
 
@@ -64,7 +62,6 @@ export const bracketTokens = tokenMatcher(
 
 export const identTokens = tokenMatcher(
   {
-    longIdent,
     ws: blankspaces,
     symbol,
     digits,

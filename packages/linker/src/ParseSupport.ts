@@ -24,6 +24,7 @@ import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 export const word = kind(mainTokens.word);
 
+// TODO: Remove?
 export const unknown = any().map(r => {
   const { kind, text } = r.value;
   const deepName = r.ctx._debugNames.join(" > ");
