@@ -1,18 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`parse #export(foo) with trailing space 1`] = `
-[
-  {
-    "args": [
-      "Elem",
-    ],
-    "end": 20,
-    "kind": "export",
-    "start": 5,
-  },
-]
-`;
-
 exports[`parse import foo/bar 1`] = `
 [
   {
