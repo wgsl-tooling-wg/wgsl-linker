@@ -29,6 +29,7 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
+import { Ident, Scope } from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -39,8 +40,13 @@ const ident = word; // TODO longIdent?
 const lParen = "(";
 const rParen = ")";
 
-export interface ParseState {
-  params: Record<string, any>; // user provided params to templates, code gen and #if directives
+export interface WeslParseContext {
+  params: Record<string, any>; // user provided params 
+
+  // provisional idents and scopes are accumulated during parsing, 
+  // and linked to the app state a scope when the App state when the grammar completes
+  provisionalIdents: Ident[]; // idents pendingto current scope
+  provisionalScopes: Scope[]; // scopes pending for current committed scope
 }
 
 // TODO: stef Check the following

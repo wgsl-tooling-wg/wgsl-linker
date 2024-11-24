@@ -1,7 +1,7 @@
 import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
 import { mainTokens } from "./MatchWgslD.ts";
-import { ParseState, weslRoot } from "./WESLGrammar.ts";
+import { WeslParseContext, weslRoot } from "./WESLGrammar.ts";
 
 export function parseWESL(
   src: string,
@@ -11,8 +11,15 @@ export function parseWESL(
   grammar = weslRoot,
 ): AbstractElem[] {
   const lexer = matchingLexer(src, mainTokens);
+  // state
   const state: AbstractElem[] = [];
-  const context: ParseState = { params };
+
+  // context is reset on parse failure during backtracking
+  const context: WeslParseContext = {
+    params,
+    provisionalIdents: [],
+    provisionalScopes: [],
+  };
   const app = {
     context,
     state,
