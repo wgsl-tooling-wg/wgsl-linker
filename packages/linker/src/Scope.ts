@@ -24,39 +24,43 @@ type ScopeKind = "fnBody" | "module";
 
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
-  symbolRefs: Ident[];  // idents found in lexical order in this scope
+  idents: Ident[];  // idents found in lexical order in this scope
   parent: Scope;
   children: Scope[];
   kind: ScopeKind;
 }
 
 // TODO do we need to bother with the tricky indexing to symbols?
-// . two level table seems only relevant for multithreading..
+// . two level table seems relevant for multithreading..
+//   . also useful for say watch mode
+//   . lets do it
 // . and why do we need to use indices into the table vs pointers?
 //   . if we want to replace a symbol we could just mutate it in place
 //   . (esbuild claims its handy to clone the symbol table, so index references stay valid)
+//   . lets skip it til we know we need it
 // . and why do we need a single global symbol table to collect all the symbols
 //   . scope tables seem sufficient..
-
-// if we want to incrementally build, then I suppose the two level table would
-// allow disposal of a file's worth of symbols from the global table
-// . so I guess it'll depend on whether a global table is needed
+//   . lets skip it til we know we need it
 //
 // let's build some stuff and find out..
-//
 
 
 /* 
 Key tasks:
-- accumulate symbols and scopes during the parse
-- allow for 
-- bind symbols to referencences
-
+- accumulate idents and scopes during the parse
+- bind idents references to declarations
+- traverse AST from root module to emit
+  - store idents in the AST? and references to AST from idents?
+  - That would let us traverse the AST to find referenced AST elements
+    - e.g. fn foo() { bar();} we need to traverse to bar()
 
 Datastructures should be compatible for future parallelization:
 - parse files in parallel
-  - each file gets its own symbol table
+  - each file gets its own ident table
 - presume ident binding is single threaded for now
+  - esbuild is single threaded (according to arch diagram)
+  - do any necessary ident mangling
+  - works entirely on ident table
 - emit code in parallel
   - 
 
