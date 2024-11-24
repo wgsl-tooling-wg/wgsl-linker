@@ -1,7 +1,6 @@
-import { dlog } from "berry-pretty";
 import { eof, seq } from "mini-parse";
 import { expect, test } from "vitest";
-import { expression } from "../ParseWgslD.ts";
+import { expression } from "../WESLGrammar.ts";
 import { testAppParse } from "./TestUtil.ts";
 
 test("parse number", () => {

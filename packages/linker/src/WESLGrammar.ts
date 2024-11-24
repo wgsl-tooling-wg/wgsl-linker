@@ -3,28 +3,24 @@ import {
   eof,
   ExtendedResult,
   kind,
-  matchingLexer,
   opt,
   or,
   Parser,
-  ParserInit,
   preParse,
   repeat,
   repeatPlus,
   req,
   seq,
   setTraceName,
-  SrcMap,
   tokens,
   tracing,
   withSep,
-  withSepPlus,
+  withSepPlus
 } from "mini-parse";
 import {
-  AbstractElem,
   CallElem,
   TypeNameElem,
-  TypeRefElem,
+  TypeRefElem
 } from "./AbstractElems.ts";
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
@@ -430,33 +426,7 @@ const globalDecl = or(fn_decl, globalVar, globalAlias, structDecl, ";");
 
 const rootDecl = or(globalDirectiveOrAssert, globalDecl, directive, unknown);
 
-const root = preParse(comment, seq(repeat(rootDecl), eof()));
-
-export function parseWgslD(
-  src: string,
-  srcMap?: SrcMap,
-  params: Record<string, any> = {},
-  maxParseCount: number | undefined = undefined,
-  grammar = root,
-): AbstractElem[] {
-  const lexer = matchingLexer(src, mainTokens);
-  const state: AbstractElem[] = [];
-  const context: ParseState = { params };
-  const app = {
-    context,
-    state,
-  };
-  const init: ParserInit = {
-    lexer,
-    app,
-    srcMap,
-    maxParseCount,
-  };
-
-  grammar.parse(init);
-
-  return app.state;
-}
+export const weslRoot = preParse(comment, seq(repeat(rootDecl), eof()));
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
@@ -493,7 +463,7 @@ if (tracing) {
     globalAlias,
     globalDecl,
     rootDecl,
-    root,
+    weslRoot,
   };
 
   Object.entries(names).forEach(([name, parser]) => {

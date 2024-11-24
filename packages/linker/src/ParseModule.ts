@@ -10,7 +10,7 @@ import {
   TreeImportElem,
   VarElem,
 } from "./AbstractElems.js";
-import { parseWgslD } from "./ParseWgslD.js";
+import { parseWESL } from "./ParseWESL.js";
 
 /** module with exportable text fragments that are optionally transformed by a templating engine */
 export interface TextModule {
@@ -44,7 +44,7 @@ export function parseModule(
 ): TextModule {
   const srcMap = new SrcMap(src);
 
-  const parsed = parseWgslD(src, srcMap);
+  const parsed = parseWESL(src, srcMap);
   const exports = findExports(parsed, srcMap);
   const fns = filterElems<FnElem>(parsed, "fn");
   const aliases = filterElems<AliasElem>(parsed, "alias");

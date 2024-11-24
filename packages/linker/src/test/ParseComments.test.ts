@@ -4,7 +4,7 @@ import { expectNoLogErr } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { lineComment } from "../ParseDirective.js";
 import { blockComment, comment } from "../ParseSupport.js";
-import { parseWgslD } from "../ParseWgslD.js";
+import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
 
 test("lineComment parse // foo bar", () => {
@@ -38,7 +38,7 @@ test("parse fn with line comment", () => {
   const src = `
     fn binaryOp() { // binOpImpl
     }`;
-  const parsed = parseWgslD(src);
+  const parsed = parseWESL(src);
   expect(parsed).toMatchSnapshot();
 });
 
@@ -60,12 +60,12 @@ test("parse empty line comment", () => {
   const src = `
   var workgroupThreads= 4;                          // 
   `;
-  expectNoLogErr(() => parseWgslD(src));
+  expectNoLogErr(() => parseWESL(src));
 });
 
 test.skip("parse line comment with #replace", () => {
   const src = ` 
   const workgroupThreads= 4;                          // #replace 4=workgroupThreads
   `;
-  expectNoLogErr(() => parseWgslD(src));
+  expectNoLogErr(() => parseWESL(src));
 });

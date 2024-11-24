@@ -4,7 +4,7 @@ import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { parseWgslD } from "../ParseWgslD.js";
+import { parseWESL } from "../ParseWESL.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
@@ -39,7 +39,7 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
 }
 
 export function testParseWgsl(src: string): AbstractElem[] {
-  return expectNoLog(() => parseWgslD(src, undefined, {}, 500));
+  return expectNoLog(() => parseWESL(src, undefined, {}, 500));
 }
 
 export function expectWgsl(ctx: TaskContext): void {

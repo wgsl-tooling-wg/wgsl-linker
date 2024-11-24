@@ -1,7 +1,7 @@
 import { _withBaseLogger, or, repeat } from "mini-parse";
 import { logCatch } from "mini-parse/test-util";
 
-import { expect, TaskContext, test } from "vitest";
+import { expect, test } from "vitest";
 import type { FnElem, StructElem, VarElem } from "../AbstractElems.ts";
 import { filterElems } from "../ParseModule.ts";
 import { unknown } from "../ParseSupport.ts";
@@ -10,7 +10,7 @@ import {
   globalVar,
   structDecl,
   type_specifier,
-} from "../ParseWgslD.ts";
+} from "../WESLGrammar.ts";
 import { expectWgsl, testAppParse, testParseWgsl } from "./TestUtil.ts";
 
 test("parse empty string", () => {
