@@ -41,12 +41,9 @@ const lParen = "(";
 const rParen = ")";
 
 export interface WeslParseContext {
-  params: Record<string, any>; // user provided params 
+  params: Record<string, any>; // user provided params
 
-  // provisional idents and scopes are accumulated during parsing, 
-  // and linked to the app state a scope when the App state when the grammar completes
-  provisionalIdents: Ident[]; // idents pendingto current scope
-  provisionalScopes: Scope[]; // scopes pending for current committed scope
+  scope: Scope; // current scope (provisional, accumulating during parsing)
 }
 
 // TODO: stef Check the following

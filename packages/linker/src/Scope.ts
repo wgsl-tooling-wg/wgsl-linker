@@ -8,7 +8,7 @@ export interface SrcModule {
   src: string;
 }
 
-export interface SrcLoc { 
+export interface SrcLoc {
   pos: number;
   src: SrcModule;
 }
@@ -16,7 +16,7 @@ export interface SrcLoc {
 /** a src declaration or  */
 export interface Ident {
   kind: IdentKind;
-  refersTo?: Ident | null;     // preceding ident in scope. null for decls, undefined before binding
+  refersTo?: Ident | null; // preceding ident in scope. null for decls, undefined before binding
   originalName: string; // name in the source code for ident matching (may be mangled in the output)
 }
 
@@ -24,11 +24,18 @@ type ScopeKind = "fnBody" | "module";
 
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
-  idents: Ident[];  // idents found in lexical order in this scope
-  parent: Scope;
+  idents: Ident[]; // idents found in lexical order in this scope
+  parent: Scope | null; // null for root scope in a module
   children: Scope[];
   kind: ScopeKind;
 }
+
+// export interface ProvisionalScope {
+//   currentScope: Scope; // current scope at this level of parsing
+//   idents: Ident[]; // idents pending to add to current scope
+//   scopes: Scope[]; // scopes pending to add to current scope
+
+// }
 
 // TODO do we need to bother with the tricky indexing to symbols?
 // . two level table seems relevant for multithreading..
@@ -43,7 +50,6 @@ export interface Scope {
 //   . lets skip it til we know we need it
 //
 // let's build some stuff and find out..
-
 
 /* 
 Key tasks:
