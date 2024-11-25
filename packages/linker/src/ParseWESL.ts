@@ -1,7 +1,8 @@
-import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
+import { matchingLexer, Parser, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { WeslParseContext, weslRoot } from "./WESLGrammar.ts";
+import { dlog } from "berry-pretty";
 
 export function parseWESL(
   src: string,
@@ -10,6 +11,23 @@ export function parseWESL(
   maxParseCount: number | undefined = undefined,
   grammar = weslRoot,
 ): AbstractElem[] {
+  const state = internalParseWesl(src, srcMap, params, maxParseCount, grammar);
+
+  return state.state;
+}
+
+interface WeslParseState {
+  context: WeslParseContext;
+  state: AbstractElem[];
+}
+
+export function internalParseWesl(
+  src: string,
+  srcMap?: SrcMap,
+  params: Record<string, any> = {},
+  maxParseCount: number | undefined = undefined,
+  grammar = weslRoot,
+): WeslParseState {
   const lexer = matchingLexer(src, mainTokens);
   // state
   const state: AbstractElem[] = [];
@@ -17,8 +35,7 @@ export function parseWESL(
   // context is reset on parse failure during backtracking
   const context: WeslParseContext = {
     params,
-    provisionalIdents: [],
-    provisionalScopes: [],
+    scope: { kind: "module", parent: null, idents: [], children: [] },
   };
   const app = {
     context,
@@ -33,5 +50,5 @@ export function parseWESL(
 
   grammar.parse(init);
 
-  return app.state;
+  return app;
 }
