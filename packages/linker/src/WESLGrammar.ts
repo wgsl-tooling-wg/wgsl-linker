@@ -6,6 +6,7 @@ import {
   opt,
   or,
   Parser,
+  ParserContext,
   preParse,
   repeat,
   repeatPlus,
@@ -15,13 +16,9 @@ import {
   tokens,
   tracing,
   withSep,
-  withSepPlus
+  withSepPlus,
 } from "mini-parse";
-import {
-  CallElem,
-  TypeNameElem,
-  TypeRefElem
-} from "./AbstractElems.ts";
+import { CallElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, makeElem, unknown, word } from "./ParseSupport.ts";
@@ -165,6 +162,17 @@ export const fn_call = seq(
   argument_expression_list,
 );
 
+/// add reference ident to current scope
+function refIdent(r: ExtendedResult<any>) {
+  const weslContext: WeslParseContext = r.ctx.app.context;
+  const scopeIdents = weslContext.scope.idents;
+  const ident: Ident = {
+    kind: "ref",
+    originalName: r.src.slice(r.start, r.end),
+  };
+  scopeIdents.push(ident);
+}
+
 // prettier-ignore
 const fnParam = seq(
   opt_attributes,
@@ -178,7 +186,7 @@ const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
 const variable_decl = seq(
   "var",
   () => opt_template_list,
-  optionally_typed_ident,
+  optionally_typed_ident.map(refIdent),
   opt(seq("=", () => expression)),
 );
 
