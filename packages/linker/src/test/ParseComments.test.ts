@@ -39,7 +39,7 @@ test("parse fn with line comment", () => {
     fn binaryOp() { // binOpImpl
     }`;
   const parsed = parseWESL(src);
-  expect(parsed).toMatchSnapshot();
+  expect(parsed.elems).toMatchSnapshot();
 });
 
 test.skip("wordNumArgs parses (a, b, 1) with line comments everywhere", () => {

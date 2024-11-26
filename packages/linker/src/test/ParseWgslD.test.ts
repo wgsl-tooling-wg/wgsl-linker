@@ -33,7 +33,7 @@ test("parse fn with calls", () => {
 test("structDecl parses struct member types", () => {
   const src = "struct Foo { a: f32, b: i32 }";
   const { appState } = testAppParse(structDecl, src);
-  const { members } = appState[0] as StructElem;
+  const { members } = appState.elems[0] as StructElem;
   const typeNames = members.flatMap(m => m.typeRefs.map(t => t.name));
   expect(typeNames).toEqual(["f32", "i32"]);
 });
@@ -185,7 +185,7 @@ test("fnDecl parses fn with return type", () => {
     fn foo() -> MyType { }
   `;
   const { appState } = testAppParse(fn_decl, src);
-  expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
+  expect((appState.elems[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
 test("fnDecl parses :type specifier in fn args", () => {
@@ -193,7 +193,7 @@ test("fnDecl parses :type specifier in fn args", () => {
     fn foo(a: MyType) { }
   `;
   const { appState } = testAppParse(fn_decl, src);
-  const { typeRefs } = appState[0] as FnElem;
+  const { typeRefs } = appState.elems[0] as FnElem;
   expect(typeRefs[0].name).toBe("MyType");
 });
 
@@ -204,7 +204,7 @@ test("fnDecl parses :type specifier in fn block", () => {
     }
   `;
   const { appState } = testAppParse(fn_decl, src);
-  expect((appState[0] as FnElem).typeRefs[0].name).toBe("MyType");
+  expect((appState.elems[0] as FnElem).typeRefs[0].name).toBe("MyType");
 });
 
 test("parse type in <template> in fn args", () => {
@@ -212,7 +212,7 @@ test("parse type in <template> in fn args", () => {
     fn foo(a: vec2<MyStruct>) { };`;
 
   const { appState } = testAppParse(fn_decl, src);
-  const { typeRefs } = appState[0] as FnElem;
+  const { typeRefs } = appState.elems[0] as FnElem;
   expect(typeRefs[0].name).toBe("MyStruct");
 });
 
@@ -238,7 +238,7 @@ test.skip("parse nested template that ends with >> ", () => {
 test.skip("parse struct member with templated type", () => {
   const src = `struct Foo { a: vec2<array<Bar,4>> }`;
   const { appState } = testAppParse(structDecl, src);
-  const members = filterElems<StructElem>(appState, "struct")[0].members;
+  const members = filterElems<StructElem>(appState.elems, "struct")[0].members;
   const memberNames = members.flatMap(m => m.typeRefs.map(t => t.name));
   expect(memberNames).toEqual(["vec2", "array", "Bar"]);
 });
@@ -249,7 +249,7 @@ test.skip("parse type in <template> in global var", () => {
     var x:vec2<MyStruct> = { x: 1, y: 2 };`;
 
   const { appState } = testAppParse(globalVar, src);
-  const typeRefs = (appState[0] as VarElem).typeRefs;
+  const typeRefs = (appState.elems[0] as VarElem).typeRefs;
   expect(typeRefs[0].name).toBe("vec2");
   expect(typeRefs[1].name).toBe("MyStruct");
 });

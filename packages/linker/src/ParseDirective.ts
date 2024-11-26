@@ -35,7 +35,7 @@ export const exportDirective = seq(
   opt(eolf)
 ).map(r => {
   const e = makeElem("export", r, ["args"]);
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 const moduleDirective = seq(
@@ -45,7 +45,7 @@ const moduleDirective = seq(
 ).map(r => {
   const e = makeElem("module", r);
   e.name = normalizeModulePath(r.tags.name[0]);
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 function normalizeModulePath(name: string): string {

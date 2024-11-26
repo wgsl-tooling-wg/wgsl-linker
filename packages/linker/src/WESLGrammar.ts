@@ -99,7 +99,7 @@ const globalDirectiveOrAssert = seq(
   req(anyThrough(";")),
 ).map(r => {
   const e = makeElem("globalDirective", r);
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 /** parse an identifier into a TypeNameElem */
@@ -149,7 +149,7 @@ export const structDecl = seq(
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem;
   e.name = nameElem.name;
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 /** Also covers func_call_statement.post.ident */
@@ -406,7 +406,7 @@ export const fn_decl = seq(
   e.name = nameElem.name;
   e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
   e.typeRefs = r.tags.typeRefs?.flat() || [];
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 export const globalVar = seq(
@@ -419,7 +419,7 @@ export const globalVar = seq(
 ).map(r => {
   const e = makeElem("var", r, ["name"]);
   e.typeRefs = r.tags.typeRefs?.flat() || [];
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 export const globalAlias = seq(
@@ -430,7 +430,7 @@ export const globalAlias = seq(
   req(";"),
 ).map(r => {
   const e = makeElem("alias", r, ["name", "typeRefs"]);
-  r.app.state.push(e);
+  r.app.state.elems.push(e);
 });
 
 const globalDecl = or(fn_decl, globalVar, globalAlias, structDecl, ";");

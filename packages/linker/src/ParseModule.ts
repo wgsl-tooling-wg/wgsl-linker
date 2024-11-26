@@ -44,7 +44,7 @@ export function parseModule(
 ): TextModule {
   const srcMap = new SrcMap(src);
 
-  const parsed = parseWESL(src, srcMap);
+  const parsed = parseWESL(src, srcMap).elems;
   const exports = findExports(parsed, srcMap);
   const fns = filterElems<FnElem>(parsed, "fn");
   const aliases = filterElems<AliasElem>(parsed, "alias");

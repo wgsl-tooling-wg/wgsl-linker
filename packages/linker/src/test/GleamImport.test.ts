@@ -1,9 +1,11 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, TaskContext, test } from "vitest";
-import { gleamImport } from "../GleamImport.js";
+import { gleamImport, gleamImportTokens } from "../GleamImport.js";
+import { WeslAST } from "../ParseWESL.js";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
-  const result = testParse(gleamImport, ctx.task.name);
+  const state: WeslAST = { elems: [], scope: { kind: "module", parent: null, idents: [], children: [] } };
+  const result = testParse(gleamImport, ctx.task.name, gleamImportTokens, state);
   expect(result.parsed).not.toBeNull();
   return result;
 }
@@ -21,7 +23,7 @@ test("import foo-bar/boo", ctx => {
 /**  ----- extraction tests -----  */
 test("import foo/bar", ctx => {
   const { appState } = expectParses(ctx);
-  expect(appState).toMatchInlineSnapshot(`
+  expect(appState.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 14,
@@ -48,7 +50,7 @@ test("import foo/bar", ctx => {
 
 test("import foo/* as b", ctx => {
   const { appState } = expectParses(ctx);
-  expect(appState).toMatchInlineSnapshot(`
+  expect(appState.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 17,
@@ -73,7 +75,7 @@ test("import foo/* as b", ctx => {
 
 test(`import a/{ b, c/{d, e}, f/* }`, ctx => {
   const { appState } = expectParses(ctx);
-  expect(appState).toMatchInlineSnapshot(`
+  expect(appState.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 29,
@@ -151,7 +153,7 @@ test(`import a/{ b, c/{d, e}, f/* }`, ctx => {
 
 test("import ./foo/bar", ctx => {
   const { appState } = expectParses(ctx);
-  expect(appState).toMatchInlineSnapshot(`
+  expect(appState.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 16,

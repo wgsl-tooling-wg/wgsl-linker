@@ -4,13 +4,26 @@ import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { parseWESL } from "../ParseWESL.js";
+import { parseWESL, WeslAST } from "../ParseWESL.js";
+import { WeslParseContext } from "../WESLGrammar.js";
+import { Scope } from "../Scope.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
   src: string,
-): TestParseResult<T, N, AbstractElem> {
-  return testParse(parser, src, mainTokens);
+): TestParseResult<T, N, WeslAST> {
+  const scope: Scope = {
+    kind: "module",
+    parent: null,
+    idents: [],
+    children: [],
+  };
+  const collectedAST: WeslAST = {
+    elems: [],
+    scope,
+  };
+  const context: WeslParseContext = { params: {}, scope };
+  return testParse(parser, src, mainTokens, collectedAST, context);
 }
 
 /** Convenience wrapper to link wgsl for tests.
@@ -39,7 +52,7 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
 }
 
 export function testParseWgsl(src: string): AbstractElem[] {
-  return expectNoLog(() => parseWESL(src, undefined, {}, 500));
+  return expectNoLog(() => parseWESL(src, undefined, {}, 500).elems);
 }
 
 export function expectWgsl(ctx: TaskContext): void {

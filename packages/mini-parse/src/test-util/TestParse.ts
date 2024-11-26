@@ -29,19 +29,21 @@ export const testTokens = tokenMatcher({
 export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
   parsed: OptParserResult<T, N>;
   position: number;
-  appState: S[];
+  appState: S;
 }
 
 /** utility for testing parsers */
-export function testParse<T, N extends TagRecord = NoTags, S = any>(
+export function testParse<T, N extends TagRecord = NoTags, S = []>(
   p: Parser<T, N>,
   src: string,
   tokenMatcher: TokenMatcher = testTokens,
+  appState: S = [] as S,
+  context: any = undefined,
 ): TestParseResult<T, N, S> {
   const lexer = matchingLexer(src, tokenMatcher);
   const app = {
-    state: [],
-    context: undefined,
+    state: appState,
+    context,
   };
   const parsed = p.parse({ lexer, app, maxParseCount: 1000 });
   return { parsed, position: lexer.position(), appState: app.state };
