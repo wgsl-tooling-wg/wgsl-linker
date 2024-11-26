@@ -13,6 +13,7 @@ import {
   req,
   seq,
   setTraceName,
+  text,
   tokens,
   tracing,
   withSep,
@@ -26,7 +27,7 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import { Ident, Scope } from "./Scope.ts";
+import { Ident, Scope, ScopeKind } from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -108,7 +109,10 @@ export const typeNameDecl = req(word.tag("name")).map(r => {
 });
 
 /** parse an identifier into a TypeNameElem */
-export const fnNameDecl = req(word.tag("name"), "missing fn name").map(r => {
+export const fnNameDecl = req(
+  word.tag("name").map(declIdent),
+  "missing fn name",
+).map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
@@ -125,9 +129,11 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
 );
 
 const optionally_typed_ident = seq(
-  word,
+  word.map(declIdent),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
+
+const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const structMember = seq(
   opt_attributes,
@@ -173,6 +179,53 @@ function refIdent(r: ExtendedResult<any>) {
   scopeIdents.push(ident);
 }
 
+function declIdent(r: ExtendedResult<any>) {
+  const weslContext: WeslParseContext = r.ctx.app.context;
+  const scopeIdents = weslContext.scope.idents;
+  const originalName = r.src.slice(r.start, r.end); 
+  const ident: Ident = {
+    kind: "decl",
+    originalName,
+  };
+  scopeIdents.push(ident);
+  return originalName;
+}
+
+function startScope<T>(r: ExtendedResult<T>): T {
+  return startScopeKind(r, "body");
+}
+
+function startMergeScope<T>(r: ExtendedResult<T>): T {
+  return startScopeKind(r, "merge");
+}
+
+function completeScope<T>(r: ExtendedResult<T>):T {
+  const ctx: ParserContext = r.ctx;
+  const weslContext: WeslParseContext = ctx.app.context;
+  const completedScope = weslContext.scope;
+  // console.log("completeScope", completedScope);
+  if (completedScope.kind === "merge") {
+    // TODO
+  }
+  return r.value;  
+}
+
+function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
+  const ctx: ParserContext = r.ctx;
+  const weslContext: WeslParseContext = ctx.app.context;
+  const parentScope = weslContext.scope;
+  const newScope: Scope = {
+    idents: [],
+    parent: parentScope,
+    children: [],
+    kind,
+  };
+  // console.log("startScope", kind);
+  if (kind !== "merge") parentScope.children.push(newScope);
+  weslContext.scope = newScope;
+  return r.value;
+}
+
 // prettier-ignore
 const fnParam = seq(
   opt_attributes,
@@ -186,7 +239,7 @@ const fnParamList = seq(lParen, withSep(",", fnParam), rParen);
 const variable_decl = seq(
   "var",
   () => opt_template_list,
-  optionally_typed_ident.map(refIdent),
+  req_optionally_typed_ident,
   opt(seq("=", () => expression)),
 );
 
@@ -260,9 +313,9 @@ const template_arg_expression = makeExpression(true);
 
 const compound_statement = seq(
   opt_attributes,
-  "{",
+  text("{").map(startScope),
   repeat(() => statement),
-  "}",
+  req("}").map(completeScope),
 );
 
 const for_init = or(
@@ -357,7 +410,7 @@ const statement: Parser<any> = or(
 );
 
 const lhs_expression: Parser<any> = or(
-  seq(word.tag("ident"), opt(component_or_swizzle)),
+  seq(word.tag("ident").map(refIdent), opt(component_or_swizzle)),
   seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
   seq("&", () => lhs_expression),
   seq("*", () => lhs_expression),
@@ -366,8 +419,8 @@ const lhs_expression: Parser<any> = or(
 const variable_or_value_statement = or(
   // Also covers the = expression case
   variable_decl,
-  seq("const", optionally_typed_ident, req("="), expression),
-  seq("let", optionally_typed_ident, req("="), expression),
+  seq("const", req_optionally_typed_ident, req("="), expression),
+  seq("let", req_optionally_typed_ident, req("="), expression),
 );
 
 const variable_updating_statement = or(
@@ -394,12 +447,12 @@ const variable_updating_statement = or(
 
 export const fn_decl = seq(
   opt_attributes,
-  "fn",
+  text("fn").map(startMergeScope),
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList),
   opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
   req(compound_statement),
-).map(r => {
+).map(completeScope).map(r => {
   const e = makeElem("fn", r);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
