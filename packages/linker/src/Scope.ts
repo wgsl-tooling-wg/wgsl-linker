@@ -20,7 +20,10 @@ export interface Ident {
   originalName: string; // name in the source code for ident matching (may be mangled in the output)
 }
 
-type ScopeKind = "fnBody" | "module";
+export type ScopeKind =
+  | "module" // root scope for a module (file)
+  | "merge" // interim scope intended to be merged into module scope when complete
+  | "body"; // a scope inside the module (fn body, nested block, etc.)
 
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
