@@ -24,11 +24,12 @@ import { CallElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
 import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, makeElem, unknown, word } from "./ParseSupport.ts";
+import { WeslParseContext } from "./ParseWESL.ts";
 import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import { Ident, Scope, ScopeKind } from "./Scope.ts";
+import { Ident, Scope, ScopeKind, withAddedIdent } from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -38,12 +39,6 @@ const ident = word; // TODO longIdent?
 // prettier gets confused if we leave the quoted parens inline so make consts for them here
 const lParen = "(";
 const rParen = ")";
-
-export interface WeslParseContext {
-  params: Record<string, any>; // user provided params
-
-  scope: Scope; // current scope (provisional, accumulating during parsing)
-}
 
 // TODO: stef Check the following
 // - translation_unit
@@ -172,43 +167,54 @@ export const fn_call = seq(
 /// add reference ident to current scope
 function refIdent(r: ExtendedResult<any>) {
   const weslContext: WeslParseContext = r.ctx.app.context;
-  const scopeIdents = weslContext.scope.idents;
-  const ident: Ident = {
-    kind: "ref",
-    originalName: r.src.slice(r.start, r.end),
-  };
-  scopeIdents.push(ident);
+  const originalName = r.src.slice(r.start, r.end);
+  // ctxLog(r.ctx, "refIdent", originalName);
+  const ident: Ident = { kind: "ref", originalName };
+  r.ctx.app.context = addIdent(weslContext, ident);
 }
 
 function declIdent(r: ExtendedResult<any>) {
   const weslContext: WeslParseContext = r.ctx.app.context;
-  const scopeIdents = weslContext.scope.idents;
-  const originalName = r.src.slice(r.start, r.end); 
-  const ident: Ident = {
-    kind: "decl",
-    originalName,
-  };
-  scopeIdents.push(ident);
+  const originalName = r.src.slice(r.start, r.end);
+  // ctxLog(r.ctx, "declIdent", originalName);
+  const ident: Ident = { kind: "decl", originalName };
+  r.ctx.app.context = addIdent(weslContext, ident);
   return originalName;
 }
 
+/** return a new context with an identifier added to the scope
+ * this allows for backtracking
+ * LATER consider a linked list for idents
+ */
+function addIdent(
+  weslContext: WeslParseContext,
+  ident: Ident,
+): WeslParseContext {
+  const { rootScope: origRoot, scope: origScope } = weslContext;
+  const { rootScope, scope } = withAddedIdent(origRoot, origScope, ident);
+  // logScope("addIdent.rootScope", rootScope);
+  return { ...weslContext, scope, rootScope };
+}
+
 function startScope<T>(r: ExtendedResult<T>): T {
+  // ctxLog(r.ctx, "startScope");
   return startScopeKind(r, "body");
 }
 
-function startMergeScope<T>(r: ExtendedResult<T>): T {
-  return startScopeKind(r, "merge");
-}
-
-function completeScope<T>(r: ExtendedResult<T>):T {
+function completeScope<T>(r: ExtendedResult<T>): T {
+  // ctxLog(r.ctx, "completeScope");
   const ctx: ParserContext = r.ctx;
   const weslContext: WeslParseContext = ctx.app.context;
   const completedScope = weslContext.scope;
-  // console.log("completeScope", completedScope);
-  if (completedScope.kind === "merge") {
-    // TODO
+  const { parent } = completedScope;
+  if (parent) {
+    weslContext.scope = parent;
+  } else {
+    // TODO should never happen
+    const { idents, kind } = completedScope;
+    console.error("completeScope, no parent scope", { kind, idents });
   }
-  return r.value;  
+  return r.value;
 }
 
 function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
@@ -221,8 +227,7 @@ function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
     children: [],
     kind,
   };
-  // console.log("startScope", kind);
-  if (kind !== "merge") parentScope.children.push(newScope);
+  // dlog({ kind });
   weslContext.scope = newScope;
   return r.value;
 }
@@ -448,12 +453,12 @@ const variable_updating_statement = or(
 
 export const fn_decl = seq(
   opt_attributes,
-  text("fn").map(startMergeScope),
+  text("fn"),
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList),
   opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
   req(compound_statement),
-).map(completeScope).map(r => {
+).map(r => {
   const e = makeElem("fn", r);
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem as Required<typeof nameElem>;
@@ -531,6 +536,7 @@ if (tracing) {
     globalDecl,
     rootDecl,
     weslRoot,
+    end,
   };
 
   Object.entries(names).forEach(([name, parser]) => {

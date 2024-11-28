@@ -4,8 +4,7 @@ import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { parseWESL, WeslAST } from "../ParseWESL.js";
-import { WeslParseContext } from "../WESLGrammar.js";
+import { parseWESL, WeslAST, WeslParseContext } from "../ParseWESL.js";
 import { Scope } from "../Scope.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
@@ -22,7 +21,7 @@ export function testAppParse<T, N extends TagRecord = NoTags>(
     elems: [],
     scope,
   };
-  const context: WeslParseContext = { params: {}, scope };
+  const context: WeslParseContext = { rootScope: scope, scope };
   return testParse(parser, src, mainTokens, collectedAST, context);
 }
 
