@@ -29,7 +29,13 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import { Ident, Scope, ScopeKind, withAddedIdent } from "./Scope.ts";
+import {
+  Ident,
+  Scope,
+  ScopeKind,
+  withAddedIdent,
+  withChildScope,
+} from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -183,16 +189,14 @@ function declIdent(r: ExtendedResult<any>) {
 }
 
 /** return a new context with an identifier added to the scope
- * this allows for backtracking
- * LATER consider a linked list for idents
- */
+ * this allows for backtracking */
 function addIdent(
   weslContext: WeslParseContext,
   ident: Ident,
 ): WeslParseContext {
   const { rootScope: origRoot, scope: origScope } = weslContext;
   const { rootScope, scope } = withAddedIdent(origRoot, origScope, ident);
-  // logScope("addIdent.rootScope", rootScope);
+  // logScope(`added addIdent '${ident.originalName}'. rootScope`, rootScope);
   return { ...weslContext, scope, rootScope };
 }
 
@@ -220,15 +224,15 @@ function completeScope<T>(r: ExtendedResult<T>): T {
 function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
   const ctx: ParserContext = r.ctx;
   const weslContext: WeslParseContext = ctx.app.context;
-  const parentScope = weslContext.scope;
+  const { rootScope, scope } = weslContext;
+  const parentScope = scope;
   const newScope: Scope = {
     idents: [],
     parent: parentScope,
     children: [],
     kind,
   };
-  // dlog({ kind });
-  weslContext.scope = newScope;
+  r.ctx.app.context = withChildScope(rootScope, scope, newScope);
   return r.value;
 }
 

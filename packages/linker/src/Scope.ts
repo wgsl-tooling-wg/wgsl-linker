@@ -63,6 +63,30 @@ export function withAddedIdent(
   };
 }
 
+/** @return a new root scope and new current scope with a child scope added to the current scope. */
+export function withChildScope(
+  rootScope: Scope,
+  currentScope: Scope,
+  newChildScope: Scope,
+): RootAndScope {
+  const newCurrentScope = {
+    ...currentScope,
+    children: [...currentScope.children, newChildScope],
+  };
+  const newRootScope = cloneScopeReplace(
+    rootScope,
+    currentScope,
+    newCurrentScope,
+  );
+
+  return {
+    scope: newChildScope,
+    rootScope: newRootScope,
+  };
+}
+
+/** For debugging,
+ * @return true if a scope is in the rootScope tree somewhere */
 function containsScope(rootScope: Scope, scope: Scope): boolean {
   if (scope === rootScope) {
     return true;
@@ -76,7 +100,7 @@ function containsScope(rootScope: Scope, scope: Scope): boolean {
 }
 
 /** clone the rootScope, replacing oldScope with newScope in child and parent links */
-export function cloneScopeReplace(
+function cloneScopeReplace(
   rootScope: Scope,
   oldScope: Scope,
   newScope: Scope,
