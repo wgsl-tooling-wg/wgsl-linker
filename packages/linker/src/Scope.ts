@@ -1,4 +1,5 @@
 import { pretty } from "berry-pretty";
+import { tracing } from "mini-parse";
 
 type IdentKind = "decl" | "ref";
 
@@ -39,15 +40,15 @@ export interface RootAndScope {
   scope: Scope;
 }
 
-/** add an ident to the scope (which is equal to or a child of rootScope) */
+/** @return a new root scope and new current scope with an ident added to the current scope. */
 export function withAddedIdent(
   rootScope: Scope,
   scope: Scope,
   ident: Ident,
 ): RootAndScope {
-  // TODO assert that scope is == or a child of rootScope
-  if (!containsScope(rootScope, scope)) {
-    console.log("scope not in rootScope", { rootScope, scope });
+  if (tracing && !containsScope(rootScope, scope)) {
+    logScope("scope not in rootScope", rootScope);
+    logScope("..scope", rootScope);
   }
 
   // clone the current provisional scope with new ident added
