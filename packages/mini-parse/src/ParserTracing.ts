@@ -3,6 +3,9 @@ import { Parser, ParserContext, setTraceName } from "./Parser.js";
 /** true if parser tracing is enabled */
 export let tracing = false;
 
+/** true if tracing/logging messages should show character positions */
+export let tracePos = false;
+
 /** true if parser debug names are enabled */
 export let debugNames = false;
 
@@ -19,6 +22,11 @@ export let parserLog: typeof console.log = noLog;
 export function enableTracing(enable = true): void {
   tracing = enable;
   debugNames = enable;
+}
+
+/** for tests, to show character positions in log messages */
+export function enableTracePos(enable = true): void {
+  tracePos = enable;
 }
 
 /** mutate the provided to set their trace names (if tracing is enabled) */

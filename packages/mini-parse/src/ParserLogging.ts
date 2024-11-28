@@ -1,5 +1,5 @@
 import { ExtendedResult, ParserContext } from "./Parser.js";
-import { logger, parserLog } from "./ParserTracing.js";
+import { logger, parserLog, tracePos, tracing } from "./ParserTracing.js";
 import { SrcMap } from "./SrcMap.js";
 
 /** log an message along with the source line and a caret indicating the error position in the line
@@ -84,7 +84,12 @@ function logInternalSrc(
 ): void {
   log(...msgs);
   const { line, lineNum, linePos, linePos2 } = srcLine(src, pos);
-  log(line, `  Ln ${lineNum}`);
+  if (tracing && tracePos) { // removed on production build
+    const posStr = tracePos ? `  Pos ${pos}` : "";
+    log(line, `  Ln ${lineNum}${posStr}`);
+  } else {
+    log(line, `  Ln ${lineNum}`);
+  }
   const caret = carets(linePos, linePos2);
   log(caret);
 }
