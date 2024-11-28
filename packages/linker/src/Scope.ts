@@ -1,3 +1,5 @@
+import { pretty } from "berry-pretty";
+
 type IdentKind = "decl" | "ref";
 
 export interface SrcModule {
@@ -22,7 +24,6 @@ export interface Ident {
 
 export type ScopeKind =
   | "module" // root scope for a module (file)
-  | "merge" // interim scope intended to be merged into module scope when complete
   | "body"; // a scope inside the module (fn body, nested block, etc.)
 
 /** tree of ident references, organized by lexical scope */
@@ -31,6 +32,82 @@ export interface Scope {
   parent: Scope | null; // null for root scope in a module
   children: Scope[];
   kind: ScopeKind;
+}
+
+export interface RootAndScope {
+  rootScope: Scope;
+  scope: Scope;
+}
+
+/** add an ident to the scope (which is equal to or a child of rootScope) */
+export function withAddedIdent(
+  rootScope: Scope,
+  scope: Scope,
+  ident: Ident,
+): RootAndScope {
+  // TODO assert that scope is == or a child of rootScope
+  if (!containsScope(rootScope, scope)) {
+    console.log("scope not in rootScope", { rootScope, scope });
+  }
+
+  // clone the current provisional scope with new ident added
+  const scopeIdents = scope.idents;
+  const idents: Ident[] = [...scopeIdents, ident];
+  const newScope: Scope = { ...scope, idents };
+  const newRootScope = cloneScopeReplace(rootScope, scope, newScope);
+
+  return {
+    scope: newScope,
+    rootScope: newRootScope,
+  };
+}
+
+function containsScope(rootScope: Scope, scope: Scope): boolean {
+  if (scope === rootScope) {
+    return true;
+  }
+  for (const child of rootScope.children) {
+    if (containsScope(child, scope)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** clone the rootScope, replacing oldScope with newScope in child and parent links */
+export function cloneScopeReplace(
+  rootScope: Scope,
+  oldScope: Scope,
+  newScope: Scope,
+): Scope {
+  if (rootScope === oldScope) {
+    return newScope;
+  }
+
+  const { kind, idents } = rootScope;
+  const { parent: rootParent, children: rootChildren } = rootScope;
+  const parent = rootParent === oldScope ? newScope : rootParent;
+  const children = rootChildren.map(s =>
+    cloneScopeReplace(s, oldScope, newScope),
+  );
+  return { kind, idents, parent, children };
+}
+
+export function logScope(message: string, scope: Scope) {
+  console.log(`${message}:`);
+  console.log(scopeToString(scope, 2));
+}
+
+export function scopeToString(scope: Scope, indent = 0): string {
+  const { kind, idents, children } = scope;
+  const identStr = pretty(idents.map(i => i.originalName));
+  const childStrings = children.map(c => scopeToString(c, indent + 4));
+  const childrenStr = childStrings.join("\n");
+  const spc = " ".repeat(indent);
+  // prettier-ignore
+  return `${spc}${kind} ${identStr}\n` + 
+         `${spc}  children:\n`+ 
+         `${childrenStr}`;
 }
 
 // export interface ProvisionalScope {
