@@ -15,6 +15,7 @@ import {
   setTraceName,
   text,
   tokens,
+  tokenSkipSet,
   tracing,
   withSep,
   withSepPlus,
@@ -490,7 +491,9 @@ const globalDecl = or(fn_decl, globalVar, globalAlias, structDecl, ";");
 
 const rootDecl = or(globalDirectiveOrAssert, globalDecl, directive, unknown);
 
-export const weslRoot = preParse(comment, seq(repeat(rootDecl), eof()));
+const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
+
+export const weslRoot = preParse(comment, seq(repeat(rootDecl), end));
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
