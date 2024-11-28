@@ -10,6 +10,7 @@ test("scope from simple fn", () => {
   const { scope } = result;
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
+  expect(scope.children.length).toBe(1);
   const firstChildIdents = scope.children[0].idents.map(i => i.originalName);
   expect(firstChildIdents).toEqual(["x"]);
 });
