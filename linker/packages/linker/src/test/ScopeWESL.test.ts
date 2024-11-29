@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { parseWESL } from "../ParseWESL.ts";
+import { logScope } from "../Scope.ts";
 
 test("scope from simple fn", () => {
   const src = `
@@ -28,4 +29,15 @@ test("scope from fn with reference", () => {
   expect(scopeIdents).toEqual(["main"]);
   const firstChildIdents = scope.children[0].idents.map(i => i.originalName);
   expect(firstChildIdents).toEqual(["x", "x"]);
+});
+
+test("two fns", () => {
+  const src = `
+    fn foo() {}
+    fn bar() {}
+  `;
+  const result = parseWESL(src);
+  const { scope } = result;
+  const scopeIdents = scope.idents.map(i => i.originalName);
+  expect(scopeIdents).toEqual(["foo", "bar"]);
 });
