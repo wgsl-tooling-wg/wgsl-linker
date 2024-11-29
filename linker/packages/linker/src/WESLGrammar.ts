@@ -422,7 +422,7 @@ const variable_or_value_statement = or(
 const variable_updating_statement = or(
   seq(
     lhs_expression,
-    or("=", "<<=", ">>=", "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|="),
+    or("=", "<<=", ">>=", "%=", "&=", "*=", "+=", "-=", "/=", "^=", "|="), // TODO: try making this a lexer rule instead of a parser rule
     expression,
   ),
   seq(lhs_expression, or("++", "--")),
