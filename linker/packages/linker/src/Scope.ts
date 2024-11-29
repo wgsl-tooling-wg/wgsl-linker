@@ -63,24 +63,36 @@ export function withAddedIdent(
   };
 }
 
-/** @return a new root scope and new current scope with a child scope added to the current scope. */
+/** @return 
+ *    . a new root scope with a child scope added to the current scope. 
+ *    . the new current scope is the new child scope
+*/
 export function withChildScope(
   rootScope: Scope,
   currentScope: Scope,
-  newChildScope: Scope,
+  kind: ScopeKind,
 ): RootAndScope {
+  const newScope: Scope = {
+    idents: [],
+    parent: null,
+    children: [],
+    kind,
+  };
   const newCurrentScope = {
     ...currentScope,
-    children: [...currentScope.children, newChildScope],
+    children: [...currentScope.children, newScope],
   };
+  newScope.parent = newCurrentScope;
   const newRootScope = cloneScopeReplace(
     rootScope,
     currentScope,
     newCurrentScope,
   );
+  // logScope("withChildScope. newRootScope", newRootScope);
+  // logScope("withChildScope. scope", newCurrentScope);
 
   return {
-    scope: newChildScope,
+    scope: newScope,
     rootScope: newRootScope,
   };
 }

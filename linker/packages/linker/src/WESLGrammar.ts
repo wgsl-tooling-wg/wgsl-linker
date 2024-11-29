@@ -223,16 +223,8 @@ function completeScope<T>(r: ExtendedResult<T>): T {
 
 function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
   const ctx: ParserContext = r.ctx;
-  const weslContext: WeslParseContext = ctx.app.context;
-  const { rootScope, scope } = weslContext;
-  const parentScope = scope;
-  const newScope: Scope = {
-    idents: [],
-    parent: parentScope,
-    children: [],
-    kind,
-  };
-  r.ctx.app.context = withChildScope(rootScope, scope, newScope);
+  const { rootScope, scope } = ctx.app.context as WeslParseContext;
+  r.ctx.app.context = withChildScope(rootScope, scope, kind);
   return r.value;
 }
 
