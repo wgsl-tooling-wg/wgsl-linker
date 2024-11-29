@@ -8,10 +8,9 @@ export const blankspaces =
   /[ \t\n\v\f\r\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}]+/u;
 
 export const directive = /#[a-zA-Z_]\w*/;
-export const notDirective = /[^#\n]+/;
 
 const symbolSet =
-  "& && -> @ / ! [ ] { } : , == = != >>= >> >= > <<= << <= < % - --" +
+  "& && -> @ / ! [ ] { } :: : , == = != >>= >> >= > <<= << <= < % - --" +
   " . + ++ | || ( ) ; * ~ ^ // /* */ += -= *= /= %= &= |= ^=" +
   // For the _ = expr; syntax
   " _";
@@ -19,8 +18,6 @@ const symbolSet =
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
-const longIdent =
-  /(?:(?:[_\p{XID_Start}][\p{XID_Continue}.:]+)|(?:[\p{XID_Start}]))/u; // identifier that can include module path
 export const word =
   /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
 
@@ -64,7 +61,6 @@ export const bracketTokens = tokenMatcher(
 
 export const identTokens = tokenMatcher(
   {
-    longIdent,
     ws: blankspaces,
     symbol,
     digits,

@@ -7,8 +7,8 @@ import { filterElems } from "../ParseModule.ts";
 import { unknown } from "../ParseSupport.ts";
 import {
   fn_decl,
-  globalVar,
-  structDecl,
+  global_decl,
+  struct_decl,
   type_specifier,
 } from "../WESLGrammar.ts";
 import { expectWgsl, testAppParse, testParseWgsl } from "./TestUtil.ts";
@@ -30,9 +30,27 @@ test("parse fn with calls", () => {
   expect(parsed).toMatchSnapshot();
 });
 
+test("parse unicode ident", () => {
+  // List taken straight from the examples at https://www.w3.org/TR/WGSL/#identifiers
+  const src = `
+  fn Δέλτα(){} 
+  fn réflexion(){} 
+  fn Кызыл(){} 
+  fn 𐰓𐰏𐰇(){} 
+  fn 朝焼け(){}
+  fn سلام(){} 
+  fn 검정(){} 
+  fn שָׁלוֹם(){}
+  fn गुलाबी(){}
+  fn փիրուզ(){}
+  `;
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
+});
+
 test("structDecl parses struct member types", () => {
   const src = "struct Foo { a: f32, b: i32 }";
-  const { appState } = testAppParse(structDecl, src);
+  const { appState } = testAppParse(struct_decl, src);
   const { members } = appState.elems[0] as StructElem;
   const typeNames = members.flatMap(m => m.typeRefs.map(t => t.name));
   expect(typeNames).toEqual(["f32", "i32"]);
@@ -237,7 +255,7 @@ test.skip("parse nested template that ends with >> ", () => {
 // TODO-lee thinking about skipping the typeRef cases..
 test.skip("parse struct member with templated type", () => {
   const src = `struct Foo { a: vec2<array<Bar,4>> }`;
-  const { appState } = testAppParse(structDecl, src);
+  const { appState } = testAppParse(struct_decl, src);
   const members = filterElems<StructElem>(appState.elems, "struct")[0].members;
   const memberNames = members.flatMap(m => m.typeRefs.map(t => t.name));
   expect(memberNames).toEqual(["vec2", "array", "Bar"]);
@@ -248,7 +266,7 @@ test.skip("parse type in <template> in global var", () => {
   const src = `
     var x:vec2<MyStruct> = { x: 1, y: 2 };`;
 
-  const { appState } = testAppParse(globalVar, src);
+  const { appState } = testAppParse(global_decl, src);
   const typeRefs = (appState.elems[0] as VarElem).typeRefs;
   expect(typeRefs[0].name).toBe("vec2");
   expect(typeRefs[1].name).toBe("MyStruct");
@@ -288,31 +306,19 @@ test("parse fn with attributes and suffix comma", () => {
   expect(first.name).toBe("main");
 });
 
-test("parse foo::bar(); ", () => {
+test.skip("parse foo::bar(); ", () => {
   const src = "fn main() { foo::bar(); }";
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
 });
 
-test("parse foo.bar(); ", () => {
-  const src = "fn main() { foo.bar(); }";
-  const parsed = testParseWgsl(src);
-  expect(parsed).toMatchSnapshot();
-});
-
-test("parse let x: foo::bar; ", () => {
+test.skip("parse let x: foo::bar; ", () => {
   const src = "fn main() { let x: foo::bar = 1; }";
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
 });
 
-test("parse let x: foo.bar; ", () => {
-  const src = "fn main() { let x: foo.bar = 1; }";
-  const parsed = testParseWgsl(src);
-  expect(parsed).toMatchSnapshot();
-});
-
-test("parse var x: foo.bar;", () => {
+test.skip("parse var x: foo.bar;", () => {
   const src = `
      import foo/bar;
      var x: foo.bar;

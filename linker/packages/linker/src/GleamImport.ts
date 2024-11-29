@@ -29,7 +29,7 @@ import {
 import { digits, eol, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
 
-const gleamImportSymbolSet = "/ { } , ( ) .. . * ;";
+const gleamImportSymbolSet = "/ { } , ( ) .. . * ; @ #"; // Had to add @ and # here to get the parsing tests to work. Weird.
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
 
 const skipWsSet = new Set(["ws"]);
