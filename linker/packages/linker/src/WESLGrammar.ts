@@ -32,6 +32,7 @@ import {
 } from "./ParsingHacks.ts";
 import {
   Ident,
+  logScope,
   Scope,
   ScopeKind,
   withAddedIdent,
@@ -175,8 +176,11 @@ function declIdent(r: ExtendedResult<any>) {
   const weslContext: WeslParseContext = r.ctx.app.context;
   const originalName = r.src.slice(r.start, r.end);
   // ctxLog(r.ctx, "declIdent", originalName);
+  const { scope, rootScope } = weslContext;
+  // logScope(`declIdent '${originalName}' rootScope`, rootScope);
   const ident: Ident = { kind: "decl", originalName };
   r.ctx.app.context = addIdent(weslContext, ident);
+  // logScope("declIdent.scope after addIdent", r.ctx.app.context.scope);
   return originalName;
 }
 
@@ -202,11 +206,12 @@ function completeScope<T>(r: ExtendedResult<T>): T {
   const ctx: ParserContext = r.ctx;
   const weslContext: WeslParseContext = ctx.app.context;
   const completedScope = weslContext.scope;
-  // dlog("completeScope", { completedScope });
   const { parent } = completedScope;
   // TODO if scope is empty, drop it?
   if (parent) {
     weslContext.scope = parent;
+    // logScope("completeScope. completed scope", completedScope);
+    // logScope("completeScope. current scope", weslContext.scope);
   } else {
     // TODO should never happen
     const { idents, kind } = completedScope;

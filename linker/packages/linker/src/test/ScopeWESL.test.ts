@@ -41,3 +41,16 @@ test("two fns", () => {
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["foo", "bar"]);
 });
+
+test("two fns, one with a decl", () => {
+  const src = `
+    fn foo() {
+      var a:u32;
+    }
+    fn bar() {}
+  `
+  const result = parseWESL(src);
+  const { scope } = result;
+  const scopeIdents = scope.idents.map(i => i.originalName);
+  expect(scopeIdents).toEqual(["foo", "bar"]);
+});

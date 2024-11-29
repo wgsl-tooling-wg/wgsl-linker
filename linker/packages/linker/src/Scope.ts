@@ -27,8 +27,10 @@ export type ScopeKind =
   | "module" // root scope for a module (file)
   | "body"; // a scope inside the module (fn body, nested block, etc.)
 
+let scopeId = 0;
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
+  id?: number; // for debugging
   idents: Ident[]; // idents found in lexical order in this scope
   parent: Scope | null; // null for root scope in a module
   children: Scope[];
@@ -48,16 +50,16 @@ export function withAddedIdent(
 ): RootAndScope {
   if (tracing && !containsScope(rootScope, scope)) {
     logScope(
-      `withAddedIndent '${ident.originalName}'. current scope not in rootScope`,
+      `withAddedIndent '${ident.originalName}'. current scope #${scope.id} not in rootScope: #${rootScope.id}`,
       rootScope,
     );
-    logScope("..scope", rootScope);
+    logScope("..scope", scope);
   }
 
   // clone the current provisional scope with new ident added
   const scopeIdents = scope.idents;
   const idents: Ident[] = [...scopeIdents, ident];
-  const newScope: Scope = { ...scope, idents };
+  const newScope: Scope = { ...scope, idents, id: scopeId++ };
   const newRootScope = cloneScopeReplace(rootScope, scope, newScope);
 
   return {
@@ -66,26 +68,28 @@ export function withAddedIdent(
   };
 }
 
-/** @return 
- *    . a new root scope with a child scope added to the current scope. 
+/** @return
+ *    . a new root scope with a child scope added to the current scope.
  *    . the new current scope is the new child scope
-*/
+ */
 export function withChildScope(
   rootScope: Scope,
   currentScope: Scope,
   kind: ScopeKind,
 ): RootAndScope {
-  const newScope: Scope = {
+  const newChildScope: Scope = {
     idents: [],
     parent: null,
     children: [],
     kind,
+    id: scopeId++,
   };
   const newCurrentScope = {
     ...currentScope,
-    children: [...currentScope.children, newScope],
+    children: [...currentScope.children, newChildScope],
+    id: scopeId++,
   };
-  newScope.parent = newCurrentScope;
+  newChildScope.parent = newCurrentScope;
   const newRootScope = cloneScopeReplace(
     rootScope,
     currentScope,
@@ -95,7 +99,7 @@ export function withChildScope(
   // logScope("withChildScope. scope", newCurrentScope);
 
   return {
-    scope: newScope,
+    scope: newChildScope,
     rootScope: newRootScope,
   };
 }
@@ -127,12 +131,27 @@ function cloneScopeReplace(
   }
 
   const { kind, idents } = rootScope;
-  const { parent: rootParent, children: rootChildren } = rootScope;
-  const parent = rootParent === oldScope ? newScope : rootParent;
-  const children = rootChildren.map(s =>
-    cloneScopeReplace(s, oldScope, newScope),
-  );
-  return { kind, idents, parent, children };
+  const { parent: origRootParent, children: rootChildren } = rootScope;
+  const newRootParent = origRootParent === oldScope ? newScope : origRootParent;
+  const newRoot = {
+    kind,
+    idents,
+    parent: newRootParent,
+    children: [] as Scope[],
+    id: scopeId++,
+  };
+
+  const children = rootChildren.map(child => {
+    // logScope("cloneScopeReplace. child", child);
+    // logScope("cloneScopeReplace. oldScope", oldScope);
+    // logScope("cloneScopeReplace. newScope", newScope);
+    return cloneScopeReplace(child, oldScope, newScope);
+  });
+  children.map(c => (c.parent = newRoot));
+  newRoot.children = children;
+
+  // logScope("cloneScopeReplace. newScope", newRoot);
+  return newRoot;
 }
 
 export function logScope(message: string, scope: Scope) {
@@ -160,9 +179,10 @@ function scopeHeader(scope: Scope | undefined | null): string {
     return "null";
   }
 
-  const { kind, idents } = scope;
+  const { kind, idents, id } = scope;
   const identStr = pretty(idents.map(i => i.originalName));
-  return `${kind} ${identStr}`;
+  const idStr = "id: " + id === undefined ? "?" : id;
+  return `#${idStr} ${kind} ${identStr}`;
 }
 
 // export interface ProvisionalScope {
