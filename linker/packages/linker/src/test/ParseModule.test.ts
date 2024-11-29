@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { parseModule, TextModule } from "../ParseModule.js";
 
-test("simple fn export", () => {
+test.only("simple fn export", () => {
   const src = `
     export
     fn one() -> i32 {
