@@ -27,7 +27,6 @@ export type ScopeKind =
   | "module" // root scope for a module (file)
   | "body"; // a scope inside the module (fn body, nested block, etc.)
 
-let scopeId = 0;
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
   id?: number; // for debugging
@@ -35,6 +34,12 @@ export interface Scope {
   parent: Scope | null; // null for root scope in a module
   children: Scope[];
   kind: ScopeKind;
+}
+
+let scopeId = 0;
+/** make a new Scope object */
+export function makeScope(s: Omit<Scope, "id">): Scope {
+  return { ...s, id: scopeId++ };
 }
 
 export interface RootAndScope {
@@ -59,7 +64,7 @@ export function withAddedIdent(
   // clone the current provisional scope with new ident added
   const scopeIdents = scope.idents;
   const idents: Ident[] = [...scopeIdents, ident];
-  const newScope: Scope = { ...scope, idents, id: scopeId++ };
+  const newScope = makeScope({ ...scope, idents });
   const newRootScope = cloneScopeReplace(rootScope, scope, newScope);
 
   return {
@@ -77,18 +82,16 @@ export function withChildScope(
   currentScope: Scope,
   kind: ScopeKind,
 ): RootAndScope {
-  const newChildScope: Scope = {
+  const newChildScope = makeScope({
     idents: [],
     parent: null,
     children: [],
     kind,
-    id: scopeId++,
-  };
-  const newCurrentScope = {
+  });
+  const newCurrentScope = makeScope({
     ...currentScope,
     children: [...currentScope.children, newChildScope],
-    id: scopeId++,
-  };
+  });
   newChildScope.parent = newCurrentScope;
   const newRootScope = cloneScopeReplace(
     rootScope,
@@ -133,13 +136,12 @@ function cloneScopeReplace(
   const { kind, idents } = rootScope;
   const { parent: origRootParent, children: rootChildren } = rootScope;
   const newRootParent = origRootParent === oldScope ? newScope : origRootParent;
-  const newRoot = {
+  const newRoot = makeScope({
     kind,
     idents,
     parent: newRootParent,
     children: [] as Scope[],
-    id: scopeId++,
-  };
+  });
 
   const children = rootChildren.map(child => {
     // logScope("cloneScopeReplace. child", child);
