@@ -1,5 +1,6 @@
 import {
   anyThrough,
+  ctxLog,
   eof,
   ExtendedResult,
   kind,
@@ -36,6 +37,7 @@ import {
   withAddedIdent,
   withChildScope,
 } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -210,13 +212,15 @@ function completeScope<T>(r: ExtendedResult<T>): T {
   const ctx: ParserContext = r.ctx;
   const weslContext: WeslParseContext = ctx.app.context;
   const completedScope = weslContext.scope;
+  // dlog("completeScope", { completedScope });
   const { parent } = completedScope;
+  // TODO if scope is empty, drop it?
   if (parent) {
     weslContext.scope = parent;
   } else {
     // TODO should never happen
     const { idents, kind } = completedScope;
-    console.error("completeScope, no parent scope", { kind, idents });
+    console.log("ERR: completeScope, no parent scope", { kind, idents });
   }
   return r.value;
 }

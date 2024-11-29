@@ -1,4 +1,4 @@
-import { pretty } from "berry-pretty";
+import { dlog, pretty } from "berry-pretty";
 import { tracing } from "mini-parse";
 
 type IdentKind = "decl" | "ref";
@@ -47,7 +47,10 @@ export function withAddedIdent(
   ident: Ident,
 ): RootAndScope {
   if (tracing && !containsScope(rootScope, scope)) {
-    logScope("scope not in rootScope", rootScope);
+    logScope(
+      `withAddedIndent '${ident.originalName}'. current scope not in rootScope`,
+      rootScope,
+    );
     logScope("..scope", rootScope);
   }
 
@@ -111,13 +114,15 @@ function containsScope(rootScope: Scope, scope: Scope): boolean {
   return false;
 }
 
-/** clone the rootScope, replacing oldScope with newScope in child and parent links */
+/** @return a new rootScope,
+ *    replacing oldScope with newScope in child and parent links */
 function cloneScopeReplace(
   rootScope: Scope,
   oldScope: Scope,
   newScope: Scope,
 ): Scope {
   if (rootScope === oldScope) {
+    // logScope("cloneScopeReplace. replacing rootScope with newScope", newScope);
     return newScope;
   }
 
@@ -136,15 +141,28 @@ export function logScope(message: string, scope: Scope) {
 }
 
 export function scopeToString(scope: Scope, indent = 0): string {
-  const { kind, idents, children } = scope;
-  const identStr = pretty(idents.map(i => i.originalName));
+  const { children, parent } = scope;
   const childStrings = children.map(c => scopeToString(c, indent + 4));
   const childrenStr = childStrings.join("\n");
   const spc = " ".repeat(indent);
   // prettier-ignore
-  return `${spc}${kind} ${identStr}\n` + 
+  return `${spc}${scopeHeader(scope)}\n` + 
+         `${spc}  parent: ${scopeHeader(parent)}\n` +
          `${spc}  children:\n`+ 
          `${childrenStr}`;
+}
+
+function scopeHeader(scope: Scope | undefined | null): string {
+  if (scope === undefined) {
+    return "undefined";
+  }
+  if (scope === null) {
+    return "null";
+  }
+
+  const { kind, idents } = scope;
+  const identStr = pretty(idents.map(i => i.originalName));
+  return `${kind} ${identStr}`;
 }
 
 // export interface ProvisionalScope {
