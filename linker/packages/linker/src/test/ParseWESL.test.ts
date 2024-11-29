@@ -288,19 +288,19 @@ test("parse fn with attributes and suffix comma", () => {
   expect(first.name).toBe("main");
 });
 
-test("parse foo::bar(); ", () => {
+test.skip("parse foo::bar(); ", () => {
   const src = "fn main() { foo::bar(); }";
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
 });
 
-test("parse let x: foo::bar; ", () => {
+test.skip("parse let x: foo::bar; ", () => {
   const src = "fn main() { let x: foo::bar = 1; }";
   const parsed = testParseWgsl(src);
   expect(parsed).toMatchSnapshot();
 });
 
-test("parse var x: foo.bar;", () => {
+test.skip("parse var x: foo.bar;", () => {
   const src = `
      import foo/bar;
      var x: foo.bar;

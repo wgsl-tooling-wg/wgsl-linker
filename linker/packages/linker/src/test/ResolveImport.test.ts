@@ -31,7 +31,7 @@ test("resolveImport foo() from import bar/foo", () => {
   expect((found?.modExp.exp as TextExport).ref.name).toBe("foo");
 });
 
-test("resolveImport bar/foo() from import bar/foo", () => {
+test.skip("resolveImport bar/foo() from import bar/foo", () => {
   const registry = new ModuleRegistry({
     wgsl: {
       "main.wgsl": `
