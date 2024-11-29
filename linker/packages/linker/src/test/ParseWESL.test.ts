@@ -30,6 +30,24 @@ test("parse fn with calls", () => {
   expect(parsed).toMatchSnapshot();
 });
 
+test("parse unicode ident", () => {
+  // List taken straight from the examples at https://www.w3.org/TR/WGSL/#identifiers
+  const src = `
+  fn Δέλτα(){} 
+  fn réflexion(){} 
+  fn Кызыл(){} 
+  fn 𐰓𐰏𐰇(){} 
+  fn 朝焼け(){}
+  fn سلام(){} 
+  fn 검정(){} 
+  fn שָׁלוֹם(){}
+  fn गुलाबी(){}
+  fn փիրուզ(){}
+  `;
+  const parsed = testParseWgsl(src);
+  expect(parsed).toMatchSnapshot();
+});
+
 test("structDecl parses struct member types", () => {
   const src = "struct Foo { a: f32, b: i32 }";
   const { appState } = testAppParse(struct_decl, src);
