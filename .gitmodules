@@ -1,0 +1,6 @@
+[submodule "community-wgsl"]
+	path = community-wgsl
+	url = https://github.com/wgsl-tooling-wg/community-wgsl
+[submodule "wesl-testsuite"]
+	path = wesl-testsuite
+	url = https://github.com/wgsl-tooling-wg/wesl-testsuite.git

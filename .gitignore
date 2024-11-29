@@ -1,9 +1,3 @@
-# dependency packages
-node_modules
-
-# bundled release 
-dist
-
 # macOS
 .DS_Store
 
@@ -12,9 +6,3 @@ dist
 
 # typescript build info cache files 
 *.tsbuildinfo
-
-# output file for esbuild meta.data for bundle size analysis
-meta.json
-
-# output file for rollup-plugin-visualizer
-stats.html
