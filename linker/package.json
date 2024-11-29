@@ -10,7 +10,7 @@
     "publish:all": "pnpm --filter \"./packages/**\" publish",
     "test:all": "run-s test:once",
     "test:once": "pnpm --filter \"./packages/**\" test:once",
-	"preinstall": "git submodule update --init --recursive"
+    "preinstall": "git submodule update --init --recursive"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
