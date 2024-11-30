@@ -449,7 +449,7 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name")),
+  req(word.tag("name").map(declIdent)),
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),

@@ -85,3 +85,13 @@ test("struct", () => {
   const firstChildIdents = children[0].idents.map(i => i.originalName);
   expect(firstChildIdents).toEqual(["B"]);
 });
+
+test("alias", () => {
+  const src = `
+    alias A = B;
+  `;
+  const result = parseWESL(src);
+  const { scope } = result;
+  const scopeIdents = scope.idents.map(i => i.originalName);
+  expect(scopeIdents).toEqual(["A", "B"]);
+});
