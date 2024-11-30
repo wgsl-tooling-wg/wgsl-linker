@@ -13,7 +13,7 @@ test("scope from simple fn", () => {
   expect(scopeIdents).toEqual(["main"]);
   expect(scope.children.length).toBe(1);
   const firstChildIdents = scope.children[0].idents.map(i => i.originalName);
-  expect(firstChildIdents).toEqual(["x"]);
+  expect(firstChildIdents).toEqual(["x", "i32"]);
 });
 
 test("scope from fn with reference", () => {
@@ -28,7 +28,7 @@ test("scope from fn with reference", () => {
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
   const firstChildIdents = scope.children[0].idents.map(i => i.originalName);
-  expect(firstChildIdents).toEqual(["x", "x"]);
+  expect(firstChildIdents).toEqual(["x", "i32", "x"]);
 });
 
 test("two fns", () => {
@@ -63,8 +63,25 @@ test("fn ref", () => {
     fn bar() {}
   `;
   const result = parseWESL(src);
-  const {children} = result.scope;
-  expect(children.length).toBe(2);  
+  const { children } = result.scope;
+  expect(children.length).toBe(2);
   const firstChildIdents = children[0].idents.map(i => i.originalName);
   expect(firstChildIdents).toEqual(["bar"]);
+});
+
+test("struct", () => {
+  const src = `
+    struct A {
+      a: B,
+    }
+  `;
+  const result = parseWESL(src);
+  const { scope } = result;
+  const scopeIdents = scope.idents.map(i => i.originalName);
+  expect(scopeIdents).toEqual(["A"]);
+
+  const { children } = scope;
+  expect(children.length).toBe(1);
+  const firstChildIdents = children[0].idents.map(i => i.originalName);
+  expect(firstChildIdents).toEqual(["B"]);
 });

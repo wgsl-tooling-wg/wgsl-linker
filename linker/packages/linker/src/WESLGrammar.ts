@@ -90,7 +90,7 @@ const opt_attributes = repeat(attribute);
 const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.tag("name")).map(r => {
+export const typeNameDecl = req(word.map(declIdent).tag("name")).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem; // fix?
 });
 
@@ -103,7 +103,7 @@ export const fnNameDecl = req(
 });
 
 export const type_specifier: Parser<TypeRefElem[]> = seq(
-  word.tag(possibleTypeRef),
+  word.tag(possibleTypeRef).map(refIdent),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -132,9 +132,9 @@ export const struct_member = seq(
 export const struct_decl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
-  req("{"),
+  req("{").map(startScope),
   withSep(",", struct_member, { requireOne: true }).tag("members"),
-  req("}"),
+  req("}").map(completeScope),
 ).map(r => {
   const e = makeElem("struct", r, ["members"]);
   const nameElem = r.tags.nameElem[0];
