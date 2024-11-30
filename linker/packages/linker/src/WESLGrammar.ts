@@ -1,6 +1,4 @@
 import {
-  anyThrough,
-  ctxLog,
   eof,
   ExtendedResult,
   kind,
@@ -19,12 +17,13 @@ import {
   tokenSkipSet,
   tracing,
   withSep,
-  withSepPlus,
+  withSepPlus
 } from "mini-parse";
 import { CallElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
-import { bracketTokens, identTokens, mainTokens } from "./MatchWgslD.ts";
+import { gleamImport } from "./GleamImport.ts";
+import { bracketTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
-import { comment, makeElem, unknown, word } from "./ParseSupport.ts";
+import { comment, makeElem, word } from "./ParseSupport.ts";
 import { WeslParseContext } from "./ParseWESL.ts";
 import {
   identLocToCallElem,
@@ -32,14 +31,10 @@ import {
 } from "./ParsingHacks.ts";
 import {
   Ident,
-  logScope,
-  Scope,
   ScopeKind,
   withAddedIdent,
-  withChildScope,
+  withChildScope
 } from "./Scope.ts";
-import { dlog } from "berry-pretty";
-import { gleamImport } from "./GleamImport.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -176,11 +171,8 @@ function declIdent(r: ExtendedResult<any>) {
   const weslContext: WeslParseContext = r.ctx.app.context;
   const originalName = r.src.slice(r.start, r.end);
   // ctxLog(r.ctx, "declIdent", originalName);
-  const { scope, rootScope } = weslContext;
-  // logScope(`declIdent '${originalName}' rootScope`, rootScope);
   const ident: Ident = { kind: "decl", originalName };
   r.ctx.app.context = addIdent(weslContext, ident);
-  // logScope("declIdent.scope after addIdent", r.ctx.app.context.scope);
   return originalName;
 }
 
@@ -210,8 +202,6 @@ function completeScope<T>(r: ExtendedResult<T>): T {
   // TODO if scope is empty, drop it?
   if (parent) {
     weslContext.scope = parent;
-    // logScope("completeScope. completed scope", completedScope);
-    // logScope("completeScope. current scope", weslContext.scope);
   } else {
     // TODO should never happen
     const { idents, kind } = completedScope;

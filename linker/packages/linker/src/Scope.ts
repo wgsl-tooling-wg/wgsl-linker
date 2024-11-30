@@ -36,7 +36,8 @@ export interface Scope {
   kind: ScopeKind;
 }
 
-let scopeId = 0;
+let scopeId = 0; // for debugging
+
 /** make a new Scope object */
 export function makeScope(s: Omit<Scope, "id">): Scope {
   return { ...s, id: scopeId++ };
@@ -73,6 +74,10 @@ export function withAddedIdent(
   };
 }
 
+function emptyScope(kind: ScopeKind): Scope {
+  return makeScope({ idents: [], parent: null, children: [], kind });
+}
+
 /** @return
  *    . a new root scope with a child scope added to the current scope.
  *    . the new current scope is the new child scope
@@ -82,12 +87,7 @@ export function withChildScope(
   currentScope: Scope,
   kind: ScopeKind,
 ): RootAndScope {
-  const newChildScope = makeScope({
-    idents: [],
-    parent: null,
-    children: [],
-    kind,
-  });
+  const newChildScope = emptyScope(kind);
   const newCurrentScope = makeScope({
     ...currentScope,
     children: [...currentScope.children, newChildScope],
@@ -98,8 +98,6 @@ export function withChildScope(
     currentScope,
     newCurrentScope,
   );
-  // logScope("withChildScope. newRootScope", newRootScope);
-  // logScope("withChildScope. scope", newCurrentScope);
 
   return {
     scope: newChildScope,
@@ -129,30 +127,21 @@ function cloneScopeReplace(
   newScope: Scope,
 ): Scope {
   if (rootScope === oldScope) {
-    // logScope("cloneScopeReplace. replacing rootScope with newScope", newScope);
     return newScope;
   }
 
   const { kind, idents } = rootScope;
   const { parent: origRootParent, children: rootChildren } = rootScope;
   const newRootParent = origRootParent === oldScope ? newScope : origRootParent;
-  const newRoot = makeScope({
-    kind,
-    idents,
-    parent: newRootParent,
-    children: [] as Scope[],
-  });
+  const children = [] as Scope[];
+  const newRoot = makeScope({ kind, idents, parent: newRootParent, children });
 
-  const children = rootChildren.map(child => {
-    // logScope("cloneScopeReplace. child", child);
-    // logScope("cloneScopeReplace. oldScope", oldScope);
-    // logScope("cloneScopeReplace. newScope", newScope);
-    return cloneScopeReplace(child, oldScope, newScope);
-  });
-  children.map(c => (c.parent = newRoot));
-  newRoot.children = children;
+  const newChildren = rootChildren.map(child =>
+    cloneScopeReplace(child, oldScope, newScope),
+  );
+  newChildren.map(c => (c.parent = newRoot));
+  newRoot.children = newChildren;
 
-  // logScope("cloneScopeReplace. newScope", newRoot);
   return newRoot;
 }
 
