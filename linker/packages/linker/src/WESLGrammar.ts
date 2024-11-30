@@ -17,7 +17,7 @@ import {
   tokenSkipSet,
   tracing,
   withSep,
-  withSepPlus
+  withSepPlus,
 } from "mini-parse";
 import { CallElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
 import { gleamImport } from "./GleamImport.ts";
@@ -29,12 +29,7 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import {
-  Ident,
-  ScopeKind,
-  withAddedIdent,
-  withChildScope
-} from "./Scope.ts";
+import { Ident, ScopeKind, withAddedIdent, withChildScope } from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -152,6 +147,7 @@ export const struct_decl = seq(
 export const fn_call = seq(
   word
     .tag("name")
+    .map(refIdent)
     .map(r => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
   () => opt_template_list,

@@ -48,9 +48,23 @@ test("two fns, one with a decl", () => {
       var a:u32;
     }
     fn bar() {}
-  `
+  `;
   const result = parseWESL(src);
   const { scope } = result;
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["foo", "bar"]);
+});
+
+test("fn ref", () => {
+  const src = `
+    fn foo() {
+      bar();
+    }
+    fn bar() {}
+  `;
+  const result = parseWESL(src);
+  const {children} = result.scope;
+  expect(children.length).toBe(2);  
+  const firstChildIdents = children[0].idents.map(i => i.originalName);
+  expect(firstChildIdents).toEqual(["bar"]);
 });
