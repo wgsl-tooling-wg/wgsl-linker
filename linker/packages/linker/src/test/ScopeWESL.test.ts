@@ -7,8 +7,7 @@ test("scope from simple fn", () => {
     fn main() {
       var x: i32 = 1;
     }     `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
   expect(scope.children.length).toBe(1);
@@ -23,8 +22,7 @@ test("scope from fn with reference", () => {
       x++;
     }
   `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
   const firstChildIdents = scope.children[0].idents.map(i => i.originalName);
@@ -36,8 +34,7 @@ test("two fns", () => {
     fn foo() {}
     fn bar() {}
   `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["foo", "bar"]);
 });
@@ -49,8 +46,7 @@ test("two fns, one with a decl", () => {
     }
     fn bar() {}
   `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["foo", "bar"]);
 });
@@ -75,8 +71,7 @@ test("struct", () => {
       a: B,
     }
   `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["A"]);
 
@@ -90,8 +85,7 @@ test("alias", () => {
   const src = `
     alias A = B;
   `;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["A", "B"]);
 });
@@ -105,8 +99,8 @@ test("switch", () => {
         default: { break; }
       }
     }`;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
+
   expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
     "{ %main
       { %code, code
@@ -125,8 +119,8 @@ test("for()", () => {
       var i = 1.0;
       for (var i = 0; i < 10; i++) { }
     }`;
-  const result = parseWESL(src);
-  const { scope } = result;
+  const { scope } = parseWESL(src);
+
   expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
     "{ %main
       { %i
