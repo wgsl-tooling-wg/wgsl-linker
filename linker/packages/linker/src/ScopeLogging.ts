@@ -26,18 +26,39 @@ export function scopeIdentTree(scope: Scope, indent = 0): string {
     childStrings = children.map(c => scopeIdentTree(c, indent + 2));
 
   // list of identifiers, with decls prefixed with '%'
-  const identStr = scope.idents
-    .map(({ kind, originalName }) => {
-      const prefix = kind === "decl" ? "%" : "";
-      return `${prefix}${originalName}`;
-    })
-    .join(", ");
+  const identStrings = scope.idents.map(({ kind, originalName }) => {
+    const prefix = kind === "decl" ? "%" : "";
+    return `${prefix}${originalName}`;
+  });
+
   const spc = " ".repeat(indent);
-  if (children.length === 0) {
-    return `${spc}{ ${identStr} }`;
-  } else {
-    const lines = [`${spc}{ ${identStr}`, ...childStrings, `${spc}}`];
-    return lines.join("\n");
+  let column = indent + 2;
+  const results = [spc + "{ "];
+  let multiLine = false;
+  identStrings.forEach((s, i) => {
+    if (column + s.length > 60) {
+      multiLine = true;
+      results.push("\n" + spc + "  ");
+      column = indent + 4;
+    }
+    results.push(s);
+    column += s.length;
+    if (i < identStrings.length - 1) {
+      results.push(", ");
+      column += 2;
+    }
+  });
+
+  if (childStrings.length) {
+    multiLine = true;
+    results.push("\n");
+    results.push(childStrings.join("\n"));
+  }
+  if (multiLine) results.push("\n" + spc + "}");
+  else results.push(" }");
+
+  return results.join("");
+}
   }
 }
 
