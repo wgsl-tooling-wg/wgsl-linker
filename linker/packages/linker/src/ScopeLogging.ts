@@ -1,4 +1,5 @@
-import { dlog, pretty } from "berry-pretty";
+import { pretty } from "berry-pretty";
+import { LineWrapper } from "./LineWrapper.ts";
 import { Scope } from "./Scope.ts";
 
 export function logScope(message: string, scope: Scope) {
@@ -31,35 +32,28 @@ export function scopeIdentTree(scope: Scope, indent = 0): string {
     return `${prefix}${originalName}`;
   });
 
-  const spc = " ".repeat(indent);
-  let column = indent + 2;
-  const results = [spc + "{ "];
-  let multiLine = false;
+  const str = new LineWrapper(indent);
+  str.add("{ ");
+
+  const last = identStrings.length - 1;
   identStrings.forEach((s, i) => {
-    if (column + s.length > 60) {
-      multiLine = true;
-      results.push("\n" + spc + "  ");
-      column = indent + 4;
-    }
-    results.push(s);
-    column += s.length;
-    if (i < identStrings.length - 1) {
-      results.push(", ");
-      column += 2;
-    }
+    const element = i < last ? s + ", " : s;
+    str.add(element);
   });
 
   if (childStrings.length) {
-    multiLine = true;
-    results.push("\n");
-    results.push(childStrings.join("\n"));
+    str.nl();
+    str.addBlock(childStrings.join("\n"));
   }
-  if (multiLine) results.push("\n" + spc + "}");
-  else results.push(" }");
 
-  return results.join("");
-}
+  if (str.oneLine) {
+    str.add(" }");
+  } else {
+    if (!childStrings.length) str.nl();
+    str.add("}");
   }
+
+  return str.result;
 }
 
 function scopeHeader(scope: Scope | undefined | null): string {
