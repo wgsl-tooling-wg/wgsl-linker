@@ -21,7 +21,7 @@ type DirectiveRef = {
 
 type LoadableRef = TextRef | DirectiveRef;
 
-/** TBD a simple */
+/** TODO a simple wrapper */
 export function link(args: RegistryParams) {}
 
 /**
