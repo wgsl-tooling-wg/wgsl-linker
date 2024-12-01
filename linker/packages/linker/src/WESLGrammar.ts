@@ -161,6 +161,7 @@ function refIdent(r: ExtendedResult<any>) {
   // ctxLog(r.ctx, "refIdent", originalName);
   const ident: Ident = { kind: "ref", originalName };
   r.ctx.app.context = addIdent(weslContext, ident);
+  return originalName;
 }
 
 function declIdent(r: ExtendedResult<any>) {
@@ -240,7 +241,7 @@ const opt_template_list = opt(
 );
 
 const template_elaborated_ident = seq(
-  word.map(identToTypeRefOrLocation).tag("identLoc"),
+  word.map(refIdent).map(identToTypeRefOrLocation).tag("identLoc"),
   opt_template_list,
 );
 
