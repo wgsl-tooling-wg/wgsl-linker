@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { parseWESL } from "../ParseWESL.ts";
+import { scopeIdentTree } from "../ScopeLogging.ts";
 
 test("scope from simple fn", () => {
   const src = `
@@ -93,4 +94,27 @@ test("alias", () => {
   const { scope } = result;
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["A", "B"]);
+});
+
+test("switch", () => {
+  const src = `
+    fn main() {
+      var code = 1u;
+      switch ( code ) {
+        case 5u: { if 1 > 0 { var x = 7;} }
+        default: { break; }
+      }
+    }`;
+  const result = parseWESL(src);
+  const { scope } = result;
+  expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
+    "{ %main
+      { %code, code
+        { 
+          { %x }
+        }
+        {  }
+      }
+    }"
+  `);
 });
