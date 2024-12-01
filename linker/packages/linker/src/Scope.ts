@@ -36,6 +36,10 @@ export interface Scope {
   kind: ScopeKind;
 }
 
+export function resetScopeIds() {
+  scopeId = 0;
+}
+
 let scopeId = 0; // for debugging
 
 /** make a new Scope object */

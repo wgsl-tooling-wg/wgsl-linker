@@ -1,7 +1,7 @@
 import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
 import { mainTokens } from "./MatchWgslD.ts";
-import { Scope } from "./Scope.ts";
+import { resetScopeIds, Scope } from "./Scope.ts";
 import { weslRoot } from "./WESLGrammar.ts";
 
 /** result of a parse */
@@ -37,7 +37,10 @@ export function parseWESL(
   params: Record<string, any> = {},
   maxParseCount: number | undefined = undefined,
   grammar = weslRoot,
-): WeslAST { // TODO allow returning undefined for failure, or throw?
+): WeslAST {
+  // TODO allow returning undefined for failure, or throw?
+
+  resetScopeIds();
   const lexer = matchingLexer(src, mainTokens);
 
   const moduleScope: Scope = {
@@ -67,5 +70,5 @@ export function parseWESL(
 
   // logScope("parseWESL root scope:", parseResult.value);
 
-  return { elems: stableState.elems, scope: parseResult.value};
+  return { elems: stableState.elems, scope: parseResult.value };
 }
