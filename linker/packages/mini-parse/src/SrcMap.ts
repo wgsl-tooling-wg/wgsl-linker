@@ -65,7 +65,6 @@ export class SrcMap {
 
   /** This SrcMap's destination is a src for the other srcmap,
    * so combine the two and return the result.
-   *
    */
   merge(other: SrcMap): SrcMap {
     if (other === this) return this;
