@@ -18,6 +18,29 @@ export function scopeToString(scope: Scope, indent = 0): string {
          `${childrenStr}`;
 }
 
+/** A debugging print of the scope tree with identifiers in nested brackets */
+export function scopeIdentTree(scope: Scope, indent = 0): string {
+  const { children } = scope;
+  let childStrings: string[] = [];
+  if (children.length)
+    childStrings = children.map(c => scopeIdentTree(c, indent + 2));
+
+  // list of identifiers, with decls prefixed with '%'
+  const identStr = scope.idents
+    .map(({ kind, originalName }) => {
+      const prefix = kind === "decl" ? "%" : "";
+      return `${prefix}${originalName}`;
+    })
+    .join(", ");
+  const spc = " ".repeat(indent);
+  if (children.length === 0) {
+    return `${spc}{ ${identStr} }`;
+  } else {
+    const lines = [`${spc}{ ${identStr}`, ...childStrings, `${spc}}`];
+    return lines.join("\n");
+  }
+}
+
 function scopeHeader(scope: Scope | undefined | null): string {
   if (scope === undefined) {
     return "undefined";
