@@ -118,3 +118,21 @@ test("switch", () => {
     }"
   `);
 });
+
+test("for()", () => {
+  const src = `
+    fn main() {
+      var i = 1.0;
+      for (var i = 0; i < 10; i++) { }
+    }`;
+  const result = parseWESL(src);
+  const { scope } = result;
+  expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
+    "{ %main
+      { %i
+        { %i, i, i }
+        {  }
+      }
+    }"
+  `);
+});

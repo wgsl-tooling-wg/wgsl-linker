@@ -318,13 +318,13 @@ const for_statement = seq(
   opt_attributes,
   "for",
   seq(
-    req("("),
+    req("(").map(startScope),
     opt(for_init),
     req(";"),
     opt(expression),
     req(";"),
     opt(for_update),
-    req(")"),
+    req(")").map(completeScope),
   ),
 );
 
