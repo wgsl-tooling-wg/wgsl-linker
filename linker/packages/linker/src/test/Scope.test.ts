@@ -1,4 +1,3 @@
-import { pretty, dlog, dlogOpt } from "berry-pretty";
 import { expect, test } from "vitest";
 import { Ident, Scope, withAddedIdent } from "../Scope.ts";
 
@@ -30,7 +29,7 @@ test("withAddendIdent in child scope", () => {
     kind: "module",
     children: [origChild],
     parent: null,
-    idents: [{originalName: "main", kind: "decl"}],
+    idents: [{ originalName: "main", kind: "decl" }],
   };
   origChild.parent = origRoot;
   const ident: Ident = {
