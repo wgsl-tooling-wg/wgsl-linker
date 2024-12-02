@@ -1,8 +1,6 @@
 import { tracing } from "mini-parse";
 import { logScope } from "./ScopeLogging.ts";
 
-type IdentKind = "decl" | "ref";
-
 export interface SrcModule {
   /** full path to the module e.g "package/sub/foo", or "_root/sub/foo" */
   modulePath: string;
@@ -16,11 +14,24 @@ export interface SrcLoc {
   src: SrcModule;
 }
 
-/** a src declaration or  */
-export interface Ident {
-  kind: IdentKind;
-  refersTo?: Ident | null; // preceding ident in scope. null for decls, undefined before binding
+/** a src declaration or reference to an ident */
+export type Ident = DeclIdent | RefIdent;
+
+export type Conditions = Record<string, any>;
+
+interface IdentBase {
   originalName: string; // name in the source code for ident matching (may be mangled in the output)
+  conditions?: Conditions;  // conditions under which this ident is valid (combined from all containing elems)
+}
+
+export interface RefIdent extends IdentBase {
+  kind: "ref";
+  refersTo?: Ident;     // import or decl ident in scope to which this ident refers. undefined before binding
+}
+
+export interface DeclIdent extends IdentBase {
+  kind: "decl";
+  mangledName?: string; // name in the output code
 }
 
 export type ScopeKind =
