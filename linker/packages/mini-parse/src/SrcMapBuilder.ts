@@ -11,6 +11,7 @@ export class SrcMapBuilder {
   #entries: SrcMapEntry[] = [];
 
   /** append a string fragment to the destination string */
+  // TODO allow for src file name not just string (e.g. SrcModule)
   add(src: string, srcStart: number, srcEnd: number): void {
     const destStart = this.#destLength;
     this.#destLength += srcEnd - srcStart;
