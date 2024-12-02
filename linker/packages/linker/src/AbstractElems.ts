@@ -1,6 +1,7 @@
 /** Structures for the abstract syntax tree constructed by the parser. */
 
 import { ImportTree } from "./ImportTree.js";
+import { Ident, SrcModule } from "./Scope.js";
 import { FoundRef } from "./TraverseRefs.js";
 
 export type AbstractElem =
@@ -16,6 +17,9 @@ export type AbstractElem =
   | CallElem
   | StructElem
   | StructMemberElem
+  | ChunkElem
+  | IdentElem
+  | TextElem
   | VarElem
   | TypeRefElem;
 
@@ -110,4 +114,25 @@ export interface AliasElem extends AbstractElemBase {
 /** global directive (diagnostic, enable, requires) or const_assert */
 export interface GlobalDirectiveElem extends AbstractElemBase {
   kind: "globalDirective";
+}
+
+// an undifferentiated chunk of WESL source, contains other chunks and idents
+export interface ChunkElem extends AbstractElemBase {
+  kind: "chunk";
+  elems: (ChunkElem | IdentElem | TextElem)[];
+  conditions?: any; // TBD
+}
+
+// an identifier in WESL source
+export interface IdentElem extends AbstractElemBase {
+  kind: "ident";
+  ident: Ident;
+}
+
+/** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
+ e.g. a keyword  like 'var' or '@diagnostic(off,derivative_uniformity)'
+*/
+export interface TextElem extends AbstractElemBase {
+  kind: "text";
+  src: SrcModule; // TODO move to abstract elem base
 }
