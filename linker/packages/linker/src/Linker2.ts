@@ -47,7 +47,7 @@ export function linkWesl(
 /* --- Step #1   Parsing WESL --- */
 
 /**
- * Parse WESL src files into Scope and AST elements
+ * Parse WESL each src module (file) into AST elements and a Scope tree. 
  *
  * @param src
  * @returns
@@ -68,9 +68,47 @@ export function bindIdents(
   rootScope: Scope,
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
-): void {}
+): void {
+/* 
+For each module's scope, search through the scope tree to find all ref idents
+  - For each ref ident, search up the scope tree to find a matching decl ident
+  - If no local match is found, check for partial matches with import statements
+    - combine ident with import statement to match a decl in exporting module
+
+As global decl idents are found, mutate their mangled name to be globally unique.
+*/
+}
 
 
+/** return mangled name for decl ident, 
+ *  mutating the Ident to remember mangled name if it hasn't yet been determined */
+export function declUniqueName(
+  decl: DeclIdent,
+  rootNames: Set<string>,
+): string {
+  let { mangledName } = decl;
+
+  if (!mangledName) {
+    mangledName = uniquifyName(decl.originalName, rootNames);
+    rootNames.add(mangledName);
+    decl.mangledName = mangledName;
+  }
+
+  return mangledName;
+}
+
+/** construct global unique name for use in the output */
+function uniquifyName(proposedName: string, rootNames: Set<string>): string {
+  let renamed = proposedName;
+  let conflicts = 0;
+
+  // create a unique name
+  while (rootNames.has(renamed)) {
+    renamed = proposedName + conflicts++;
+  }
+
+  return renamed;
+}
 
 /* --- Step #3   Writing WGSL --- */
 
@@ -135,40 +173,11 @@ export function lowerAndEmitIdent(
   ctx: EmitContext,
 ): AbstractElem[] {
   const declIdent = findDecl(e.ident);
-  const mangledName = declUniqueName(declIdent, ctx.rootNames);
+  const mangledName = declIdent.mangledName!; // mangled name was set in binding step
   ctx.srcMap.add(mangledName, e.start, e.end);
   return [];
 }
 
-/** return mangled name for decl ident, 
- *  mutating the Ident to remember mangled name if it hasn't yet been determined */
-export function declUniqueName(
-  decl: DeclIdent,
-  rootNames: Set<string>,
-): string {
-  let { mangledName } = decl;
-
-  if (!mangledName) {
-    mangledName = uniquifyName(decl.originalName, rootNames);
-    rootNames.add(mangledName);
-    decl.mangledName = mangledName;
-  }
-
-  return mangledName;
-}
-
-/** construct global unique name for use in the output */
-function uniquifyName(proposedName: string, rootNames: Set<string>): string {
-  let renamed = proposedName;
-  let conflicts = 0;
-
-  // create a unique name
-  while (rootNames.has(renamed)) {
-    renamed = proposedName + conflicts++;
-  }
-
-  return renamed;
-}
 
 /** trace through refersTo links in reference Idents until we find the declaration
  * expects that bindIdents has filled in all refersTo: links
@@ -218,11 +227,13 @@ export function selectModule(
 /*
 
 TODO 
-- mv uniquification to the binding step?
 - distinguish between global and local declaration idents (only global ones need be uniquified)
 
 Binding Imports
--
+- For each module scope, search through the scope tree to find all ref idents
+  - For each ref ident, search up the scope tree to find a matching decl ident
+  - If no local match is found, check for partial matches with import statements
+    - combine with partially matched import statement to match decl in exporting module
 
 Conditions
 - conditions are attached to the AST elements where they are defined
@@ -230,17 +241,26 @@ Conditions
 - consolidated conditions are attached to Idents
   - only conditionally valid ref Idents are bound, and only to conditionaly valid declarations
   - a condition stack (akin to the scope stack) is maintained while parsing to attach consolidated conditions to Idents
-- re-exuting 
+- re-linking with new conditions, conservatively 
+  - clear all mutated Ident fields (refersTo and mangled links) 
+  - re-bind Idents, re-emit 
 
 Generics & specialization
-- 
+- attach generic parameters to ref and decl Idents, effectively creating a new Ident for each specialization
+- generate specialized elements at emit time, by checking the generic parameters of the decl ident
 
 Incrementally rebuilding
-- 
+- unchanged files don't need to be reparsed, only reparse dirty files.
+- support reflection only mode? no need to bind idents or emit for e.g. vite/IDE plugin generating reflection types 
 
-
-Parallel Processing
-- 
-
+Parallel Processing (coarse grained via webworkers)
+- Parsing each module can be done in parallel
+- binding could be done partially in parallel? (esbuild doesn't parallelize here though)
+  - finding the declaration for each local ident could be done in parallel by module
+  - matching 
+- Emitting could be easily modified to be done in partially in parallel
+  - traversing the AST to list the top level elements to emit could be done serially
+  - the text for each top level element could be emitted in parallel (presumably the bulk of the work)
+  - the merged text can be assembled serially
 
 */
