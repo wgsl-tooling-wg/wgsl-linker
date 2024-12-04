@@ -2,7 +2,7 @@ import { tracing } from "mini-parse";
 import { logScope } from "./ScopeLogging.ts";
 
 export interface SrcModule {
-  /** full path to the module e.g "package/sub/foo", or "_root/sub/foo" */
+  /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
   modulePath: string;
 
   /** original src for module */
@@ -91,6 +91,10 @@ export function withAddedIdent(
 
 function emptyScope(kind: ScopeKind): Scope {
   return makeScope({ idents: [], parent: null, children: [], kind });
+}
+
+export function emptyBodyScope(parent:Scope): Scope {
+  return makeScope({ kind: "body", idents: [], parent, children: [] });
 }
 
 /** @return

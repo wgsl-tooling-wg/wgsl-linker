@@ -232,7 +232,7 @@ export function conditionsValid(
 
 /* ---- Utilities ---- */
 
-interface ParsedModule {
+export interface ParsedModule {
   rootScope: Scope;
   rootElems: AbstractElem[]; // global elements in the module (fn, struct, var, etc.)
 }
