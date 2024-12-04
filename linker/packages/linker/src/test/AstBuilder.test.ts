@@ -11,22 +11,7 @@ test("build scope with ident", () => {
   const ast = new AstBuilder(srcModule);
   ast.addIdent("decl", 4, 5);
   const { rootScope } = ast.build();
-  expect({ rootScope }).toMatchInlineSnapshot(`
-    {
-      "rootScope": {
-        "children": [],
-        "id": 0,
-        "idents": [
-          {
-            "kind": "decl",
-            "originalName": "x",
-          },
-        ],
-        "kind": "module",
-        "parent": null,
-      },
-    }
-  `);
+  expect({ rootScope }).toMatchSnapshot();
 });
 
 test("build scope with child scope", () => {
@@ -42,34 +27,5 @@ test("build scope with child scope", () => {
   ast.endScope();
 
   const { rootScope } = ast.build();
-  expect({ rootScope }).toMatchInlineSnapshot(`
-    {
-      "rootScope": {
-        "children": [
-          {
-            "children": [],
-            "id": 2,
-            "idents": [
-              {
-                "kind": "ref",
-                "originalName": "x",
-              },
-            ],
-            "kind": "body",
-            "parent": [Circular],
-          },
-        ],
-        "id": 1,
-        "idents": [
-          {
-            "kind": "decl",
-            "originalName": "foo",
-          },
-        ],
-        "kind": "module",
-        "parent": null,
-      },
-    }
-  `);
+  expect({ rootScope }).toMatchSnapshot();
 });
-
