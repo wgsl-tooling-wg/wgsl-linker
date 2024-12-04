@@ -5,67 +5,93 @@ import { AbstractElem } from "./AbstractElems.ts";
 import { ParsedModule } from "./Linker2.ts";
 import { emptyBodyScope, Ident, makeScope, Scope, SrcModule } from "./Scope.ts";
 
-export type BuilderElem =
-  | StartElem
-  | EndElem
-  | StartScope
-  | EndScope
-  | AddIdent;
+type BuilderElem = StartElem | EndElem | StartScope | EndScope | AddIdent;
 
-export interface StartElem {
+interface BuilderElemBase {
+  position: number;
+}
+
+interface StartElem extends BuilderElemBase {
   kind: "elem";
   elemKind: Pick<AbstractElem, "kind">;
   start: number;
   end: number;
 }
 
-export interface EndElem {
+interface EndElem extends BuilderElemBase {
   kind: "endElem";
 }
 
-export interface StartScope {
+interface StartScope extends BuilderElemBase {
   kind: "scope";
 }
 
-export interface EndScope {
+interface EndScope extends BuilderElemBase {
   kind: "endScope";
 }
 
-export interface AddIdent {
+interface AddIdent extends BuilderElemBase {
   kind: "ident";
   ident: Ident;
+}
+
+export interface HasPosition {
+  /** get the current position */
+  position(): number;
 }
 
 export class AstBuilder {
   #elems: BuilderElem[] = [];
 
-  constructor(readonly srcModule: SrcModule) {}
+  constructor(
+    readonly srcModule: SrcModule,
+    readonly location: HasPosition,
+  ) {}
 
   startElem(elemKind: Pick<AbstractElem, "kind">, start: number, end: number) {
-    this.#elems.push({ kind: "elem", elemKind, start, end });
+    this.addElem("elem", { elemKind, start, end });
   }
 
   endElem() {
-    this.#elems.push({ kind: "endElem" });
+    this.addElem("endElem", {});
   }
 
   startScope() {
-    this.#elems.push({ kind: "scope" });
+    this.addElem("scope", {});
   }
 
   endScope() {
-    this.#elems.push({ kind: "endScope" });
+    this.addElem("endScope", {});
   }
 
   addIdent(kind: Ident["kind"], start: number, end: number) {
     const originalName = this.srcModule.src.slice(start, end);
     const ident: Ident = { kind, originalName };
-    this.#elems.push({ kind: "ident", ident });
+    this.addElem("ident", { ident });
     // TODO create IdentElem too
+  }
+  
+  backtrack(pos: number) {
+    let i = this.#elems.length - 1;
+    while (i >= 0 && this.#elems[i].position > pos) {
+      i--;
+    }
+    this.#elems.length = i + 1;
   }
 
   build(): ParsedModule {
     return buildAstAndScope(this.#elems);
+  }
+
+
+  private addElem<T extends BuilderElem>(
+    kind: T["kind"],
+    fields: Omit<T, "kind"|"position">,
+  ) {
+    const position = this.location.position();
+    const elem = { kind, position, ...fields } as T;
+    this.#elems.push(elem);
+    // TODO create IdentElem too
   }
 }
 
