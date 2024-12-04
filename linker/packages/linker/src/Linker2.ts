@@ -9,6 +9,34 @@ import { Conditions, DeclIdent, Ident, Scope } from "./Scope.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
+/* 
+This is a bit of a rework/reshuffling from the 'legacy' version described in Internals.md.
+
+It expects the parser to identify three types of idents: 
+  global declarations, local declarations, references
+  (the legacy version distingished between type and variable idents, and more)
+
+It tracks scopes, and keeps them independently from the AST. It uses the scopes trees for
+binding references to declarations. (The legacy linker used combination
+of naming tricks and AST traversal to bind references to declarations.)
+
+Binding idents is more generic, which should simplify the code 
+and extend more easily to for importing elements beyond structs and functions.
+
+It asks less of the grammar, a complete WGSL grammar is easier to maintain 
+if it can match the WGSL spec.
+
+It replaces an AST pass with scope table pass, which should be a little faster. 
+
+It's much more friendly to future parallel execution and incremental rebuilding, 
+which should make things a lot faster when we go there.
+
+The architecture allows conditional compilation from the AST rather than from the src text.
+
+The AST is now immutable, mutation is confined to the Idents and Scopes. 
+*/
+
+
 /**
  * Link a set of WESL source modules (typically the text from .wesl files) into a single WGSL string.
  * Linking starts with a specified 'root' source module, and recursively incorporates code 
@@ -228,12 +256,6 @@ export function selectModule(
 
 TODO 
 - distinguish between global and local declaration idents (only global ones need be uniquified)
-
-Binding Imports
-- For each module scope, search through the scope tree to find all ref idents
-  - For each ref ident, search up the scope tree to find a matching decl ident
-  - If no local match is found, check for partial matches with import statements
-    - combine with partially matched import statement to match decl in exporting module
 
 Conditions
 - conditions are attached to the AST elements where they are defined
