@@ -1,7 +1,7 @@
 /** Structures for the abstract syntax tree constructed by the parser. */
 
 import { ImportTree } from "./ImportTree.js";
-import { Ident, SrcModule } from "./Scope.js";
+import { DeclIdent, Ident, RefIdent, SrcModule } from "./Scope.js";
 import { FoundRef } from "./TraverseRefs.js";
 
 export type AbstractElem =
@@ -146,4 +146,11 @@ export interface IdentElem extends AbstractElemBase {
 export interface TextElem extends AbstractElemBase {
   kind: "text";
   src: SrcModule; // TODO move to abstract elem base?
+}
+
+/** a parameter in a function call */
+export interface ParamElem extends AbstractElemBase{
+  kind: "param";
+  name: DeclIdent;
+  type: RefIdent;
 }
