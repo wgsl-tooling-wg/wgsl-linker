@@ -1,5 +1,4 @@
 import {
-  CollectContext,
   eof,
   ExtendedResult,
   kind,
@@ -24,12 +23,16 @@ import { gleamImport } from "./GleamImport.ts";
 import { bracketTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, makeElem, word } from "./ParseSupport.ts";
-import { WeslParseContext } from "./ParseWESL.ts";
 import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import { emptyBodyScope, Ident } from "./Scope.ts";
+import {
+  completeScope,
+  declIdent,
+  refIdent,
+  startScope,
+} from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -155,49 +158,6 @@ export const fn_call = seq(
   () => opt_template_list,
   argument_expression_list,
 );
-
-/// add reference ident to current scope
-function refIdent(cc: CollectContext) {
-  const originalName = cc.src.slice(cc.start, cc.end);
-  // srcLog(cc.src, cc.start, "refIdent", originalName);
-  const ident: Ident = { kind: "ref", originalName };
-  const weslContext: WeslParseContext = cc.app.context;
-  weslContext.scope.idents.push(ident);
-  return originalName;
-}
-
-function declIdent(cc: CollectContext) {
-  const weslContext: WeslParseContext = cc.app.context;
-  const originalName = cc.src.slice(cc.start, cc.end);
-  // srcLog(cc.src, cc.start, "declIdent", originalName);
-  // ctxLog(r.ctx, "declIdent", originalName);
-  const ident: Ident = { kind: "decl", originalName };
-  weslContext.scope.idents.push(ident);
-  return originalName;
-}
-
-function startScope<T>(cc: CollectContext) {
-  // ctxLog(r.ctx, "startScope");
-  const { scope } = cc.app.context as WeslParseContext;
-  const newScope = emptyBodyScope(scope);
-  scope.children.push(newScope);
-  cc.app.context.scope = newScope;
-}
-
-function completeScope<T>(cc: CollectContext) {
-  // ctxLog(r.ctx, "completeScope");
-  const weslContext = cc.app.context as WeslParseContext;
-  const completedScope = weslContext.scope;
-  const { parent } = completedScope;
-  // TODO if scope is empty, drop it?
-  if (parent) {
-    weslContext.scope = parent;
-  } else {
-    // TODO should never happen
-    const { idents, kind } = completedScope;
-    console.log("ERR: completeScope, no parent scope", { kind, idents });
-  }
-}
 
 // prettier-ignore
 const fnParam = seq(
@@ -410,7 +370,7 @@ export const fn_decl = seq(
   opt_attributes,
   text("fn"),
   req(fnNameDecl).tag("nameElem"),
-  req(fnParamList),
+  req(fnParamList), // TODO should be in the same scope as the fn body
   opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
   req(compound_statement),
 ).map(r => {
