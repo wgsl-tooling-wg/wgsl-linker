@@ -354,6 +354,7 @@ function runParser<T, N extends TagRecord>(
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
+      rmFailedCollect(ctx._collect, origPosition);
     } else {
       // parser succeeded
       if (tracing) parserLog(`✓ ${p.debugName}`);
@@ -449,7 +450,7 @@ function tag2<N extends TagRecord, T, V>(
             tags[name] = [];
           }
           tags[name].push(result.value);
-          dlog({ tags });
+          // dlog({ tags });
         },
       });
     }
@@ -464,8 +465,19 @@ function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
     ctx._collect.forEach(entry => {
       entry.collectFn(collectContext);
     });
+    ctx._collect = [];
     return result;
   });
+}
+
+function rmFailedCollect(collect: CollectFnEntry<any, any>[], position: number) {
+  // dlog({collectLength: collect.length})
+  let i = collect.length - 1;
+  while (i >= 0 && collect[i].position >= position) {
+    i--;
+  }
+  collect.length = i + 1;
+  // dlog("setting length", {length:collect.length})
 }
 
 type ParserMapFn<T, N extends TagRecord, U> = (
