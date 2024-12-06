@@ -491,14 +491,9 @@ function refinePosition(lexer: Lexer, origStart: number): CollectInfo {
 function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
   return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
-    const tags = {};
-    ctx._collect.forEach(({ collectFn, collected }) => {
-      const { app, lexer } = ctx;
-      const { src } = lexer;
-      const collectContext: CollectContext = { tags, ...collected, src, app };
-      collectFn(collectContext);
-    });
-    ctx._collect = [];
+    if (result !== null) {
+      const tags = {};
+    }
     return result;
   });
 }
