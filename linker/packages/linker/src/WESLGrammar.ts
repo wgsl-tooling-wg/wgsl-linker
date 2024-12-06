@@ -1,20 +1,17 @@
 import {
   CollectContext,
-  ctxLog,
   eof,
   ExtendedResult,
   kind,
   opt,
   or,
   Parser,
-  ParserContext,
   preParse,
   repeat,
   repeatPlus,
   req,
   seq,
   setTraceName,
-  srcLog,
   text,
   tokens,
   tokenSkipSet,
@@ -32,13 +29,7 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import {
-  emptyBodyScope,
-  Ident,
-  ScopeKind,
-  withAddedIdent,
-  withChildScope,
-} from "./Scope.ts";
+import { emptyBodyScope, Ident } from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 

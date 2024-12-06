@@ -1,6 +1,3 @@
-import { tracing } from "mini-parse";
-import { logScope } from "./ScopeLogging.ts";
-
 export interface SrcModule {
   /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
   modulePath: string;
@@ -21,12 +18,12 @@ export type Conditions = Record<string, any>;
 
 interface IdentBase {
   originalName: string; // name in the source code for ident matching (may be mangled in the output)
-  conditions?: Conditions;  // conditions under which this ident is valid (combined from all containing elems)
+  conditions?: Conditions; // conditions under which this ident is valid (combined from all containing elems)
 }
 
 export interface RefIdent extends IdentBase {
   kind: "ref";
-  refersTo?: Ident;     // import or decl ident in scope to which this ident refers. undefined before binding
+  refersTo?: Ident; // import or decl ident in scope to which this ident refers. undefined before binding
 }
 
 export interface DeclIdent extends IdentBase {
@@ -63,70 +60,17 @@ export interface RootAndScope {
   scope: Scope;
 }
 
-/** @return a new root scope and new current scope with an ident added to the current scope. */
-export function withAddedIdent(
-  rootScope: Scope,
-  scope: Scope,
-  ident: Ident,
-): RootAndScope {
-  if (tracing && !containsScope(rootScope, scope)) {
-    logScope(
-      `withAddedIndent '${ident.originalName}'. current scope #${scope.id} not in rootScope: #${rootScope.id}`,
-      rootScope,
-    );
-    logScope("..scope", scope);
-  }
-
-  // clone the current provisional scope with new ident added
-  const scopeIdents = scope.idents;
-  const idents: Ident[] = [...scopeIdents, ident];
-  const newScope = makeScope({ ...scope, idents });
-  const newRootScope = cloneScopeReplace(rootScope, scope, newScope);
-
-  return {
-    scope: newScope,
-    rootScope: newRootScope,
-  };
-}
-
 export function emptyScope(kind: ScopeKind): Scope {
   return makeScope({ idents: [], parent: null, children: [], kind });
 }
 
-export function emptyBodyScope(parent:Scope): Scope {
+export function emptyBodyScope(parent: Scope): Scope {
   return makeScope({ kind: "body", idents: [], parent, children: [] });
-}
-
-/** @return
- *    . a new root scope with a child scope added to the current scope.
- *    . the new current scope is the new child scope
- */
-export function withChildScope(
-  rootScope: Scope,
-  currentScope: Scope,
-  kind: ScopeKind,
-): RootAndScope {
-  const newChildScope = emptyScope(kind);
-  const newCurrentScope = makeScope({
-    ...currentScope,
-    children: [...currentScope.children, newChildScope],
-  });
-  newChildScope.parent = newCurrentScope;
-  const newRootScope = cloneScopeReplace(
-    rootScope,
-    currentScope,
-    newCurrentScope,
-  );
-
-  return {
-    scope: newChildScope,
-    rootScope: newRootScope,
-  };
 }
 
 /** For debugging,
  * @return true if a scope is in the rootScope tree somewhere */
-function containsScope(rootScope: Scope, scope: Scope): boolean {
+export function containsScope(rootScope: Scope, scope: Scope): boolean {
   if (scope === rootScope) {
     return true;
   }
@@ -136,30 +80,4 @@ function containsScope(rootScope: Scope, scope: Scope): boolean {
     }
   }
   return false;
-}
-
-/** @return a new rootScope,
- *    replacing oldScope with newScope in child and parent links */
-function cloneScopeReplace(
-  rootScope: Scope,
-  oldScope: Scope,
-  newScope: Scope,
-): Scope {
-  if (rootScope === oldScope) {
-    return newScope;
-  }
-
-  const { kind, idents } = rootScope;
-  const { parent: origRootParent, children: rootChildren } = rootScope;
-  const newRootParent = origRootParent === oldScope ? newScope : origRootParent;
-  const children = [] as Scope[];
-  const newRoot = makeScope({ kind, idents, parent: newRootParent, children });
-
-  const newChildren = rootChildren.map(child =>
-    cloneScopeReplace(child, oldScope, newScope),
-  );
-  newChildren.map(c => (c.parent = newRoot));
-  newRoot.children = newChildren;
-
-  return newRoot;
 }
