@@ -6,7 +6,8 @@ test("scope from simple fn", () => {
   const src = `
     fn main() {
       var x: i32 = 1;
-    }     `;
+    }
+  `;
   const { scope } = parseWESL(src);
   const scopeIdents = scope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
