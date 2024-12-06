@@ -12,6 +12,7 @@ import {
 } from "./ParserTracing.js";
 import { mergeTags } from "./ParserUtil.js";
 import { SrcMap } from "./SrcMap.js";
+import { dlog } from "berry-pretty";
 
 export interface AppState<A> {
   /**
@@ -62,6 +63,8 @@ export interface ParserContext<A = any> {
 
   /** current parser stack or parent parsers that called this one */
   _debugNames: string[];
+
+  _collect: CollectFnEntry<any, any>[];
 }
 
 export type TagRecord = Record<string | symbol, any[] | undefined>;
@@ -177,6 +180,10 @@ export class Parser<T, N extends TagRecord = NoTags> {
     return p as Parser<T, N & { [key in K]: T[] }>;
   }
 
+  tag2<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
+    return tag2(this, name) as Parser<T, N & { [key in K]: T[] }>;
+  }
+
   /** record a name for debug tracing */
   traceName(name: string): Parser<T, N> {
     return this._cloneWith({ traceName: name });
@@ -192,6 +199,16 @@ export class Parser<T, N extends TagRecord = NoTags> {
    */
   map<U>(fn: ParserMapFn<T, N, U>): Parser<U, N> {
     return map(this, fn);
+  }
+
+  /** */
+  collect<U>(fn: CollectFn<N, U>): Parser<T, N> {
+    return collect(this, fn);
+  }
+
+  /** */
+  commit(): Parser<T, N> {
+    return commit(this);
   }
 
   /** switch next parser based on results */
@@ -218,6 +235,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
         _parseCount: 0,
         _preCacheFails: new Map(),
         maxParseCount,
+        _collect: [],
         _debugNames: [],
       });
     } catch (e) {
@@ -358,6 +376,9 @@ function runParser<T, N extends TagRecord>(
   }
 }
 
+// used while committing tags
+const tagValues: Record<string, any> = {};
+
 function execPreParsers(ctx: ParserContext): void {
   const { _preParse, lexer } = ctx;
 
@@ -391,6 +412,54 @@ function getPreParserCheckedCache(
     ctx._preCacheFails.set(pre, cache);
   }
   return cache;
+}
+
+interface CollectFnEntry<N extends TagRecord, V> {
+  position: number;
+  collectFn: CollectFn<N, V>;
+}
+
+type CollectFn<N extends TagRecord, V> = (tags: N) => V;
+
+function collect<N extends TagRecord, T, V>(
+  p: Parser<T, N>,
+  collectFn: CollectFn<N, V>,
+): Parser<T, N> {
+  return parser(`collect`, (ctx: ParserContext): OptParserResult<T, N> => {
+    const position = ctx.lexer.position();
+    const value = p._run(ctx);
+    ctx._collect.push({ position, collectFn });
+    return value;
+  });
+}
+function tag2<N extends TagRecord, T, V>(
+  p: Parser<T, N>,
+  name: string,
+): Parser<T, N> {
+  return parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
+    const position = ctx.lexer.position();
+    const result = p._run(ctx);
+    if (result) {
+      ctx._collect.push({
+        position,
+        collectFn: () => {
+          tagValues[name] = result.value;
+        },
+      });
+    }
+    return result;
+  });
+}
+
+function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
+  return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
+    const result = p._run(ctx);
+    const position = ctx.lexer.position();
+    ctx._collect.forEach(entry => {
+      entry.collectFn(tagValues);
+    });
+    return result;
+  });
 }
 
 type ParserMapFn<T, N extends TagRecord, U> = (
