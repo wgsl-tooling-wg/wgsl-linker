@@ -1,4 +1,6 @@
 import {
+  CollectContext,
+  ctxLog,
   eof,
   ExtendedResult,
   kind,
@@ -12,6 +14,7 @@ import {
   req,
   seq,
   setTraceName,
+  srcLog,
   text,
   tokens,
   tokenSkipSet,
@@ -29,7 +32,13 @@ import {
   identLocToCallElem,
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
-import { Ident, ScopeKind, withAddedIdent, withChildScope } from "./Scope.ts";
+import {
+  emptyBodyScope,
+  Ident,
+  ScopeKind,
+  withAddedIdent,
+  withChildScope,
+} from "./Scope.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
@@ -90,20 +99,22 @@ const opt_attributes = repeat(attribute);
 const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.map(declIdent).tag("name")).map(r => {
+export const typeNameDecl = req(
+  word.collect(declIdent, "typeNameDecl").tag("name"),
+).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem; // fix?
 });
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.tag("name").map(declIdent),
+  word.tag("name").collect(declIdent, "fnNameDecl"),
   "missing fn name",
 ).map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
 export const type_specifier: Parser<TypeRefElem[]> = seq(
-  word.tag(possibleTypeRef).map(refIdent),
+  word.tag(possibleTypeRef).collect(refIdent, "type_specifier"),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -114,7 +125,7 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
 );
 
 const optionally_typed_ident = seq(
-  word.tag("name").map(declIdent),
+  word.tag("name").collect(declIdent, "optionally_typed_ident"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
@@ -132,9 +143,9 @@ export const struct_member = seq(
 export const struct_decl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
-  req("{").map(startScope),
+  req("{").collect(startScope, "struct_decl.startScope"),
   withSep(",", struct_member, { requireOne: true }).tag("members"),
-  req("}").map(completeScope),
+  req("}").collect(completeScope, "struct_decl.completeScope"),
 ).map(r => {
   const e = makeElem("struct", r, ["members"]);
   const nameElem = r.tags.nameElem[0];
@@ -147,7 +158,7 @@ export const struct_decl = seq(
 export const fn_call = seq(
   word
     .tag("name")
-    .map(refIdent)
+    .collect(refIdent, "fn_call.refIdent")
     .map(r => makeElem("call", r, ["name"]))
     .tag("calls"), // we collect this in fnDecl, to attach to FnElem
   () => opt_template_list,
@@ -155,45 +166,36 @@ export const fn_call = seq(
 );
 
 /// add reference ident to current scope
-function refIdent(r: ExtendedResult<any>) {
-  const weslContext: WeslParseContext = r.ctx.app.context;
-  const originalName = r.src.slice(r.start, r.end);
-  // ctxLog(r.ctx, "refIdent", originalName);
+function refIdent(cc: CollectContext) {
+  const originalName = cc.src.slice(cc.start, cc.end);
+  // srcLog(cc.src, cc.start, "refIdent", originalName);
   const ident: Ident = { kind: "ref", originalName };
-  r.ctx.app.context = addIdent(weslContext, ident);
+  const weslContext: WeslParseContext = cc.app.context;
+  weslContext.scope.idents.push(ident);
   return originalName;
 }
 
-function declIdent(r: ExtendedResult<any>) {
-  const weslContext: WeslParseContext = r.ctx.app.context;
-  const originalName = r.src.slice(r.start, r.end);
+function declIdent(cc: CollectContext) {
+  const weslContext: WeslParseContext = cc.app.context;
+  const originalName = cc.src.slice(cc.start, cc.end);
+  // srcLog(cc.src, cc.start, "declIdent", originalName);
   // ctxLog(r.ctx, "declIdent", originalName);
   const ident: Ident = { kind: "decl", originalName };
-  r.ctx.app.context = addIdent(weslContext, ident);
+  weslContext.scope.idents.push(ident);
   return originalName;
 }
 
-/** return a new context with an identifier added to the scope
- * this allows for backtracking */
-function addIdent(
-  weslContext: WeslParseContext,
-  ident: Ident,
-): WeslParseContext {
-  const { rootScope: origRoot, scope: origScope } = weslContext;
-  const { rootScope, scope } = withAddedIdent(origRoot, origScope, ident);
-  // logScope(`added addIdent '${ident.originalName}'. rootScope`, rootScope);
-  return { ...weslContext, scope, rootScope };
-}
-
-function startScope<T>(r: ExtendedResult<T>): T {
+function startScope<T>(cc: CollectContext) {
   // ctxLog(r.ctx, "startScope");
-  return startScopeKind(r, "body");
+  const { scope } = cc.app.context as WeslParseContext;
+  const newScope = emptyBodyScope(scope);
+  scope.children.push(newScope);
+  cc.app.context.scope = newScope;
 }
 
-function completeScope<T>(r: ExtendedResult<T>): T {
+function completeScope<T>(cc: CollectContext) {
   // ctxLog(r.ctx, "completeScope");
-  const ctx: ParserContext = r.ctx;
-  const weslContext: WeslParseContext = ctx.app.context;
+  const weslContext = cc.app.context as WeslParseContext;
   const completedScope = weslContext.scope;
   const { parent } = completedScope;
   // TODO if scope is empty, drop it?
@@ -204,14 +206,6 @@ function completeScope<T>(r: ExtendedResult<T>): T {
     const { idents, kind } = completedScope;
     console.log("ERR: completeScope, no parent scope", { kind, idents });
   }
-  return r.value;
-}
-
-function startScopeKind<T>(r: ExtendedResult<any>, kind: ScopeKind): T {
-  const ctx: ParserContext = r.ctx;
-  const { rootScope, scope } = ctx.app.context as WeslParseContext;
-  r.ctx.app.context = withChildScope(rootScope, scope, kind);
-  return r.value;
 }
 
 // prettier-ignore
@@ -241,7 +235,7 @@ const opt_template_list = opt(
 );
 
 const template_elaborated_ident = seq(
-  word.map(refIdent).map(identToTypeRefOrLocation).tag("identLoc"),
+  word.collect(refIdent).map(identToTypeRefOrLocation).tag("identLoc"),
   opt_template_list,
 );
 
@@ -301,9 +295,9 @@ const template_arg_expression = makeExpression(true);
 
 const compound_statement = seq(
   opt_attributes,
-  text("{").map(startScope),
+  text("{").collect(startScope, "compound_statement.startScope"),
   repeat(() => statement),
-  req("}").map(completeScope),
+  req("}").collect(completeScope, "compound_statement.completeScope"),
 );
 
 const for_init = or(
@@ -318,13 +312,13 @@ const for_statement = seq(
   opt_attributes,
   "for",
   seq(
-    req("(").map(startScope),
+    req("(").collect(startScope),
     opt(for_init),
     req(";"),
     opt(expression),
     req(";"),
     opt(for_update),
-    req(")").map(completeScope),
+    req(")").collect(completeScope),
   ),
 );
 
@@ -398,7 +392,7 @@ const statement: Parser<any> = or(
 );
 
 const lhs_expression: Parser<any> = or(
-  seq(word.tag("ident").map(refIdent), opt(component_or_swizzle)),
+  seq(word.tag("ident").collect(refIdent), opt(component_or_swizzle)),
   seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
   seq("&", () => lhs_expression),
   seq("*", () => lhs_expression),
@@ -450,7 +444,7 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name").map(declIdent)),
+  req(word.tag("name").collect(declIdent, "global_alias")),
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),
@@ -505,7 +499,7 @@ export const weslRoot = preParse(
     repeat(or(global_decl, directive)),
     req(end),
   ),
-);
+).commit();
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {

@@ -1,7 +1,7 @@
 import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
 import { mainTokens } from "./MatchWgslD.ts";
-import { resetScopeIds, Scope } from "./Scope.ts";
+import { emptyScope, resetScopeIds, Scope } from "./Scope.ts";
 import { weslRoot } from "./WESLGrammar.ts";
 
 /** result of a parse */
@@ -23,12 +23,14 @@ export interface StableState {
 
   // elems succesfully parsed in this module
   elems: AbstractElem[];
+
+  // root scope for this module
+  rootScope: Scope;
 }
 
-/** unstable values used during parsing (these reset on backtracking) */
+/** unstable values used during parse collection */
 export interface WeslParseContext {
-  rootScope: Scope; // provisional root scope, replaced with new version during parsing
-  scope: Scope; // current scope (points at place in rootScope)
+  scope: Scope; // current scope (points somewhere in rootScope)
 }
 
 export function parseWESL(
@@ -43,32 +45,18 @@ export function parseWESL(
   resetScopeIds();
   const lexer = matchingLexer(src, mainTokens);
 
-  const moduleScope: Scope = {
-    kind: "module",
-    parent: null,
-    idents: [],
-    children: [],
-  };
+  const rootScope = emptyScope("module");
 
   // context is reset on parse failure during backtracking
-  const context: WeslParseContext = {
-    scope: moduleScope,
-    rootScope: moduleScope,
-  };
-  const stableState: StableState = { elems: [], params };
+  const context: WeslParseContext = { scope: rootScope };
+  const stableState: StableState = { elems: [], params, rootScope };
   const app: WeslParseState = { context, state: stableState };
 
-  const grammarCollectScope = grammar.map(
-    r => (r.ctx.app.context as WeslParseContext).rootScope,
-  );
-
   const init: ParserInit = { lexer, app, srcMap, maxParseCount };
-  const parseResult = grammarCollectScope.parse(init);
+  const parseResult = grammar.parse(init);
   if (parseResult === null) {
     throw new Error("parseWESL failed");
   }
 
-  // logScope("parseWESL root scope:", parseResult.value);
-
-  return { elems: stableState.elems, scope: parseResult.value };
+  return { elems: stableState.elems, scope: rootScope };
 }

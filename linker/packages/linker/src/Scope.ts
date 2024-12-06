@@ -89,7 +89,7 @@ export function withAddedIdent(
   };
 }
 
-function emptyScope(kind: ScopeKind): Scope {
+export function emptyScope(kind: ScopeKind): Scope {
   return makeScope({ idents: [], parent: null, children: [], kind });
 }
 

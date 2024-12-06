@@ -1,7 +1,7 @@
 import { CombinatorArg, ParserFromArg } from "./CombinatorTypes.js";
 import { Lexer } from "./MatchingLexer.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
-import { srcLog } from "./ParserLogging.js";
+import { ctxLog, srcLog } from "./ParserLogging.js";
 import {
   debugNames,
   parserLog,
@@ -202,8 +202,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
   }
 
   /** */
-  collect<U>(fn: CollectFn<N, U>): Parser<T, N> {
-    return collect(this, fn);
+  collect<U>(fn: CollectFn<N, U>, collectName = ""): Parser<T, N> {
+    return collect(this, fn, collectName);
   }
 
   /** */
@@ -354,7 +354,7 @@ function runParser<T, N extends TagRecord>(
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
-      rmFailedCollect(ctx._collect, origPosition);
+      rmObsoleteCollects(ctx._collect, origPosition);
     } else {
       // parser succeeded
       if (tracing) parserLog(`✓ ${p.debugName}`);
@@ -413,24 +413,40 @@ function getPreParserCheckedCache(
 }
 
 interface CollectFnEntry<N extends TagRecord, V> {
-  position: number;
   collectFn: CollectFn<N, V>;
+  collected: CollectInfo;
 }
 
-interface CollectContext {
+export interface CollectInfo {
+  start: number;
+  end: number;
+}
+
+/** info passed to the collect fn */
+export interface CollectContext extends CollectInfo {
   tags: TagRecord;
+  src: string;
+  app: AppState<any>;
 }
 
-type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
+export type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
 
 function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
   collectFn: CollectFn<N, V>,
+  collectName: string = "", // for debug
 ): Parser<T, N> {
   return parser(`collect`, (ctx: ParserContext): OptParserResult<T, N> => {
-    const position = ctx.lexer.position();
+    if (tracing && ctx._trace) {
+      const deepName = ctx._debugNames.join(" > ");
+      ctxLog(ctx, `collect '${collectName}' ${deepName}`);
+    }
+    const origStart = ctx.lexer.position();
     const value = p._run(ctx);
-    ctx._collect.push({ position, collectFn });
+    if (value !== null) {
+      const collected = refinePosition(ctx.lexer, origStart);
+      ctx._collect.push({ collected, collectFn });
+    }
     return value;
   });
 }
@@ -439,11 +455,13 @@ function tag2<N extends TagRecord, T, V>(
   name: string,
 ): Parser<T, N> {
   return parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
-    const position = ctx.lexer.position();
+    const origStart = ctx.lexer.position();
     const result = p._run(ctx);
     if (result) {
+      const { start, end } = refinePosition(ctx.lexer, origStart);
+      const collected = { start, end };
       ctx._collect.push({
-        position,
+        collected,
         collectFn: ctx => {
           const { tags } = ctx;
           if (tags[name] === undefined) {
@@ -458,26 +476,45 @@ function tag2<N extends TagRecord, T, V>(
   });
 }
 
+/** We've succeeded in a parse, so refine the start position to skip past ws
+ * (we don't consume ws earlier, in case an inner parser wants to use different ws skipping)
+ */
+function refinePosition(lexer: Lexer, origStart: number): CollectInfo {
+  const end = lexer.position();
+  lexer.position(origStart);
+  const start = lexer.skipIgnored();
+  // dlog({slice: lexer.src.slice(start, end)});
+  lexer.position(end);
+  return { start, end };
+}
+
 function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
   return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
-    const collectContext: CollectContext = { tags: {} };
-    ctx._collect.forEach(entry => {
-      entry.collectFn(collectContext);
+    const tags = {};
+    ctx._collect.forEach(({ collectFn, collected }) => {
+      const { app, lexer } = ctx;
+      const { src } = lexer;
+      const collectContext: CollectContext = { tags, ...collected, src, app };
+      collectFn(collectContext);
     });
     ctx._collect = [];
     return result;
   });
 }
 
-function rmFailedCollect(collect: CollectFnEntry<any, any>[], position: number) {
-  // dlog({collectLength: collect.length})
+/** remove any pending collections that that are obsolete after backtracking */
+function rmObsoleteCollects(
+  collect: CollectFnEntry<any, any>[],
+  position: number,
+) {
+  // find the last valid collection
   let i = collect.length - 1;
-  while (i >= 0 && collect[i].position >= position) {
+  while (i >= 0 && collect[i].collected.start >= position) {
     i--;
   }
+  // truncate the list to drop any invalid ones
   collect.length = i + 1;
-  // dlog("setting length", {length:collect.length})
 }
 
 type ParserMapFn<T, N extends TagRecord, U> = (
