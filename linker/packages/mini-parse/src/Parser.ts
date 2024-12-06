@@ -376,9 +376,6 @@ function runParser<T, N extends TagRecord>(
   }
 }
 
-// used while committing tags
-const tagValues: Record<string, any> = {};
-
 function execPreParsers(ctx: ParserContext): void {
   const { _preParse, lexer } = ctx;
 
@@ -419,7 +416,11 @@ interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
 }
 
-type CollectFn<N extends TagRecord, V> = (tags: N) => V;
+interface CollectContext {
+  tags: TagRecord;
+}
+
+type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
 
 function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
@@ -442,8 +443,13 @@ function tag2<N extends TagRecord, T, V>(
     if (result) {
       ctx._collect.push({
         position,
-        collectFn: () => {
-          tagValues[name] = result.value;
+        collectFn: ctx => {
+          const { tags } = ctx;
+          if (tags[name] === undefined) {
+            tags[name] = [];
+          }
+          tags[name].push(result.value);
+          dlog({ tags });
         },
       });
     }
@@ -454,9 +460,9 @@ function tag2<N extends TagRecord, T, V>(
 function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
   return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
-    const position = ctx.lexer.position();
+    const collectContext: CollectContext = { tags: {} };
     ctx._collect.forEach(entry => {
-      entry.collectFn(tagValues);
+      entry.collectFn(collectContext);
     });
     return result;
   });

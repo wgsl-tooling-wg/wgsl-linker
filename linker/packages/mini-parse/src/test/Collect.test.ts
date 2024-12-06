@@ -29,7 +29,7 @@ test("collect fn sees tags", () => {
     text("a").tag2("x"),
     text("b")
       .tag2("y")
-      .collect((tags: Record<string, any>) => {
+      .collect(({ tags }) => {
         results.push(`collected: ${tags.x}, ${tags.y}`);
       }),
     "c",
