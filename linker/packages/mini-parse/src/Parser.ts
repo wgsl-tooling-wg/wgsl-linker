@@ -207,8 +207,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
   }
 
   /** */
-  commit(): Parser<T, N> {
-    return commit(this);
+  commit(debugName?: string): Parser<T, N> {
+    return commit(this, debugName);
   }
 
   /** switch next parser based on results */
@@ -420,6 +420,7 @@ interface CollectFnEntry<N extends TagRecord, V> {
 export interface CollectInfo {
   start: number;
   end: number;
+  debugName?: string;
 }
 
 /** info passed to the collect fn */
@@ -434,17 +435,18 @@ export type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
 function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
   collectFn: CollectFn<N, V>,
-  collectName: string = "", // for debug
+  debugName: string, // for debug
 ): Parser<T, N> {
   return parser(`collect`, (ctx: ParserContext): OptParserResult<T, N> => {
-    if (tracing && ctx._trace) {
-      const deepName = ctx._debugNames.join(" > ");
-      ctxLog(ctx, `collect '${collectName}' ${deepName}`);
-    }
+    // if (tracing && ctx._trace) {
+    //   const deepName = ctx._debugNames.join(" > ");
+    //   ctxLog(ctx, `collect '${collectName}' ${deepName}`);
+    // }
     const origStart = ctx.lexer.position();
     const value = p._run(ctx);
     if (value !== null) {
       const collected = refinePosition(ctx.lexer, origStart);
+      collected.debugName = debugName;
       ctx._collect.push({ collected, collectFn });
     }
     return value;
@@ -488,11 +490,24 @@ function refinePosition(lexer: Lexer, origStart: number): CollectInfo {
   return { start, end };
 }
 
-function commit<N extends TagRecord, T>(p: Parser<T, N>): Parser<T, N> {
+function commit<N extends TagRecord, T>(
+  p: Parser<T, N>,
+  debugName?: string,
+): Parser<T, N> {
   return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
     if (result !== null) {
       const tags = {};
+      // dlog(`commit ${debugName}`, { entries: ctx._collect.length });
+      ctx._collect.forEach(({ collectFn, collected }) => {
+        const { app, lexer } = ctx;
+        const { src } = lexer;
+        const collectContext: CollectContext = { tags, ...collected, src, app };
+        // const { start, end, debugName } = collected;
+        // dlog({ collected: src.slice(start, end), debugName });
+        collectFn(collectContext);
+      });
+      ctx._collect.length = 0;
     }
     return result;
   });
