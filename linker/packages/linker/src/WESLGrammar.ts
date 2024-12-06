@@ -406,7 +406,7 @@ export const global_alias = seq(
 
 const const_assert = seq("const_assert", req(expression), ";");
 
-const import_statement = gleamImport;
+const import_statement = gleamImport.commit("import_statement");
 
 const global_directive = seq(
   or(
@@ -415,10 +415,12 @@ const global_directive = seq(
     seq("requires", withSep(",", word, { requireOne: true })),
   ),
   ";",
-).map(r => {
-  const e = makeElem("globalDirective", r);
-  r.app.state.elems.push(e);
-});
+)
+  .map(r => {
+    const e = makeElem("globalDirective", r);
+    r.app.state.elems.push(e);
+  })
+  .commit("global_directive");
 
 export const global_decl = or(
   fn_decl,
@@ -439,7 +441,7 @@ export const global_decl = or(
     r.app.state.elems.push(e);
   }),
   struct_decl,
-);
+).commit("global_decl");
 
 const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
 export const weslRoot = preParse(
@@ -450,7 +452,7 @@ export const weslRoot = preParse(
     repeat(or(global_decl, directive)),
     req(end),
   ),
-).commit();
+).commit("weslRoot");
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
