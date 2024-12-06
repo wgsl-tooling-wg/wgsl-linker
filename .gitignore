@@ -6,3 +6,6 @@
 
 # typescript build info cache files 
 *.tsbuildinfo
+
+# ignore node_modules when switching to pre-monorepo branches
+node_modules
