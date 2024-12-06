@@ -21,7 +21,7 @@ export function testAppParse<T, N extends TagRecord = NoTags>(
     elems: [],
     scope,
   };
-  const context: WeslParseContext = { rootScope: scope, scope };
+  const context: WeslParseContext = { scope };
   return testParse(parser, src, mainTokens, collectedAST, context);
 }
 
