@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { Lexer } from "./MatchingLexer.js";
 import {
   AppState,
@@ -11,6 +12,7 @@ import {
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
   collected: CollectInfo;
+  tagNames?: Set<string>;
 }
 
 export interface CollectInfo {
@@ -26,7 +28,7 @@ export interface CollectContext extends CollectInfo {
   app: AppState<any>;
 }
 
-/** a user supplied for collecting info from the */ 
+/** a user supplied for collecting info from the */
 export type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
 
 /** Queue a collection function that runs later, when a commit() is parsed.
@@ -37,41 +39,65 @@ export function collect<N extends TagRecord, T, V>(
   collectFn: CollectFn<N, V>,
   debugName: string, // for debug
 ): Parser<T, N> {
-  return parser(`collect`, (ctx: ParserContext): OptParserResult<T, N> => {
-    // if (tracing && ctx._trace) {
-    //   const deepName = ctx._debugNames.join(" > ");
-    //   ctxLog(ctx, `collect '${collectName}' ${deepName}`);
-    // }
-    const origStart = ctx.lexer.position();
-    const value = p._run(ctx);
-    if (value !== null) {
-      const collected = refinePosition(ctx.lexer, origStart);
-      collected.debugName = debugName;
-      ctx._collect.push({ collected, collectFn });
-    }
-    return value;
-  });
+  const collectParser = parser(
+    `collect`,
+    (ctx: ParserContext): OptParserResult<T, N> => {
+      // if (tracing && ctx._trace) {
+      //   const deepName = ctx._debugNames.join(" > ");
+      //   ctxLog(ctx, `collect '${collectName}' ${deepName}`);
+      // }
+      const origStart = ctx.lexer.position();
+      const value = p._run(ctx);
+      if (value !== null) {
+        // dlog("collect", debugName );
+        const collected = refinePosition(ctx.lexer, origStart);
+        collected.debugName = debugName;
+        let fn = collectFn;
+        const { _ctag } = collectParser;
+        if (_ctag) {
+          // dlog("collect tag", { ctag: _ctag});
+          // dlog({collectParser});
+          fn = (cc: CollectContext): any => {
+            const result = collectFn(cc);
+            addTagValue(cc.tags, _ctag, result);
+          };
+        }
+        const entry = { collected, collectFn: fn };
+        (collectParser as any)._entry = entry;
+        ctx._collect.push(entry);
+      }
+      return value;
+    },
+  );
+  collectParser._collection = true;
+  (collectParser as any).__x = "X";
+  return collectParser;
 }
 
+/** tag parse results or collect() results with a name that can be
+ * referenced in later collection. */
 export function tag2<N extends TagRecord, T, V>(
   p: Parser<T, N>,
   name: string,
 ): Parser<T, N> {
+  if (p._collection) {
+    // if we're tagging a collect() parser, signal collect() to tag its results
+    p._ctag = name;
+    // dlog("tagging collect", { name, p });
+  }
   return parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
     const origStart = ctx.lexer.position();
     const result = p._run(ctx);
-    if (result) {
+
+    // tag the parser resuts (unless it's a collect() parser)
+    if (result && !p._collection) {
       const { start, end } = refinePosition(ctx.lexer, origStart);
       const collected = { start, end };
       ctx._collect.push({
         collected,
         collectFn: ctx => {
           const { tags } = ctx;
-          if (tags[name] === undefined) {
-            tags[name] = [];
-          }
-          tags[name].push(result.value);
-          // dlog({ tags });
+          addTagValue(tags, name, result.value);
         },
       });
     }
@@ -79,7 +105,16 @@ export function tag2<N extends TagRecord, T, V>(
   });
 }
 
-/** When the provided parser succeeds, 
+/** add a tagged value to a TagRecord */
+function addTagValue(tags: TagRecord, name: string, value: any) {
+  if (tags[name] === undefined) {
+    tags[name] = [];
+  }
+  tags[name].push(value);
+  // dlog({ tags });
+}
+
+/** When the provided parser succeeds,
  * run any pending collect() fns, and clear the pending list */
 export function commit<N extends TagRecord, T>(
   p: Parser<T, N>,
@@ -88,15 +123,29 @@ export function commit<N extends TagRecord, T>(
   return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
     if (result !== null) {
-      const tags = {};
+      const tags: Record<string, any> = {};
       // dlog(`commit ${debugName}`, { entries: ctx._collect.length });
-      ctx._collect.forEach(({ collectFn, collected }) => {
+      ctx._collect.forEach(({ collectFn, tagNames, collected }) => {
         const { app, lexer } = ctx;
         const { src } = lexer;
         const collectContext: CollectContext = { tags, ...collected, src, app };
-        // const { start, end, debugName } = collected;
-        // dlog({ collected: src.slice(start, end), debugName });
-        collectFn(collectContext);
+
+        const { start, end, debugName } = collected;
+        const collectResult = collectFn(collectContext);
+        // dlog({
+        //   collected: src.slice(start, end),
+        //   debugName,
+        //   tagNames,
+        //   collectResult,
+        // });
+
+        // if tags are defined on this collect(), update tags with the result
+        if (tagNames && collectResult !== undefined) {
+          tagNames.forEach(name => {
+            // dlog("commit tagging", { name, collectResult });
+            addTagValue(tags, name, collectResult);
+          });
+        }
       });
       ctx._collect.length = 0;
     }

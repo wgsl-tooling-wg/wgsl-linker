@@ -126,7 +126,14 @@ export interface ParserArgs {
    * (to avoid intro log statement while tracing) */
   terminal?: boolean;
 
-  preDisabled?: true; // TODO just detect preParse combinator, rather than a flag here..
+  /** true if preparsing should be disabled in this parser (and its descendants) */
+  preDisabled?: true; // LATER just detect preParse combinator?, rather than a flag here..
+  
+  /** true if this is a collect parser (which .tag handles specially, to tag collect time results) */
+  _collection?: true;
+  
+  /** set if the collection results are tagged */
+  _ctag?: string;
 }
 
 interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
@@ -141,6 +148,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
   traceOptions: TraceOptions | undefined;
   terminal: boolean | undefined;
   preDisabled: true | undefined;
+  _collection: true | undefined;
+  _ctag:string | undefined;
   fn: ParseFn<T, N>;
 
   constructor(args: ConstructArgs<T, N>) {
@@ -150,6 +159,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
     this.terminal = args.terminal;
     this.traceSrc = args.traceSrc;
     this.preDisabled = args.preDisabled;
+    this._collection = args._collection;
+    this._ctag = args._ctag;
     this.fn = args.fn;
   }
 
@@ -162,6 +173,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
       trace: this.traceOptions,
       terminal: this.terminal,
       preDisabled: this.preDisabled,
+      _collection: this._collection,
       fn: this.fn,
       ...p,
     });

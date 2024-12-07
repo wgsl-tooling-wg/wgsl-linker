@@ -1,12 +1,6 @@
-import {
-  logCatch,
-  testParse,
-  testTokens,
-  withTracingDisabled,
-} from "mini-parse/test-util";
+import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { or, seq, text } from "../ParserCombinator.js";
-import { pretty } from "berry-pretty";
 
 test("collect runs a fn on commit", () => {
   const src = "a b c";
@@ -62,4 +56,24 @@ test("backtracking", () => {
 
   testParse(p, src);
   expect(results).toEqual(["collected2: undefined, b"]);
+});
+
+test("collect with tag", () => {
+  const src = "a b c";
+  const results: string[] = [];
+  const p = seq(
+    "a",
+    text("b")
+      .collect(() => "x", "1")
+      .tag2("B"),
+    "c",
+  )
+    .collect(cc => {
+      // dlog("test collectionFn", { tags: cc.tags });
+      results.push(`collected: ${cc.tags.B}`);
+    }, "2")
+    .commit();
+  testParse(p, src);
+
+  expect(results).toEqual(["collected: x"]);
 });
