@@ -57,3 +57,18 @@ export function testParseWgsl(src: string): AbstractElem[] {
 export function expectWgsl(ctx: TaskContext): void {
   testParseWgsl(ctx.task.name);
 }
+
+/** Convenience wrapper to link wgsl for tests.
+ * The first module is named "package::root",
+ * subsequent modules are named "package::file1", "package::file2", etc.
+ */
+export function link2Test(...rawWgsl: string[]): string {
+  const [root, ...rest] = rawWgsl;
+  const restWgsl = Object.fromEntries(
+    rest.map((src, i) => [`package::file${i + 1}`, src]),
+  );
+  const wesl = { "package::root": root, ...restWgsl };
+
+  const srcMap = linkWesl(wesl, "root");
+  return srcMap.dest;
+}
