@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { SrcMap, SrcMapEntry } from "./SrcMap.js";
 
 // TODO untested
@@ -12,13 +13,19 @@ export class SrcMapBuilder {
 
   /** append a string fragment to the destination string */
   // TODO allow for src file name not just string (e.g. SrcModule)
-  add(src: string, srcStart: number, srcEnd: number): void {
+  add(fragment: string, src: string, srcStart: number, srcEnd: number): void {
     const destStart = this.#destLength;
-    this.#destLength += srcEnd - srcStart;
+    this.#destLength += fragment.length;
     const destEnd = this.#destLength;
 
-    this.#fragments.push(src.slice(srcStart, srcEnd));
+    this.#fragments.push(fragment);
     this.#entries.push({ src, srcStart, srcEnd, destStart, destEnd });
+  }
+
+  /** copy a string fragment from the src to the destination string */
+  addCopy(src: string, srcStart: number, srcEnd: number): void {
+    const fragment = src.slice(srcStart, srcEnd);
+    this.add(fragment, src, srcStart, srcEnd);
   }
 
   /** return a SrcMap */
