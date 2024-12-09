@@ -1,7 +1,6 @@
 /** Structures for the abstract syntax tree constructed by the parser. */
 
 import { ImportTree } from "./ImportTree.js";
-import { DeclIdent, Ident, RefIdent, SrcModule } from "./Scope.js";
 import { FoundRef } from "./TraverseRefs.js";
 
 export type AbstractElem =
@@ -17,9 +16,6 @@ export type AbstractElem =
   | CallElem
   | StructElem
   | StructMemberElem
-  | ChunkElem
-  | IdentElem
-  | TextElem
   | VarElem
   | TypeRefElem;
 
@@ -56,7 +52,6 @@ export interface FnElem extends AbstractElemBase {
   nameElem: FnNameElem; // legacy, to be removed
   calls: CallElem[]; // legacy, to be removed
   typeRefs: TypeRefElem[]; // legacy, to be removed
-  elems?: ChildElemType[];
 }
 
 // legacy, to be removed
@@ -122,35 +117,4 @@ export interface AliasElem extends AbstractElemBase {
 /** global directive (diagnostic, enable, requires) or const_assert */
 export interface GlobalDirectiveElem extends AbstractElemBase {
   kind: "globalDirective";
-}
-
-/** an element that may be inside another element */
-export type ChildElemType = ChunkElem | IdentElem | TextElem;
-
-// an undifferentiated chunk of WESL source, contains other chunks and idents
-export interface ChunkElem extends AbstractElemBase {
-  kind: "chunk";
-  elems: ChildElemType[];
-  conditions?: any; // TBD
-}
-
-// an identifier in WESL source
-export interface IdentElem extends AbstractElemBase {
-  kind: "ident";
-  ident: Ident;
-}
-
-/** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
- e.g. a keyword  like 'var' or '@diagnostic(off,derivative_uniformity)'
-*/
-export interface TextElem extends AbstractElemBase {
-  kind: "text";
-  src: SrcModule; // TODO move to abstract elem base?
-}
-
-/** a parameter in a function call */
-export interface ParamElem extends AbstractElemBase{
-  kind: "param";
-  name: DeclIdent;
-  type: RefIdent;
 }
