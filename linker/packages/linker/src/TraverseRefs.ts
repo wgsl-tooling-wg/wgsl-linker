@@ -262,7 +262,7 @@ function localRef(name: string, mod: TextModule): TextRef | undefined {
   }
 }
 
-const stdFns = `bitcast all any select arrayLength 
+export const stdFns = `bitcast all any select arrayLength 
   abs acos acosh asin asinh atan atanh atan2 ceil clamp cos cosh 
   countLeadingZeros countOneBits countTrailingZeros cross 
   degrees determinant distance dot dot4UI8Packed dot4I8Packed 
@@ -287,7 +287,7 @@ const stdFns = `bitcast all any select arrayLength
   storageBarrier textureBarrier workgroupBarrier workgroupUniformLoad
   `.split(/\s+/);
 
-const stdTypes = `array atomic bool f16 f32 i32 
+export const stdTypes = `array atomic bool f16 f32 i32 
   mat2x2 mat2x3 mat2x4 mat3x2 mat3x3 mat3x4 mat4x2 mat4x3 mat4x4
   mat2x2f mat2x3f mat2x4f mat3x2f mat3x3f mat3x4f
   mat4x2f mat4x3f mat4x4f
@@ -320,7 +320,7 @@ const stdTypes = `array atomic bool f16 f32 i32
 */
 
 /** return true if the name is for a built in type (not a user struct) */
-function stdType(name: string): boolean {
+export function stdType(name: string): boolean {
   return stdTypes.includes(name);
 }
 
@@ -329,6 +329,6 @@ export function refName(ref: FoundRef): string {
 }
 
 /** return true if the name is for a built in fn (not a user function) */
-function stdFn(name: string): boolean {
+export function stdFn(name: string): boolean {
   return stdFns.includes(name) || stdType(name);
 }
