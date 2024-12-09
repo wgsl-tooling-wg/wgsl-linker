@@ -28,6 +28,8 @@ import {
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
 import {
+  collectModule,
+  collectVar,
   completeScope,
   declIdent,
   refIdent,
@@ -108,7 +110,7 @@ export const fnNameDecl = req(
 });
 
 export const type_specifier: Parser<TypeRefElem[]> = seq(
-  word.tag(possibleTypeRef).collect(refIdent, "type_specifier"),
+  word.tag(possibleTypeRef).collect(refIdent, "type_specifier").tag2("typeRef"),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -119,7 +121,10 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
 );
 
 const optionally_typed_ident = seq(
-  word.tag("name").collect(declIdent, "optionally_typed_ident"),
+  word
+    .tag("name")
+    .collect(declIdent, "optionally_typed_ident")
+    .tag2("declIdent"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
@@ -175,6 +180,7 @@ const variable_decl = seq(
   req_optionally_typed_ident,
   opt(seq("=", () => expression)),
 );
+// .collect(collectVar(), "variable_decl");
 
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
@@ -415,12 +421,11 @@ const global_directive = seq(
     seq("requires", withSep(",", word, { requireOne: true })),
   ),
   ";",
-)
-  .map(r => {
-    const e = makeElem("globalDirective", r);
-    r.app.state.elems.push(e);
-  })
-  .commit("global_directive");
+).map(r => {
+  const e = makeElem("globalDirective", r);
+  r.app.state.elems.push(e);
+});
+// .commit("global_directive");
 
 export const global_decl = or(
   fn_decl,
@@ -441,7 +446,8 @@ export const global_decl = or(
     r.app.state.elems.push(e);
   }),
   struct_decl,
-).commit("global_decl");
+);
+// .commit("global_decl");
 
 const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
 export const weslRoot = preParse(
@@ -451,7 +457,7 @@ export const weslRoot = preParse(
     repeat(or(global_directive, directive)),
     repeat(or(global_decl, directive)),
     req(end),
-  ),
+  ).collect(collectModule(), "collectModule"),
 ).commit("weslRoot");
 
 if (tracing) {

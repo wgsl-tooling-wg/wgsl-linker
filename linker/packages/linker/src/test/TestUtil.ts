@@ -6,6 +6,7 @@ import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { parseWESL, WeslAST, WeslParseContext } from "../ParseWESL.js";
 import { Scope } from "../Scope.js";
+import { linkWesl } from "../Linker2.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
@@ -20,8 +21,9 @@ export function testAppParse<T, N extends TagRecord = NoTags>(
   const collectedAST: WeslAST = {
     elems: [],
     scope,
+    elems2: [],
   };
-  const context: WeslParseContext = { scope };
+  const context: WeslParseContext = { scope, openElems: [] };
   return testParse(parser, src, mainTokens, collectedAST, context);
 }
 

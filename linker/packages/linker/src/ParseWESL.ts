@@ -3,10 +3,13 @@ import { AbstractElem } from "./AbstractElems.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope } from "./Scope.ts";
 import { weslRoot } from "./WESLGrammar.ts";
+import { AbstractElem2 } from "./AbstractElems2.ts";
+import { OpenElem } from "./WESLCollect.ts";
 
 /** result of a parse */
 export interface WeslAST {
   elems: AbstractElem[];
+  elems2: AbstractElem2[];
   scope: Scope;
 }
 
@@ -19,10 +22,13 @@ export interface WeslParseState {
 /** stable values used or accumulated during parsing */
 export interface StableState {
   // parameters for evaluating conditions while parsing this module
-  params: Record<string, any>;
+  conditions: Record<string, any>;
+
+  // legacy elems succesfully parsed in this module
+  elems: AbstractElem[];
 
   // elems succesfully parsed in this module
-  elems: AbstractElem[];
+  elems2: AbstractElem2[];
 
   // root scope for this module
   rootScope: Scope;
@@ -31,12 +37,13 @@ export interface StableState {
 /** unstable values used during parse collection */
 export interface WeslParseContext {
   scope: Scope; // current scope (points somewhere in rootScope)
+  openElems: OpenElem[]; // elems that are collecting their contents
 }
 
 export function parseWESL(
   src: string,
   srcMap?: SrcMap,
-  params: Record<string, any> = {},
+  conditions: Record<string, any> = {},
   maxParseCount: number | undefined = undefined,
   grammar = weslRoot,
 ): WeslAST {
@@ -48,8 +55,10 @@ export function parseWESL(
   const rootScope = emptyScope("module");
 
   // context is reset on parse failure during backtracking
-  const context: WeslParseContext = { scope: rootScope };
-  const stableState: StableState = { elems: [], params, rootScope };
+  const context: WeslParseContext = { scope: rootScope, openElems: [] };
+  const elems: AbstractElem[] = [];
+  const elems2: AbstractElem2[] = [];
+  const stableState: StableState = { elems, elems2, conditions, rootScope };
   const app: WeslParseState = { context, state: stableState };
 
   const init: ParserInit = { lexer, app, srcMap, maxParseCount };
@@ -58,5 +67,5 @@ export function parseWESL(
     throw new Error("parseWESL failed");
   }
 
-  return { elems: stableState.elems, scope: rootScope };
+  return { elems, elems2, scope: rootScope };
 }

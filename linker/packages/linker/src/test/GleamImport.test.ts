@@ -4,8 +4,17 @@ import { gleamImport, gleamImportTokens } from "../GleamImport.js";
 import { WeslAST } from "../ParseWESL.js";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
-  const state: WeslAST = { elems: [], scope: { kind: "module", parent: null, idents: [], children: [] } };
-  const result = testParse(gleamImport, ctx.task.name, gleamImportTokens, state);
+  const state: WeslAST = {
+    elems: [],
+    elems2: [],
+    scope: { kind: "module", parent: null, idents: [], children: [] },
+  };
+  const result = testParse(
+    gleamImport,
+    ctx.task.name,
+    gleamImportTokens,
+    state,
+  );
   expect(result.parsed).not.toBeNull();
   return result;
 }
