@@ -4,6 +4,7 @@ import {
   collect,
   CollectFn,
   CollectFnEntry,
+  CollectPair,
   commit,
   rmObsoleteCollects,
   tag2,
@@ -128,10 +129,10 @@ export interface ParserArgs {
 
   /** true if preparsing should be disabled in this parser (and its descendants) */
   preDisabled?: true; // LATER just detect preParse combinator?, rather than a flag here..
-  
+
   /** true if this is a collect parser (which .tag handles specially, to tag collect time results) */
   _collection?: true;
-  
+
   /** set if the collection results are tagged */
   _ctag?: string;
 }
@@ -149,7 +150,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
   terminal: boolean | undefined;
   preDisabled: true | undefined;
   _collection: true | undefined;
-  _ctag:string | undefined;
+  _ctag: string | undefined;
   fn: ParseFn<T, N>;
 
   constructor(args: ConstructArgs<T, N>) {
@@ -225,7 +226,10 @@ export class Parser<T, N extends TagRecord = NoTags> {
    * when a commit() is parsed.
    * Collection functions are dropped with parser backtracking, so
    * only succsessful parses are collected. */
-  collect<U>(fn: CollectFn<N, U>, collectName = ""): Parser<T, N> {
+  collect<U>(
+    fn: CollectFn<N, U> | CollectPair<N, U>,
+    collectName = "",
+  ): Parser<T, N> {
     return collect(this, fn, collectName);
   }
 
@@ -377,7 +381,7 @@ function runParser<T, N extends TagRecord>(
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
-      rmObsoleteCollects(ctx._collect, origPosition);
+      // rmObsoleteCollects(ctx._collect, origPosition, p.debugName);
     } else {
       // parser succeeded
       if (tracing) parserLog(`✓ ${p.debugName}`);
