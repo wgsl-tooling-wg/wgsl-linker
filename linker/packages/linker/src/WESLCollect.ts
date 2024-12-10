@@ -22,11 +22,16 @@ export function refIdent(cc: CollectContext) {
   const weslContext: WeslParseContext = cc.app.context;
   const { ident, identElem } = makeIdentElem(cc, "ref");
   weslContext.scope.idents.push(ident);
+  addToOpenElems(cc, identElem);
+  return identElem;
+}
+
+function addToOpenElems(cc: CollectContext, elem: AbstractElem2):void {
+  const weslContext: WeslParseContext = cc.app.context;
   const { openElems } = weslContext;
   if (openElems && openElems.length) {
-    openElems[openElems.length - 1].contents.push(identElem);
+    openElems[openElems.length - 1].contents.push(elem);
   }
-  return identElem;
 }
 
 /** add declaration Ident to current scope */
@@ -34,12 +39,9 @@ export function declIdent(cc: CollectContext) {
   const weslContext: WeslParseContext = cc.app.context;
   const { ident, identElem } = makeIdentElem(cc, "decl");
   weslContext.scope.idents.push(ident);
+  
+  addToOpenElems(cc, identElem);  
 
-  const { openElems } = weslContext;
-  if (openElems && openElems.length) {
-    openElems[openElems.length - 1].contents.push(identElem);
-    // dlog({ openElems });
-  }
   return identElem;
 }
 
