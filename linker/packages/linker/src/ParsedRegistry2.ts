@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { parseWESL, WeslAST } from "./ParseWESL.ts";
 
 export interface ParsedRegistry2 {

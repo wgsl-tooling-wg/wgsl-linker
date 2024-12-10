@@ -2,11 +2,11 @@ import { NoTags, Parser, TagRecord } from "mini-parse";
 import { expectNoLog, testParse, TestParseResult } from "mini-parse/test-util";
 import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
+import { linkWesl } from "../Linker2.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { parseWESL, WeslAST, WeslParseContext } from "../ParseWESL.js";
 import { Scope } from "../Scope.js";
-import { linkWesl } from "../Linker2.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,

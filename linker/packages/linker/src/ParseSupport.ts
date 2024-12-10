@@ -15,7 +15,6 @@ import {
   setTraceName,
   tokens,
   tracing,
-  withSep,
 } from "mini-parse";
 import type { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
 import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";

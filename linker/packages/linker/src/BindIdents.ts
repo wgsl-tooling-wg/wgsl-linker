@@ -1,9 +1,6 @@
-import {
-  ParsedRegistry2
-} from "./ParsedRegistry2.ts";
+import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
 import { DeclIdent, RefIdent, Scope } from "./Scope.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
-
 
 /**
  * Bind active reference idents to declaration Idents by mutating the refersTo: field

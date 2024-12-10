@@ -1,6 +1,5 @@
 import { ResolveMap } from "./ImportResolutionMap.js";
 import { ModuleExport } from "./ModuleRegistry.js";
-import { StringPairs } from "./TraverseRefs.js";
 import { overlapTail } from "./Util.js";
 
 export interface ResolvedImport {

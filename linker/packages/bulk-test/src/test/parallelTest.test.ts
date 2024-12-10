@@ -1,7 +1,7 @@
+import { expectNoLog } from "mini-parse/test-util";
 import fs from "node:fs/promises";
 import { test } from "vitest";
 import { ModuleRegistry } from "wgsl-linker";
-import { expectNoLog } from "mini-parse/test-util";
 import { findBulkTestPaths } from "../findBulkTests.ts";
 
 export interface NamedPath {

@@ -24,7 +24,7 @@ interface IdentBase {
 export interface RefIdent extends IdentBase {
   kind: "ref";
   refersTo?: Ident; // import or decl ident in scope to which this ident refers. undefined before binding
-  std?: true;       // true if this is a standard wgsl identifier (like sin, or u32)
+  std?: true; // true if this is a standard wgsl identifier (like sin, or u32)
 }
 
 export interface DeclIdent extends IdentBase {

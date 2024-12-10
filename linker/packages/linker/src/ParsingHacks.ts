@@ -13,7 +13,9 @@ interface IdentLocation {
  * Otherwise, make and IdentLocation and return that.
  * TODO-lee this keeps some tests alive, but drop this hack soon, when we get rid of typeRefs.
  */
-export function identToTypeRefOrLocation(r: ExtendedResult<any>): IdentLocation[] {
+export function identToTypeRefOrLocation(
+  r: ExtendedResult<any>,
+): IdentLocation[] {
   const firstChar = r.value[0];
   if (firstChar === firstChar.toUpperCase()) {
     // ctxLog(r.ctx, `making typeRef ${r.value}`);

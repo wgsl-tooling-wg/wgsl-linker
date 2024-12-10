@@ -5,12 +5,12 @@ export class LineWrapper {
   #spc: string;
   #oneLine = true;
   #isHanging = false;
-  #hangingSpc:string;
+  #hangingSpc: string;
 
   constructor(
     readonly indent = 0,
     readonly maxWidth = 60,
-    readonly hangingIndent = 2
+    readonly hangingIndent = 2,
   ) {
     this.#spc = " ".repeat(indent);
     this.#hangingSpc = " ".repeat(hangingIndent);
@@ -23,7 +23,7 @@ export class LineWrapper {
     this.#oneLine = false;
     this.#isHanging = false;
   }
- 
+
   /** add a string, wrapping to the next line if necessary */
   add(s: string) {
     if (this.#column + s.length > this.maxWidth) {
@@ -60,5 +60,4 @@ export class LineWrapper {
     this.nl();
     this.#isHanging = true;
   }
-
 }

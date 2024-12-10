@@ -1,4 +1,4 @@
-import { DeclIdent, Ident, RefIdent, SrcModule } from "./Scope.ts";
+import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 export type AbstractElem2 =
   | ChunkElem

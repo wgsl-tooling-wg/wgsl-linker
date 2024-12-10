@@ -1,12 +1,12 @@
+import { expectNoLog } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import lib from "wgsl-rand";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { expectNoLog } from "mini-parse/test-util";
 
 // TODO-lee this breaks because the current parser hacks
 // to produce calls or typeRefs are overzealous and confuse traverseRefs.
 // Current plan is to fix the linker to not expect calls and typeRefs.
-// 
+//
 test.skip("import rand() from a package", () => {
   const src = `
     import wgsl-rand/pcg_2u_3f; 

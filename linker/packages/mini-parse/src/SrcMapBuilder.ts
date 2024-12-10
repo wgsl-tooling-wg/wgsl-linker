@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { SrcMap, SrcMapEntry } from "./SrcMap.js";
 
 // TODO untested

@@ -1,10 +1,10 @@
 import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
+import { AbstractElem2 } from "./AbstractElems2.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope } from "./Scope.ts";
-import { weslRoot } from "./WESLGrammar.ts";
-import { AbstractElem2 } from "./AbstractElems2.ts";
 import { OpenElem } from "./WESLCollect.ts";
+import { weslRoot } from "./WESLGrammar.ts";
 
 /** result of a parse */
 export interface WeslAST {

@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { CombinatorArg, ParserFromArg } from "./CombinatorTypes.js";
 import { Lexer } from "./MatchingLexer.js";
 import {

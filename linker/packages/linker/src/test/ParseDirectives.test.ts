@@ -16,7 +16,7 @@ test("parse #export", () => {
 });
 
 test("parse import foo/bar", () => {
-const parsed = parseWESL("import foo/bar").elems;
+  const parsed = parseWESL("import foo/bar").elems;
   expect(parsed).toMatchSnapshot();
 });
 

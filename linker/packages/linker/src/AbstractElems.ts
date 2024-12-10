@@ -76,7 +76,7 @@ export interface StructElem extends AbstractElemBase {
 
 export interface StructMemberElem extends AbstractElemBase {
   kind: "member";
-  name: string; 
+  name: string;
   typeRefs: TypeRefElem[]; // change to RefIdent
 }
 

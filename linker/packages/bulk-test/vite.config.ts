@@ -7,9 +7,9 @@ const config: UserConfig = {
   test: {
     maxWorkers: 20,
     sequence: {
-      concurrent: true
-    }
-  }
+      concurrent: true,
+    },
+  },
 };
 
 export default config;

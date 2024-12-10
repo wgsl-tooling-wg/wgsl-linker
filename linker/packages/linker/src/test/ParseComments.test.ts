@@ -1,9 +1,8 @@
-import { preParse } from "mini-parse";
 import { expectNoLogErr } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import { lineComment } from "../ParseDirective.js";
-import { blockComment, comment } from "../ParseSupport.js";
+import { blockComment } from "../ParseSupport.js";
 import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
 

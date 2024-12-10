@@ -74,7 +74,6 @@ export function expectNoLog<T>(fn: () => T): T {
   return result;
 }
 
-
 /** run a test with tracing facility disabled
  * (e.g. if the tracing facility might interfere with the test) */
 export function withTracingDisabled(fn: () => void): void {

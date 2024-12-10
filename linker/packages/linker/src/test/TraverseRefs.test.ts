@@ -144,8 +144,8 @@ test.skip("traverse ref from struct constructor", () => {
     }
   `;
 
-  const refs = traverseTest(src, module1); 
-  const elemNames = refs.map(r => r.elem.name)
+  const refs = traverseTest(src, module1);
+  const elemNames = refs.map(r => r.elem.name);
   expect(elemNames).toEqual(["main", "AStruct"]);
 });
 

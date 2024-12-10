@@ -84,7 +84,8 @@ function logInternalSrc(
 ): void {
   log(...msgs);
   const { line, lineNum, linePos, linePos2 } = srcLine(src, pos);
-  if (tracing && tracePos) { // removed on production build
+  if (tracing && tracePos) {
+    // removed on production build
     const posStr = tracePos ? `  Pos ${pos}` : "";
     log(line, `  Ln ${lineNum}${posStr}`);
   } else {

@@ -313,7 +313,12 @@ function linkTest(name: string, expectation: LinkExpectation): void {
     const expectTrimmed = trimSrc(linked);
     const resultTrimmed = trimSrc(result);
     if (resultTrimmed !== expectTrimmed) {
-      console.log("result:\n", resultTrimmed, "\n\n...failed. Expected:\n", expectTrimmed);
+      console.log(
+        "result:\n",
+        resultTrimmed,
+        "\n\n...failed. Expected:\n",
+        expectTrimmed,
+      );
       const expectLines = expectTrimmed.split("\n");
       const resultLines = result.split("\n");
       expectLines.forEach((line, i) => {

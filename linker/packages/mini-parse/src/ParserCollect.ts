@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { Lexer } from "./MatchingLexer.js";
 import {
   AppState,
@@ -8,8 +7,6 @@ import {
   ParserContext,
   TagRecord,
 } from "./Parser.js";
-import { tracing } from "./ParserTracing.js";
-import { ctxLog } from "./ParserLogging.js";
 
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;

@@ -7,7 +7,7 @@ import {
   relativeToAbsolute,
   TextModuleExport,
 } from "./ModuleRegistry.js";
-import { parseModule, TextExport, TextModule } from "./ParseModule.js";
+import { parseModule, TextModule } from "./ParseModule.js";
 import { dirname, normalize, noSuffix } from "./PathUtil.js";
 
 /** parse wgsl files and provided indexed access to modules and exports */
