@@ -1,13 +1,4 @@
-import {
-  collect,
-  CollectContext,
-  CollectFn,
-  CollectPair,
-  srcLog,
-  TagRecord,
-} from "mini-parse";
-import { emptyBodyScope, Ident } from "./Scope.ts";
-import { StableState, WeslParseContext } from "./ParseWESL.ts";
+import { CollectContext, CollectPair, TagRecord } from "mini-parse";
 import {
   AbstractElem2,
   IdentElem,
@@ -15,7 +6,8 @@ import {
   TextElem,
   VarElem,
 } from "./AbstractElems2.ts";
-import { dlog } from "berry-pretty";
+import { StableState, WeslParseContext } from "./ParseWESL.ts";
+import { emptyBodyScope, Ident } from "./Scope.ts";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -26,7 +18,7 @@ export function refIdent(cc: CollectContext) {
   return identElem;
 }
 
-function addToOpenElems(cc: CollectContext, elem: AbstractElem2):void {
+function addToOpenElems(cc: CollectContext, elem: AbstractElem2): void {
   const weslContext: WeslParseContext = cc.app.context;
   const { openElems } = weslContext;
   if (openElems && openElems.length) {
@@ -39,8 +31,8 @@ export function declIdent(cc: CollectContext) {
   const weslContext: WeslParseContext = cc.app.context;
   const { ident, identElem } = makeIdentElem(cc, "decl");
   weslContext.scope.idents.push(ident);
-  
-  addToOpenElems(cc, identElem);  
+
+  addToOpenElems(cc, identElem);
 
   return identElem;
 }
@@ -133,7 +125,7 @@ export function collectElem<N extends TagRecord, V extends AbstractElem2>(
   const partialElem = { kind, contents: [] };
   return {
     before: (cc: CollectContext) => {
-      // dlog({ kind }); 
+      // dlog({ kind });
       const weslContext: WeslParseContext = cc.app.context;
       weslContext.openElems.push(partialElem);
     },
