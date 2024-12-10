@@ -1,14 +1,7 @@
-import { SrcMap, SrcMapBuilder } from "mini-parse";
-import {
-  AbstractElem2,
-  ChunkElem,
-  IdentElem,
-  ModuleElem,
-  TextElem,
-  VarElem,
-} from "./AbstractElems2.ts";
-import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 import { dlog } from "berry-pretty";
+import { SrcMap, SrcMapBuilder } from "mini-parse";
+import { AbstractElem2, IdentElem, TextElem } from "./AbstractElems2.ts";
+import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 /** passed to the emitters */
 interface EmitContext {
@@ -47,7 +40,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "module":
       return emitContents(e, ctx);
     default:
-      dlog("ugh")
+      dlog("ugh");
       throw new Error(`NYI emit elem kind: ${e.kind}`);
   }
 }
