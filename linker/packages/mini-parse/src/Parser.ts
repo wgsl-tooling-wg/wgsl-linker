@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { CombinatorArg, ParserFromArg } from "./CombinatorTypes.js";
 import { Lexer } from "./MatchingLexer.js";
 import {
@@ -6,11 +7,10 @@ import {
   CollectFnEntry,
   CollectPair,
   commit,
-  rmObsoleteCollects,
   tag2,
 } from "./ParserCollect.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
-import { ctxLog, srcLog } from "./ParserLogging.js";
+import { srcLog } from "./ParserLogging.js";
 import {
   debugNames,
   parserLog,
@@ -21,7 +21,6 @@ import {
 } from "./ParserTracing.js";
 import { mergeTags } from "./ParserUtil.js";
 import { SrcMap } from "./SrcMap.js";
-import { dlog } from "berry-pretty";
 
 export interface AppState<A> {
   /**
@@ -356,6 +355,7 @@ function runParser<T, N extends TagRecord>(
 
   function runInContext(ctx: ParserContext): OptParserResult<T, N> {
     const origPosition = lexer.position();
+    const origCollectLength = ctx._collect.length;
 
     if (debugNames) ctx._debugNames.push(p.debugName);
     const traceSuccessOnly = ctx._trace?.successOnly;
@@ -381,7 +381,12 @@ function runParser<T, N extends TagRecord>(
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
-      // rmObsoleteCollects(ctx._collect, origPosition, p.debugName);
+      // if (ctx._collect.length > origCollectLength) {
+      //   const obsolete = ctx._collect.slice(origCollectLength);
+      //   const obsoleteNames = obsolete.map(c => c.debugName);
+      //   dlog("removing", { parser: p.debugName, obsoleteNames });
+      // }
+      ctx._collect.length = origCollectLength;
     } else {
       // parser succeeded
       if (tracing) parserLog(`✓ ${p.debugName}`);

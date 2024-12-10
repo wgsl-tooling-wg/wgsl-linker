@@ -147,13 +147,13 @@ export function commit<N extends TagRecord, T>(
     const result = p._run(ctx);
     if (result !== null) {
       const tags: Record<string, any> = {};
-      dlog(`commit ${commitDebugName}`, {});
+      // dlog(`commit ${commitDebugName}`, {});
       const { app, lexer } = ctx;
       const { src } = lexer;
-      ctx._collect.forEach(entry => {
-        const { start: start, end } = entry.collected;
-        dlog(entry.debugName, { collected: src.slice(start, end), start });
-      });
+      // ctx._collect.forEach(entry => {
+      //   const { start: start, end } = entry.collected;
+      //   dlog("commit, prep:", entry.debugName, { collected: src.slice(start, end), start, end });
+      // });
       ctx._collect.forEach(entry => {
         const { collectFn, tagNames, collected } = entry;
         const collectContext: CollectContext = { tags, ...collected, src, app };
@@ -172,31 +172,6 @@ export function commit<N extends TagRecord, T>(
     }
     return result;
   });
-}
-
-/** remove any pending collections that that are obsolete after backtracking */
-export function rmObsoleteCollects(
-  collects: CollectFnEntry<any, any>[],
-  position: number,
-  parserDebugName: string,
-) {
-  // find the last valid collection
-  let lastValidDex = collects.length - 1;
-  while (
-    lastValidDex >= 0 &&
-    collects[lastValidDex].collected.start >= position
-  ) {
-    lastValidDex--;
-  }
-
-  if (lastValidDex !== collects.length - 1) {
-    const obsolete = collects.slice(lastValidDex + 1);
-    const obsoleteNames = obsolete.map(c => c.debugName);
-    dlog(`rmObsoleteCollects ${parserDebugName}`, { obsoleteNames });
-  }
-
-  // truncate the list to drop any invalid ones
-  collects.length = lastValidDex + 1;
 }
 
 /** We've succeeded in a parse, so refine the start position to skip past ws
