@@ -112,13 +112,15 @@ export function collectModule<N extends TagRecord>(): CollectPair<
   N,
   ModuleElem
 > {
-  dlog("collectModule.setup");
+  // dlog("collectModule.setup");
   return collectElem(
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
       const contents = coverWithText(cc, openElem.contents); // TODO DRY
       const moduleElem: ModuleElem = { ...openElem, contents };
       // dlog("collectModule.inAfter", { moduleElem });
+      const weslState: StableState = cc.app.state;
+      weslState.elems2.push(moduleElem);
       return moduleElem;
     },
   );
@@ -131,7 +133,7 @@ export function collectElem<N extends TagRecord, V extends AbstractElem2>(
   const partialElem = { kind, contents: [] };
   return {
     before: (cc: CollectContext) => {
-      dlog({ kind }); 
+      // dlog({ kind }); 
       const weslContext: WeslParseContext = cc.app.context;
       weslContext.openElems.push(partialElem);
     },
@@ -139,10 +141,9 @@ export function collectElem<N extends TagRecord, V extends AbstractElem2>(
       // TODO refine start?
       const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
       const weslContext: WeslParseContext = cc.app.context;
-      const weslState: StableState = cc.app.state;
       weslContext.openElems.pop();
-      weslState.elems2.push(elem);
-      dlog("collectElem.after", { elem });
+      addToOpenElems(cc, elem);
+      // dlog("collectElem.after", elemToString(elem));
 
       return elem;
     },
