@@ -8,10 +8,10 @@ import {
   VarElem,
 } from "./AbstractElems2.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** passed to the emitters */
 interface EmitContext {
-  rootNames: Set<string>; // names already emitted, mangle any new names that conflict
   srcMap: SrcMapBuilder; // constructing the linked output
   conditions: Conditions; // settings for conditional compilation
 }
@@ -21,76 +21,49 @@ export function lowerAndEmit(
   rootElems: AbstractElem2[],
   conditions: Conditions,
 ): SrcMap {
-  const validElems = rootElems.filter(e => conditionsValid(e, conditions));
   const srcMap = new SrcMapBuilder();
-  const emitContext: EmitContext = {
-    rootNames: new Set(),
-    conditions,
-    srcMap,
-  };
-
-  for (let elems = validElems; elems.length; ) {
-    elems = elems.flatMap(e => lowerAndEmitElem(e, emitContext));
-  }
-
+  const emitContext: EmitContext = { conditions, srcMap };
+  lowerAndEmitRecursive(rootElems, emitContext);
   return srcMap.build();
 }
 
-export function lowerAndEmitElem(
-  e: AbstractElem2,
-  ctx: EmitContext,
-): AbstractElem2[] {
-  // dlog("lowerAndEmitElem", { kind: e.kind });
+function lowerAndEmitRecursive(
+  elems: AbstractElem2[],
+  emitContext: EmitContext,
+): void {
+  const validElems = elems.filter(e =>
+    conditionsValid(e, emitContext.conditions),
+  );
+  validElems.forEach(e => lowerAndEmitElem(e, emitContext));
+}
+
+export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
   switch (e.kind) {
-    case "chunk":
-      return lowerAndEmitChunk(e, ctx);
     case "text":
-      return lowerAndEmitText(e, ctx);
-    case "var":
-      return lowerAndEmitVar(e, ctx);
+      return emitText(e, ctx);
     case "ident":
-      return lowerAndEmitIdent(e, ctx);
+      return emitIdent(e, ctx);
+    case "var":
     case "module":
-      return lowerAndEmitModule(e, ctx);
+      return emitContents(e, ctx);
     default:
+      dlog("ugh")
       throw new Error(`NYI emit elem kind: ${e.kind}`);
   }
 }
 
-export function lowerAndEmitText(
-  e: TextElem,
-  ctx: EmitContext,
-): AbstractElem2[] {
+export function emitText(e: TextElem, ctx: EmitContext): void {
   ctx.srcMap.addCopy(e.src, e.start, e.end);
-  return [];
 }
 
-export function lowerAndEmitModule(
-  elem: ModuleElem,
+export function emitContents(
+  elem: AbstractElem2 & { contents: AbstractElem2[] },
   ctx: EmitContext,
-): AbstractElem2[] {
-  return elem.contents;
+): void {
+  elem.contents.forEach(e => lowerAndEmitElem(e, ctx));
 }
 
-export function lowerAndEmitVar(
-  elem: VarElem,
-  ctx: EmitContext,
-): AbstractElem2[] {
-  return elem.contents;
-}
-
-export function lowerAndEmitChunk(
-  e: ChunkElem,
-  ctx: EmitContext,
-): AbstractElem2[] {
-  const validElems = e.elems.filter(e => conditionsValid(e, ctx));
-  return validElems.flatMap(e => lowerAndEmitElem(e, ctx));
-}
-
-export function lowerAndEmitIdent(
-  e: IdentElem,
-  ctx: EmitContext,
-): AbstractElem2[] {
+export function emitIdent(e: IdentElem, ctx: EmitContext): void {
   if ((e.ident as RefIdent).std) {
     ctx.srcMap.add(e.ident.originalName, e.src, e.start, e.end);
   } else {
@@ -98,7 +71,6 @@ export function lowerAndEmitIdent(
     const mangledName = declIdent.mangledName!; // mangled name was set in binding step
     ctx.srcMap.add(mangledName, e.src, e.start, e.end);
   }
-  return [];
 }
 
 /** trace through refersTo links in reference Idents until we find the declaration
