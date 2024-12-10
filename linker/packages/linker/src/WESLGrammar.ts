@@ -179,8 +179,7 @@ const variable_decl = seq(
   () => opt_template_list,
   req_optionally_typed_ident,
   opt(seq("=", () => expression)),
-);
-// .collect(collectVar(), "variable_decl");
+).collect(collectVar(), "variable_decl");
 
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
