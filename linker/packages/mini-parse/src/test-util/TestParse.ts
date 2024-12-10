@@ -33,7 +33,7 @@ export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
 }
 
 /** utility for testing parsers */
-export function testParse<T, N extends TagRecord = NoTags, S = []>(
+export function testParse<T, N extends TagRecord = NoTags, S = any>(
   p: Parser<T, N>,
   src: string,
   tokenMatcher: TokenMatcher = testTokens,
