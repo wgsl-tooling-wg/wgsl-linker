@@ -14,7 +14,7 @@ function printDeep(
 ): void {
   const pad = " ".repeat(indent);
   if (visited.has(p)) {
-    console.log(pad + "<>");
+    console.log(pad + "->" + p.debugName);
     return;
   } else {
     visited.add(p);
