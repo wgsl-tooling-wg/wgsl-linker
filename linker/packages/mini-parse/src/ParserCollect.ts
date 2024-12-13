@@ -7,6 +7,7 @@ import {
   ParserContext,
   TagRecord,
 } from "./Parser.js";
+import { tracing } from "./ParserTracing.js";
 
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
@@ -90,6 +91,7 @@ export function collect<N extends TagRecord, T, V>(
     },
   );
   collectParser._collection = true;
+  if (tracing) collectParser._children = p._children;
   return collectParser;
 }
 
@@ -140,7 +142,7 @@ export function commit<N extends TagRecord, T>(
   p: Parser<T, N>,
   commitDebugName?: string,
 ): Parser<T, N> {
-  return parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
+  const commitParser = parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
     const result = p._run(ctx);
     if (result !== null) {
       const tags: Record<string, any> = {};
@@ -169,6 +171,9 @@ export function commit<N extends TagRecord, T>(
     }
     return result;
   });
+
+  if (tracing) commitParser._children = p._children;
+  return commitParser;
 }
 
 /** We've succeeded in a parse, so refine the start position to skip past ws

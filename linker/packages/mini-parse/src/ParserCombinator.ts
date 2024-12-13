@@ -23,6 +23,7 @@ import {
   tokenSkipSet,
 } from "./Parser.js";
 import { ctxLog } from "./ParserLogging.js";
+import { tracing } from "./ParserTracing.js";
 import { mergeTags } from "./ParserUtil.js";
 import { Token, TokenMatcher } from "./TokenMatcher.js";
 
@@ -69,7 +70,7 @@ export function kind(kindStr: string): Parser<string> {
  * @return the kind of token that matched */
 export function text(value: string): Parser<string, NoTags> {
   return simpleParser(
-    `text ${quotedText(value)}'`,
+    `${quotedText(value)}`,
     (state: ParserContext): string | null => {
       const next = state.lexer.next();
       return next?.text === value ? next.text : null;
@@ -81,7 +82,6 @@ export function text(value: string): Parser<string, NoTags> {
  * @return an array of all parsed results, or null if any parser fails */
 export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
   const parsers = args.map(parserArg);
-
   const result = parser("seq", (ctx: ParserContext) => {
     const values = [];
     let tagged = {};
@@ -94,6 +94,10 @@ export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
     }
     return { value: values, tags: tagged };
   });
+
+  if (tracing) {
+    result._children = parsers;
+  }
 
   return result as SeqParser<P>;
 }
@@ -111,6 +115,10 @@ export function or<P extends CombinatorArg[]>(...args: P): OrParser<P> {
     }
     return null;
   });
+
+  if (tracing) {
+    result._children = parsers;
+  }
 
   return result as OrParser<P>;
 }
@@ -197,7 +205,10 @@ export function anyThrough<A extends CombinatorArg>(
 export function repeat<A extends CombinatorArg>(
   arg: A,
 ): ParserFromRepeatArg<A> {
-  return parser("repeat", repeatWhileFilter(arg));
+  const result = parser("repeat", repeatWhileFilter(arg));
+
+  if (tracing) result._children = [parserArg(arg)];
+  return result;
 }
 
 /** match one or more instances of a parser */
@@ -205,9 +216,12 @@ export function repeatPlus<A extends CombinatorArg>(
   arg: A,
 ): ParserFromRepeatArg<A> {
   const p = parserArg(arg);
-  return seq(p, repeat(p))
+  const result = seq(p, repeat(p))
     .map(r => [r.value[0], ...r.value[1]])
     .traceName("repeatPlus");
+
+  if (tracing) result._children = p._children;
+  return result;
 }
 
 type ResultFilterFn<T> = (
@@ -218,7 +232,9 @@ export function repeatWhile<A extends CombinatorArg>(
   arg: A,
   filterFn: ResultFilterFn<ResultFromArg<A>>,
 ): ParserFromRepeatArg<A> {
-  return parser("repeatWhile", repeatWhileFilter(arg, filterFn));
+  const result = parser("repeatWhile", repeatWhileFilter(arg, filterFn));
+  if (tracing) result._children = [parserArg(arg)];
+  return result;
 }
 
 type RepeatWhileResult<A extends CombinatorArg> = OptParserResult<

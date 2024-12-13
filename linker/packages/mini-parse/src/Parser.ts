@@ -133,6 +133,9 @@ export interface ParserArgs {
 
   /** set if the collection results are tagged */
   _ctag?: string;
+
+  /** set if the collection results are tagged */
+  _children?: Parser<any, any>[];
 }
 
 interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
@@ -149,6 +152,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
   preDisabled: true | undefined;
   _collection: true | undefined;
   _ctag: string | undefined;
+  _children: Parser<any, any>[] | undefined;
   fn: ParseFn<T, N>;
 
   constructor(args: ConstructArgs<T, N>) {
@@ -160,6 +164,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
     this.preDisabled = args.preDisabled;
     this._collection = args._collection;
     this._ctag = args._ctag;
+    this._children = args._children;
     this.fn = args.fn;
   }
 
@@ -512,10 +517,15 @@ export function preParse<T, N extends TagRecord>(
   pre: Parser<unknown>,
   mainParser: Parser<T, N>,
 ): Parser<T, N> {
-  return parser("preParse", (ctx: ParserContext): OptParserResult<T, N> => {
-    const newCtx = { ...ctx, _preParse: [pre, ...ctx._preParse] };
-    return mainParser._run(newCtx);
-  });
+  const result = parser(
+    "preParse",
+    (ctx: ParserContext): OptParserResult<T, N> => {
+      const newCtx = { ...ctx, _preParse: [pre, ...ctx._preParse] };
+      return mainParser._run(newCtx);
+    },
+  );
+  if (tracing) result._children = [pre, mainParser];
+  return result;
 }
 
 /** disable a previously attached pre-parser,
