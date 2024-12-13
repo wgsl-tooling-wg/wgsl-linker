@@ -342,5 +342,5 @@ test("tag follows setTraceName of orig", () => {
   const orig = kind(m.word);
   const tagged = orig.tag("w");
   setTraceName(orig, "orig");
-  expect(tagged.debugName).toBe("orig");
+  expect(tagged.debugName).toBe("orig (kind 'word')");
 });
