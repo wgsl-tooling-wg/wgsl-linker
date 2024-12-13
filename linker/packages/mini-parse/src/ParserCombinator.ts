@@ -292,8 +292,16 @@ export function req<A extends CombinatorArg>(
     }
     return result;
   });
-  if (tracing) rp._children = [p];
+  trackChildren(rp, p);
   return rp;
+}
+
+/** for pretty printing, track subsidiary parsers */
+function trackChildren(p: AnyParser, ...args: CombinatorArg[]) {
+  if (tracing) {
+    const kids = args.map(parserArg);
+    p._children = kids;
+  }
 }
 
 /** always succeeds, does not consume any tokens */
