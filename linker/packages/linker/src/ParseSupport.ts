@@ -98,7 +98,8 @@ function mapIfDefined<A>(
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
-    skipBlockComment: blockComment,
+    word,
+    blockComment,
     comment,
   };
 
