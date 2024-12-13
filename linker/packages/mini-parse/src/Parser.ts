@@ -142,6 +142,8 @@ interface ConstructArgs<T, N extends TagRecord> extends ParserArgs {
   fn: ParseFn<T, N>;
 }
 
+export type AnyParser = Parser<any, any>;
+
 /** a composable parsing element */
 export class Parser<T, N extends TagRecord = NoTags> {
   _traceName: string | undefined;

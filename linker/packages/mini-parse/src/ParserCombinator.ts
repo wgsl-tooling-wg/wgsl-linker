@@ -10,6 +10,7 @@ import {
 } from "./CombinatorTypes.js";
 import { quotedText } from "./MatchingLexer.js";
 import {
+  AnyParser,
   ExtendedResult,
   NoTags,
   OptParserResult,
@@ -410,7 +411,7 @@ export function fn<T, N extends TagRecord>(
     const stage = fn();
     return stage._run(state);
   });
-  // TODO track _children for pretty printing
+  if (tracing) (fp as any)._fn = fn; // tricksy hack for pretty printing contained fns
   return fp;
 }
 
@@ -418,11 +419,11 @@ export function fn<T, N extends TagRecord>(
 export function withTags<A extends CombinatorArg>(
   arg: A,
 ): Parser<ResultFromArg<A>, NoTags> {
-  const p = parserArg(arg);
   const tp = parser("withTags", (ctx: ParserContext) => {
     const result = p._run(ctx);
     return result ? { value: result.value, tags: {} } : null;
   });
+  const p = parserArg(arg);
   if (tracing) tp._children = [p];
   return tp;
 }
