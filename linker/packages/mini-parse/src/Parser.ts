@@ -324,7 +324,8 @@ export function setTraceName(
   parser: Parser<any, TagRecord>,
   traceName: string,
 ): void {
-  parser._traceName = traceName;
+  const origName = parser._traceName; 
+  parser._traceName = `${traceName} (${origName})`;
 }
 
 /**
@@ -508,33 +509,33 @@ const emptySet = new Set<string>();
  * If no parameters are provided, no tokens are ignored. */
 export function tokenSkipSet<T, N extends TagRecord>(
   ignore: Set<string> | undefined | null,
-  mainParser: Parser<T, N>,
+  p: Parser<T, N>,
 ): Parser<T, N> {
   const ignoreSet = ignore ?? emptySet;
   const ignoreValues = [...ignoreSet.values()].toString() || "(null)";
-  const p = parser(
+  const ip = parser(
     `tokenSkipSet ${ignoreValues}`,
     (ctx: ParserContext): OptParserResult<T, N> =>
-      ctx.lexer.withIgnore(ignoreSet, () => mainParser._run(ctx)),
+      ctx.lexer.withIgnore(ignoreSet, () => p._run(ctx)),
   );
-  if (tracing) p._children = [p];
-  return p;
+  if (tracing) ip._children = [p];
+  return ip;
 }
 
 /** attach a pre-parser to try parsing before this parser runs.
  * (e.g. to recognize comments that can appear almost anywhere in the main grammar) */
 export function preParse<T, N extends TagRecord>(
   pre: Parser<unknown>,
-  mainParser: Parser<T, N>,
+  p: Parser<T, N>,
 ): Parser<T, N> {
   const result = parser(
     "preParse",
     (ctx: ParserContext): OptParserResult<T, N> => {
       const newCtx = { ...ctx, _preParse: [pre, ...ctx._preParse] };
-      return mainParser._run(newCtx);
+      return p._run(newCtx);
     },
   );
-  if (tracing) result._children = [pre, mainParser];
+  if (tracing) result._children = [pre, p];
   return result;
 }
 
