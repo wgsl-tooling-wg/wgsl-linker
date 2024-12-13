@@ -178,6 +178,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
       terminal: this.terminal,
       preDisabled: this.preDisabled,
       _collection: this._collection,
+      _ctag: this._ctag,
+      _children: this._children,
       fn: this.fn,
       ...p,
     });
@@ -457,7 +459,7 @@ function map<T, N extends TagRecord, U>(
   p: Parser<T, N>,
   fn: ParserMapFn<T, N, U>,
 ): Parser<U, N> {
-  return parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
+  const mapP = parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
     const extended = runExtended(ctx, p);
     if (!extended) return null;
 
@@ -466,6 +468,8 @@ function map<T, N extends TagRecord, U>(
 
     return { value: mappedValue, tags: extended.tags };
   });
+  if (tracing) mapP._children = [p];
+  return mapP;
 }
 
 type ToParserFn<T, N extends TagRecord, X, Y extends TagRecord> = (
@@ -476,7 +480,7 @@ function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
   p: Parser<T, N>,
   toParserFn: ToParserFn<T, N, O, Y>,
 ): Parser<T | O, N & Y> {
-  return parser("toParser", (ctx: ParserContext) => {
+  const tp: Parser<T | O, N & Y> = parser("toParser", (ctx: ParserContext) => {
     const extended = runExtended(ctx, p);
     if (!extended) return null;
 
@@ -492,6 +496,8 @@ function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
     // TODO merge names record from p to newParser
     return nextResult as any; // TODO fix typing
   });
+  if (tracing) tp._children = [p];
+  return tp;
 }
 
 const emptySet = new Set<string>();
@@ -504,11 +510,13 @@ export function tokenSkipSet<T, N extends TagRecord>(
 ): Parser<T, N> {
   const ignoreSet = ignore ?? emptySet;
   const ignoreValues = [...ignoreSet.values()].toString() || "(null)";
-  return parser(
+  const p = parser(
     `tokenSkipSet ${ignoreValues}`,
     (ctx: ParserContext): OptParserResult<T, N> =>
       ctx.lexer.withIgnore(ignoreSet, () => mainParser._run(ctx)),
   );
+  if (tracing) p._children = [p];
+  return p;
 }
 
 /** attach a pre-parser to try parsing before this parser runs.

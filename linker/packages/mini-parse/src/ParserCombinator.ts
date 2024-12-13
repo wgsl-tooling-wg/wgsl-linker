@@ -159,7 +159,7 @@ export function opt<P extends CombinatorArg>(
  * does not consume any tokens */
 export function not(arg: CombinatorArg): Parser<true> {
   const p = parserArg(arg);
-  return parser("not", (state: ParserContext) => {
+  const np: Parser<true> = parser("not", (state: ParserContext) => {
     const pos = state.lexer.position();
     const result = p._run(state);
     if (!result) {
@@ -168,6 +168,9 @@ export function not(arg: CombinatorArg): Parser<true> {
     state.lexer.position(pos);
     return null;
   });
+  if (tracing) np._children = [p];
+
+  return np;
 }
 
 /** yield next token, any token */
@@ -280,7 +283,7 @@ export function req<A extends CombinatorArg>(
   msg?: string,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  return parser("req", (ctx: ParserContext) => {
+  const rp = parser("req", (ctx: ParserContext) => {
     const result = p._run(ctx);
     if (result === null) {
       const deepName = ctx._debugNames.join(" > "); // TODO DRY this
@@ -289,6 +292,8 @@ export function req<A extends CombinatorArg>(
     }
     return result;
   });
+  if (tracing) rp._children = [p];
+  return rp;
 }
 
 /** always succeeds, does not consume any tokens */
@@ -316,17 +321,22 @@ export function withSep<P extends CombinatorArg>(
 ): Parser<ResultFromArg<P>[], TagsFromArg<P>> {
   const { trailing = true, requireOne = false } = opts;
   const parser = parserArg(p);
+  const sepParser = parserArg(sep);
   const pTagged = or(parser).tag("_sepTag");
   const first = requireOne ? pTagged : opt(pTagged);
-  const last = trailing ? opt(sep) : yes();
+  const last = trailing ? opt(sepParser) : yes();
 
-  return seq(first, repeat(seq(sep, pTagged)), last)
+  const sp = seq(first, repeat(seq(sepParser, pTagged)), last)
     .map(r => {
       const result = r.tags._sepTag;
       delete r.tags._sepTag;
       return result;
     })
     .traceName("withSep") as any;
+
+  if (tracing) sp._children = [parser, sepParser];
+
+  return sp;
 }
 
 /** match an series of one or more elements separated by a delimiter (e.g. a comma) */
@@ -343,11 +353,14 @@ export function tokens<A extends CombinatorArg>(
   arg: A,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  return parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
+  const tp = parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
     return state.lexer.withMatcher(matcher, () => {
       return p._run(state);
     });
   });
+
+  if (tracing) tp._children = [p];
+  return tp;
 }
 
 /** return a parser that matches end of line, or end of file,
@@ -381,7 +394,7 @@ export function parserArg<A extends CombinatorArg>(arg: A): ParserFromArg<A> {
 export function fn<T, N extends TagRecord>(
   fn: () => Parser<T, N>,
 ): Parser<T, N> {
-  return parser("fn()", (state: ParserContext): OptParserResult<T, N> => {
+  const fp = parser("fn()", (state: ParserContext): OptParserResult<T, N> => {
     if (!fn) {
       const deepName = state._debugNames.join(".");
       throw new Error(`fn parser called before definition: ${deepName}`);
@@ -389,6 +402,8 @@ export function fn<T, N extends TagRecord>(
     const stage = fn();
     return stage._run(state);
   });
+  // TODO track _children for pretty printing
+  return fp;
 }
 
 /** @return a replacement parser that doesn't propagate any tags */
@@ -396,8 +411,10 @@ export function withTags<A extends CombinatorArg>(
   arg: A,
 ): Parser<ResultFromArg<A>, NoTags> {
   const p = parserArg(arg);
-  return parser("withTags", (ctx: ParserContext) => {
+  const tp = parser("withTags", (ctx: ParserContext) => {
     const result = p._run(ctx);
     return result ? { value: result.value, tags: {} } : null;
   });
+  if (tracing) tp._children = [p];
+  return tp;
 }

@@ -91,7 +91,7 @@ export function collect<N extends TagRecord, T, V>(
     },
   );
   collectParser._collection = true;
-  if (tracing) collectParser._children = p._children;
+  if (tracing) collectParser._children = [p];
   return collectParser;
 }
 
@@ -106,7 +106,7 @@ export function tag2<N extends TagRecord, T, V>(
     p._ctag = name;
     // dlog("tagging collect", { name, p });
   }
-  return parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
+  const cp = parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
     const origStart = ctx.lexer.position();
     const result = p._run(ctx);
 
@@ -125,6 +125,8 @@ export function tag2<N extends TagRecord, T, V>(
     }
     return result;
   });
+  if (tracing) cp._children = [p];
+  return cp;
 }
 
 /** add a tagged value to a TagRecord */
@@ -142,37 +144,45 @@ export function commit<N extends TagRecord, T>(
   p: Parser<T, N>,
   commitDebugName?: string,
 ): Parser<T, N> {
-  const commitParser = parser(`commit`, (ctx: ParserContext): OptParserResult<T, N> => {
-    const result = p._run(ctx);
-    if (result !== null) {
-      const tags: Record<string, any> = {};
-      // dlog(`commit ${commitDebugName}`, {});
-      const { app, lexer } = ctx;
-      const { src } = lexer;
-      // ctx._collect.forEach(entry => {
-      //   const { start: start, end } = entry.collected;
-      //   dlog("commit, prep:", entry.debugName, { collected: src.slice(start, end), start, end });
-      // });
-      ctx._collect.forEach(entry => {
-        const { collectFn, tagNames, collected } = entry;
-        const collectContext: CollectContext = { tags, ...collected, src, app };
+  const commitParser = parser(
+    `commit`,
+    (ctx: ParserContext): OptParserResult<T, N> => {
+      const result = p._run(ctx);
+      if (result !== null) {
+        const tags: Record<string, any> = {};
+        // dlog(`commit ${commitDebugName}`, {});
+        const { app, lexer } = ctx;
+        const { src } = lexer;
+        // ctx._collect.forEach(entry => {
+        //   const { start: start, end } = entry.collected;
+        //   dlog("commit, prep:", entry.debugName, { collected: src.slice(start, end), start, end });
+        // });
+        ctx._collect.forEach(entry => {
+          const { collectFn, tagNames, collected } = entry;
+          const collectContext: CollectContext = {
+            tags,
+            ...collected,
+            src,
+            app,
+          };
 
-        const collectResult = collectFn(collectContext);
+          const collectResult = collectFn(collectContext);
 
-        // if tags are defined on this collect(), update tags with the result
-        if (tagNames && collectResult !== undefined) {
-          tagNames.forEach(name => {
-            // dlog("commit tagging", { name, collectResult });
-            addTagValue(tags, name, collectResult);
-          });
-        }
-      });
-      ctx._collect.length = 0;
-    }
-    return result;
-  });
+          // if tags are defined on this collect(), update tags with the result
+          if (tagNames && collectResult !== undefined) {
+            tagNames.forEach(name => {
+              // dlog("commit tagging", { name, collectResult });
+              addTagValue(tags, name, collectResult);
+            });
+          }
+        });
+        ctx._collect.length = 0;
+      }
+      return result;
+    },
+  );
 
-  if (tracing) commitParser._children = p._children;
+  if (tracing) commitParser._children = [p];
   return commitParser;
 }
 
