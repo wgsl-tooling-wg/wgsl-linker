@@ -324,7 +324,7 @@ export function setTraceName(
   parser: Parser<any, TagRecord>,
   traceName: string,
 ): void {
-  const origName = parser._traceName; 
+  const origName = parser._traceName;
   parser._traceName = `${traceName} (${origName})`;
 }
 
@@ -462,7 +462,7 @@ function map<T, N extends TagRecord, U>(
   p: Parser<T, N>,
   fn: ParserMapFn<T, N, U>,
 ): Parser<U, N> {
-  const mapP = parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
+  const mapParser = parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
     const extended = runExtended(ctx, p);
     if (!extended) return null;
 
@@ -471,8 +471,9 @@ function map<T, N extends TagRecord, U>(
 
     return { value: mappedValue, tags: extended.tags };
   });
-  if (tracing) mapP._children = [p];
-  return mapP;
+
+  trackChildren(mapParser, p);
+  return mapParser;
 }
 
 type ToParserFn<T, N extends TagRecord, X, Y extends TagRecord> = (
@@ -483,7 +484,7 @@ function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
   p: Parser<T, N>,
   toParserFn: ToParserFn<T, N, O, Y>,
 ): Parser<T | O, N & Y> {
-  const tp: Parser<T | O, N & Y> = parser("toParser", (ctx: ParserContext) => {
+  const newParser: Parser<T | O, N & Y> = parser("toParser", (ctx: ParserContext) => {
     const extended = runExtended(ctx, p);
     if (!extended) return null;
 
@@ -499,8 +500,8 @@ function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
     // TODO merge names record from p to newParser
     return nextResult as any; // TODO fix typing
   });
-  if (tracing) tp._children = [p];
-  return tp;
+  trackChildren(newParser, p);
+  return newParser;
 }
 
 const emptySet = new Set<string>();
@@ -513,13 +514,14 @@ export function tokenSkipSet<T, N extends TagRecord>(
 ): Parser<T, N> {
   const ignoreSet = ignore ?? emptySet;
   const ignoreValues = [...ignoreSet.values()].toString() || "(null)";
-  const ip = parser(
+  const ignoreParser = parser(
     `tokenSkipSet ${ignoreValues}`,
     (ctx: ParserContext): OptParserResult<T, N> =>
       ctx.lexer.withIgnore(ignoreSet, () => p._run(ctx)),
   );
-  if (tracing) ip._children = [p];
-  return ip;
+
+  trackChildren(ignoreParser, p);
+  return ignoreParser;
 }
 
 /** attach a pre-parser to try parsing before this parser runs.
@@ -528,15 +530,15 @@ export function preParse<T, N extends TagRecord>(
   pre: Parser<unknown>,
   p: Parser<T, N>,
 ): Parser<T, N> {
-  const result = parser(
+  const newParser = parser(
     "preParse",
     (ctx: ParserContext): OptParserResult<T, N> => {
       const newCtx = { ...ctx, _preParse: [pre, ...ctx._preParse] };
       return p._run(newCtx);
     },
   );
-  if (tracing) result._children = [pre, p];
-  return result;
+  trackChildren(newParser, pre, p);
+  return newParser;
 }
 
 /** disable a previously attached pre-parser,
@@ -571,4 +573,12 @@ export function runExtended<T, N extends TagRecord>(
   const { app, srcMap } = ctx;
 
   return { ...origResults, start, end, app, src, srcMap, ctx };
+}
+
+/** for pretty printing, track subsidiary parsers */
+export function trackChildren(p: AnyParser, ...args: CombinatorArg[]) {
+  if (tracing) {
+    const kids = args.map(parserArg);
+    p._children = kids;
+  }
 }

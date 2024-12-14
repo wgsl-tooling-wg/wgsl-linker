@@ -22,6 +22,7 @@ import {
   simpleParser,
   TagRecord,
   tokenSkipSet,
+  trackChildren,
 } from "./Parser.js";
 import { ctxLog } from "./ParserLogging.js";
 import { tracing } from "./ParserTracing.js";
@@ -83,7 +84,7 @@ export function text(value: string): Parser<string, NoTags> {
  * @return an array of all parsed results, or null if any parser fails */
 export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
   const parsers = args.map(parserArg);
-  const result = parser("seq", (ctx: ParserContext) => {
+  const seqParser = parser("seq", (ctx: ParserContext) => {
     const values = [];
     let tagged = {};
     for (const p of parsers) {
@@ -96,18 +97,16 @@ export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
     return { value: values, tags: tagged };
   });
 
-  if (tracing) {
-    result._children = parsers;
-  }
+  trackChildren(seqParser, ...parsers);
 
-  return result as SeqParser<P>;
+  return seqParser as SeqParser<P>;
 }
 
 /** Try parsing with one or more parsers,
  *  @return the first successful parse */
 export function or<P extends CombinatorArg[]>(...args: P): OrParser<P> {
   const parsers = args.map(parserArg);
-  const result = parser("or", (state: ParserContext) => {
+  const orParser = parser("or", (state: ParserContext) => {
     for (const p of parsers) {
       const result = p._run(state);
       if (result !== null) {
@@ -117,11 +116,9 @@ export function or<P extends CombinatorArg[]>(...args: P): OrParser<P> {
     return null;
   });
 
-  if (tracing) {
-    result._children = parsers;
-  }
+  trackChildren(orParser, ...parsers)
 
-  return result as OrParser<P>;
+  return orParser as OrParser<P>;
 }
 
 const undefinedResult: ParserResult<undefined, NoTags> = {
@@ -141,7 +138,7 @@ export function opt<P extends CombinatorArg>(
 ): ParserFromArg<P> | UndefinedParser {
   const p = parserArg(arg);
 
-  const result: ParserFromArg<P> | UndefinedParser = parser(
+  const optParser: ParserFromArg<P> | UndefinedParser = parser(
     "opt",
     (state: ParserContext) => {
       const result = p._run(state);
@@ -153,14 +150,15 @@ export function opt<P extends CombinatorArg>(
       return result || (undefinedResult as PR);
     },
   );
-  return result;
+  trackChildren(optParser, p)
+  return optParser;
 }
 
 /** return true if the provided parser _doesn't_ match
  * does not consume any tokens */
 export function not(arg: CombinatorArg): Parser<true> {
   const p = parserArg(arg);
-  const np: Parser<true> = parser("not", (state: ParserContext) => {
+  const notParser: Parser<true> = parser("not", (state: ParserContext) => {
     const pos = state.lexer.position();
     const result = p._run(state);
     if (!result) {
@@ -169,9 +167,9 @@ export function not(arg: CombinatorArg): Parser<true> {
     state.lexer.position(pos);
     return null;
   });
-  if (tracing) np._children = [p];
+  trackChildren(notParser, p);
 
-  return np;
+  return notParser;
 }
 
 /** yield next token, any token */
@@ -194,11 +192,12 @@ export function anyThrough<A extends CombinatorArg>(
   arg: A,
 ): Parser<[...any, ResultFromArg<A>], TagsFromArg<A>> {
   const p = parserArg<A>(arg);
-  const result = seq(repeat(anyNot(p)), p).traceName(
+  const anyParser = seq(repeat(anyNot(p)), p).traceName(
     `anyThrough ${p.debugName}`,
   );
-  type V = typeof result extends Parser<infer V, any> ? V : never;
-  return result as Parser<V, any>;
+  trackChildren(anyParser, p);
+  type V = typeof anyParser extends Parser<infer V, any> ? V : never;
+  return anyParser as Parser<V, any>;
 
   // LATER TS not sure why this doesn't work
   // type T = TagsFromArg<A>;
@@ -209,10 +208,10 @@ export function anyThrough<A extends CombinatorArg>(
 export function repeat<A extends CombinatorArg>(
   arg: A,
 ): ParserFromRepeatArg<A> {
-  const result = parser("repeat", repeatWhileFilter(arg));
-
-  if (tracing) result._children = [parserArg(arg)];
-  return result;
+  const p = parserArg(arg);
+  const repeatParser = parser("repeat", repeatWhileFilter(p));
+  trackChildren(repeatParser, p);
+  return repeatParser;
 }
 
 /** match one or more instances of a parser */
@@ -220,12 +219,11 @@ export function repeatPlus<A extends CombinatorArg>(
   arg: A,
 ): ParserFromRepeatArg<A> {
   const p = parserArg(arg);
-  const result = seq(p, repeat(p))
+  const repeatParser = seq(p, repeat(p))
     .map(r => [r.value[0], ...r.value[1]])
     .traceName("repeatPlus");
-
-  if (tracing) result._children = p._children;
-  return result;
+  trackChildren(repeatParser, p);
+  return repeatParser;
 }
 
 type ResultFilterFn<T> = (
@@ -236,8 +234,9 @@ export function repeatWhile<A extends CombinatorArg>(
   arg: A,
   filterFn: ResultFilterFn<ResultFromArg<A>>,
 ): ParserFromRepeatArg<A> {
-  const result = parser("repeatWhile", repeatWhileFilter(arg, filterFn));
-  if (tracing) result._children = [parserArg(arg)];
+  const p = parserArg(arg);
+  const result = parser("repeatWhile", repeatWhileFilter(p, filterFn));
+  trackChildren(result, p);
   return result;
 }
 
@@ -246,11 +245,10 @@ type RepeatWhileResult<A extends CombinatorArg> = OptParserResult<
   TagsFromArg<A>
 >;
 
-function repeatWhileFilter<A extends CombinatorArg>(
-  arg: A,
+function repeatWhileFilter<T, A extends CombinatorArg>(
+  p: ParserFromArg<A>,
   filterFn: ResultFilterFn<ResultFromArg<A>> = () => true,
 ): (ctx: ParserContext) => RepeatWhileResult<A> {
-  const p = parserArg(arg);
   return (ctx: ParserContext): RepeatWhileResult<A> => {
     const values: ResultFromArg<A>[] = [];
     let tags = {};
@@ -284,7 +282,7 @@ export function req<A extends CombinatorArg>(
   msg?: string,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  const rp = parser("req", (ctx: ParserContext) => {
+  const reqParser = parser("req", (ctx: ParserContext) => {
     const result = p._run(ctx);
     if (result === null) {
       const deepName = ctx._debugNames.join(" > "); // TODO DRY this
@@ -293,16 +291,8 @@ export function req<A extends CombinatorArg>(
     }
     return result;
   });
-  trackChildren(rp, p);
-  return rp;
-}
-
-/** for pretty printing, track subsidiary parsers */
-function trackChildren(p: AnyParser, ...args: CombinatorArg[]) {
-  if (tracing) {
-    const kids = args.map(parserArg);
-    p._children = kids;
-  }
+  trackChildren(reqParser, p);
+  return reqParser;
 }
 
 /** always succeeds, does not consume any tokens */
