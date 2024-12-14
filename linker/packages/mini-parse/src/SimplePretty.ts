@@ -25,9 +25,9 @@ function printDeep(
 
 function fnChildrenDeep(p: AnyParser): void {
   if (p.debugName === "fn()") {
-    const newChild = (p as any)._fn();
+    const newChild = (p as any)._fn() as AnyParser;
     p._children = [newChild];
   } else {
-    // p._children?.forEach(fnChildrenDeep);
+    p._children?.forEach(fnChildrenDeep);
   }
 }
