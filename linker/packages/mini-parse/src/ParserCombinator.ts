@@ -10,7 +10,6 @@ import {
 } from "./CombinatorTypes.js";
 import { quotedText } from "./MatchingLexer.js";
 import {
-  AnyParser,
   ExtendedResult,
   NoTags,
   OptParserResult,
@@ -22,7 +21,7 @@ import {
   simpleParser,
   TagRecord,
   tokenSkipSet,
-  trackChildren,
+  trackChildren
 } from "./Parser.js";
 import { ctxLog } from "./ParserLogging.js";
 import { tracing } from "./ParserTracing.js";
@@ -116,7 +115,7 @@ export function or<P extends CombinatorArg[]>(...args: P): OrParser<P> {
     return null;
   });
 
-  trackChildren(orParser, ...parsers)
+  trackChildren(orParser, ...parsers);
 
   return orParser as OrParser<P>;
 }
@@ -150,7 +149,7 @@ export function opt<P extends CombinatorArg>(
       return result || (undefinedResult as PR);
     },
   );
-  trackChildren(optParser, p)
+  trackChildren(optParser, p);
   return optParser;
 }
 
@@ -325,7 +324,7 @@ export function withSep<P extends CombinatorArg>(
   const first = requireOne ? pTagged : opt(pTagged);
   const last = trailing ? opt(sepParser) : yes();
 
-  const sp = seq(first, repeat(seq(sepParser, pTagged)), last)
+  const withSepParser = seq(first, repeat(seq(sepParser, pTagged)), last)
     .map(r => {
       const result = r.tags._sepTag;
       delete r.tags._sepTag;
@@ -333,9 +332,9 @@ export function withSep<P extends CombinatorArg>(
     })
     .traceName("withSep") as any;
 
-  if (tracing) sp._children = [parser, sepParser];
+  trackChildren(withSepParser, parser, sepParser);
 
-  return sp;
+  return withSepParser;
 }
 
 /** match an series of one or more elements separated by a delimiter (e.g. a comma) */
@@ -352,14 +351,14 @@ export function tokens<A extends CombinatorArg>(
   arg: A,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  const tp = parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
+  const tokensParser = parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
     return state.lexer.withMatcher(matcher, () => {
       return p._run(state);
     });
   });
 
-  if (tracing) tp._children = [p];
-  return tp;
+  trackChildren(tokensParser, p)
+  return tokensParser;
 }
 
 /** return a parser that matches end of line, or end of file,
@@ -409,11 +408,11 @@ export function fn<T, N extends TagRecord>(
 export function withTags<A extends CombinatorArg>(
   arg: A,
 ): Parser<ResultFromArg<A>, NoTags> {
-  const tp = parser("withTags", (ctx: ParserContext) => {
+  const p = parserArg(arg);
+  const tagsParser = parser("withTags", (ctx: ParserContext) => {
     const result = p._run(ctx);
     return result ? { value: result.value, tags: {} } : null;
   });
-  const p = parserArg(arg);
-  if (tracing) tp._children = [p];
-  return tp;
+  trackChildren(tagsParser, p);
+  return tagsParser;
 }
