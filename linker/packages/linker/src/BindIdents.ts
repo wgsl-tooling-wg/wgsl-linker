@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
 import { DeclIdent, RefIdent, Scope } from "./Scope.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
@@ -15,19 +16,21 @@ export function bindIdents(
   conditions: Record<string, any>,
 ): void {
   /* 
-For each module's scope, search through the scope tree to find all ref idents
-  - For each ref ident, search up the scope tree to find a matching decl ident
-  - If no local match is found, check for partial matches with import statements
-    - combine ident with import statement to match a decl in exporting module
+    For each module's scope, search through the scope tree to find all ref idents
+      - For each ref ident, search up the scope tree to find a matching decl ident
+      - If no local match is found, check for partial matches with import statements
+        - combine ident with import statement to match a decl in exporting module
 
-As global decl idents are found, mutate their mangled name to be globally unique.
+    As global decl idents are found, mutate their mangled name to be globally unique.
 */
   scope.idents.forEach((ident, i) => {
+    // dlog({ ident: ident.originalName, kind: ident.kind });
     if (ident.kind === "ref") {
       if (stdWgsl(ident.originalName)) {
         ident.std = true;
       } else {
         const foundDecl = findDeclInModule(scope, ident, i) ?? findDeclImport();
+        // dlog({ ident: ident.originalName, foundDecl: foundDecl?.originalName });
         if (foundDecl) {
           ident.refersTo = foundDecl;
 
@@ -46,6 +49,7 @@ As global decl idents are found, mutate their mangled name to be globally unique
       }
     }
   });
+  scope.children.forEach(child => bindIdents(child, parsed, conditions));
 }
 
 function stdWgsl(name: string): boolean {

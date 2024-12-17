@@ -7,6 +7,7 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
+import { scopeIdentTree } from "./ScopeLogging.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -68,6 +69,8 @@ export function linkWesl(
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, elems2 } = found;
+  
+  // console.log(scopeIdentTree(scope));
 
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
