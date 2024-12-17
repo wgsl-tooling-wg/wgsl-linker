@@ -58,11 +58,11 @@ function findDeclInModule(
   ident: RefIdent,
   identDex: number = scope.idents.length,
 ): DeclIdent | undefined {
-  const { idents } = scope;
+  const { idents, parent } = scope;
   const { originalName } = ident;
 
   // see if the declaration is in this scope
-  for (let i = identDex - 1; i > 0; i--) {
+  for (let i = identDex - 1; i >= 0; i--) {
     const checkIdent = idents[i];
     if (
       checkIdent.kind === "decl" &&
@@ -72,10 +72,9 @@ function findDeclInModule(
     }
   }
 
-  // recurse to check parents
-  if (scope.parent) {
-    const found = findDeclInModule(scope.parent, ident, identDex);
-    if (found) return found;
+  // recurse to check all idents in parent scope
+  if (parent) {
+    return findDeclInModule(parent, ident);
   }
 }
 
