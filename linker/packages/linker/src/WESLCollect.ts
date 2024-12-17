@@ -8,6 +8,7 @@ import {
 } from "./AbstractElems2.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { emptyBodyScope, Ident } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -108,7 +109,8 @@ export function collectModule<N extends TagRecord>(): CollectPair<
   return collectElem(
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
-      const contents = coverWithText(cc, openElem.contents); // TODO DRY
+      const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
+      const contents = coverWithText(ccComplete, openElem.contents); // TODO DRY
       const moduleElem: ModuleElem = { ...openElem, contents };
       // dlog("collectModule.inAfter", { moduleElem });
       const weslState: StableState = cc.app.state;
