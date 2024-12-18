@@ -1,19 +1,15 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, TaskContext, test } from "vitest";
 import { gleamImport, gleamImportTokens } from "../GleamImport.js";
-import { WeslAST } from "../ParseWESL.js";
+import { blankWeslParseState, WeslAST, WeslParseState } from "../ParseWESL.js";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
-  const state: WeslAST = {
-    elems: [],
-    elems2: [],
-    scope: { kind: "module", parent: null, idents: [], children: [] },
-  };
+  const appState = blankWeslParseState();
   const result = testParse(
     gleamImport,
     ctx.task.name,
     gleamImportTokens,
-    state,
+    appState,
   );
   expect(result.parsed).not.toBeNull();
   return result;
@@ -31,8 +27,8 @@ test("import foo-bar/boo", ctx => {
 
 /**  ----- extraction tests -----  */
 test("import foo/bar", ctx => {
-  const { appState } = expectParses(ctx);
-  expect(appState.elems).toMatchInlineSnapshot(`
+  const { stable } = expectParses(ctx);
+  expect(stable.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 14,
@@ -58,8 +54,8 @@ test("import foo/bar", ctx => {
 });
 
 test("import foo/* as b", ctx => {
-  const { appState } = expectParses(ctx);
-  expect(appState.elems).toMatchInlineSnapshot(`
+  const { stable } = expectParses(ctx);
+  expect(stable.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 17,
@@ -83,8 +79,8 @@ test("import foo/* as b", ctx => {
 });
 
 test(`import a/{ b, c/{d, e}, f/* }`, ctx => {
-  const { appState } = expectParses(ctx);
-  expect(appState.elems).toMatchInlineSnapshot(`
+  const { stable } = expectParses(ctx);
+  expect(stable.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 29,
@@ -161,8 +157,8 @@ test(`import a/{ b, c/{d, e}, f/* }`, ctx => {
 });
 
 test("import ./foo/bar", ctx => {
-  const { appState } = expectParses(ctx);
-  expect(appState.elems).toMatchInlineSnapshot(`
+  const { stable } = expectParses(ctx);
+  expect(stable.elems).toMatchInlineSnapshot(`
     [
       {
         "end": 16,

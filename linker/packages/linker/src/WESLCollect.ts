@@ -113,8 +113,8 @@ export function collectModule<N extends TagRecord>(): CollectPair<
       const contents = coverWithText(ccComplete, openElem.contents); // TODO DRY
       const moduleElem: ModuleElem = { ...openElem, contents };
       // dlog("collectModule.inAfter", { moduleElem });
-      const weslState: StableState = cc.app.state;
-      weslState.elems2.push(moduleElem);
+      const weslState: StableState = cc.app.stable;
+      weslState.rootModule = moduleElem;
       return moduleElem;
     },
   );

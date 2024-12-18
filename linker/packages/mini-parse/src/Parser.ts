@@ -30,7 +30,7 @@ export interface AppState<A> {
   context: A;
 
   /** typical place for user written parsers to accumulate results, e.g. syntax tree */
-  state: any;
+  stable: any;
 }
 
 export interface ParserInit<A = any> {
@@ -38,7 +38,7 @@ export interface ParserInit<A = any> {
   lexer: Lexer;
 
   /** application specific context and result storage, shared with every parser */
-  app?: AppState<A>;
+  appState?: AppState<A>;
 
   /** set this to avoid infinite looping by failing after more than this many parsing steps */
   maxParseCount?: number;
@@ -259,7 +259,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
         lexer,
         maxParseCount,
         srcMap,
-        app = { context: {}, state: [] },
+        appState: app = { context: {}, stable: [] },
       } = init;
       return this._run({
         lexer,

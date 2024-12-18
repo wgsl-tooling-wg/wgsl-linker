@@ -146,9 +146,9 @@ test("recurse with fn()", () => {
     repeat(or(kind(m.word).tag("word"), () => p)),
     "}",
   );
-  const wrap = or(p).map(r => r.app.state.push(r.tags.word));
-  const { appState: app } = testParse(wrap, src);
-  expect(app[0]).toEqual(["a", "b"]);
+  const wrap = or(p).map(r => r.app.stable.push(r.tags.word));
+  const { stable } = testParse(wrap, src);
+  expect(stable[0]).toEqual(["a", "b"]);
 });
 
 test("tracing", () => {

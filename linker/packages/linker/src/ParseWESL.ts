@@ -1,6 +1,6 @@
-import { matchingLexer, ParserInit, SrcMap } from "mini-parse";
+import { AppState, matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
-import { AbstractElem2 } from "./AbstractElems2.ts";
+import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope } from "./Scope.ts";
 import { OpenElem } from "./WESLCollect.ts";
@@ -8,15 +8,15 @@ import { weslRoot } from "./WESLGrammar.ts";
 
 /** result of a parse */
 export interface WeslAST {
-  elems: AbstractElem[];
-  elems2: AbstractElem2[];
+  elems: AbstractElem[]; // legacy
+  rootModule: ModuleElem;
   scope: Scope;
 }
 
 /** stable and unstable state used during parsing */
-export interface WeslParseState {
+export interface WeslParseState extends AppState<WeslParseContext> {
   context: WeslParseContext;
-  state: StableState;
+  stable: StableState;
 }
 
 /** stable values used or accumulated during parsing */
@@ -28,7 +28,7 @@ export interface StableState {
   elems: AbstractElem[];
 
   // elems succesfully parsed in this module
-  elems2: AbstractElem2[];
+  rootModule?: ModuleElem;
 
   // root scope for this module
   rootScope: Scope;
@@ -52,20 +52,22 @@ export function parseWESL(
   resetScopeIds();
   const lexer = matchingLexer(src, mainTokens);
 
-  const rootScope = emptyScope("module");
+  const appState = blankWeslParseState();
 
-  // context is reset on parse failure during backtracking
-  const context: WeslParseContext = { scope: rootScope, openElems: [] };
-  const elems: AbstractElem[] = [];
-  const elems2: AbstractElem2[] = [];
-  const stableState: StableState = { elems, elems2, conditions, rootScope };
-  const app: WeslParseState = { context, state: stableState };
-
-  const init: ParserInit = { lexer, app, srcMap, maxParseCount };
+  const init: ParserInit = { lexer, appState: appState, srcMap, maxParseCount };
   const parseResult = grammar.parse(init);
   if (parseResult === null) {
     throw new Error("parseWESL failed");
   }
 
-  return { elems, elems2, scope: rootScope };
+  const { rootModule, elems, rootScope } = appState.stable;
+  return { rootModule: rootModule!, scope: rootScope, elems };
+}
+
+export function blankWeslParseState(): WeslParseState {
+  const rootScope = emptyScope("module");
+  return {
+    context: { scope: rootScope, openElems: [] },
+    stable: { conditions: {}, elems: [], rootScope },
+  };
 }

@@ -33,7 +33,7 @@ const fromClause = seq(
 export const exportDirective = seq(or("#export", "export"), opt(eolf)).map(
   r => {
     const e = makeElem("export", r, ["args"]);
-    r.app.state.elems.push(e);
+    r.app.stable.elems.push(e);
   },
 );
 
@@ -44,7 +44,7 @@ const moduleDirective = seq(
 ).map(r => {
   const e = makeElem("module", r);
   e.name = normalizeModulePath(r.tags.name[0]);
-  r.app.state.elems.push(e);
+  r.app.stable.elems.push(e);
 });
 
 function normalizeModulePath(name: string): string {

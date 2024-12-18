@@ -58,5 +58,5 @@ export const sumElem = seq(int, or("+", "-"), int).map(r => {
     right: b,
     op: op as "+" | "-",
   };
-  r.app.state.push(binOpElem);
+  r.app.stable.push(binOpElem);
 });

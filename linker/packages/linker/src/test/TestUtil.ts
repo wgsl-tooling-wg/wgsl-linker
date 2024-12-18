@@ -5,26 +5,14 @@ import { AbstractElem } from "../AbstractElems.js";
 import { linkWesl } from "../Linker2.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { parseWESL, WeslAST, WeslParseContext } from "../ParseWESL.js";
-import { Scope } from "../Scope.js";
+import { blankWeslParseState, parseWESL, WeslAST } from "../ParseWESL.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
   src: string,
 ): TestParseResult<T, N, WeslAST> {
-  const scope: Scope = {
-    kind: "module",
-    parent: null,
-    idents: [],
-    children: [],
-  };
-  const collectedAST: WeslAST = {
-    elems: [],
-    scope,
-    elems2: [],
-  };
-  const context: WeslParseContext = { scope, openElems: [] };
-  return testParse(parser, src, mainTokens, collectedAST, context);
+  const appState = blankWeslParseState();
+  return testParse(parser, src, mainTokens, appState);
 }
 
 /** Convenience wrapper to link wgsl for tests.

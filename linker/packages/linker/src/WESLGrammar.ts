@@ -150,7 +150,7 @@ export const struct_decl = seq(
   const nameElem = r.tags.nameElem[0];
   e.nameElem = nameElem;
   e.name = nameElem.name;
-  r.app.state.elems.push(e);
+  r.app.stable.elems.push(e);
 });
 
 /** Also covers func_call_statement.post.ident */
@@ -385,7 +385,7 @@ export const fn_decl = seq(
   e.name = nameElem.name;
   e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
   e.typeRefs = r.tags.typeRefs?.flat() || [];
-  r.app.state.elems.push(e);
+  r.app.stable.elems.push(e);
 });
 
 const global_value_decl = or(
@@ -406,7 +406,7 @@ export const global_alias = seq(
   req(";"),
 ).map(r => {
   const e = makeElem("alias", r, ["name", "typeRefs"]);
-  r.app.state.elems.push(e);
+  r.app.stable.elems.push(e);
 });
 
 const const_assert = seq("const_assert", req(expression), ";");
@@ -422,7 +422,7 @@ const global_directive = seq(
   ";",
 ).map(r => {
   const e = makeElem("globalDirective", r);
-  r.app.state.elems.push(e);
+  r.app.stable.elems.push(e);
 });
 // .commit("global_directive");
 
@@ -431,18 +431,18 @@ export const global_decl = or(
   seq(opt_attributes, variable_decl, ";").map(r => {
     const e = makeElem("var", r, ["name"]);
     e.typeRefs = r.tags.typeRefs?.flat() || [];
-    r.app.state.elems.push(e);
+    r.app.stable.elems.push(e);
   }),
   seq(global_value_decl, ";").map(r => {
     const e = makeElem("var", r, ["name"]);
     e.typeRefs = r.tags.typeRefs?.flat() || [];
-    r.app.state.elems.push(e);
+    r.app.stable.elems.push(e);
   }),
   ";",
   global_alias,
   const_assert.map(r => {
     const e = makeElem("globalDirective", r);
-    r.app.state.elems.push(e);
+    r.app.stable.elems.push(e);
   }),
   struct_decl,
 );

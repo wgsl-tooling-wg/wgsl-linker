@@ -6,8 +6,8 @@ import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
 
 test("directive parses #export", () => {
-  const { appState } = testAppParse(directive, "#export");
-  expect(appState.elems[0].kind).toBe("export");
+  const { stable } = testAppParse(directive, "#export");
+  expect(stable.elems[0].kind).toBe("export");
 });
 
 test("parse #export", () => {

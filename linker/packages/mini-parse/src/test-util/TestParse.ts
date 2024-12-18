@@ -10,6 +10,7 @@ import {
   tokenMatcher,
   tracing,
   _withBaseLogger,
+  AppState,
 } from "mini-parse";
 import { expect } from "vitest";
 import { logCatch } from "./LogCatcher.js";
@@ -29,7 +30,7 @@ export const testTokens = tokenMatcher({
 export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
   parsed: OptParserResult<T, N>;
   position: number;
-  appState: S;
+  stable: any;
 }
 
 /** utility for testing parsers */
@@ -37,16 +38,11 @@ export function testParse<T, N extends TagRecord = NoTags, S = any>(
   p: Parser<T, N>,
   src: string,
   tokenMatcher: TokenMatcher = testTokens,
-  appState: S = [] as S,
-  context: any = undefined,
+  appState: AppState<S> = { context: {} as S, stable: [] },
 ): TestParseResult<T, N, S> {
   const lexer = matchingLexer(src, tokenMatcher);
-  const app = {
-    state: appState,
-    context,
-  };
-  const parsed = p.parse({ lexer, app, maxParseCount: 1000 });
-  return { parsed, position: lexer.position(), appState: app.state };
+  const parsed = p.parse({ lexer, appState: appState, maxParseCount: 1000 });
+  return { parsed, position: lexer.position(), stable: appState.stable };
 }
 
 // TODO drop this

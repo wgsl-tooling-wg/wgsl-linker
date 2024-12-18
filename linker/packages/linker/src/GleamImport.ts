@@ -166,7 +166,7 @@ export const gleamImport = withTags(
     gleamImportTokens,
     seq("import", fullPath.tag("imports"), opt(";"), eolf).map(r => {
       const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
-      r.app.state.elems.push(e);
+      r.app.stable.elems.push(e);
     }),
   ),
 );

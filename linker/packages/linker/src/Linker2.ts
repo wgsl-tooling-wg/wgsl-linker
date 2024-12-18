@@ -68,7 +68,7 @@ export function linkWesl(
   if (!found) {
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
-  const { scope, elems2 } = found;
+  const { scope, rootModule } = found;
   
   // console.log(scopeIdentTree(scope));
 
@@ -79,7 +79,7 @@ export function linkWesl(
 
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
-  return lowerAndEmit(elems2, parsed);
+  return lowerAndEmit([rootModule], parsed);
 }
 
 /* ---- Commentary on present and future features ---- */
