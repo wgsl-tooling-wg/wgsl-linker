@@ -84,42 +84,31 @@ export type OpenElem<T extends AbstractElem2 = AbstractElem2> =
 export type PartElem<T extends AbstractElem2 = AbstractElem2> = 
   Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem2[] };
 
+type VarLikeElem = VarElem | ConstElem | OverrideElem;
+
 export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
-  return collectElem(
-    "var",
-    (cc: CollectContext, openElem: PartElem<VarElem>) => {
-      const name = cc.tags.declIdent?.[0]!;
-      const typeRef = cc.tags.typeRef?.[0];
-      const contents = coverWithText(cc, openElem.contents);
-      return { ...openElem, name, typeRef, contents };
-    },
-  );
+  return collectVarLike("var");
 }
 
 export function collectConst<N extends TagRecord>(): CollectPair<N, ConstElem> {
-  return collectElem(
-    "const",
-    (cc: CollectContext, openElem: PartElem<ConstElem>) => {
-      const name = cc.tags.declIdent?.[0]!;
-      const typeRef = cc.tags.typeRef?.[0];
-      const contents = coverWithText(cc, openElem.contents);
-      return { ...openElem, name, typeRef, contents };
-    },
-  );
+  return collectVarLike("const");
 }
 
 // prettier-ignore
 export function collectOverride<N extends TagRecord>(): 
     CollectPair<N, OverrideElem> {
-  return collectElem(
-    "override",
-    (cc: CollectContext, openElem: PartElem<OverrideElem>) => {
-      const name = cc.tags.declIdent?.[0]!;
-      const typeRef = cc.tags.typeRef?.[0];
-      const contents = coverWithText(cc, openElem.contents);
-      return { ...openElem, name, typeRef, contents };
-    },
-  );
+  return collectVarLike("override");
+}
+
+function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
+  kind: E["kind"],
+): CollectPair<N, E> {
+  return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
+    const name = cc.tags.declIdent?.[0]!;
+    const typeRef = cc.tags.typeRef?.[0];
+    const contents = coverWithText(cc, openElem.contents);
+    return { ...openElem, name, typeRef, contents } as E;
+  });
 }
 
 export function collectAlias<N extends TagRecord>(): CollectPair<N, AliasElem> {
