@@ -38,6 +38,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
       return emitIdent(e, ctx);
     case "var":
     case "module":
+    case "alias":
       return emitContents(e, ctx);
     default:
       dlog("ugh");

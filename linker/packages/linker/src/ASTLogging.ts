@@ -1,10 +1,4 @@
-import { Intersection } from "../../mini-parse/src/CombinatorTypes.ts";
-import {
-  AbstractElem2,
-  IdentElem,
-  ModuleElem,
-  VarElem,
-} from "./AbstractElems2.ts";
+import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
 export function astTree(elem: AbstractElem2, indent = 0): string {
@@ -24,11 +18,11 @@ export function astTree(elem: AbstractElem2, indent = 0): string {
   return str.result;
 }
 
-function addElemFields(elem: AbstractElem2, str: LineWrapper) {
-  addVarFields(elem, str) ||
-    addTextFields(elem, str) ||
+function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
+  addTextFields(elem, str) ||
+    addVarFields(elem, str) ||
+    addAliasFields(elem, str) ||
     addIdentFields(elem, str);
-  return "";
 }
 
 function addVarFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
@@ -51,6 +45,7 @@ function addTextFields(
     return true;
   }
 }
+
 function addIdentFields(
   elem: AbstractElem2,
   str: LineWrapper,
@@ -59,6 +54,19 @@ function addIdentFields(
     const { ident } = elem;
     const prefix = ident.kind === "decl" ? "%" : "";
     str.add(" " + prefix + elem.ident.originalName);
+    return true;
+  }
+}
+
+function addAliasFields(
+  elem: AbstractElem2,
+  str: LineWrapper,
+): true | undefined {
+  if (elem.kind === "alias") {
+    const { name, target } = elem;
+    const prefix = name.ident.kind === "decl" ? "%" : "";
+    str.add(" " + prefix + name.ident.originalName);
+    str.add("=" + target.ident.originalName);
     return true;
   }
 }

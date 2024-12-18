@@ -1,6 +1,7 @@
 import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 export type AbstractElem2 =
+  | AliasElem 
   | ChunkElem
   | IdentElem
   | TextElem
@@ -53,7 +54,16 @@ export interface VarElem extends AbstractElemBase2 {
   contents: AbstractElem2[];
 }
 
+/** an entire file */
 export interface ModuleElem extends AbstractElemBase2 {
   kind: "module";
+  contents: AbstractElem2[];
+}
+
+/** an alias statement */
+export interface AliasElem extends AbstractElemBase2 {
+  kind: "alias";
+  name: IdentElem;
+  target: IdentElem;
   contents: AbstractElem2[];
 }

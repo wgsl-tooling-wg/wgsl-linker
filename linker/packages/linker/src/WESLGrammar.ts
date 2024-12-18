@@ -28,6 +28,7 @@ import {
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
 import {
+  collectAlias,
   collectModule,
   collectVar,
   completeScope,
@@ -400,14 +401,16 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name").collect(declIdent, "global_alias")),
+  req(word.tag("name")).collect(declIdent, "global_alias").tag2("declIdent"),
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),
-).map(r => {
-  const e = makeElem("alias", r, ["name", "typeRefs"]);
-  r.app.stable.elems.push(e);
-});
+)
+  .collect(collectAlias(), "global_alias")
+  .map(r => {
+    const e = makeElem("alias", r, ["name", "typeRefs"]);
+    r.app.stable.elems.push(e);
+  });
 
 const const_assert = seq("const_assert", req(expression), ";");
 
@@ -461,16 +464,16 @@ export const weslRoot = preParse(
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
-    qualified_ident, 
-    diagnostic_rule_name, 
-    diagnostic_control, 
+    qualified_ident,
+    diagnostic_rule_name,
+    diagnostic_control,
     attribute,
-    argument_expression_list, 
-    opt_attributes, 
-    typeNameDecl, 
-    fnNameDecl, 
+    argument_expression_list,
+    opt_attributes,
+    typeNameDecl,
+    fnNameDecl,
     type_specifier,
-    optionally_typed_ident, 
+    optionally_typed_ident,
     struct_member,
     struct_decl,
     fn_call,
@@ -502,10 +505,10 @@ if (tracing) {
     variable_or_value_statement,
     variable_updating_statement,
     fn_decl,
-    global_value_decl, 
+    global_value_decl,
     global_alias,
     const_assert,
-    import_statement, 
+    import_statement,
     global_directive,
     global_decl,
     end,
