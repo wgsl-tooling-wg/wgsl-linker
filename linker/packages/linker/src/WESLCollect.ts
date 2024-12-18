@@ -23,7 +23,8 @@ function addToOpenElems(cc: CollectContext, elem: AbstractElem2): void {
   const weslContext: WeslParseContext = cc.app.context;
   const { openElems } = weslContext;
   if (openElems && openElems.length) {
-    openElems[openElems.length - 1].contents.push(elem);
+    const open = openElems[openElems.length - 1];
+    open.contents.push(elem);
   }
 }
 
@@ -95,7 +96,6 @@ export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
         typeRef: typeRef!,
         contents,
       };
-      // dlog("collectVar after\n", { varElem });
       return varElem;
     },
   );
