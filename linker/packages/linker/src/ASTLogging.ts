@@ -27,7 +27,7 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
 
 function addVarishFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
   const {kind} = elem
-  if (kind === "var" || kind === "const") {
+  if (kind === "var" || kind === "const" || kind === "override") {
     str.add(" " + elem.name.ident.originalName);
     if (elem.typeRef) {
       str.add(":" + elem.typeRef.ident.originalName);

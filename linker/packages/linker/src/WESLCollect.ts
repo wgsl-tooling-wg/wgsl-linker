@@ -5,6 +5,7 @@ import {
   ConstElem,
   IdentElem,
   ModuleElem,
+  OverrideElem,
   TextElem,
   VarElem,
 } from "./AbstractElems2.ts";
@@ -99,6 +100,20 @@ export function collectConst<N extends TagRecord>(): CollectPair<N, ConstElem> {
   return collectElem(
     "const",
     (cc: CollectContext, openElem: PartElem<ConstElem>) => {
+      const name = cc.tags.declIdent?.[0]!;
+      const typeRef = cc.tags.typeRef?.[0];
+      const contents = coverWithText(cc, openElem.contents);
+      return { ...openElem, name, typeRef, contents };
+    },
+  );
+}
+
+// prettier-ignore
+export function collectOverride<N extends TagRecord>(): 
+    CollectPair<N, OverrideElem> {
+  return collectElem(
+    "override",
+    (cc: CollectContext, openElem: PartElem<OverrideElem>) => {
       const name = cc.tags.declIdent?.[0]!;
       const typeRef = cc.tags.typeRef?.[0];
       const contents = coverWithText(cc, openElem.contents);

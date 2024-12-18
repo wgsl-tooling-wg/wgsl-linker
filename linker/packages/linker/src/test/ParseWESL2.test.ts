@@ -51,5 +51,13 @@ test("parse override ", () => {
   const src = `override z: f32;`;
   const ast = parse2Test(src);
   const astString = astTree(ast.rootModule);
-  console.log(astString);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      override z:f32
+        text 'override '
+        ident %z
+        text ': '
+        ident f32
+      text ';'"
+  `);
 });

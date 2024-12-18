@@ -28,6 +28,7 @@ import {
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
 import {
+  collectOverride,
   collectAlias,
   collectConst,
   collectModule,
@@ -396,7 +397,7 @@ const global_value_decl = or(
     "override",
     optionally_typed_ident,
     opt(seq("=", expression)),
-  ),
+  ).collect(collectOverride()),
   seq("const", optionally_typed_ident, "=", expression).collect(collectConst()),
 );
 

@@ -6,6 +6,7 @@ export type AbstractElem2 =
   | ConstElem
   | IdentElem
   | ModuleElem
+  | OverrideElem
   | ParamElem
   | TextElem
   | VarElem;
@@ -58,6 +59,14 @@ export interface VarElem extends AbstractElemBase2 {
 /** a const declaration */
 export interface ConstElem extends AbstractElemBase2 {
   kind: "const";
+  name: IdentElem;
+  typeRef?: IdentElem;
+  contents: AbstractElem2[];
+}
+
+/** an override declaration */
+export interface OverrideElem extends AbstractElemBase2 {
+  kind: "override";
   name: IdentElem;
   typeRef?: IdentElem;
   contents: AbstractElem2[];

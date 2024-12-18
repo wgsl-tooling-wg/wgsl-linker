@@ -39,6 +39,8 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "var":
     case "module":
     case "alias":
+    case "override":
+    case "const":
       return emitContents(e, ctx);
     default:
       dlog("ugh");
