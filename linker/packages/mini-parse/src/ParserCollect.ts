@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { Lexer } from "./MatchingLexer.js";
 import {
   AppState,
@@ -67,7 +68,7 @@ export function collect<N extends TagRecord, T, V>(
 
       const value = p._run(ctx);
       if (value !== null) {
-        // dlog("collect", debugName );
+        // dlog("collect", debugName);
         const collected = refinePosition(ctx.lexer, origStart);
         let fn = afterFn;
         const { _ctag } = collectParser;
@@ -150,7 +151,7 @@ export function commit<N extends TagRecord, T>(
       const result = p._run(ctx);
       if (result !== null) {
         const tags: Record<string, any> = {};
-        // dlog(`commit ${commitDebugName}`, {});
+        // dlog(`commit ${commitDebugName}`);
         const { app, lexer } = ctx;
         const { src } = lexer;
         // ctx._collect.forEach(entry => {
