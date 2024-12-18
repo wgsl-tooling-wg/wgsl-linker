@@ -1,3 +1,5 @@
+import { dlog } from "berry-pretty";
+
 /** debug utility for constructing strings that wrap at a fixed column width */
 export class LineWrapper {
   #fragments: string[] = [];
@@ -41,9 +43,9 @@ export class LineWrapper {
   }
 
   /** add a raw block of text with no wrapping */
-  addBlock(s: string) {
+  addBlock(s: string, andNewLine = true) {
     this.#fragments.push(s);
-    this.nl();
+    if (andNewLine) this.nl();
   }
 
   /** @return the constructed string */

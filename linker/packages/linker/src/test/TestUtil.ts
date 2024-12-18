@@ -62,3 +62,8 @@ export function link2Test(...rawWgsl: string[]): string {
   const srcMap = linkWesl(wesl, "root");
   return srcMap.dest;
 }
+
+export function parse2Test(src:string):WeslAST {
+  return expectNoLog(() => parseWESL(src, undefined, {}, 500));
+}
+
