@@ -82,7 +82,7 @@ export interface ModuleElem extends AbstractElemBase2 {
 export interface AliasElem extends AbstractElemBase2 {
   kind: "alias";
   name: IdentElem;
-  target: IdentElem;
+  typeRef: IdentElem;
   contents: AbstractElem2[];
 }
 

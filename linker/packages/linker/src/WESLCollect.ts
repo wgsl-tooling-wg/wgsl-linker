@@ -84,7 +84,7 @@ export type OpenElem<T extends AbstractElem2 = AbstractElem2> =
 export type PartElem<T extends AbstractElem2 = AbstractElem2> = 
   Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem2[] };
 
-type VarLikeElem = VarElem | ConstElem | OverrideElem;
+type VarLikeElem = VarElem | ConstElem | OverrideElem | AliasElem;
 
 export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
   return collectVarLike("var");
@@ -92,6 +92,10 @@ export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
 
 export function collectConst<N extends TagRecord>(): CollectPair<N, ConstElem> {
   return collectVarLike("const");
+}
+
+export function collectAlias<N extends TagRecord>(): CollectPair<N, AliasElem> {
+  return collectVarLike("alias");
 }
 
 // prettier-ignore
@@ -109,18 +113,6 @@ function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
     const contents = coverWithText(cc, openElem.contents);
     return { ...openElem, name, typeRef, contents } as E;
   });
-}
-
-export function collectAlias<N extends TagRecord>(): CollectPair<N, AliasElem> {
-  return collectElem(
-    "alias",
-    (cc: CollectContext, openElem: PartElem<AliasElem>) => {
-      const name = cc.tags.declIdent?.[0]!;
-      const target = cc.tags.typeRef?.[0];
-      const contents = coverWithText(cc, openElem.contents);
-      return { ...openElem, name, target, contents };
-    },
-  );
 }
 
 export function collectModule<N extends TagRecord>(): CollectPair<

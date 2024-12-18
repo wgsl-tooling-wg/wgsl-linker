@@ -25,8 +25,11 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
     addIdentFields(elem, str);
 }
 
-function addVarishFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
-  const {kind} = elem
+function addVarishFields(
+  elem: AbstractElem2,
+  str: LineWrapper,
+): true | undefined {
+  const { kind } = elem;
   if (kind === "var" || kind === "const" || kind === "override") {
     str.add(" " + elem.name.ident.originalName);
     if (elem.typeRef) {
@@ -64,10 +67,10 @@ function addAliasFields(
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "alias") {
-    const { name, target } = elem;
+    const { name, typeRef } = elem;
     const prefix = name.ident.kind === "decl" ? "%" : "";
     str.add(" " + prefix + name.ident.originalName);
-    str.add("=" + target.ident.originalName);
+    str.add("=" + typeRef.ident.originalName);
     return true;
   }
 }
