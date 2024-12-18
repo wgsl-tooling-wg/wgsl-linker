@@ -86,25 +86,7 @@ export type PartElem<T extends AbstractElem2 = AbstractElem2> =
 
 type VarLikeElem = VarElem | ConstElem | OverrideElem | AliasElem;
 
-export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
-  return collectVarLike("var");
-}
-
-export function collectConst<N extends TagRecord>(): CollectPair<N, ConstElem> {
-  return collectVarLike("const");
-}
-
-export function collectAlias<N extends TagRecord>(): CollectPair<N, AliasElem> {
-  return collectVarLike("alias");
-}
-
-// prettier-ignore
-export function collectOverride<N extends TagRecord>(): 
-    CollectPair<N, OverrideElem> {
-  return collectVarLike("override");
-}
-
-function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
+export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
   kind: E["kind"],
 ): CollectPair<N, E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {

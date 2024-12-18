@@ -28,15 +28,12 @@ import {
   identToTypeRefOrLocation,
 } from "./ParsingHacks.ts";
 import {
-  collectOverride,
-  collectAlias,
-  collectConst,
   collectModule,
-  collectVar,
   completeScope,
   declIdent,
   refIdent,
   startScope,
+  collectVarLike,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -182,7 +179,7 @@ const variable_decl = seq(
   () => opt_template_list,
   req_optionally_typed_ident,
   opt(seq("=", () => expression)),
-).collect(collectVar(), "variable_decl");
+).collect(collectVarLike("var"), "variable_decl");
 
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
@@ -397,8 +394,10 @@ const global_value_decl = or(
     "override",
     optionally_typed_ident,
     opt(seq("=", expression)),
-  ).collect(collectOverride()),
-  seq("const", optionally_typed_ident, "=", expression).collect(collectConst()),
+  ).collect(collectVarLike("override")),
+  seq("const", optionally_typed_ident, "=", expression).collect(
+    collectVarLike("const"),
+  ),
 );
 
 export const global_alias = seq(
@@ -408,7 +407,7 @@ export const global_alias = seq(
   req(type_specifier).tag("typeRefs"),
   req(";"),
 )
-  .collect(collectAlias(), "global_alias")
+  .collect(collectVarLike("alias"), "global_alias")
   .map(r => {
     const e = makeElem("alias", r, ["name", "typeRefs"]);
     r.app.stable.elems.push(e);
