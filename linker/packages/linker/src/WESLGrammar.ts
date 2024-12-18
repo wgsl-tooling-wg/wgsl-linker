@@ -29,6 +29,7 @@ import {
 } from "./ParsingHacks.ts";
 import {
   collectAlias,
+  collectConst,
   collectModule,
   collectVar,
   completeScope,
@@ -396,7 +397,7 @@ const global_value_decl = or(
     optionally_typed_ident,
     opt(seq("=", expression)),
   ),
-  seq("const", optionally_typed_ident, "=", expression),
+  seq("const", optionally_typed_ident, "=", expression).collect(collectConst()),
 );
 
 export const global_alias = seq(

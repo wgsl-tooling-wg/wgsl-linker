@@ -20,13 +20,14 @@ export function astTree(elem: AbstractElem2, indent = 0): string {
 
 function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
   addTextFields(elem, str) ||
-    addVarFields(elem, str) ||
+    addVarishFields(elem, str) ||
     addAliasFields(elem, str) ||
     addIdentFields(elem, str);
 }
 
-function addVarFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
-  if (elem.kind === "var") {
+function addVarishFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
+  const {kind} = elem
+  if (kind === "var" || kind === "const") {
     str.add(" " + elem.name.ident.originalName);
     if (elem.typeRef) {
       str.add(":" + elem.typeRef.ident.originalName);

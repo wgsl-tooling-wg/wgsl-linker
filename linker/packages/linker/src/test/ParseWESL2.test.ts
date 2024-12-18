@@ -32,3 +32,24 @@ test("parse alias", () => {
         text ';'"
   `);
 });
+
+test("parse const", () => {
+  const src = `const y = 11u;`;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      const y
+        text 'const '
+        ident %y
+        text ' = 11u'
+      text ';'"
+  `);
+});
+
+test("parse override ", () => {
+  const src = `override z: f32;`;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  console.log(astString);
+});

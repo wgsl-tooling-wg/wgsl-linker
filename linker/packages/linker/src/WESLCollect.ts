@@ -2,6 +2,7 @@ import { CollectContext, CollectPair, TagRecord } from "mini-parse";
 import {
   AbstractElem2,
   AliasElem,
+  ConstElem,
   IdentElem,
   ModuleElem,
   TextElem,
@@ -86,6 +87,18 @@ export function collectVar<N extends TagRecord>(): CollectPair<N, VarElem> {
   return collectElem(
     "var",
     (cc: CollectContext, openElem: PartElem<VarElem>) => {
+      const name = cc.tags.declIdent?.[0]!;
+      const typeRef = cc.tags.typeRef?.[0];
+      const contents = coverWithText(cc, openElem.contents);
+      return { ...openElem, name, typeRef, contents };
+    },
+  );
+}
+
+export function collectConst<N extends TagRecord>(): CollectPair<N, ConstElem> {
+  return collectElem(
+    "const",
+    (cc: CollectContext, openElem: PartElem<ConstElem>) => {
       const name = cc.tags.declIdent?.[0]!;
       const typeRef = cc.tags.typeRef?.[0];
       const contents = coverWithText(cc, openElem.contents);

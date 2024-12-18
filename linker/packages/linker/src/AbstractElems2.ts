@@ -3,10 +3,11 @@ import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 export type AbstractElem2 =
   | AliasElem 
   | ChunkElem
+  | ConstElem
   | IdentElem
-  | TextElem
-  | ParamElem
   | ModuleElem
+  | ParamElem
+  | TextElem
   | VarElem;
 
 export interface AbstractElemBase2 {
@@ -54,6 +55,14 @@ export interface VarElem extends AbstractElemBase2 {
   contents: AbstractElem2[];
 }
 
+/** a const declaration */
+export interface ConstElem extends AbstractElemBase2 {
+  kind: "const";
+  name: IdentElem;
+  typeRef?: IdentElem;
+  contents: AbstractElem2[];
+}
+
 /** an entire file */
 export interface ModuleElem extends AbstractElemBase2 {
   kind: "module";
@@ -67,3 +76,5 @@ export interface AliasElem extends AbstractElemBase2 {
   target: IdentElem;
   contents: AbstractElem2[];
 }
+
+
