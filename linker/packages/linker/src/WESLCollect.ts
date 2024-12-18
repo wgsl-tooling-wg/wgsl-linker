@@ -124,18 +124,19 @@ export function collectElem<N extends TagRecord, V extends AbstractElem2>(
   kind: V["kind"],
   fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
 ): CollectPair<N, V> {
-  const partialElem = { kind, contents: [] };
   return {
     before: (cc: CollectContext) => {
       // dlog({ kind });
+      const partialElem = { kind, contents: [] };
       const weslContext: WeslParseContext = cc.app.context;
       weslContext.openElems.push(partialElem);
     },
     after: (cc: CollectContext) => {
       // TODO refine start?
-      const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
       const weslContext: WeslParseContext = cc.app.context;
-      weslContext.openElems.pop();
+      const partialElem = weslContext.openElems.pop()!;
+      console.assert(partialElem && partialElem.kind === kind);
+      const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
       addToOpenElems(cc, elem);
       // dlog("collectElem.after", elemToString(elem));
 
