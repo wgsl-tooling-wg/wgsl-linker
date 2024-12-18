@@ -97,10 +97,9 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
   });
 }
 
-export function collectModule<N extends TagRecord>(): CollectPair<
-  N,
-  ModuleElem
-> {
+// prettier-ignore
+export function collectModule<N extends TagRecord>(): 
+    CollectPair< N, ModuleElem > {
   // dlog("collectModule.setup");
   return collectElem(
     "module",
