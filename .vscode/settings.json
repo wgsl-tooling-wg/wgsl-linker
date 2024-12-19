@@ -3,5 +3,9 @@
     "node:inspector/promises",
     "inspector/promises",
     "inspector"
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "community-wgsl/**": true
+  }
 }
