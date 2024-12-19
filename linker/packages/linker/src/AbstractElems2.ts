@@ -7,8 +7,11 @@ export type AbstractElem2 =
   | ConstAssertElem
   | IdentElem
   | ModuleElem
+  | NameElem 
   | OverrideElem
   | ParamElem
+  | StructElem
+  | StructMemberElem
   | TextElem
   | VarElem;
 
@@ -89,4 +92,23 @@ export interface AliasElem extends ElemWithContents{
 /** a const_assert statement */
 export interface ConstAssertElem extends ElemWithContents {
   kind: "assert";
+}
+
+export interface StructElem extends ElemWithContents {
+  kind: "struct";
+  name: IdentElem;
+  members: StructMemberElem[];
+}
+
+export interface StructMemberElem extends ElemWithContents {
+  kind: "member";
+  name: NameElem;
+  typeRef: IdentElem;
+}
+
+/** a name (e.g. a struct member name) that doesn't need to be an Ident */
+export interface NameElem extends AbstractElemBase2 {
+  kind: "name",
+  name: string;
+  src: string; // TODO SrcModule
 }

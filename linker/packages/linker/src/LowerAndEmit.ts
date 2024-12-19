@@ -1,6 +1,6 @@
 import { dlog } from "berry-pretty";
 import { SrcMap, SrcMapBuilder } from "mini-parse";
-import { AbstractElem2, IdentElem, TextElem } from "./AbstractElems2.ts";
+import { AbstractElem2, IdentElem, NameElem, TextElem } from "./AbstractElems2.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 /** passed to the emitters */
@@ -42,7 +42,11 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "override":
     case "const":
     case "assert":
+    case "struct":
+    case "member":
       return emitContents(e, ctx);
+    case "name":
+      return emitName(e, ctx);
     default:
       dlog("ugh");
       throw new Error(`NYI emit elem kind: ${e.kind}`);
@@ -51,6 +55,10 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
 
 export function emitText(e: TextElem, ctx: EmitContext): void {
   ctx.srcMap.addCopy(e.src, e.start, e.end);
+}
+
+export function emitName(e: NameElem, ctx: EmitContext): void {
+  ctx.srcMap.add(e.name, e.src, e.start, e.end);
 }
 
 export function emitContents(

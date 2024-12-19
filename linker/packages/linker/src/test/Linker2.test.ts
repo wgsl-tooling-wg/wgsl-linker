@@ -26,3 +26,14 @@ test("link an const_assert", () => {
   const result = link2Test(src);
   expect(result).toEqual(src);
 });
+
+test("link a struct", () => {
+  const src = `
+    struct Point {
+      x: i32,
+      y: i32,
+    }
+  `;
+  const result = link2Test(src);
+  expect(result).toEqual(src);
+});

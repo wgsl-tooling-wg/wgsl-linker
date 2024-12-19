@@ -35,6 +35,9 @@ import {
   startScope,
   collectVarLike,
   collectSimpleElem,
+  collectStruct,
+  collectStructMember,
+  collectNameElem,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -97,9 +100,9 @@ const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
-  word.collect(declIdent, "typeNameDecl").tag("name"),
+  word.collect(declIdent, "typeNameDecl").tag2("typeName").tag("name"),
 ).map(r => {
-  return makeElem("typeName", r, ["name"]) as TypeNameElem; // fix?
+  return makeElem("typeName", r, ["name"]) as TypeNameElem;
 });
 
 /** parse an identifier into a TypeNameElem */
@@ -133,26 +136,30 @@ const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const struct_member = seq(
   opt_attributes,
-  word.tag("name"),
+  word.tag("name").collect(collectNameElem).tag2("nameElem"),
   ":",
   req(type_specifier.tag("typeRefs")),
-).map(r => {
-  return makeElem("member", r, ["name", "typeRefs"]);
-});
+)
+  .collect(collectStructMember())
+  .map(r => {
+    return makeElem("member", r, ["name", "typeRefs"]);
+  });
 
 export const struct_decl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
   req("{").collect(startScope, "struct_decl.startScope"),
-  withSep(",", struct_member, { requireOne: true }).tag("members"),
+  withSepPlus(",", struct_member).tag2("members").tag("members"),
   req("}").collect(completeScope, "struct_decl.completeScope"),
-).map(r => {
-  const e = makeElem("struct", r, ["members"]);
-  const nameElem = r.tags.nameElem[0];
-  e.nameElem = nameElem;
-  e.name = nameElem.name;
-  r.app.stable.elems.push(e);
-});
+)
+  .collect(collectStruct())
+  .map(r => {
+    const e = makeElem("struct", r, ["members"]);
+    const nameElem = r.tags.nameElem[0];
+    e.nameElem = nameElem;
+    e.name = nameElem.name;
+    r.app.stable.elems.push(e);
+  });
 
 /** Also covers func_call_statement.post.ident */
 export const fn_call = seq(
@@ -414,7 +421,9 @@ export const global_alias = seq(
     r.app.stable.elems.push(e);
   });
 
-const const_assert = seq("const_assert", req(expression), ";").collect(collectSimpleElem("assert"));
+const const_assert = seq("const_assert", req(expression), ";").collect(
+  collectSimpleElem("assert"),
+);
 
 const import_statement = gleamImport.commit("import_statement");
 

@@ -21,6 +21,8 @@ export function astTree(elem: AbstractElem2, indent = 0): string {
 function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
   addTextFields(elem, str) ||
     addVarishFields(elem, str) ||
+    addStructFields(elem, str) ||
+    addNameFields(elem, str) ||
     addAliasFields(elem, str) ||
     addIdentFields(elem, str);
 }
@@ -71,6 +73,26 @@ function addAliasFields(
     const prefix = name.ident.kind === "decl" ? "%" : "";
     str.add(" " + prefix + name.ident.originalName);
     str.add("=" + typeRef.ident.originalName);
+    return true;
+  }
+}
+
+function addStructFields(
+  elem: AbstractElem2,
+  str: LineWrapper,
+): true | undefined {
+  if (elem.kind === "struct") {
+    str.add(" " + elem.name.ident.originalName);
+    return true;
+  }
+}
+
+function addNameFields(
+  elem: AbstractElem2,
+  str: LineWrapper,
+): true | undefined {
+  if (elem.kind === "name") {
+    str.add(" " + elem.name);
     return true;
   }
 }

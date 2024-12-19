@@ -1,4 +1,4 @@
-import { CollectContext, CollectPair, TagRecord } from "mini-parse";
+import { CollectContext, CollectFn, CollectPair, TagRecord } from "mini-parse";
 import {
   AbstractElem2,
   AliasElem,
@@ -6,7 +6,10 @@ import {
   ElemWithContents,
   IdentElem,
   ModuleElem,
+  NameElem,
   OverrideElem,
+  StructElem,
+  StructMemberElem,
   TextElem,
   VarElem,
 } from "./AbstractElems2.ts";
@@ -18,11 +21,12 @@ export function refIdent(cc: CollectContext) {
   const weslContext: WeslParseContext = cc.app.context;
   const { ident, identElem } = makeIdentElem(cc, "ref");
   weslContext.scope.idents.push(ident);
-  addToOpenElems(cc, identElem);
+  addToOpenElem(cc, identElem);
   return identElem;
 }
 
-function addToOpenElems(cc: CollectContext, elem: AbstractElem2): void {
+/** add an elem to the .contents array of the currently containing element */
+function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
   const weslContext: WeslParseContext = cc.app.context;
   const { openElems } = weslContext;
   if (openElems && openElems.length) {
@@ -37,7 +41,7 @@ export function declIdent(cc: CollectContext) {
   const { ident, identElem } = makeIdentElem(cc, "decl");
   weslContext.scope.idents.push(ident);
 
-  addToOpenElems(cc, identElem);
+  addToOpenElem(cc, identElem);
 
   return identElem;
 }
@@ -97,10 +101,47 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
   });
 }
 
+export function collectStruct<N extends TagRecord>(): CollectPair<
+  N,
+  StructElem
+> {
+  return collectElem(
+    "struct",
+    (cc: CollectContext, openElem: PartElem<StructElem>) => {
+      const name = cc.tags.typeName?.[0]!;
+      const members = cc.tags.members!;
+      const partElem: StructElem = { ...openElem, name, members };
+      return withTextCover(partElem, cc);
+    },
+  );
+}
+
+export function collectStructMember<N extends TagRecord>(): CollectPair<
+  N,
+  StructMemberElem
+> {
+  return collectElem(
+    "member",
+    (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
+      const name = cc.tags.nameElem?.[0]!;
+      const typeRef = cc.tags.typeRef?.[0];
+      const partElem = { ...openElem, name, typeRef };
+      return withTextCover(partElem, cc);
+    },
+  );
+}
+
+export function collectNameElem(cc: CollectContext): NameElem {
+  const { start, end, src } = cc;
+  const name = src.slice(start, end);
+  const elem: NameElem = { kind: "name", src, start, end, name };
+  addToOpenElem(cc, elem);
+  return elem;
+}
+
 // prettier-ignore
 export function collectModule<N extends TagRecord>(): 
     CollectPair< N, ModuleElem > {
-  // dlog("collectModule.setup");
   return collectElem(
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
@@ -117,9 +158,7 @@ export function collectSimpleElem<
   N extends TagRecord,
   V extends AbstractElem2 & ElemWithContents,
 >(kind: V["kind"]): CollectPair<N, V> {
-  return collectElem<N, V>(kind, (cc, part) => {
-    return withTextCover(part, cc);
-  });
+  return collectElem<N, V>(kind, (cc, part) => withTextCover(part, cc));
 }
 
 function collectElem<N extends TagRecord, V extends AbstractElem2>(
@@ -128,7 +167,6 @@ function collectElem<N extends TagRecord, V extends AbstractElem2>(
 ): CollectPair<N, V> {
   return {
     before: (cc: CollectContext) => {
-      // dlog({ kind });
       const partialElem = { kind, contents: [] };
       const weslContext: WeslParseContext = cc.app.context;
       weslContext.openElems.push(partialElem);
@@ -139,9 +177,7 @@ function collectElem<N extends TagRecord, V extends AbstractElem2>(
       const partialElem = weslContext.openElems.pop()!;
       console.assert(partialElem && partialElem.kind === kind);
       const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
-      addToOpenElems(cc, elem);
-      // dlog("collectElem.after", elemToString(elem));
-
+      addToOpenElem(cc, elem);
       return elem;
     },
   };

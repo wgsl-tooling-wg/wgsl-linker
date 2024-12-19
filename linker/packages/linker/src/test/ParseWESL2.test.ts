@@ -76,3 +76,27 @@ test("parse const_assert", () => {
         text ';'"
   `);
 });
+
+test("parse struct", () => {
+  const src = `struct foo { bar: i32, zip: u32, } ;`;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      struct foo
+        text 'struct '
+        ident %foo
+        text ' { '
+        member
+          name bar
+          text ': '
+          ident i32
+        text ', '
+        member
+          name zip
+          text ': '
+          ident u32
+        text ', }'
+      text ' ;'"
+  `);
+});
