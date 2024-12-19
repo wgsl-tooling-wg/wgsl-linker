@@ -92,8 +92,8 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     const name = cc.tags.declIdent?.[0]!;
     const typeRef = cc.tags.typeRef?.[0];
-    const contents = coverWithText(cc, openElem.contents);
-    return { ...openElem, name, typeRef, contents } as E;
+    const partElem = { ...openElem, name, typeRef };
+    return withTextCover(partElem, cc);
   });
 }
 
@@ -105,9 +105,7 @@ export function collectModule<N extends TagRecord>():
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
       const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
-      const contents = coverWithText(ccComplete, openElem.contents); // TODO DRY
-      const moduleElem: ModuleElem = { ...openElem, contents };
-      // dlog("collectModule.inAfter", { moduleElem });
+      const moduleElem:ModuleElem = withTextCover(openElem, ccComplete);
       const weslState: StableState = cc.app.stable;
       weslState.rootModule = moduleElem;
       return moduleElem;
@@ -120,8 +118,7 @@ export function collectSimpleElem<
   V extends AbstractElem2 & ElemWithContents,
 >(kind: V["kind"]): CollectPair<N, V> {
   return collectElem<N, V>(kind, (cc, part) => {
-    const contents = coverWithText(cc, part.contents);
-    return { ...part, contents } as V;
+    return withTextCover(part, cc);
   });
 }
 
@@ -150,9 +147,22 @@ function collectElem<N extends TagRecord, V extends AbstractElem2>(
   };
 }
 
+/**
+ * @return a copy of the element with contents extended
+ * to include TextElems to cover the entire range.
+ */
+function withTextCover<T extends ElemWithContents>(
+  elem: ElemWithContents,
+  cc: CollectContext,
+): T {
+  const contents = coverWithText(cc, elem.contents);
+  return { ...elem, contents } as T;
+}
+
 /** cover the entire source range with Elems by creating TextElems to
- * cover any parts of the source that are not covered by other elems */
-export function coverWithText(
+ * cover any parts of the source that are not covered by other elems
+ * @returns the existing elems combined with any new TextElems, in src order */
+function coverWithText(
   cc: CollectContext,
   existing: AbstractElem2[],
 ): AbstractElem2[] {
