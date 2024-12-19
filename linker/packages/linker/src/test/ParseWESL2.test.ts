@@ -61,3 +61,18 @@ test("parse override ", () => {
       text ';'"
   `);
 });
+
+test("parse const_assert", () => {
+  const src = `const_assert x < y;`;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      assert
+        text 'const_assert '
+        ident x
+        text ' < '
+        ident y
+        text ';'"
+  `);
+});

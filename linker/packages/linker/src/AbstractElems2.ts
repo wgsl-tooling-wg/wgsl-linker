@@ -1,9 +1,10 @@
 import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 export type AbstractElem2 =
-  | AliasElem 
+  | AliasElem
   | ChunkElem
   | ConstElem
+  | ConstAssertElem
   | IdentElem
   | ModuleElem
   | OverrideElem
@@ -15,6 +16,10 @@ export interface AbstractElemBase2 {
   kind: string;
   start: number;
   end: number;
+}
+
+export interface ElemWithContents extends AbstractElemBase2 {
+  contents: AbstractElem2[];
 }
 
 type ChunkChild = ChunkElem | IdentElem | TextElem;
@@ -49,41 +54,39 @@ export interface ParamElem extends AbstractElemBase2 {
 }
 
 /** a variable declaration */
-export interface VarElem extends AbstractElemBase2 {
+export interface VarElem extends ElemWithContents {
   kind: "var";
   name: IdentElem;
   typeRef?: IdentElem;
-  contents: AbstractElem2[];
 }
 
 /** a const declaration */
-export interface ConstElem extends AbstractElemBase2 {
+export interface ConstElem extends ElemWithContents {
   kind: "const";
   name: IdentElem;
   typeRef?: IdentElem;
-  contents: AbstractElem2[];
 }
 
 /** an override declaration */
-export interface OverrideElem extends AbstractElemBase2 {
+export interface OverrideElem extends ElemWithContents {
   kind: "override";
   name: IdentElem;
   typeRef?: IdentElem;
-  contents: AbstractElem2[];
 }
 
 /** an entire file */
-export interface ModuleElem extends AbstractElemBase2 {
+export interface ModuleElem extends ElemWithContents {
   kind: "module";
-  contents: AbstractElem2[];
 }
 
 /** an alias statement */
-export interface AliasElem extends AbstractElemBase2 {
+export interface AliasElem extends ElemWithContents{
   kind: "alias";
   name: IdentElem;
   typeRef: IdentElem;
-  contents: AbstractElem2[];
 }
 
-
+/** a const_assert statement */
+export interface ConstAssertElem extends ElemWithContents {
+  kind: "assert";
+}

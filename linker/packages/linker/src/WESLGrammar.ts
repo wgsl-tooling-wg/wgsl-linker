@@ -34,6 +34,7 @@ import {
   refIdent,
   startScope,
   collectVarLike,
+  collectSimpleElem,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -413,7 +414,7 @@ export const global_alias = seq(
     r.app.stable.elems.push(e);
   });
 
-const const_assert = seq("const_assert", req(expression), ";");
+const const_assert = seq("const_assert", req(expression), ";").collect(collectSimpleElem("assert"));
 
 const import_statement = gleamImport.commit("import_statement");
 

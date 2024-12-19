@@ -3,6 +3,7 @@ import {
   AbstractElem2,
   AliasElem,
   ConstElem,
+  ElemWithContents,
   IdentElem,
   ModuleElem,
   OverrideElem,
@@ -11,7 +12,6 @@ import {
 } from "./AbstractElems2.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { emptyBodyScope, Ident } from "./Scope.ts";
-import { dlog } from "berry-pretty";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -115,7 +115,17 @@ export function collectModule<N extends TagRecord>():
   );
 }
 
-export function collectElem<N extends TagRecord, V extends AbstractElem2>(
+export function collectSimpleElem<
+  N extends TagRecord,
+  V extends AbstractElem2 & ElemWithContents,
+>(kind: V["kind"]): CollectPair<N, V> {
+  return collectElem<N, V>(kind, (cc, part) => {
+    const contents = coverWithText(cc, part.contents);
+    return { ...part, contents } as V;
+  });
+}
+
+function collectElem<N extends TagRecord, V extends AbstractElem2>(
   kind: V["kind"],
   fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
 ): CollectPair<N, V> {

@@ -41,6 +41,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "alias":
     case "override":
     case "const":
+    case "assert":
       return emitContents(e, ctx);
     default:
       dlog("ugh");

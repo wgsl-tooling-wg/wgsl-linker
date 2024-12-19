@@ -16,3 +16,13 @@ test("link an alias", () => {
   const result = link2Test(src);
   expect(result).toEqual(src);
 });
+
+test("link an const_assert", () => {
+  const src = `
+    var x = 1;
+    var y = 2;
+    const_assert x < y;
+  `;
+  const result = link2Test(src);
+  expect(result).toEqual(src);
+});
