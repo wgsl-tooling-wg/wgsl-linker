@@ -7,5 +7,9 @@
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "community-wgsl/**": true
+  },
+  "files.exclude": {
+    "**/node_modules/**": true,
+    "community-wgsl/**": true
   }
 }
