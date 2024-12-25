@@ -14,7 +14,6 @@ import {
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
   collected: CollectInfo;
-  tagNames?: Set<string>;
   debugName?: string;
 }
 
@@ -80,15 +79,6 @@ export function collect<N extends TagRecord, T, V>(
         // dlog("collect", debugName);
         const collected = refinePosition(ctx.lexer, origStart);
         let fn = afterFn;
-        const { _ctag } = collectParser;
-        if (_ctag) {
-          // dlog("collect tag", { ctag: _ctag});
-          // dlog({collectParser});
-          fn = (cc: CollectContext): any => {
-            const result = afterFn(cc);
-            addTagValue(cc.tags, _ctag, result);
-          };
-        }
         const entry = {
           collected,
           collectFn: fn,
@@ -147,11 +137,6 @@ export function tag2<N extends TagRecord, T>(
   p: Parser<T, N>,
   name: string,
 ): Parser<T, N> {
-  if (p._collection) {
-    // if we're tagging a collect() parser, signal collect() to tag its results
-    p._ctag = name;
-    // dlog("tagging collect", { name, p });
-  }
   const cp = parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
     const origStart = ctx.lexer.position();
     const result = p._run(ctx);
@@ -205,7 +190,7 @@ export function commit<N extends TagRecord, T>(
         // });
         const _values: CollectValue[] = [{ value: null, openArray: undefined }];
         ctx._collect.forEach(entry => {
-          const { collectFn, tagNames, collected } = entry;
+          const { collectFn, collected } = entry;
           const collectContext: CollectContext = {
             tags,
             ...collected,
@@ -216,15 +201,6 @@ export function commit<N extends TagRecord, T>(
 
           const collectResult = collectFn(collectContext);
           saveCollectValue(collectContext, collectResult);
-
-          // if tags are defined on this collect(), update tags with the result
-          // TODO drop this
-          if (tagNames && collectResult !== undefined) {
-            tagNames.forEach(name => {
-              // dlog("commit tagging", { name, collectResult });
-              addTagValue(tags, name, collectResult);
-            });
-          }
         });
         ctx._collect.length = 0;
       }

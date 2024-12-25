@@ -100,21 +100,21 @@ const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
-  word.collect(declIdent, "typeNameDecl").tag2("typeName").tag("name"),
+  word.collect(declIdent, "typeNameDecl").ctag("typeName").tag("name"),
 ).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem;
 });
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.tag("name").collect(declIdent, "fnNameDecl"),
+  word.tag("name").collect(declIdent, "fnNameDecl").ctag("fnName"),
   "missing fn name",
 ).map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
 export const type_specifier: Parser<TypeRefElem[]> = seq(
-  word.tag(possibleTypeRef).collect(refIdent, "type_specifier").tag2("typeRef"),
+  word.tag(possibleTypeRef).collect(refIdent, "type_specifier").ctag("typeRef"),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -128,7 +128,7 @@ const optionally_typed_ident = seq(
   word
     .tag("name")
     .collect(declIdent, "optionally_typed_ident")
-    .tag2("declIdent"),
+    .ctag("declIdent"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
@@ -136,7 +136,7 @@ const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const struct_member = seq(
   opt_attributes,
-  word.tag("name").collect(collectNameElem).tag2("nameElem"),
+  word.tag("name").collect(collectNameElem).ctag("nameElem"),
   ":",
   req(type_specifier.tag("typeRefs")),
 )
@@ -384,17 +384,9 @@ export const fn_decl = seq(
   text("fn"),
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList), // TODO should be in the same scope as the fn body
-  opt(seq("->", opt_attributes, type_specifier.tag("typeRefs"))),
+  opt(seq("->", opt_attributes, type_specifier.ctag("returnType").tag("typeRefs"))),
   req(compound_statement),
-).map(r => {
-  const e = makeElem("fn", r);
-  const nameElem = r.tags.nameElem[0];
-  e.nameElem = nameElem as Required<typeof nameElem>;
-  e.name = nameElem.name;
-  e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
-  e.typeRefs = r.tags.typeRefs?.flat() || [];
-  r.app.stable.elems.push(e);
-});
+)
 
 const global_value_decl = or(
   seq(
@@ -410,7 +402,7 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name")).collect(declIdent, "global_alias").tag2("declIdent"),
+  req(word.tag("name")).collect(declIdent, "global_alias").ctag("declIdent"),
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),

@@ -133,9 +133,6 @@ export interface ParserArgs {
   _collection?: true;
 
   /** set if the collection results are tagged */
-  _ctag?: string;
-
-  /** set if the collection results are tagged */
   _children?: Parser<any, any>[];
 }
 
@@ -154,7 +151,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
   terminal: boolean | undefined;
   preDisabled: true | undefined;
   _collection: true | undefined;
-  _ctag: string | undefined;
   _children: Parser<any, any>[] | undefined;
   fn: ParseFn<T, N>;
 
@@ -166,7 +162,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
     this.traceSrc = args.traceSrc;
     this.preDisabled = args.preDisabled;
     this._collection = args._collection;
-    this._ctag = args._ctag;
     this._children = args._children;
     this.fn = args.fn;
   }
@@ -181,7 +176,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
       terminal: this.terminal,
       preDisabled: this.preDisabled,
       _collection: this._collection,
-      _ctag: this._ctag,
       _children: this._children,
       fn: this.fn,
       ...p,

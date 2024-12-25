@@ -66,7 +66,7 @@ test("collect with tag", () => {
     "a",
     text("b")
       .collect(() => "x", "1")
-      .tag2("B"),
+      .ctag("B"),
     "c",
   )
     .collect(cc => {
@@ -76,6 +76,7 @@ test("collect with tag", () => {
     .commit();
   testParse(p, src);
 
+  dlog({results});
   expect(results).toEqual(["collected: x"]);
 });
 
