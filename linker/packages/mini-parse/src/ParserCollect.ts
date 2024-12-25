@@ -66,12 +66,7 @@ export function collect<N extends TagRecord, T, V>(
       // }
       const origStart = ctx.lexer.position();
       if (beforeFn) {
-        const collected = refinePosition(ctx.lexer, origStart);
-        ctx._collect.push({
-          collected,
-          collectFn: beforeFn,
-          debugName: `${debugName}.before`,
-        });
+        queueCollectFn(ctx, origStart, beforeFn, `${debugName}.before`);
       }
 
       return runAndCollectAfter(p, ctx, afterFn, debugName);
@@ -113,16 +108,24 @@ function runAndCollectAfter<T, N extends TagRecord>(
 ): OptParserResult<T, N> {
   const origStart = ctx.lexer.position();
   const result = p._run(ctx);
-  if (result !== null) {
-    const { start: start, end } = refinePosition(ctx.lexer, origStart);
-    const collected = { start, end };
-    ctx._collect.push({
-      collected,
-      collectFn,
-      debugName,
-    });
+  if (result) {
+    queueCollectFn(ctx, origStart, collectFn, debugName);
   }
   return result;
+}
+
+function queueCollectFn<T, N extends TagRecord>(
+  ctx: ParserContext,
+  origStart: number,
+  collectFn: CollectFn<any, any>,
+  debugName: string,
+) {
+  const collected = refinePosition(ctx.lexer, origStart);
+  ctx._collect.push({
+    collected,
+    collectFn,
+    debugName,
+  });
 }
 
 /** tag parse results or collect() results with a name that can be
@@ -136,17 +139,10 @@ export function tag2<N extends TagRecord, T>(
     const result = p._run(ctx);
 
     // tag the parser resuts (unless it's a collect() parser)
-    if (result && !p._collection) {
-      const { start: start, end } = refinePosition(ctx.lexer, origStart);
-      const collected = { start, end };
-      ctx._collect.push({
-        collected,
-        collectFn: ctx => {
-          const { tags } = ctx;
-          addTagValue(tags, name, result.value);
-        },
-        debugName: `tag ${name}`,
-      });
+    if (result) {
+      const tagFn = (ctx: CollectContext) =>
+        addTagValue(ctx.tags, name, result.value);
+      queueCollectFn(ctx, origStart, tagFn, `tag2 ${name}`);
     }
     return result;
   });
@@ -173,7 +169,7 @@ export function commit<N extends TagRecord, T>(
     `commit`,
     (ctx: ParserContext): OptParserResult<T, N> => {
       const result = p._run(ctx);
-      if (result !== null) {
+      if (result) {
         const tags: Record<string, any> = {};
         // dlog(`commit ${commitDebugName}`);
         const { app, lexer } = ctx;
