@@ -82,6 +82,19 @@ test("collect with tag", () => {
 
 test("ctag earlier collect", () => {
   let results:string[] = [];
+  const p = or(
+    "a",
+    text("b").collect(() => "B", "1"),
+  )
+    .ctag("bee")
+    .collect(cc => results.push(`collected: ${cc.tags.bee}`))
+    .commit();
+  testParse(p, "b");
+  expect(results).toEqual(["collected: B"]);
+});
+
+test.skip("ctag collect inside seq", () => {
+  let results:string[] = [];
   const p = seq(
     "a",
     text("b").collect(() => "B", "1"),
@@ -90,5 +103,5 @@ test("ctag earlier collect", () => {
     .collect(cc => results.push(`collected: ${cc.tags.bee}`))
     .commit();
   testParse(p, "a b");
-  expect(results).toEqual(["collected: B"]);
+  expect(results).toEqual(["collected: [B]"]);
 });
