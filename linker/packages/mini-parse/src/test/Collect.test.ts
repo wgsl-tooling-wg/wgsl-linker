@@ -1,6 +1,7 @@
 import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { or, seq, text } from "../ParserCombinator.js";
+import { dlog } from "berry-pretty";
 
 test("collect runs a fn on commit", () => {
   const src = "a b c";
@@ -76,4 +77,17 @@ test("collect with tag", () => {
   testParse(p, src);
 
   expect(results).toEqual(["collected: x"]);
+});
+
+test("ctag earlier collect", () => {
+  let results:string[] = [];
+  const p = seq(
+    "a",
+    text("b").collect(() => "B", "1"),
+  )
+    .ctag("bee")
+    .collect(cc => results.push(`collected: ${cc.tags.bee}`))
+    .commit();
+  testParse(p, "a b");
+  expect(results).toEqual(["collected: B"]);
 });

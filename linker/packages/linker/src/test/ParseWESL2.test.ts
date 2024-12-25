@@ -100,3 +100,10 @@ test("parse struct", () => {
       text ' ;'"
   `);
 });
+
+test("parse fn", () => {
+  const src = `fn foo(x: i32, y: u32) -> f32 { return 1.0; }`;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  console.log(astString);
+});

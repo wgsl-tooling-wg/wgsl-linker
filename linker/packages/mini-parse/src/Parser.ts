@@ -6,6 +6,7 @@ import {
   CollectFnEntry,
   CollectPair,
   commit,
+  ctag,
   tag2,
 } from "./ParserCollect.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
@@ -210,6 +211,10 @@ export class Parser<T, N extends TagRecord = NoTags> {
 
   tag2<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
     return tag2(this, name) as Parser<T, N & { [key in K]: T[] }>;
+  }
+  
+  ctag<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
+    return ctag(this, name) as Parser<T, N & { [key in K]: T[] }>;
   }
 
   /** record a name for debug tracing */

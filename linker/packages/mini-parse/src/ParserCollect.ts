@@ -7,9 +7,10 @@ import {
   Parser,
   ParserContext,
   TagRecord,
+  trackChildren,
 } from "./Parser.js";
-import { tracing } from "./ParserTracing.js";
 
+/** an entry in the table of deferred functions for collect() and tag() */
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
   collected: CollectInfo;
@@ -27,11 +28,19 @@ export interface CollectContext extends CollectInfo {
   tags: TagRecord;
   src: string;
   app: AppState<any>;
+  _values: CollectValue[];
 }
 
-/** a user supplied for collecting info from the parse */
+/** a stack of collected values  */
+interface CollectValue {
+  value: any;
+  openArray: any[] | undefined;
+}
+
+/** a user supplied function for collecting info from the parse */
 export type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
 
+/** a user supplied pair functions for collecting info from the parse */
 export interface CollectPair<N extends TagRecord, V> {
   before: (cc: CollectContext) => void;
   after: CollectFn<N, V>;
@@ -92,13 +101,49 @@ export function collect<N extends TagRecord, T, V>(
     },
   );
   collectParser._collection = true;
-  if (tracing) collectParser._children = [p];
+  trackChildren(collectParser, p);
   return collectParser;
+}
+
+/** tag most recent collect result with a name that can be
+ * referenced in later collection. */
+export function ctag<N extends TagRecord, T>(
+  p: Parser<T, N>,
+  name: string,
+): Parser<T, N> {
+  const cp = parser(`ctag`, (ctx: ParserContext): OptParserResult<T, N> => {
+    return queueCollectFn(p, ctx, (cc: CollectContext) => {
+      const valueEntry = last(cc._values);
+      addTagValue(cc.tags, name, valueEntry.value);
+    }, `ctag ${name}`);
+  });
+  trackChildren(cp, p);
+  return cp;
+}
+
+function queueCollectFn<T, N extends TagRecord>(
+  p: Parser<T, N>,
+  ctx: ParserContext,
+  fn: CollectFn<any, any>,
+  debugName: string = "",
+): OptParserResult<T, N> {
+  const origStart = ctx.lexer.position();
+  const result = p._run(ctx);
+  if (result) {
+    const { start: start, end } = refinePosition(ctx.lexer, origStart);
+    const collected = { start, end };
+    ctx._collect.push({
+      collected,
+      collectFn: fn,
+      debugName,
+    });
+  }
+  return result;
 }
 
 /** tag parse results or collect() results with a name that can be
  * referenced in later collection. */
-export function tag2<N extends TagRecord, T, V>(
+export function tag2<N extends TagRecord, T>(
   p: Parser<T, N>,
   name: string,
 ): Parser<T, N> {
@@ -126,7 +171,7 @@ export function tag2<N extends TagRecord, T, V>(
     }
     return result;
   });
-  if (tracing) cp._children = [p];
+  trackChildren(cp, p);
   return cp;
 }
 
@@ -158,6 +203,7 @@ export function commit<N extends TagRecord, T>(
         //   const { start: start, end } = entry.collected;
         //   dlog("commit, prep:", entry.debugName, { collected: src.slice(start, end), start, end });
         // });
+        const _values: CollectValue[] = [{ value: null, openArray: undefined }];
         ctx._collect.forEach(entry => {
           const { collectFn, tagNames, collected } = entry;
           const collectContext: CollectContext = {
@@ -165,11 +211,14 @@ export function commit<N extends TagRecord, T>(
             ...collected,
             src,
             app,
+            _values,
           };
 
           const collectResult = collectFn(collectContext);
+          saveCollectValue(collectContext, collectResult);
 
           // if tags are defined on this collect(), update tags with the result
+          // TODO drop this
           if (tagNames && collectResult !== undefined) {
             tagNames.forEach(name => {
               // dlog("commit tagging", { name, collectResult });
@@ -183,8 +232,21 @@ export function commit<N extends TagRecord, T>(
     },
   );
 
-  if (tracing) commitParser._children = [p];
+  trackChildren(commitParser, p);
   return commitParser;
+}
+
+function saveCollectValue(cc: CollectContext, value: any) {
+  const valueEntry = last(cc._values);
+  if (valueEntry.openArray !== undefined) {
+    valueEntry.openArray.push(value);
+  } else {
+    valueEntry.value = value;
+  }
+}
+
+function last<T>(elems: T[]): T {
+  return elems[elems.length - 1];
 }
 
 /** We've succeeded in a parse, so refine the start position to skip past ws
