@@ -13,17 +13,18 @@ import {
 /** an entry in the table of deferred functions for collect() and tag() */
 export interface CollectFnEntry<N extends TagRecord, V> {
   collectFn: CollectFn<N, V>;
-  collected: CollectInfo;
+  srcPosition: CollectPosition;
   debugName?: string;
 }
 
-export interface CollectInfo {
+/** location in the source where a collection occurred */
+export interface CollectPosition {
   start: number;
   end: number;
 }
 
 /** info passed to the collect fn */
-export interface CollectContext extends CollectInfo {
+export interface CollectContext extends CollectPosition {
   tags: TagRecord;
   src: string;
   app: AppState<any>;
@@ -120,9 +121,9 @@ function queueCollectFn<T, N extends TagRecord>(
   collectFn: CollectFn<any, any>,
   debugName: string,
 ) {
-  const collected = refinePosition(ctx.lexer, origStart);
+  const srcPosition = refinePosition(ctx.lexer, origStart);
   ctx._collect.push({
-    collected,
+    srcPosition,
     collectFn,
     debugName,
   });
@@ -171,24 +172,12 @@ export function commit<N extends TagRecord, T>(
       const result = p._run(ctx);
       if (result) {
         const tags: Record<string, any> = {};
-        // dlog(`commit ${commitDebugName}`);
         const { app, lexer } = ctx;
         const { src } = lexer;
-        // ctx._collect.forEach(entry => {
-        //   const { start: start, end } = entry.collected;
-        //   dlog("commit, prep:", entry.debugName, { collected: src.slice(start, end), start, end });
-        // });
         const _values: CollectValue[] = [{ value: null, openArray: undefined }];
         ctx._collect.forEach(entry => {
-          const { collectFn, collected } = entry;
-          const collectContext: CollectContext = {
-            tags,
-            ...collected,
-            src,
-            app,
-            _values,
-          };
-
+          const { collectFn, srcPosition } = entry;
+          const collectContext = { tags, ...srcPosition, src, app, _values };
           const collectResult = collectFn(collectContext);
           saveCollectValue(collectContext, collectResult);
         });
@@ -218,7 +207,7 @@ function last<T>(elems: T[]): T {
 /** We've succeeded in a parse, so refine the start position to skip past ws
  * (we don't consume ws earlier, in case an inner parser wants to use different ws skipping)
  */
-function refinePosition(lexer: Lexer, origStart: number): CollectInfo {
+function refinePosition(lexer: Lexer, origStart: number): CollectPosition {
   const end = lexer.position();
   lexer.position(origStart);
   const start = lexer.skipIgnored();
