@@ -74,20 +74,7 @@ export function collect<N extends TagRecord, T, V>(
         });
       }
 
-      const value = p._run(ctx);
-      if (value !== null) {
-        // dlog("collect", debugName);
-        const collected = refinePosition(ctx.lexer, origStart);
-        let fn = afterFn;
-        const entry = {
-          collected,
-          collectFn: fn,
-          debugName: `${debugName}.after`,
-        };
-        (collectParser as any)._entry = entry;
-        ctx._collect.push(entry);
-      }
-      return value;
+      return runAndCollectAfter(p, ctx, afterFn, debugName);
     },
   );
   collectParser._collection = true;
@@ -102,29 +89,36 @@ export function ctag<N extends TagRecord, T>(
   name: string,
 ): Parser<T, N> {
   const cp = parser(`ctag`, (ctx: ParserContext): OptParserResult<T, N> => {
-    return queueCollectFn(p, ctx, (cc: CollectContext) => {
-      const valueEntry = last(cc._values);
-      addTagValue(cc.tags, name, valueEntry.value);
-    }, `ctag ${name}`);
+    return runAndCollectAfter(
+      p,
+      ctx,
+      (cc: CollectContext) => {
+        const valueEntry = last(cc._values);
+        addTagValue(cc.tags, name, valueEntry.value);
+      },
+      `ctag ${name}`,
+    );
   });
   trackChildren(cp, p);
   return cp;
 }
 
-function queueCollectFn<T, N extends TagRecord>(
+/** run the parser and if it succeeds, queue a provided function to run
+ * during commit() */
+function runAndCollectAfter<T, N extends TagRecord>(
   p: Parser<T, N>,
   ctx: ParserContext,
-  fn: CollectFn<any, any>,
+  collectFn: CollectFn<any, any>,
   debugName: string = "",
 ): OptParserResult<T, N> {
   const origStart = ctx.lexer.position();
   const result = p._run(ctx);
-  if (result) {
+  if (result !== null) {
     const { start: start, end } = refinePosition(ctx.lexer, origStart);
     const collected = { start, end };
     ctx._collect.push({
       collected,
-      collectFn: fn,
+      collectFn,
       debugName,
     });
   }
