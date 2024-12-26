@@ -129,6 +129,21 @@ function queueCollectFn<T, N extends TagRecord>(
   });
 }
 
+export function pushOpenArray(cc: CollectContext): void {
+  cc._values.push({ value: null, openArray: [] });
+}
+
+export function closeArray(cc: CollectContext): void {
+  const lastValue = last(cc._values);
+  // dlog({ lastValue });
+  if(
+    lastValue.openArray === undefined) console.log(
+    "---closeArray: no open array",
+  );
+  cc._values.pop();
+  saveCollectValue(cc, lastValue.openArray);
+}
+
 /** tag parse results or collect() results with a name that can be
  * referenced in later collection. */
 export function tag2<N extends TagRecord, T>(
@@ -175,7 +190,14 @@ export function commit<N extends TagRecord, T>(
         const { app, lexer } = ctx;
         const { src } = lexer;
         const _values: CollectValue[] = [{ value: null, openArray: undefined }];
+        // ctx._collect.forEach(entry => {
+        //   dlog("collect-list", entry.debugName)
+        // });
         ctx._collect.forEach(entry => {
+          // dlog("commit", {
+          //   entryName: entry.debugName,
+          //   entryFn: entry.collectFn,
+          // });
           const { collectFn, srcPosition } = entry;
           const collectContext = { tags, ...srcPosition, src, app, _values };
           const collectResult = collectFn(collectContext);
@@ -192,11 +214,14 @@ export function commit<N extends TagRecord, T>(
 }
 
 function saveCollectValue(cc: CollectContext, value: any) {
-  const valueEntry = last(cc._values);
-  if (valueEntry.openArray !== undefined) {
-    valueEntry.openArray.push(value);
-  } else {
-    valueEntry.value = value;
+  if (value !== undefined) {
+    const valueEntry = last(cc._values);
+    if (!valueEntry) console.log("----saveCollectValue: no valueEntry");
+    if (valueEntry) valueEntry.value = value;
+    if (valueEntry?.openArray !== undefined) {
+      valueEntry.openArray.push(value);
+    }
+    // dlog({ value });
   }
 }
 

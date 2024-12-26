@@ -21,8 +21,12 @@ import {
   simpleParser,
   TagRecord,
   tokenSkipSet,
-  trackChildren
+  trackChildren,
 } from "./Parser.js";
+import {
+  closeArray,
+  pushOpenArray,
+} from "./ParserCollect.js";
 import { ctxLog } from "./ParserLogging.js";
 import { tracing } from "./ParserTracing.js";
 import { mergeTags } from "./ParserUtil.js";
@@ -79,6 +83,8 @@ export function text(value: string): Parser<string, NoTags> {
   );
 }
 
+let seqId = 0; // for debug for now, LATER remove
+
 /** Parse a sequence of parsers
  * @return an array of all parsed results, or null if any parser fails */
 export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
@@ -86,15 +92,20 @@ export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
   const seqParser = parser("seq", (ctx: ParserContext) => {
     const values = [];
     let tagged = {};
+    let failed = false;
     for (const p of parsers) {
       const result = p._run(ctx);
-      if (result === null) return null;
+      if (result === null) {
+        failed = true;
+        break;
+      }
 
       tagged = mergeTags(tagged, result.tags);
       values.push(result.value);
     }
+    if (failed) return null;
     return { value: values, tags: tagged };
-  });
+  }).collect({ before: pushOpenArray, after: closeArray }, `seq-${seqId++}`);
 
   trackChildren(seqParser, ...parsers);
 
@@ -351,13 +362,16 @@ export function tokens<A extends CombinatorArg>(
   arg: A,
 ): ParserFromArg<A> {
   const p = parserArg(arg);
-  const tokensParser = parser(`tokens ${matcher._debugName}`, (state: ParserContext) => {
-    return state.lexer.withMatcher(matcher, () => {
-      return p._run(state);
-    });
-  });
+  const tokensParser = parser(
+    `tokens ${matcher._debugName}`,
+    (state: ParserContext) => {
+      return state.lexer.withMatcher(matcher, () => {
+        return p._run(state);
+      });
+    },
+  );
 
-  trackChildren(tokensParser, p)
+  trackChildren(tokensParser, p);
   return tokensParser;
 }
 
