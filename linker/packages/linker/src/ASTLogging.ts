@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
@@ -105,7 +106,7 @@ function addFnFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
 
     str.add("(");
     const paramStrs = params
-      .map(p => p.name.ident.originalName + ":" + p.typeRef.ident.originalName)
+      .map(p => p.name.ident.originalName + ": " + p.typeRef.ident.originalName)
       .join(", ");
     str.add(paramStrs);
     str.add(")");

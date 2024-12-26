@@ -105,5 +105,23 @@ test("parse fn", () => {
   const src = `fn foo(x: i32, y: u32) -> f32 { return 1.0; }`;
   const ast = parse2Test(src);
   const astString = astTree(ast.rootModule);
-  console.log(astString);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      fn foo(x: i32, x: i32) -> f32
+        text 'fn '
+        ident %foo
+        text '('
+        param
+          ident %x
+          text ': '
+          ident i32
+        text ', '
+        param
+          ident %y
+          text ': '
+          ident u32
+        text ') -> '
+        ident f32
+        text ' { return 1.0; }'"
+  `);
 });

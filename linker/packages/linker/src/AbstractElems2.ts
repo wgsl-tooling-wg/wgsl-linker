@@ -41,7 +41,7 @@ export interface TextElem extends AbstractElemBase2 {
 }
 
 /** a parameter in a function declaration */
-export interface ParamElem extends AbstractElemBase2 {
+export interface ParamElem extends ElemWithContents{
   kind: "param";
   name: IdentElem;
   typeRef: IdentElem;

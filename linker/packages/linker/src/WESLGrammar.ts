@@ -39,6 +39,7 @@ import {
   collectStructMember,
   collectNameElem,
   collectFn,
+  collectFnParam,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -176,9 +177,9 @@ export const fn_call = seq(
 // prettier-ignore
 const fnParam = seq(
   opt_attributes,
-  word,
-  opt(seq(":", req(type_specifier.tag("typeRefs")))),
-);
+  word.collect(declIdent).ctag("paramName"),
+  opt(seq(":", req(type_specifier.tag("typeRef")))),
+).collect(collectFnParam()).ctag("fnParam");
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
 

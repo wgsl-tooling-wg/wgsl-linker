@@ -39,7 +39,7 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
 }
 
 /** add declaration Ident to current scope */
-export function declIdent(cc: CollectContext) {
+export function declIdent(cc: CollectContext): IdentElem {
   const weslContext: WeslParseContext = cc.app.context;
   const { ident, identElem } = makeIdentElem(cc, "decl");
   weslContext.scope.idents.push(ident);
@@ -107,13 +107,27 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
 export function collectFn<N extends TagRecord>(): CollectPair<N, FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0]!;
-    dlog({ tags: Object.keys(cc.tags) });
-    const params: ParamElem[] = []; // TODO
-    const returnTag = cc.tags.returnType;
-    const returnType: IdentElem | undefined = returnTag?.flat(3)[0];
+    // dlog({ tags: Object.keys(cc.tags) });
+    const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
+    const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
     return withTextCover(partElem, cc);
   });
+}
+
+export function collectFnParam<N extends TagRecord>(): CollectPair<
+  N,
+  ParamElem
+> {
+  return collectElem(
+    "param",
+    (cc: CollectContext, openElem: PartElem<ParamElem>) => {
+      const typeRef = cc.tags.typeRef?.[0]!;
+      const name = cc.tags.paramName?.[0]!;
+      const paramElem = { ...openElem, name, typeRef };
+      return withTextCover(paramElem, cc);
+    },
+  );
 }
 
 export function collectStruct<N extends TagRecord>(): CollectPair<
@@ -125,8 +139,8 @@ export function collectStruct<N extends TagRecord>(): CollectPair<
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
       const name = cc.tags.typeName?.[0]!;
       const members = cc.tags.members!;
-      const partElem: StructElem = { ...openElem, name, members };
-      return withTextCover(partElem, cc);
+      const structElem = { ...openElem, name, members };
+      return withTextCover(structElem, cc);
     },
   );
 }
