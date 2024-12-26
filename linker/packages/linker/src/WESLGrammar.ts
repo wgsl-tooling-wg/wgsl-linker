@@ -417,7 +417,7 @@ const const_assert = seq("const_assert", req(expression), ";").collect(
   collectSimpleElem("assert"),
 );
 
-const import_statement = gleamImport.commit("import_statement");
+const import_statement = gleamImport;
 
 const global_directive = seq(
   or(
@@ -430,7 +430,6 @@ const global_directive = seq(
   const e = makeElem("globalDirective", r);
   r.app.stable.elems.push(e);
 });
-// .commit("global_directive");
 
 export const global_decl = or(
   fn_decl,
