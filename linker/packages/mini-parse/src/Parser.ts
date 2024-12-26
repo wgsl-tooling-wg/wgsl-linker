@@ -385,14 +385,13 @@ function runParser<T, N extends TagRecord>(
     if (result === null || result === undefined) {
       // parser failed
       if (tracing && !traceSuccessOnly) parserLog(`x ${p.debugName}`);
-      // parserLog("reset position to:", origPosition)
       lexer.position(origPosition);
       context.app.context = origAppContext;
       result = null;
       // if (ctx._collect.length > origCollectLength) {
       //   const obsolete = ctx._collect.slice(origCollectLength);
-      //   const obsoleteNames = obsolete.map(c => c.debugName);
-      //   dlog("removing", { parser: p.debugName, obsoleteNames });
+      //   const collectNames = obsolete.map(c => c.debugName);
+      //   dlog("removing", { collectNames, inParser: p.debugName });
       // }
       ctx._collect.length = origCollectLength;
     } else {
