@@ -38,6 +38,7 @@ import {
   collectStruct,
   collectStructMember,
   collectNameElem,
+  collectFn,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -384,9 +385,25 @@ export const fn_decl = seq(
   text("fn"),
   req(fnNameDecl).tag("nameElem"),
   req(fnParamList), // TODO should be in the same scope as the fn body
-  opt(seq("->", opt_attributes, type_specifier.ctag("returnType").tag("typeRefs"))),
+  opt(
+    seq(
+      "->",
+      opt_attributes,
+      type_specifier.ctag("returnType").tag("typeRefs"),
+    ),
+  ),
   req(compound_statement),
 )
+  .collect(collectFn())
+  .map(r => {
+    const e = makeElem("fn", r);
+    const nameElem = r.tags.nameElem[0];
+    e.nameElem = nameElem as Required<typeof nameElem>;
+    e.name = nameElem.name;
+    e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
+    e.typeRefs = r.tags.typeRefs?.flat() || [];
+    r.app.stable.elems.push(e);
+  });
 
 const global_value_decl = or(
   seq(

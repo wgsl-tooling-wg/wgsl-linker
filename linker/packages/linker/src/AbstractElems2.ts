@@ -2,12 +2,12 @@ import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 export type AbstractElem2 =
   | AliasElem
-  | ChunkElem
   | ConstElem
   | ConstAssertElem
+  | FnElem
   | IdentElem
   | ModuleElem
-  | NameElem 
+  | NameElem
   | OverrideElem
   | ParamElem
   | StructElem
@@ -25,15 +25,6 @@ export interface ElemWithContents extends AbstractElemBase2 {
   contents: AbstractElem2[];
 }
 
-type ChunkChild = ChunkElem | IdentElem | TextElem;
-
-/** kn undifferentiated chunk of WESL source */
-export interface ChunkElem extends AbstractElemBase2 {
-  kind: "chunk";
-  elems: ChunkChild[];
-  conditions?: any; // TODO
-}
-
 /** an identifier in WESL source */
 export interface IdentElem extends AbstractElemBase2 {
   kind: "ident";
@@ -49,11 +40,11 @@ export interface TextElem extends AbstractElemBase2 {
   src: string; // TODO SrcModule
 }
 
-/** a parameter in a function call */
+/** a parameter in a function declaration */
 export interface ParamElem extends AbstractElemBase2 {
   kind: "param";
-  name: DeclIdent; // TODO IdentElem
-  typeRef: RefIdent; // TODO IdentElem
+  name: IdentElem;
+  typeRef: IdentElem;
 }
 
 /** a variable declaration */
@@ -83,7 +74,7 @@ export interface ModuleElem extends ElemWithContents {
 }
 
 /** an alias statement */
-export interface AliasElem extends ElemWithContents{
+export interface AliasElem extends ElemWithContents {
   kind: "alias";
   name: IdentElem;
   typeRef: IdentElem;
@@ -94,12 +85,14 @@ export interface ConstAssertElem extends ElemWithContents {
   kind: "assert";
 }
 
+/** a struct declaration */
 export interface StructElem extends ElemWithContents {
   kind: "struct";
   name: IdentElem;
   members: StructMemberElem[];
 }
 
+/** a member of a struct declaration */
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
@@ -108,7 +101,24 @@ export interface StructMemberElem extends ElemWithContents {
 
 /** a name (e.g. a struct member name) that doesn't need to be an Ident */
 export interface NameElem extends AbstractElemBase2 {
-  kind: "name",
+  kind: "name";
   name: string;
   src: string; // TODO SrcModule
 }
+
+/** a function declaration */
+export interface FnElem extends ElemWithContents {
+  kind: "fn";
+  name: IdentElem;
+  params: ParamElem[];
+  returnType?: IdentElem;
+}
+
+// type ChunkChild = ChunkElem | IdentElem | TextElem;
+
+// /** kn undifferentiated chunk of WESL source */
+// export interface ChunkElem extends AbstractElemBase2 {
+//   kind: "chunk";
+//   elems: ChunkChild[];
+//   conditions?: any; // TODO
+// }

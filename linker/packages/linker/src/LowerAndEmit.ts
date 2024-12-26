@@ -36,6 +36,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
       return emitText(e, ctx);
     case "ident":
       return emitIdent(e, ctx);
+    case "fn":
     case "var":
     case "module":
     case "alias":

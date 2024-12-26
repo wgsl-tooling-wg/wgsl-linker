@@ -4,10 +4,12 @@ import {
   AliasElem,
   ConstElem,
   ElemWithContents,
+  FnElem,
   IdentElem,
   ModuleElem,
   NameElem,
   OverrideElem,
+  ParamElem,
   StructElem,
   StructMemberElem,
   TextElem,
@@ -15,6 +17,7 @@ import {
 } from "./AbstractElems2.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { emptyBodyScope, Ident } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -97,6 +100,18 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
     const name = cc.tags.declIdent?.[0]!;
     const typeRef = cc.tags.typeRef?.[0];
     const partElem = { ...openElem, name, typeRef };
+    return withTextCover(partElem, cc);
+  });
+}
+
+export function collectFn<N extends TagRecord>(): CollectPair<N, FnElem> {
+  return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
+    const name = cc.tags.fnName?.[0]!;
+    dlog({ tags: Object.keys(cc.tags) });
+    const params: ParamElem[] = []; // TODO
+    const returnTag = cc.tags.returnType;
+    const returnType: IdentElem | undefined = returnTag?.flat(3)[0];
+    const partElem: FnElem = { ...openElem, name, params, returnType };
     return withTextCover(partElem, cc);
   });
 }

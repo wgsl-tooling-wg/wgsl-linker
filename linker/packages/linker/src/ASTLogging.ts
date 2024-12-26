@@ -23,6 +23,7 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
     addVarishFields(elem, str) ||
     addStructFields(elem, str) ||
     addNameFields(elem, str) ||
+    addFnFields(elem, str) ||
     addAliasFields(elem, str) ||
     addIdentFields(elem, str);
 }
@@ -93,6 +94,26 @@ function addNameFields(
 ): true | undefined {
   if (elem.kind === "name") {
     str.add(" " + elem.name);
+    return true;
+  }
+}
+
+function addFnFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
+  if (elem.kind === "fn") {
+    const { name, params, returnType } = elem;
+    str.add(" " + name.ident.originalName);
+
+    str.add("(");
+    const paramStrs = params
+      .map(p => p.name.ident.originalName + ":" + p.typeRef.ident.originalName)
+      .join(", ");
+    str.add(paramStrs);
+    str.add(")");
+
+    if (returnType) {
+      str.add(" -> " + returnType.ident.originalName);
+    }
+
     return true;
   }
 }
