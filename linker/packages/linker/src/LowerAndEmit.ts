@@ -1,6 +1,11 @@
 import { dlog } from "berry-pretty";
 import { SrcMap, SrcMapBuilder } from "mini-parse";
-import { AbstractElem2, IdentElem, NameElem, TextElem } from "./AbstractElems2.ts";
+import {
+  AbstractElem2,
+  IdentElem,
+  NameElem,
+  TextElem,
+} from "./AbstractElems2.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 /** passed to the emitters */
@@ -37,6 +42,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "ident":
       return emitIdent(e, ctx);
     case "fn":
+    case "param":
     case "var":
     case "module":
     case "alias":
@@ -49,8 +55,9 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "name":
       return emitName(e, ctx);
     default:
-      dlog("ugh");
-      throw new Error(`NYI emit elem kind: ${e.kind}`);
+      const kind = (e as any).kind;
+      console.log("NYI for emit, elem kind:", kind);
+      throw new Error(`NYI emit elem kind: ${kind}`);
   }
 }
 

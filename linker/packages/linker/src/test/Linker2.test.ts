@@ -37,3 +37,13 @@ test("link a struct", () => {
   const result = link2Test(src);
   expect(result).toEqual(src);
 });
+
+test("link a fn", () => {
+  const src = `
+    fn foo(x: i32, y: u32) -> f32 { 
+      return 1.0; 
+    }`;
+  const result = link2Test(src);
+  expect(result).toEqual(src);
+  // TODO
+});
