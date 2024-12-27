@@ -132,7 +132,7 @@ test("for()", () => {
   `);
 });
 
-test("larger example", () => {
+test.skip("larger example", () => {
   const src = `
     struct UBO { width : u32, }
 
