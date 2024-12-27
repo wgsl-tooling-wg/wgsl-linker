@@ -178,7 +178,7 @@ export const fn_call = seq(
 const fnParam = seq(
   opt_attributes,
   word.collect(declIdent).ctag("paramName"),
-  opt(seq(":", req(type_specifier.tag("typeRef")))),
+  opt(seq(":", req(type_specifier.tag("typeRefs")))),
 ).collect(collectFnParam()).ctag("fnParam");
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
