@@ -259,6 +259,13 @@ const makeExpression = (isTemplate: boolean) => {
 export const expression = makeExpression(false);
 const template_arg_expression = makeExpression(true);
 
+const unscoped_compound_statement = seq(
+  opt_attributes,
+  text("{"),
+  repeat(() => statement),
+  req("}"),
+);
+
 const compound_statement = seq(
   opt_attributes,
   text("{").collect(startScope, "compound_statement.startScope"),
@@ -384,8 +391,8 @@ const variable_updating_statement = or(
 export const fn_decl = seq(
   opt_attributes,
   text("fn"),
-  req(fnNameDecl).tag("nameElem"),
-  req(fnParamList), // TODO should be in the same scope as the fn body
+  req(fnNameDecl).tag("nameElem").collect(startScope, "fnScope"),
+  req(fnParamList), 
   opt(
     seq(
       "->",
@@ -393,7 +400,7 @@ export const fn_decl = seq(
       type_specifier.ctag("returnType").tag("typeRefs"),
     ),
   ),
-  req(compound_statement),
+  req(unscoped_compound_statement).collect(completeScope, "fnScope.end"),
 )
   .collect(collectFn())
   .map(r => {
@@ -509,7 +516,7 @@ if (tracing) {
     unary_expression,
     expression,
     template_arg_expression,
-    compound_statement,
+    compound_statement: compound_statement,
     for_init,
     for_update,
     for_statement,

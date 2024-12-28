@@ -132,7 +132,24 @@ test("for()", () => {
   `);
 });
 
-test.skip("larger example", () => {
+test("fn with param", () => {
+  const src = `
+    fn main(i: i32) {
+      var x = 10 + i;
+      for (var i = 0; i < x; i++) { }
+    }`;
+  const { scope } = parseWESL(src);
+  expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
+    "{ %main
+      { %i, i32, %x, i
+        { %i, i, x, i }
+        {  }
+      }
+    }"
+  `);
+});
+
+test("larger example", () => {
   const src = `
     struct UBO { width : u32, }
 
@@ -176,14 +193,15 @@ test.skip("larger example", () => {
     "{ %UBO, %Buffer, uniform, %ubo, UBO, storage, read, 
       %buf_in, Buffer, storage, read_write, %buf_out, Buffer, 
       %tex_in, texture_2d, f32, %tex_out, texture_storage_2d, 
-      rgba8unorm, write, %import_level, global_invocation_id, 
-      vec3u, %export_level, global_invocation_id, vec3u
+      rgba8unorm, write, %import_level, %export_level
       { u32 }
       { array, f32 }
-      { buf_in, %offset, coord, coord, ubo, buf_out, offset, 
-        textureLoad, tex_in, vec2i, coord
+      { global_invocation_id, %coord, vec3u, buf_in, %offset, 
+        coord, coord, ubo, buf_out, offset, textureLoad, tex_in, 
+        vec2i, coord
       }
-      { all, coord, vec2u, textureDimensions, tex_out
+      { global_invocation_id, %coord, vec3u, all, coord, vec2u, 
+        textureDimensions, tex_out
         { %dst_offset, coord, coord, ubo, %src_offset, coord, 
           coord, ubo, %a, buf_in, src_offset, %b, buf_in, 
           src_offset, %c, buf_in, src_offset, ubo, %d, buf_in, 
