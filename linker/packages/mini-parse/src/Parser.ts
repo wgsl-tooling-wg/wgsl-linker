@@ -72,7 +72,7 @@ export interface ParserContext<A = any> {
   /** current parser stack or parent parsers that called this one */
   _debugNames: string[];
 
-  _collect: CollectFnEntry<any, any>[];
+  _collect: CollectFnEntry<any>[];
 }
 
 export type TagRecord = Record<string | symbol, any[] | undefined>;
@@ -206,7 +206,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
   tag2<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
     return tag2(this, name) as Parser<T, N & { [key in K]: T[] }>;
   }
-  
+
   ctag<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
     return ctag(this, name) as Parser<T, N & { [key in K]: T[] }>;
   }
@@ -233,7 +233,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
    * Collection functions are dropped with parser backtracking, so
    * only succsessful parses are collected. */
   collect<U>(
-    fn: CollectFn<N, U> | CollectPair<N, U>,
+    fn: CollectFn<U> | CollectPair<U>,
     collectName = "",
   ): Parser<T, N> {
     return collect(this, fn, collectName);
@@ -460,15 +460,18 @@ function map<T, N extends TagRecord, U>(
   p: Parser<T, N>,
   fn: ParserMapFn<T, N, U>,
 ): Parser<U, N> {
-  const mapParser = parser(`map`, (ctx: ParserContext): OptParserResult<U, N> => {
-    const extended = runExtended(ctx, p);
-    if (!extended) return null;
+  const mapParser = parser(
+    `map`,
+    (ctx: ParserContext): OptParserResult<U, N> => {
+      const extended = runExtended(ctx, p);
+      if (!extended) return null;
 
-    const mappedValue = fn(extended);
-    if (mappedValue === null) return null;
+      const mappedValue = fn(extended);
+      if (mappedValue === null) return null;
 
-    return { value: mappedValue, tags: extended.tags };
-  });
+      return { value: mappedValue, tags: extended.tags };
+    },
+  );
 
   trackChildren(mapParser, p);
   return mapParser;
@@ -482,22 +485,25 @@ function toParser<T, N extends TagRecord, O, Y extends TagRecord>(
   p: Parser<T, N>,
   toParserFn: ToParserFn<T, N, O, Y>,
 ): Parser<T | O, N & Y> {
-  const newParser: Parser<T | O, N & Y> = parser("toParser", (ctx: ParserContext) => {
-    const extended = runExtended(ctx, p);
-    if (!extended) return null;
+  const newParser: Parser<T | O, N & Y> = parser(
+    "toParser",
+    (ctx: ParserContext) => {
+      const extended = runExtended(ctx, p);
+      if (!extended) return null;
 
-    // run the supplied function to get a parser
-    const newParser = toParserFn(extended);
+      // run the supplied function to get a parser
+      const newParser = toParserFn(extended);
 
-    if (newParser === undefined) {
-      return extended;
-    }
+      if (newParser === undefined) {
+        return extended;
+      }
 
-    // run the parser returned by the supplied function
-    const nextResult = newParser._run(ctx);
-    // TODO merge names record from p to newParser
-    return nextResult as any; // TODO fix typing
-  });
+      // run the parser returned by the supplied function
+      const nextResult = newParser._run(ctx);
+      // TODO merge names record from p to newParser
+      return nextResult as any; // TODO fix typing
+    },
+  );
   trackChildren(newParser, p);
   return newParser;
 }

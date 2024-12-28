@@ -11,8 +11,8 @@ import {
 } from "./Parser.js";
 
 /** an entry in the table of deferred functions for collect() and tag() */
-export interface CollectFnEntry<N extends TagRecord, V> {
-  collectFn: CollectFn<N, V>;
+export interface CollectFnEntry<V> {
+  collectFn: CollectFn<V>;
   srcPosition: CollectPosition;
   debugName?: string;
 }
@@ -38,12 +38,12 @@ interface CollectValue {
 }
 
 /** a user supplied function for collecting info from the parse */
-export type CollectFn<N extends TagRecord, V> = (ctx: CollectContext) => V;
+export type CollectFn<V> = (ctx: CollectContext) => V;
 
 /** a user supplied pair functions for collecting info from the parse */
-export interface CollectPair<N extends TagRecord, V> {
-  before: (cc: CollectContext) => void;
-  after: CollectFn<N, V>;
+export interface CollectPair<V> {
+  before: CollectFn<void>;
+  after: CollectFn<V>;
 }
 
 /** Queue a collection function that runs later, when a commit() is parsed.
@@ -51,12 +51,12 @@ export interface CollectPair<N extends TagRecord, V> {
  * only succsessful parses are collected. */
 export function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
-  collectFn: CollectFn<N, V> | CollectPair<N, V>,
+  collectFn: CollectFn<V> | CollectPair<V>,
   debugName: string, // for debug
 ): Parser<T, N> {
-  const afterFn: CollectFn<N, V> =
-    (collectFn as CollectPair<N, V>).after ?? collectFn;
-  const beforeFn = (collectFn as Partial<CollectPair<N, V>>).before;
+  const afterFn: CollectFn<V> =
+    (collectFn as CollectPair<V>).after ?? collectFn;
+  const beforeFn = (collectFn as Partial<CollectPair<V>>).before;
 
   const collectParser = parser(
     `collect`,
@@ -104,7 +104,7 @@ export function ctag<N extends TagRecord, T>(
 function runAndCollectAfter<T, N extends TagRecord>(
   p: Parser<T, N>,
   ctx: ParserContext,
-  collectFn: CollectFn<any, any>,
+  collectFn: CollectFn<any>,
   debugName: string = "",
 ): OptParserResult<T, N> {
   const origStart = ctx.lexer.position();
@@ -118,7 +118,7 @@ function runAndCollectAfter<T, N extends TagRecord>(
 function queueCollectFn<T, N extends TagRecord>(
   ctx: ParserContext,
   origStart: number,
-  collectFn: CollectFn<any, any>,
+  collectFn: CollectFn<any>,
   debugName: string,
 ) {
   const srcPosition = refinePosition(ctx.lexer, origStart);
@@ -136,10 +136,8 @@ export function pushOpenArray(cc: CollectContext): void {
 export function closeArray(cc: CollectContext): void {
   const lastValue = last(cc._values);
   // dlog({ lastValue });
-  if(
-    lastValue.openArray === undefined) console.log(
-    "---closeArray: no open array",
-  );
+  if (lastValue.openArray === undefined)
+    console.log("---closeArray: no open array");
   cc._values.pop();
   saveCollectValue(cc, lastValue.openArray);
 }

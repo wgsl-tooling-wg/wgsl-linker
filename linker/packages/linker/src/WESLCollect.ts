@@ -93,9 +93,9 @@ export type PartElem<T extends AbstractElem2 = AbstractElem2> =
 
 type VarLikeElem = VarElem | ConstElem | OverrideElem | AliasElem;
 
-export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
+export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
-): CollectPair<N, E> {
+): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     const name = cc.tags.declIdent?.[0]!;
     const typeRef = cc.tags.typeRef?.[0];
@@ -104,7 +104,7 @@ export function collectVarLike<E extends VarLikeElem, N extends TagRecord>(
   });
 }
 
-export function collectFn<N extends TagRecord>(): CollectPair<N, FnElem> {
+export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0]!;
     // dlog({ tags: Object.keys(cc.tags) });
@@ -115,10 +115,7 @@ export function collectFn<N extends TagRecord>(): CollectPair<N, FnElem> {
   });
 }
 
-export function collectFnParam<N extends TagRecord>(): CollectPair<
-  N,
-  ParamElem
-> {
+export function collectFnParam(): CollectPair<ParamElem> {
   return collectElem(
     "param",
     (cc: CollectContext, openElem: PartElem<ParamElem>) => {
@@ -130,10 +127,7 @@ export function collectFnParam<N extends TagRecord>(): CollectPair<
   );
 }
 
-export function collectStruct<N extends TagRecord>(): CollectPair<
-  N,
-  StructElem
-> {
+export function collectStruct(): CollectPair<StructElem> {
   return collectElem(
     "struct",
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
@@ -145,10 +139,7 @@ export function collectStruct<N extends TagRecord>(): CollectPair<
   );
 }
 
-export function collectStructMember<N extends TagRecord>(): CollectPair<
-  N,
-  StructMemberElem
-> {
+export function collectStructMember(): CollectPair<StructMemberElem> {
   return collectElem(
     "member",
     (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
@@ -169,8 +160,8 @@ export function collectNameElem(cc: CollectContext): NameElem {
 }
 
 // prettier-ignore
-export function collectModule<N extends TagRecord>(): 
-    CollectPair< N, ModuleElem > {
+export function collectModule(): 
+    CollectPair<ModuleElem > {
   return collectElem(
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
@@ -183,17 +174,16 @@ export function collectModule<N extends TagRecord>():
   );
 }
 
-export function collectSimpleElem<
-  N extends TagRecord,
-  V extends AbstractElem2 & ElemWithContents,
->(kind: V["kind"]): CollectPair<N, V> {
-  return collectElem<N, V>(kind, (cc, part) => withTextCover(part, cc));
+export function collectSimpleElem<V extends AbstractElem2 & ElemWithContents>(
+  kind: V["kind"],
+): CollectPair<V> {
+  return collectElem<V>(kind, (cc, part) => withTextCover(part, cc));
 }
 
-function collectElem<N extends TagRecord, V extends AbstractElem2>(
+function collectElem<V extends AbstractElem2>(
   kind: V["kind"],
   fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
-): CollectPair<N, V> {
+): CollectPair<V> {
   return {
     before: (cc: CollectContext) => {
       const partialElem = { kind, contents: [] };
