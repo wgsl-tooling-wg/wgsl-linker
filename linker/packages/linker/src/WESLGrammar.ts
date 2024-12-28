@@ -151,7 +151,7 @@ export const struct_decl = seq(
   req(typeNameDecl).tag("nameElem"),
   seq(
     req("{"),
-    withSepPlus(",", struct_member).tag2("members").tag("members"),
+    withSepPlus(",", struct_member).ptag("members").tag("members"),
     req("}"),
   ).collect(scopeCollect()),
 )

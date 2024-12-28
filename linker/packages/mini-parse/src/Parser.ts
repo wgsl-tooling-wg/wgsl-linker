@@ -7,7 +7,7 @@ import {
   CollectPair,
   commit,
   ctag,
-  tag2,
+  ptag,
 } from "./ParserCollect.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
 import { srcLog } from "./ParserLogging.js";
@@ -203,10 +203,12 @@ export class Parser<T, N extends TagRecord = NoTags> {
     return p as Parser<T, N & { [key in K]: T[] }>;
   }
 
-  tag2<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
-    return tag2(this, name) as Parser<T, N & { [key in K]: T[] }>;
+  /** tag parse results */
+  ptag<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
+    return ptag(this, name) as Parser<T, N & { [key in K]: T[] }>;
   }
 
+  /** tag collect results */
   ctag<K extends string>(name: K): Parser<T, N & { [key in K]: T[] }> {
     return ctag(this, name) as Parser<T, N & { [key in K]: T[] }>;
   }

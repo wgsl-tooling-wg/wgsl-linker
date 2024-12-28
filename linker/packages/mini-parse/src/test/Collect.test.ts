@@ -22,9 +22,9 @@ test("collect fn sees tags", () => {
   const src = "a b c";
   const results: string[] = [];
   const p = seq(
-    text("a").tag2("x"),
+    text("a").ptag("x"),
     text("b")
-      .tag2("y")
+      .ptag("y")
       .collect(({ tags }) => {
         results.push(`collected: ${tags.x}, ${tags.y}`);
       }),
@@ -42,12 +42,12 @@ test("backtracking", () => {
     "x",
     or(
       seq(
-        text("a").tag2("A"), // should not be tagged
+        text("a").ptag("A"), // should not be tagged
         text("N"),
       ).collect(
         () => results.push("collected1"), // should not be called
       ),
-      seq("a", text("b").tag2("B"), "c").collect(({ tags }) => {
+      seq("a", text("b").ptag("B"), "c").collect(({ tags }) => {
         const as = tags.A?.[0];
         const bs = tags.B?.[0];
         results.push(`collected2: ${as}, ${bs}`);

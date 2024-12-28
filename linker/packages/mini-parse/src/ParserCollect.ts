@@ -142,21 +142,21 @@ export function closeArray(cc: CollectContext): void {
   saveCollectValue(cc, lastValue.openArray);
 }
 
-/** tag parse results or collect() results with a name that can be
+/** tag parse results results with a name that can be
  * referenced in later collection. */
-export function tag2<N extends TagRecord, T>(
+export function ptag<N extends TagRecord, T>(
   p: Parser<T, N>,
   name: string,
 ): Parser<T, N> {
-  const cp = parser(`tag2`, (ctx: ParserContext): OptParserResult<T, N> => {
+  const cp = parser(`ptag`, (ctx: ParserContext): OptParserResult<T, N> => {
     const origStart = ctx.lexer.position();
     const result = p._run(ctx);
 
-    // tag the parser resuts (unless it's a collect() parser)
+    // tag the parser resuts
     if (result) {
       const tagFn = (ctx: CollectContext) =>
         addTagValue(ctx.tags, name, result.value);
-      queueCollectFn(ctx, origStart, tagFn, `tag2 ${name}`);
+      queueCollectFn(ctx, origStart, tagFn, `ptag ${name}`);
     }
     return result;
   });
