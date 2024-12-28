@@ -59,16 +59,15 @@ function makeIdentElem(cc: CollectContext, kind: Ident["kind"]) {
 }
 
 /** start a new child Scope */
-export function startScope<T>(cc: CollectContext) {
-  // ctxLog(r.ctx, "startScope");
+function startScope<T>(cc: CollectContext) {
   const { scope } = cc.app.context as WeslParseContext;
   const newScope = emptyBodyScope(scope);
   scope.children.push(newScope);
   cc.app.context.scope = newScope;
 }
 
-/** close current Scope and set current scope to parent */
-export function completeScope<T>(cc: CollectContext) {
+/* close current Scope and set current scope to parent */
+function completeScope<T>(cc: CollectContext) {
   // ctxLog(r.ctx, "completeScope");
   const weslContext = cc.app.context as WeslParseContext;
   const completedScope = weslContext.scope;
@@ -172,6 +171,14 @@ export function collectModule():
       return moduleElem;
     },
   );
+}
+
+/** collect a scope start starts before and ends after a parser */
+export function scopeCollect(): CollectPair<void> {
+  return {
+    before: startScope,
+    after: completeScope,
+  };
 }
 
 export function collectSimpleElem<V extends AbstractElem2 & ElemWithContents>(

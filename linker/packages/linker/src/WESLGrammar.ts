@@ -29,10 +29,8 @@ import {
 } from "./ParsingHacks.ts";
 import {
   collectModule,
-  completeScope,
   declIdent,
   refIdent,
-  startScope,
   collectVarLike,
   collectSimpleElem,
   collectStruct,
@@ -40,6 +38,7 @@ import {
   collectNameElem,
   collectFn,
   collectFnParam,
+  scopeCollect,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -150,9 +149,11 @@ export const struct_member = seq(
 export const struct_decl = seq(
   "struct",
   req(typeNameDecl).tag("nameElem"),
-  req("{").collect(startScope, "struct_decl.startScope"),
-  withSepPlus(",", struct_member).tag2("members").tag("members"),
-  req("}").collect(completeScope, "struct_decl.completeScope"),
+  seq(
+    req("{"),
+    withSepPlus(",", struct_member).tag2("members").tag("members"),
+    req("}"),
+  ).collect(scopeCollect()),
 )
   .collect(collectStruct())
   .map(r => {
@@ -268,9 +269,11 @@ const unscoped_compound_statement = seq(
 
 const compound_statement = seq(
   opt_attributes,
-  text("{").collect(startScope, "compound_statement.startScope"),
-  repeat(() => statement),
-  req("}").collect(completeScope, "compound_statement.completeScope"),
+  seq(
+    text("{"),
+    repeat(() => statement),
+    req("}"),
+  ).collect(scopeCollect()),
 );
 
 const for_init = or(
@@ -285,14 +288,14 @@ const for_statement = seq(
   opt_attributes,
   "for",
   seq(
-    req("(").collect(startScope),
+    req("("),
     opt(for_init),
     req(";"),
     opt(expression),
     req(";"),
     opt(for_update),
-    req(")").collect(completeScope),
-  ),
+    req(")"),
+  ).collect(scopeCollect()),
 );
 
 const if_statement = seq(
@@ -391,16 +394,18 @@ const variable_updating_statement = or(
 export const fn_decl = seq(
   opt_attributes,
   text("fn"),
-  req(fnNameDecl).tag("nameElem").collect(startScope, "fnScope"),
-  req(fnParamList), 
-  opt(
-    seq(
-      "->",
-      opt_attributes,
-      type_specifier.ctag("returnType").tag("typeRefs"),
+  req(fnNameDecl).tag("nameElem"),
+  seq(
+    req(fnParamList),
+    opt(
+      seq(
+        "->",
+        opt_attributes,
+        type_specifier.ctag("returnType").tag("typeRefs"),
+      ),
     ),
-  ),
-  req(unscoped_compound_statement).collect(completeScope, "fnScope.end"),
+    req(unscoped_compound_statement),
+  ).collect(scopeCollect()),
 )
   .collect(collectFn())
   .map(r => {
@@ -516,7 +521,7 @@ if (tracing) {
     unary_expression,
     expression,
     template_arg_expression,
-    compound_statement: compound_statement,
+    compound_statement,
     for_init,
     for_update,
     for_statement,
