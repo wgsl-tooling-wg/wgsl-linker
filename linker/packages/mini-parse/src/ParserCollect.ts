@@ -2,6 +2,7 @@ import { dlog } from "berry-pretty";
 import { Lexer } from "./MatchingLexer.js";
 import {
   AppState,
+  NoTags,
   OptParserResult,
   parser,
   Parser,
@@ -9,6 +10,8 @@ import {
   TagRecord,
   trackChildren,
 } from "./Parser.js";
+import { parserArg } from "./ParserCombinator.js";
+import { CombinatorArg, ResultFromArg } from "./CombinatorTypes.js";
 
 /** an entry in the table of deferred functions for collect() and tag() */
 export interface CollectFnEntry<V> {
@@ -78,6 +81,27 @@ export function collect<N extends TagRecord, T, V>(
   return collectParser;
 }
 
+export function tagScope<A extends CombinatorArg>(
+  arg: A,
+): Parser<ResultFromArg<A>, NoTags> {
+  const p = parserArg(arg);
+  const sp = parser(
+    `tagScope`,
+    (ctx: ParserContext): OptParserResult<ResultFromArg<A>, any> => {
+      return runAndCollectAfter(
+        p,
+        ctx,
+        (cc: CollectContext) => {
+          Object.keys(cc.tags).forEach(key => delete cc.tags[key]);
+        },
+        `tagScope`,
+      );
+    },
+  );
+  trackChildren(sp, p);
+  return sp;
+}
+
 /** tag most recent collect result with a name that can be
  * referenced in later collection. */
 export function ctag<N extends TagRecord, T>(
@@ -135,7 +159,6 @@ export function pushOpenArray(cc: CollectContext): void {
 
 export function closeArray(cc: CollectContext): void {
   const lastValue = last(cc._values);
-  // dlog({ lastValue });
   if (lastValue.openArray === undefined)
     console.log("---closeArray: no open array");
   cc._values.pop();
@@ -170,7 +193,6 @@ function addTagValue(tags: TagRecord, name: string, value: any) {
     tags[name] = [];
   }
   tags[name].push(value);
-  // dlog({ tags });
 }
 
 /** When the provided parser succeeds,
@@ -219,7 +241,6 @@ function saveCollectValue(cc: CollectContext, value: any) {
     if (valueEntry?.openArray !== undefined) {
       valueEntry.openArray.push(value);
     }
-    // dlog({ value });
   }
 }
 
@@ -234,7 +255,6 @@ function refinePosition(lexer: Lexer, origStart: number): CollectPosition {
   const end = lexer.position();
   lexer.position(origStart);
   const start = lexer.skipIgnored();
-  // dlog({slice: lexer.src.slice(start, end)});
   lexer.position(end);
   return { start: start, end };
 }

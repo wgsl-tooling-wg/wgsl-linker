@@ -2,6 +2,7 @@ import { testParse } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { or, seq, text } from "../ParserCombinator.js";
 import { dlog } from "berry-pretty";
+import { tagScope } from "../ParserCollect.js";
 
 test("collect runs a fn on commit", () => {
   const src = "a b c";
@@ -105,4 +106,29 @@ test("ctag collect inside seq", () => {
     .commit();
   testParse(p, "a b");
   expect(results).toEqual([{ bee: ["B"] }]);
+});
+
+test("tagScope clears tags", () => {
+  let results: any[] = [];
+  const p = tagScope(
+    or(
+      text("a")
+        .ptag("A")
+        .collect(cc => {
+          results.push(`inTagScope: ${cc.tags.A?.[0]}`);
+        }),
+    ),
+  )
+    .collect(cc => {
+      results.push(`outsideTagScope: ${cc.tags.A?.[0]}`);
+    })
+    .commit();
+
+  testParse(p, "a");
+  expect(results).toMatchInlineSnapshot(`
+    [
+      "inTagScope: a",
+      "outsideTagScope: undefined",
+    ]
+  `);
 });
