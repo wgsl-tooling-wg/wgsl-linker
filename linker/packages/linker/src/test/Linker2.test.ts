@@ -45,5 +45,4 @@ test("link a fn", () => {
     }`;
   const result = link2Test(src);
   expect(result).toEqual(src);
-  // TODO
 });
