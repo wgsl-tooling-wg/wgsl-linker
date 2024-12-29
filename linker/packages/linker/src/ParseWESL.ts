@@ -2,7 +2,7 @@ import { AppState, matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
 import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
 import { mainTokens } from "./MatchWgslD.ts";
-import { emptyScope, resetScopeIds, Scope } from "./Scope.ts";
+import { emptyScope, resetScopeIds, Scope, SrcModule } from "./Scope.ts";
 import { OpenElem } from "./WESLCollect.ts";
 import { weslRoot } from "./WESLGrammar.ts";
 
@@ -40,6 +40,25 @@ export interface WeslParseContext {
   openElems: OpenElem[]; // elems that are collecting their contents
 }
 
+export function parseSrcModule(
+  srcModule: SrcModule,
+  maxParseCount: number | undefined = undefined,
+): WeslAST {
+  const lexer = matchingLexer(srcModule.src, mainTokens);
+
+  const appState = blankWeslParseState();
+
+  const init: ParserInit = { lexer, appState, maxParseCount };
+  const parseResult = weslRoot.parse(init);
+  if (parseResult === null) {
+    throw new Error("parseWESL failed");
+  }
+
+  const { rootModule, elems, rootScope } = appState.stable;
+  return { rootModule: rootModule!, scope: rootScope, elems };
+}
+
+// TODO make wrapper on srcModule
 export function parseWESL(
   src: string,
   srcMap?: SrcMap,

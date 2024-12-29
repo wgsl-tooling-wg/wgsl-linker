@@ -2,12 +2,13 @@ import { SrcMap } from "mini-parse";
 import { bindIdents } from "./BindIdents.ts";
 import { lowerAndEmit } from "./LowerAndEmit.ts";
 import {
+  parsedRegistry,
   ParsedRegistry2,
+  parseIntoRegistry,
   parseWeslSrc,
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
-import { scopeIdentTree } from "./ScopeLogging.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -48,7 +49,9 @@ The AST is now immutable, mutation is confined to the Idents and Scopes.
  * Only code that is valid with the current conditions is included in the output.
  *
  * @param weslSrc map of wesl source strings (aka modules) by scoped path
- *                key is '::' separated path .e.g `package::foo::bar.wesl`, value is wesl src
+ *                key is module path or file path
+ *                  '::' separated path .e.g `package::foo::bar.wesl`, or
+ *                value is wesl src
  *                (inludes both library and local WESL modules)
  * @param rootModuleName name or module path of the root module
  * @param conditions runtime conditions for conditional compilation
@@ -63,14 +66,30 @@ export function linkWesl(
   // producing Scope tree and AST elements for each module
   const parsed: ParsedRegistry2 = parseWeslSrc(weslSrc);
 
+  return linkRegistry(parsed, rootModuleName, conditions);
+}
+
+export function linkWeslFiles(
+  weslSrc: Record<string, string>,
+  rootModuleName: string = "main",
+  conditions: Conditions = {},
+): SrcMap {
+  const registry = parsedRegistry();
+  parseIntoRegistry(weslSrc, registry, "package", 500);
+  return linkRegistry(registry);
+}
+
+export function linkRegistry(
+  parsed: ParsedRegistry2,
+  rootModuleName: string = "main",
+  conditions: Conditions = {},
+): SrcMap {
   // get a reference to the root module
   const found = selectModule(parsed, rootModuleName);
   if (!found) {
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, rootModule } = found;
-  
-  // console.log(scopeIdentTree(scope));
 
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
