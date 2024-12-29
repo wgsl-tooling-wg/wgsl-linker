@@ -1,6 +1,9 @@
 export interface SrcModule {
-  /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
+  /** module path "rand_pkg::sub::foo", or "package::main" */
   modulePath: string;
+  
+  /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
+  filePath: string;
 
   /** original src for module */
   src: string;
@@ -45,7 +48,7 @@ export interface Scope {
   kind: ScopeKind;
 }
 
-export function resetScopeIds() {
+export function resetScopeIds() { // for debugging
   scopeId = 0;
 }
 
