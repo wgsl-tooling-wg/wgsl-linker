@@ -189,8 +189,10 @@ export function importElem(): CollectPair<ImportElem> {
     (cc: CollectContext, openElem: PartElem<ImportElem>) => {
       const path = cc.tags.seg?.flat(8) as PathSegment[]; // LATER ts typing
       const imports = new ImportTree(path);
-      const importElem: ImportElem = { ...openElem, imports };
-      return withTextCover(importElem, cc);
+      const partialElem: ImportElem = { ...openElem, imports };
+      const importElem = withTextCover(partialElem, cc);
+      (cc.app.stable as StableState).imports.push(imports);
+      return importElem;
     },
   );
 }

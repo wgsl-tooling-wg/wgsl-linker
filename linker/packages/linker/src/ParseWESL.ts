@@ -1,15 +1,17 @@
 import { AppState, matchingLexer, ParserInit, SrcMap } from "mini-parse";
 import { AbstractElem } from "./AbstractElems.ts";
-import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
+import { ImportElem, ModuleElem } from "./AbstractElems2.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope, SrcModule } from "./Scope.ts";
 import { OpenElem } from "./WESLCollect.ts";
 import { weslRoot } from "./WESLGrammar.ts";
+import { ImportTree } from "./ImportTree.ts";
 
 /** result of a parse */
 export interface WeslAST {
   elems: AbstractElem[]; // legacy
   rootModule: ModuleElem;
+  imports: ImportTree[];
   scope: Scope;
 }
 
@@ -32,6 +34,9 @@ export interface StableState {
 
   // root scope for this module
   rootScope: Scope;
+
+  // imports found in this module
+  imports: ImportTree[];
 }
 
 /** unstable values used during parse collection */
@@ -54,8 +59,8 @@ export function parseSrcModule(
     throw new Error("parseWESL failed");
   }
 
-  const { rootModule, elems, rootScope } = appState.stable;
-  return { rootModule: rootModule!, scope: rootScope, elems };
+  const { rootModule, elems, rootScope, imports } = appState.stable;
+  return { rootModule: rootModule!, scope: rootScope, elems, imports };
 }
 
 // TODO make wrapper on srcModule
@@ -79,14 +84,14 @@ export function parseWESL(
     throw new Error("parseWESL failed");
   }
 
-  const { rootModule, elems, rootScope } = appState.stable;
-  return { rootModule: rootModule!, scope: rootScope, elems };
+  const { rootModule, elems, rootScope, imports } = appState.stable;
+  return { rootModule: rootModule!, scope: rootScope, elems, imports };
 }
 
 export function blankWeslParseState(): WeslParseState {
   const rootScope = emptyScope("module");
   return {
     context: { scope: rootScope, openElems: [] },
-    stable: { conditions: {}, elems: [], rootScope },
+    stable: { conditions: {}, elems: [], imports: [], rootScope },
   };
 }
