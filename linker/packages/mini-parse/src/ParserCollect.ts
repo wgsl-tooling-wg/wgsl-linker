@@ -88,11 +88,15 @@ export function tagScope<A extends CombinatorArg>(
   const sp = parser(
     `tagScope`,
     (ctx: ParserContext): OptParserResult<ResultFromArg<A>, any> => {
+      const origStart = ctx.lexer.position();
+      let origTags:TagRecord;
+      queueCollectFn(ctx, origStart, (cc:CollectContext) => origTags = cloneTags(cc.tags), `scope.before ${p.debugName}`)
       return runAndCollectAfter(
         p,
         ctx,
         (cc: CollectContext) => {
-          Object.keys(cc.tags).forEach(key => delete cc.tags[key]);
+          cc.tags = origTags; 
+          // Object.keys(cc.tags).forEach(key => delete cc.tags[key]);
         },
         `tagScope`,
       );
@@ -100,6 +104,14 @@ export function tagScope<A extends CombinatorArg>(
   );
   trackChildren(sp, p);
   return sp;
+}
+
+/** duplicate a tags record */
+function cloneTags(tags:TagRecord):TagRecord {
+  const cloned = Object.entries(tags).map(([tag,values]) => {
+    return [tag, [...values!]];
+  });
+  return Object.fromEntries(cloned);
 }
 
 /** tag most recent collect result with a name that can be
@@ -213,13 +225,15 @@ export function commit<N extends TagRecord, T>(
         // ctx._collect.forEach(entry => {
         //   dlog("collect-list", entry.debugName)
         // });
+        const collectContext:CollectContext = {tags, src, start:-1, end:-1, app, _values};
         ctx._collect.forEach(entry => {
           // dlog("commit", {
           //   entryName: entry.debugName,
           //   entryFn: entry.collectFn,
           // });
           const { collectFn, srcPosition } = entry;
-          const collectContext = { tags, ...srcPosition, src, app, _values };
+          collectContext.start = srcPosition.start; 
+          collectContext.end = srcPosition.end;
           const collectResult = collectFn(collectContext);
           saveCollectValue(collectContext, collectResult);
         });

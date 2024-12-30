@@ -132,3 +132,30 @@ test("tagScope clears tags", () => {
     ]
   `);
 });
+
+test("ctag propogates up through seq", () => {
+  let results: any[] = [];
+  const p = seq(
+    "a",
+    text("b")
+      .collect(() => "B", "collect-1")
+      .ctag("btag"),
+    text("c"),
+  )
+    .collect(cc => results.push({ btag: cc.tags.btag?.flat() }), "collect-2")
+    .commit();
+  testParse(p, "a b c");
+  expect(results).toEqual([{ btag: ["B"] }]);
+});
+
+test("tagScope resets original tags", () => {
+  let results: any[] = [];
+  const p = seq(
+    text("a").ptag("atag"),
+    tagScope(text("b")), // shouldn't reset 'atag' for later collect
+  )
+    .collect(cc => results.push({ atag: cc.tags.atag?.flat() }), "collect-1")
+    .commit();
+  testParse(p, "a b");
+  expect(results).toEqual([{ atag: ["a"] }]);
+});
