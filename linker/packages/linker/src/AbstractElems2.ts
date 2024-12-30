@@ -1,8 +1,10 @@
-import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
+import { ImportTree } from "./ImportTree.ts";
+import { Ident } from "./Scope.ts";
 
 export type AbstractElem2 =
   | AliasElem
   | ConstElem
+  | ImportElem
   | ConstAssertElem
   | FnElem
   | IdentElem
@@ -25,6 +27,11 @@ export interface ElemWithContents extends AbstractElemBase2 {
   contents: AbstractElem2[];
 }
 
+export interface ImportElem extends ElemWithContents {
+  kind: "import";
+  imports: ImportTree;
+}
+
 /** an identifier in WESL source */
 export interface IdentElem extends AbstractElemBase2 {
   kind: "ident";
@@ -41,7 +48,7 @@ export interface TextElem extends AbstractElemBase2 {
 }
 
 /** a parameter in a function declaration */
-export interface ParamElem extends ElemWithContents{
+export interface ParamElem extends ElemWithContents {
   kind: "param";
   name: IdentElem;
   typeRef: IdentElem;

@@ -1,5 +1,5 @@
-import { dlog } from "berry-pretty";
 import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
+import { treeToString } from "./ImportTree.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
 export function astTree(elem: AbstractElem2, indent = 0): string {
@@ -26,6 +26,7 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
     addNameFields(elem, str) ||
     addFnFields(elem, str) ||
     addAliasFields(elem, str) ||
+    addImport(elem, str) ||
     addIdentFields(elem, str);
 }
 
@@ -85,6 +86,13 @@ function addStructFields(
 ): true | undefined {
   if (elem.kind === "struct") {
     str.add(" " + elem.name.ident.originalName);
+    return true;
+  }
+}
+
+function addImport(elem: AbstractElem2, str: LineWrapper): true | undefined {
+  if (elem.kind === "import") {
+    str.add(" " + treeToString(elem.imports));
     return true;
   }
 }

@@ -54,6 +54,8 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
       return emitContents(e, ctx);
     case "name":
       return emitName(e, ctx);
+    case "import":
+      return; // drop imports statements from emitted text
     default:
       const kind = (e as any).kind;
       console.log("NYI for emit, elem kind:", kind);

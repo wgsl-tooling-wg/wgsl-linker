@@ -1,4 +1,4 @@
-import { CollectContext, CollectFn, CollectPair, TagRecord } from "mini-parse";
+import { CollectContext, CollectPair } from "mini-parse";
 import {
   AbstractElem2,
   AliasElem,
@@ -6,6 +6,7 @@ import {
   ElemWithContents,
   FnElem,
   IdentElem,
+  ImportElem,
   ModuleElem,
   NameElem,
   OverrideElem,
@@ -15,9 +16,9 @@ import {
   TextElem,
   VarElem,
 } from "./AbstractElems2.ts";
+import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { emptyBodyScope, Ident } from "./Scope.ts";
-import { dlog } from "berry-pretty";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -99,7 +100,7 @@ export function collectVarLike<E extends VarLikeElem>(
     const name = cc.tags.declIdent?.[0]!;
     const typeRef = cc.tags.typeRef?.[0];
     const partElem = { ...openElem, name, typeRef };
-    return withTextCover(partElem, cc);
+    return withTextCover(partElem, cc) as E;
   });
 }
 
@@ -165,10 +166,31 @@ export function collectModule():
     "module",
     (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
       const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
-      const moduleElem:ModuleElem = withTextCover(openElem, ccComplete);
+      const moduleElem: ModuleElem = withTextCover(openElem, ccComplete);
       const weslState: StableState = cc.app.stable;
       weslState.rootModule = moduleElem;
       return moduleElem;
+    },
+  );
+}
+
+export function importSegment(cc: CollectContext): SimpleSegment {
+  return new SimpleSegment(cc.tags.segment?.[0]);
+}
+
+export function importTree(cc: CollectContext): ImportTree {
+  const path = cc.tags.path?.flat() as PathSegment[]; // LATER fix typing
+  return new ImportTree(path);
+}
+
+export function importElem(): CollectPair<ImportElem> {
+  return collectElem(
+    "import",
+    (cc: CollectContext, openElem: PartElem<ImportElem>) => {
+      const path = cc.tags.seg?.flat(8) as PathSegment[]; // LATER ts typing
+      const imports = new ImportTree(path);
+      const importElem: ImportElem = { ...openElem, imports };
+      return withTextCover(importElem, cc);
     },
   );
 }
@@ -184,7 +206,7 @@ export function scopeCollect(): CollectPair<void> {
 export function collectSimpleElem<V extends AbstractElem2 & ElemWithContents>(
   kind: V["kind"],
 ): CollectPair<V> {
-  return collectElem<V>(kind, (cc, part) => withTextCover(part, cc));
+  return collectElem(kind, (cc, part) => withTextCover(part, cc) as V);
 }
 
 function collectElem<V extends AbstractElem2>(
@@ -214,11 +236,11 @@ function collectElem<V extends AbstractElem2>(
  * to include TextElems to cover the entire range.
  */
 function withTextCover<T extends ElemWithContents>(
-  elem: ElemWithContents,
+  elem: T,
   cc: CollectContext,
 ): T {
   const contents = coverWithText(cc, elem.contents);
-  return { ...elem, contents } as T;
+  return { ...elem, contents };
 }
 
 /** cover the entire source range with Elems by creating TextElems to

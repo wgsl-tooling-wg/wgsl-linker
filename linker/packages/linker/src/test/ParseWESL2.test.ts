@@ -125,3 +125,14 @@ test("parse fn", () => {
         text ' { return 1.0; }'"
   `);
 });
+
+test("parse import", () => {
+  const src = "import ./foo/bar;";
+  const ast = parse2Test(src);
+  const astString = astTree(ast.rootModule);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import ./foo/bar
+        text 'import ./foo/bar;'"
+  `);
+});
