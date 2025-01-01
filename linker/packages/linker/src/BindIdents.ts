@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
@@ -49,7 +50,8 @@ export function bindIdents(
 
           if (!foundDecl.mangledName) {
             // TODO check for conflicts and actually mangle
-            foundDecl.mangledName = foundDecl.originalName;
+            const proposedName = ident.originalName;
+            foundDecl.mangledName = proposedName;
           }
         } else {
           // TODO log error with source position
@@ -138,6 +140,10 @@ function findExport(
   const legacyConvert = modulePathParts.map(p => (p === "." ? "package" : p)); // TODO rm after we update grammar
   const modulePath = legacyConvert.slice(0, -1).join("::");
   const module = parsed.modules[modulePath];
+  if (!module) {
+    console.log(`ident ${modulePathParts.join("::")} in import statement, but module not found`)
+  }
+
   return exportDecl(module.scope, last(modulePathParts)!);
 }
 

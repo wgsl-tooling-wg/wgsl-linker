@@ -1,6 +1,5 @@
 import { afterAll, expect, test } from "vitest";
 import { importCases } from "wesl-testsuite";
-
 import { linkWeslFiles } from "../Linker2.js";
 import { trimSrc } from "./shared/StringUtil.js";
 
@@ -39,7 +38,7 @@ test("main has other root elements", ctx => {
   });
 });
 
-test.skip("import foo as bar", ctx => {
+test("import foo as bar", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {
