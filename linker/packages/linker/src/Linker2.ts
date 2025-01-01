@@ -9,6 +9,7 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
+import { flattenTreeImport } from "./FlattenTreeImport.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -76,7 +77,7 @@ export function linkWeslFiles(
 ): SrcMap {
   const registry = parsedRegistry();
   parseIntoRegistry(weslSrc, registry, "package", 500);
-  return linkRegistry(registry);
+  return linkRegistry(registry, rootModuleName, conditions);
 }
 
 export function linkRegistry(
@@ -90,11 +91,14 @@ export function linkRegistry(
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, rootModule } = found;
-
+  
+  const flatImports = found.imports.flatMap(flattenTreeImport);
+  
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
   // note this requires requires the Scope tree and Idents, but the AST is not needed
-  bindIdents(scope, parsed, conditions);
+  bindIdents(scope, flatImports, parsed, conditions);
+  
 
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)

@@ -85,3 +85,11 @@ export function containsScope(rootScope: Scope, scope: Scope): boolean {
   }
   return false;
 }
+
+export function exportDecl(scope:Scope, name: string): DeclIdent | undefined {
+  for (const ident of scope.idents) {
+    if (ident.originalName === name && ident.kind === "decl") {
+      return ident;      
+    }
+  }
+}

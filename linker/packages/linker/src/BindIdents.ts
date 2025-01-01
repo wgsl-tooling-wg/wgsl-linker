@@ -1,7 +1,8 @@
-import { dlog } from "berry-pretty";
+import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
-import { DeclIdent, RefIdent, Scope } from "./Scope.ts";
+import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
+import { last, overlapTail } from "./Util.ts";
 
 /**
  * Bind active reference idents to declaration Idents by mutating the refersTo: field
@@ -12,6 +13,7 @@ import { stdFn, stdType } from "./TraverseRefs.ts";
  */
 export function bindIdents(
   scope: Scope,
+  flatImports: FlatImport[],
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
 ): void {
@@ -29,7 +31,9 @@ export function bindIdents(
       if (stdWgsl(ident.originalName)) {
         ident.std = true;
       } else {
-        const foundDecl = findDeclInModule(scope, ident, i) ?? findDeclImport();
+        const foundDecl =
+          findDeclInModule(scope, ident, i) ??
+          findDeclImport(ident, flatImports, parsed);
         // dlog({ ident: ident.originalName, foundDecl: foundDecl?.originalName });
         if (foundDecl) {
           ident.refersTo = foundDecl;
@@ -49,7 +53,9 @@ export function bindIdents(
       }
     }
   });
-  scope.children.forEach(child => bindIdents(child, parsed, conditions));
+  scope.children.forEach(child =>
+    bindIdents(child, flatImports, parsed, conditions),
+  );
 }
 
 function stdWgsl(name: string): boolean {
@@ -82,9 +88,44 @@ function findDeclInModule(
   }
 }
 
-function findDeclImport(): DeclIdent | undefined {
-  // TODO handle imports
-  return undefined;
+/** Match a reference identifier to a declaration in
+ * another module via an import statement */
+function findDeclImport(
+  ident: RefIdent,
+  flatImports: FlatImport[],
+  parsed: ParsedRegistry2,
+): DeclIdent | undefined {
+  // find module path by combining identifer reference with import statement
+  const modulePathParts = matchingImport(ident, flatImports); // module path in array form
+
+  if (modulePathParts) {
+    return findExport(modulePathParts, parsed);
+  }
+}
+
+/** using the flattened import array, find an import that matches a provided identifier */
+function matchingImport(
+  ident: RefIdent,
+  flatImports: FlatImport[],
+): string[] | undefined {
+  const identParts = ident.originalName.split("::");
+  for (const flat of flatImports) {
+    const impTail = overlapTail(flat.importPath, identParts);
+    if (impTail) {
+      return [...flat.modulePath, ...impTail];
+    }
+  }
+}
+
+/** @return an exported root element for the provided path */
+function findExport(
+  modulePathParts: string[],
+  parsed: ParsedRegistry2,
+): DeclIdent | undefined {
+  const legacyConvert = modulePathParts.map(p => (p === "." ? "package" : p)); // TODO rm after we update grammar
+  const modulePath = legacyConvert.slice(0, -1).join("::");
+  const module = parsed.modules[modulePath];
+  return exportDecl(module.scope, last(modulePathParts)!);
 }
 
 /** return mangled name for decl ident,
