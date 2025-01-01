@@ -91,14 +91,20 @@ export function linkRegistry(
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, rootModule } = found;
-  
+
   const flatImports = found.imports.flatMap(flattenTreeImport);
-  
+
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
   // note this requires requires the Scope tree and Idents, but the AST is not needed
   bindIdents(scope, flatImports, parsed, conditions);
-  
+
+  /* TODO
+   * for every decl we find, we need to:
+   * . get the element that's referred to by the decl
+   * . find and trace any other ident references from that declaration
+   * . add any elements visited to the list of elements we need to emit.
+   */
 
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
