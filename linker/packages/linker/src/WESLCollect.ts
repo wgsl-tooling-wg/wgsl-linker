@@ -56,7 +56,8 @@ type SomeIdentElem = IdentElem | DeclIdentElem;
 function makeIdentElem<K extends SomeIdentElem>(
   cc: CollectContext,
   kind: K["kind"],
-): { ident: any; identElem: K } { // TODO typing
+): { ident: any; identElem: K } {
+  // TODO typing
   const { src, start, end } = cc;
   const originalName = src.slice(start, end);
   // srcLog(cc.src, cc.start, kind, originalName);
@@ -184,7 +185,7 @@ export function collectModule():
 }
 
 export function importSegment(cc: CollectContext): SimpleSegment {
-  return new SimpleSegment(cc.tags.segment?.[0]);
+  return new SimpleSegment(cc.tags.segment?.[0], cc.tags.as?.[0]);
 }
 
 export function importTree(cc: CollectContext): ImportTree {
