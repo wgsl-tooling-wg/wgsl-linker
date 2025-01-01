@@ -23,6 +23,13 @@ export class SrcMapBuilder {
     this.#entries.push({ src, srcStart, srcEnd, destStart, destEnd });
   }
 
+  /** append a synthetic newline, mapped to previous source location */
+  addNl(): void {
+    const lastEntry = this.#entries.slice(-1)[0] ?? {};
+    const { src = "?", srcStart = 0, srcEnd = 0 } = lastEntry;
+    this.add("\n", src, srcStart, srcEnd);
+  }
+
   /** copy a string fragment from the src to the destination string */
   addCopy(src: string, srcStart: number, srcEnd: number): void {
     const fragment = src.slice(srcStart, srcEnd);
