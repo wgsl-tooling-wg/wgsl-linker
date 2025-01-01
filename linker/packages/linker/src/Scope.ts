@@ -19,7 +19,7 @@ export interface SrcLoc {
 /** a src declaration or reference to an ident */
 export type Ident = DeclIdent | RefIdent;
 
-export type Conditions = Record<string, any>;
+export type Conditions = Record<string, boolean>;
 
 interface IdentBase {
   originalName: string; // name in the source code for ident matching (may be mangled in the output)
