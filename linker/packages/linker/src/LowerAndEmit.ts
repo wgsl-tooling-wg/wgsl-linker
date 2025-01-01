@@ -1,4 +1,4 @@
-import { SrcMap, SrcMapBuilder } from "mini-parse";
+import { SrcMapBuilder } from "mini-parse";
 import {
   AbstractElem2,
   DeclIdentElem,

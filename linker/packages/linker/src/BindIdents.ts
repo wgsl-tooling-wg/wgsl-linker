@@ -35,6 +35,7 @@ export function bindIdents(
         ident.std = true;
       } else {
         let foundDecl = findDeclInModule(scope, ident, i);
+
         if (!foundDecl) {
           foundDecl = findDeclImport(ident, flatImports, parsed);
           if (foundDecl) {

@@ -25,7 +25,7 @@ test("import ./bar/foo", ctx => {
   });
 });
 
-test.skip("main has other root elements", ctx => {
+test("main has other root elements", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       struct Uniforms {
