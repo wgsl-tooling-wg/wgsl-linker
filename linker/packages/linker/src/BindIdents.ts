@@ -1,3 +1,4 @@
+import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
@@ -10,13 +11,14 @@ import { last, overlapTail } from "./Util.ts";
  *
  * @param parsed
  * @param conditions  only bind to/from idents that are valid with the current condition set
+ * @return any new declaration elements found (they will need to be emitted)
  */
 export function bindIdents(
   scope: Scope,
   flatImports: FlatImport[],
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
-): void {
+): DeclarationElem[] {
   /* 
     For each module's scope, search through the scope tree to find all ref idents
       - For each ref ident, search up the scope tree to find a matching decl ident
@@ -25,15 +27,21 @@ export function bindIdents(
 
     As global decl idents are found, mutate their mangled name to be globally unique.
 */
+  const newDecls: DeclarationElem[] = [];
   scope.idents.forEach((ident, i) => {
     // dlog({ ident: ident.originalName, kind: ident.kind });
     if (ident.kind === "ref") {
       if (stdWgsl(ident.originalName)) {
         ident.std = true;
       } else {
-        const foundDecl =
-          findDeclInModule(scope, ident, i) ??
-          findDeclImport(ident, flatImports, parsed);
+        let foundDecl = findDeclInModule(scope, ident, i);
+        if (!foundDecl) {
+          foundDecl = findDeclImport(ident, flatImports, parsed);
+          if (foundDecl) {
+            newDecls.push(foundDecl.declElem);
+          }
+        }
+
         // dlog({ ident: ident.originalName, foundDecl: foundDecl?.originalName });
         if (foundDecl) {
           ident.refersTo = foundDecl;
@@ -53,9 +61,13 @@ export function bindIdents(
       }
     }
   });
-  scope.children.forEach(child =>
-    bindIdents(child, flatImports, parsed, conditions),
-  );
+
+  for (const child of scope.children) {
+    const moreDecls = bindIdents(child, flatImports, parsed, conditions);
+    newDecls.push(...moreDecls);
+  }
+
+  return newDecls;
 }
 
 function stdWgsl(name: string): boolean {

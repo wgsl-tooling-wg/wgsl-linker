@@ -10,19 +10,18 @@ import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 /** passed to the emitters */
 interface EmitContext {
-  srcMap: SrcMapBuilder; // constructing the linked output
+  srcBuilder: SrcMapBuilder; // constructing the linked output
   conditions: Conditions; // settings for conditional compilation
 }
 
 /** traverse the AST, starting from root elements, emitting wgsl for each */
 export function lowerAndEmit(
+  srcBuilder: SrcMapBuilder,
   rootElems: AbstractElem2[],
   conditions: Conditions,
-): SrcMap {
-  const srcMap = new SrcMapBuilder();
-  const emitContext: EmitContext = { conditions, srcMap };
+): void {
+  const emitContext: EmitContext = { conditions, srcBuilder };
   lowerAndEmitRecursive(rootElems, emitContext);
-  return srcMap.build();
 }
 
 function lowerAndEmitRecursive(
@@ -65,11 +64,11 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
 }
 
 export function emitText(e: TextElem, ctx: EmitContext): void {
-  ctx.srcMap.addCopy(e.src, e.start, e.end);
+  ctx.srcBuilder.addCopy(e.src, e.start, e.end);
 }
 
 export function emitName(e: NameElem, ctx: EmitContext): void {
-  ctx.srcMap.add(e.name, e.src, e.start, e.end);
+  ctx.srcBuilder.add(e.name, e.src, e.start, e.end);
 }
 
 export function emitContents(
@@ -84,11 +83,11 @@ export function emitIdent(
   ctx: EmitContext,
 ): void {
   if ((e.ident as RefIdent).std) {
-    ctx.srcMap.add(e.ident.originalName, e.src, e.start, e.end);
+    ctx.srcBuilder.add(e.ident.originalName, e.src, e.start, e.end);
   } else {
     const declIdent = findDecl(e.ident);
     const mangledName = declIdent.mangledName!; // mangled name was set in binding step
-    ctx.srcMap.add(mangledName, e.src, e.start, e.end);
+    ctx.srcBuilder.add(mangledName, e.src, e.start, e.end);
   }
 }
 

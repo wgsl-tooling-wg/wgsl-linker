@@ -1,5 +1,6 @@
-import { SrcMap } from "mini-parse";
+import { SrcMap, SrcMapBuilder } from "mini-parse";
 import { bindIdents } from "./BindIdents.ts";
+import { flattenTreeImport } from "./FlattenTreeImport.ts";
 import { lowerAndEmit } from "./LowerAndEmit.ts";
 import {
   parsedRegistry,
@@ -9,7 +10,6 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
-import { flattenTreeImport } from "./FlattenTreeImport.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -97,18 +97,26 @@ export function linkRegistry(
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
   // note this requires requires the Scope tree and Idents, but the AST is not needed
-  bindIdents(scope, flatImports, parsed, conditions);
+  const newDecls = bindIdents(scope, flatImports, parsed, conditions);
 
   /* TODO
    * for every decl we find, we need to:
    * . get the element that's referred to by the decl
    * . find and trace any other ident references from that declaration
    * . add any elements visited to the list of elements we need to emit.
+   * . don't add newDecls twice
    */
 
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
-  return lowerAndEmit([rootModule], parsed);
+  const srcBuilder = new SrcMapBuilder();
+  lowerAndEmit(srcBuilder, [rootModule], conditions);
+  if (newDecls.length) {
+    srcBuilder.addNl();
+    srcBuilder.addNl();
+    lowerAndEmit(srcBuilder, newDecls, conditions);
+  }
+  return srcBuilder.build();
 }
 
 /* ---- Commentary on present and future features ---- */
