@@ -1,5 +1,5 @@
 import { ImportTree } from "./ImportTree.ts";
-import { Ident } from "./Scope.ts";
+import { DeclIdent, Ident, RefIdent } from "./Scope.ts";
 
 export type AbstractElem2 =
   | AliasElem
@@ -8,6 +8,7 @@ export type AbstractElem2 =
   | ConstAssertElem
   | FnElem
   | IdentElem
+  | DeclIdentElem
   | ModuleElem
   | NameElem
   | OverrideElem
@@ -16,6 +17,13 @@ export type AbstractElem2 =
   | StructMemberElem
   | TextElem
   | VarElem;
+
+export type DeclarationElem = 
+| AliasElem
+| ConstElem
+| FnElem
+| StructElem
+| VarElem;
 
 export interface AbstractElemBase2 {
   kind: string;
@@ -34,8 +42,15 @@ export interface ImportElem extends ElemWithContents {
 
 /** an identifier in WESL source */
 export interface IdentElem extends AbstractElemBase2 {
-  kind: "ident";
+  kind: RefIdent["kind"];
   ident: Ident;
+  src: string; // TODO SrcModule
+}
+
+/** an identifier in WESL source */
+export interface DeclIdentElem extends AbstractElemBase2 {
+  kind: DeclIdent["kind"];
+  ident: DeclIdent;
   src: string; // TODO SrcModule
 }
 

@@ -27,7 +27,8 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
     addFnFields(elem, str) ||
     addAliasFields(elem, str) ||
     addImport(elem, str) ||
-    addIdentFields(elem, str);
+    addRefIdent(elem, str) ||
+    addDeclIdent(elem, str);
 }
 
 function addVarishFields(
@@ -55,17 +56,26 @@ function addTextFields(
   }
 }
 
-function addIdentFields(
+function addRefIdent(
   elem: AbstractElem2,
   str: LineWrapper,
 ): true | undefined {
-  if (elem.kind === "ident") {
-    const { ident } = elem;
-    const prefix = ident.kind === "decl" ? "%" : "";
-    str.add(" " + prefix + elem.ident.originalName);
+  if (elem.kind === "ref") {
+    str.add(" " + elem.ident.originalName);
     return true;
   }
 }
+
+function addDeclIdent(
+  elem: AbstractElem2,
+  str: LineWrapper,
+): true | undefined {
+  if (elem.kind === "decl") {
+    str.add(" %" + elem.ident.originalName);
+    return true;
+  }
+}
+
 
 function addAliasFields(
   elem: AbstractElem2,

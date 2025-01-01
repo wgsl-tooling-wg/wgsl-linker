@@ -1,7 +1,7 @@
-import { dlog } from "berry-pretty";
 import { SrcMap, SrcMapBuilder } from "mini-parse";
 import {
   AbstractElem2,
+  DeclIdentElem,
   IdentElem,
   NameElem,
   TextElem,
@@ -39,7 +39,8 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
   switch (e.kind) {
     case "text":
       return emitText(e, ctx);
-    case "ident":
+    case "ref":
+    case "decl":
       return emitIdent(e, ctx);
     case "fn":
     case "param":
@@ -78,7 +79,10 @@ export function emitContents(
   elem.contents.forEach(e => lowerAndEmitElem(e, ctx));
 }
 
-export function emitIdent(e: IdentElem, ctx: EmitContext): void {
+export function emitIdent(
+  e: IdentElem | DeclIdentElem,
+  ctx: EmitContext,
+): void {
   if ((e.ident as RefIdent).std) {
     ctx.srcMap.add(e.ident.originalName, e.src, e.start, e.end);
   } else {

@@ -10,9 +10,9 @@ test("parse global var", () => {
     "module
       var x:i32
         text 'var '
-        ident %x
+        decl %x
         text ': '
-        ident i32
+        ref i32
         text ' = 1'
       text ';'"
   `);
@@ -26,9 +26,9 @@ test("parse alias", () => {
     "module
       alias %Num=i32
         text 'alias '
-        ident %Num
+        decl %Num
         text ' = '
-        ident i32
+        ref i32
         text ';'"
   `);
 });
@@ -41,7 +41,7 @@ test("parse const", () => {
     "module
       const y
         text 'const '
-        ident %y
+        decl %y
         text ' = 11u'
       text ';'"
   `);
@@ -55,9 +55,9 @@ test("parse override ", () => {
     "module
       override z:f32
         text 'override '
-        ident %z
+        decl %z
         text ': '
-        ident f32
+        ref f32
       text ';'"
   `);
 });
@@ -70,9 +70,9 @@ test("parse const_assert", () => {
     "module
       assert
         text 'const_assert '
-        ident x
+        ref x
         text ' < '
-        ident y
+        ref y
         text ';'"
   `);
 });
@@ -85,17 +85,17 @@ test("parse struct", () => {
     "module
       struct foo
         text 'struct '
-        ident %foo
+        decl %foo
         text ' { '
         member
           name bar
           text ': '
-          ident i32
+          ref i32
         text ', '
         member
           name zip
           text ': '
-          ident u32
+          ref u32
         text ', }'
       text ' ;'"
   `);
@@ -109,19 +109,19 @@ test("parse fn", () => {
     "module
       fn foo(x: i32, x: i32) -> f32
         text 'fn '
-        ident %foo
+        decl %foo
         text '('
         param
-          ident %x
+          decl %x
           text ': '
-          ident i32
+          ref i32
         text ', '
         param
-          ident %y
+          decl %y
           text ': '
-          ident u32
+          ref u32
         text ') -> '
-        ident f32
+        ref f32
         text ' { return 1.0; }'"
   `);
 });
