@@ -172,15 +172,17 @@ const fullPath = noSkipWs(
 });
 
 /** parse a Gleam style wgsl import statement. */
-export const gleamImport = withTags(
-  tokens(
-    gleamImportTokens,
-    seq("import", fullPath.tag("imports"), opt(";"), eolf)
-      .collect(importElem())
-      .map(r => {
-        const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
-        r.app.stable.elems.push(e);
-      }),
+export const gleamImport = tagScope(
+  withTags(
+    tokens(
+      gleamImportTokens,
+      seq("import", fullPath.tag("imports"), opt(";"), eolf)
+        .collect(importElem())
+        .map(r => {
+          const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
+          r.app.stable.elems.push(e);
+        }),
+    ),
   ),
 );
 
