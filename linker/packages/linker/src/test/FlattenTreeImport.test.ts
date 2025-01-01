@@ -25,14 +25,20 @@ test("complex tree import", () => {
           "zap",
           "bar",
         ],
-        "modulePath": "zap::foo",
+        "modulePath": [
+          "zap",
+          "foo",
+        ],
       },
       {
         "importPath": [
           "zap",
           "doh",
         ],
-        "modulePath": "zap::doh",
+        "modulePath": [
+          "zap",
+          "doh",
+        ],
       },
       {
         "importPath": [
@@ -40,7 +46,11 @@ test("complex tree import", () => {
           "bib",
           "bog",
         ],
-        "modulePath": "zap::bib::bog",
+        "modulePath": [
+          "zap",
+          "bib",
+          "bog",
+        ],
       },
     ]
   `);

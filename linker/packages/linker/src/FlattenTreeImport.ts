@@ -2,20 +2,20 @@ import {
   ImportTree,
   PathSegment,
   SegmentList,
-  SimpleSegment
+  SimpleSegment,
 } from "./ImportTree.js";
 
-export interface ImportToModulePath {
+export interface FlatImport {
   importPath: string[];
-  modulePath: string;
+  modulePath: string[];
 }
 
-/** 
- * Simplify importTree into a flattened map from import paths to module paths. 
+/**
+ * Simplify importTree into a flattened map from import paths to module paths.
  *
  * @return map from import path (with 'as' renaming) to module Path
  */
-export function flattenTreeImport(imp: ImportTree): ImportToModulePath[] {
+export function flattenTreeImport(imp: ImportTree): FlatImport[] {
   return recursiveResolve([], [], imp.segments);
 
   /** recurse through segments of path, producing  */
@@ -23,19 +23,19 @@ export function flattenTreeImport(imp: ImportTree): ImportToModulePath[] {
     resolvedImportPath: string[],
     resolvedExportPath: string[],
     remainingPath: PathSegment[],
-  ): ImportToModulePath[] {
+  ): FlatImport[] {
     const [segment, ...rest] = remainingPath;
     if (segment === undefined) {
       throw new Error(`undefined segment ${imp.segments}`);
     }
     if (segment instanceof SimpleSegment) {
-      const impPath = [...resolvedImportPath, segment.as || segment.name];
-      const expPath = [...resolvedExportPath, segment.name];
+      const importPath = [...resolvedImportPath, segment.as || segment.name];
+      const modulePath = [...resolvedExportPath, segment.name];
       if (rest.length) {
         // we're in the middle of the path so keep recursing
-        return recursiveResolve(impPath, expPath, rest);
+        return recursiveResolve(importPath, modulePath, rest);
       } else {
-        return [{ importPath: impPath, modulePath: expPath.join("::") }];
+        return [{ importPath, modulePath }];
       }
     }
     if (segment instanceof SegmentList) {
