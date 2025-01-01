@@ -3,6 +3,7 @@ import {
   AbstractElem2,
   AliasElem,
   ConstElem,
+  DeclIdentElem,
   ElemWithContents,
   FnElem,
   IdentElem,
@@ -18,7 +19,7 @@ import {
 } from "./AbstractElems2.ts";
 import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
-import { emptyBodyScope, Ident } from "./Scope.ts";
+import { DeclIdent, emptyBodyScope, Ident } from "./Scope.ts";
 
 /** add reference Ident to current scope */
 export function refIdent(cc: CollectContext) {
@@ -40,9 +41,9 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
 }
 
 /** add declaration Ident to current scope */
-export function declIdent(cc: CollectContext): IdentElem {
+export function declIdent(cc: CollectContext): DeclIdentElem {
   const weslContext: WeslParseContext = cc.app.context;
-  const { ident, identElem } = makeIdentElem(cc, "decl");
+  const { ident, identElem } = makeIdentElem<DeclIdentElem>(cc, "decl");
   weslContext.scope.idents.push(ident);
 
   addToOpenElem(cc, identElem);
@@ -50,12 +51,18 @@ export function declIdent(cc: CollectContext): IdentElem {
   return identElem;
 }
 
-function makeIdentElem(cc: CollectContext, kind: Ident["kind"]) {
+type SomeIdentElem = IdentElem | DeclIdentElem;
+
+function makeIdentElem<K extends SomeIdentElem>(
+  cc: CollectContext,
+  kind: K["kind"],
+): { ident: any; identElem: K } { // TODO typing
   const { src, start, end } = cc;
   const originalName = src.slice(start, end);
   // srcLog(cc.src, cc.start, kind, originalName);
-  const ident: Ident = { kind, originalName };
-  const identElem: IdentElem = { kind: "ident", start, end, src, ident };
+  const ident = { kind, originalName }; // we'll set declElem later
+
+  const identElem = { kind, start, end, src, ident } as K;
   return { ident, identElem };
 }
 
@@ -106,12 +113,14 @@ export function collectVarLike<E extends VarLikeElem>(
 
 export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
-    const name = cc.tags.fnName?.[0]!;
+    const name = cc.tags.fnName?.[0]! as DeclIdentElem;
     // dlog({ tags: Object.keys(cc.tags) });
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
     const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
-    return withTextCover(partElem, cc);
+    const fnElem = withTextCover(partElem, cc);
+    (name.ident as DeclIdent).declElem = fnElem;
+    return fnElem;
   });
 }
 

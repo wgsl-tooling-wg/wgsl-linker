@@ -131,7 +131,7 @@ export interface NameElem extends AbstractElemBase2 {
 /** a function declaration */
 export interface FnElem extends ElemWithContents {
   kind: "fn";
-  name: IdentElem;
+  name: DeclIdentElem;
   params: ParamElem[];
   returnType?: IdentElem;
 }

@@ -1,3 +1,5 @@
+import { DeclarationElem } from "./AbstractElems2.ts";
+
 export interface SrcModule {
   /** module path "rand_pkg::sub::foo", or "package::main" */
   modulePath: string;
@@ -33,6 +35,7 @@ export interface RefIdent extends IdentBase {
 export interface DeclIdent extends IdentBase {
   kind: "decl";
   mangledName?: string; // name in the output code
+  declElem: DeclarationElem;
 }
 
 export type ScopeKind =
