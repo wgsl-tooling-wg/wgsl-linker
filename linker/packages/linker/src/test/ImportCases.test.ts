@@ -65,6 +65,7 @@ test("import twice doesn't get two copies", ctx => {
     `,
   });
 });
+
 test("imported fn calls support fn with root conflict", ctx => {
   linkTest(ctx.task.name, {
     linked: `
