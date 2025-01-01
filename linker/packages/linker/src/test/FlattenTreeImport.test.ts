@@ -17,8 +17,6 @@ test("complex tree import", () => {
   const list = new SegmentList([foo, doh, subtree]);
 
   const tree = new ImportTree([zap, list]);
-  const treeString = treeToString(tree);
-  console.log(treeString);
   const flattened = flattenTreeImport(tree);
   expect(flattened).toMatchInlineSnapshot(`
     [
