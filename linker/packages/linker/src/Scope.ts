@@ -3,7 +3,7 @@ import { DeclarationElem } from "./AbstractElems2.ts";
 export interface SrcModule {
   /** module path "rand_pkg::sub::foo", or "package::main" */
   modulePath: string;
-  
+
   /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
   filePath: string;
 
@@ -36,12 +36,13 @@ export interface DeclIdent extends IdentBase {
   kind: "decl";
   mangledName?: string; // name in the output code
   declElem: DeclarationElem;
+  scope: Scope; // scope for the references within this declaration
 }
 
 export type ScopeKind =
-  | "module-scope"    // root scope for a module (file)
-  | "decl-scope"      // scope for a declaration (synehtic scope for ident binding, not a wgsl scope)
-  | "body-scope";     // a scope inside the module (fn body, nested block, etc.)
+  | "module-scope" // root scope for a module (file)
+  | "decl-scope" // scope for a declaration (synehtic scope for ident binding, not a wgsl scope)
+  | "body-scope"; // a scope inside the module (fn body, nested block, etc.)
 
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
@@ -52,7 +53,8 @@ export interface Scope {
   kind: ScopeKind;
 }
 
-export function resetScopeIds() { // for debugging
+export function resetScopeIds() {
+  // for debugging
   scopeId = 0;
 }
 
@@ -90,10 +92,10 @@ export function containsScope(rootScope: Scope, scope: Scope): boolean {
   return false;
 }
 
-export function exportDecl(scope:Scope, name: string): DeclIdent | undefined {
+export function exportDecl(scope: Scope, name: string): DeclIdent | undefined {
   for (const ident of scope.idents) {
     if (ident.originalName === name && ident.kind === "decl") {
-      return ident;      
+      return ident;
     }
   }
 }
