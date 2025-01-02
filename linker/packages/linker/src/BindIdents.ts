@@ -36,27 +36,13 @@ export function bindIdents(
         ident.std = true;
       } else {
         let foundDecl = findDeclInModule(scope, ident, i);
-
         if (!foundDecl) {
           foundDecl = findDeclImport(ident, flatImports, parsed);
-          if (foundDecl) {
-            newDecls.push(foundDecl.declElem);
-          }
+          importedDecl(foundDecl, newDecls);
         }
+        bindDecl(ident, foundDecl);
 
         // dlog({ ident: ident.originalName, foundDecl: foundDecl?.originalName });
-        if (foundDecl) {
-          ident.refersTo = foundDecl;
-
-          if (!foundDecl.mangledName) {
-            // TODO check for conflicts and actually mangle
-            const proposedName = ident.originalName;
-            foundDecl.mangledName = proposedName;
-          }
-        } else {
-          // TODO log error with source position
-          console.warn(`unresolved ident: ${ident.originalName}`);
-        }
       }
     } else {
       if (!ident.mangledName) {
@@ -71,6 +57,31 @@ export function bindIdents(
   }
 
   return newDecls;
+}
+
+function importedDecl(
+  foundDecl: DeclIdent | undefined,
+  newDecls: DeclarationElem[],
+) {
+  if (foundDecl) {
+    newDecls.push(foundDecl.declElem); // TODO use Map to avoid duplicates
+    // TODO traverse references from decl
+  }
+}
+
+function bindDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
+  if (foundDecl) {
+    ident.refersTo = foundDecl;
+
+    if (!foundDecl.mangledName) {
+      // TODO check for conflicts and actually mangle
+      const proposedName = ident.originalName;
+      foundDecl.mangledName = proposedName;
+    }
+  } else {
+    // TODO log error with source position
+    console.warn(`unresolved ident: ${ident.originalName}`);
+  }
 }
 
 function stdWgsl(name: string): boolean {
@@ -141,7 +152,9 @@ function findExport(
   const modulePath = legacyConvert.slice(0, -1).join("::");
   const module = parsed.modules[modulePath];
   if (!module) {
-    console.log(`ident ${modulePathParts.join("::")} in import statement, but module not found`)
+    console.log(
+      `ident ${modulePathParts.join("::")} in import statement, but module not found`,
+    );
   }
 
   return exportDecl(module.scope, last(modulePathParts)!);
