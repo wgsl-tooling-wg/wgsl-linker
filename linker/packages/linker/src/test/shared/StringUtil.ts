@@ -48,7 +48,10 @@ export function matchTrimmed(result: string, expected: string): void {
       return diff;
     });
     console.log(
-      `\nresult:\n${resultTrimmed}\n\nexpected:\n${expectTrimmed}\n`,
+      `\ntrimmed result:\n${resultTrimmed}\n\ntrimmed expected:\n${expectTrimmed}\n`,
+    );
+    console.log(
+      `\nresult:\n${result}\n\nexpected:\n${expected}\n`,
     );
   }
   expect(resultTrimmed).toBe(expectTrimmed);

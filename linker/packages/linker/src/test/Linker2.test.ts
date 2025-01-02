@@ -10,9 +10,9 @@ test("link global var", () => {
 
 test("link an alias", () => {
   const src = `
-alias Num = f32;
+    alias Num = f32;
 
-fn main() { Num(1.0); }
+    fn main() { Num(1.0); }
   `;
   const result = link2Test(src);
   matchTrimmed(result, src);
@@ -30,10 +30,10 @@ test("link a const_assert", () => {
 
 test("link a struct", () => {
   const src = `
-struct Point {
-  x: i32,
-  y: i32,
-}
+    struct Point {
+      x: i32,
+      y: i32,
+    }
   `;
   const result = link2Test(src);
   matchTrimmed(result, src);
@@ -41,9 +41,9 @@ struct Point {
 
 test("link a fn", () => {
   const src = `
-fn foo(x: i32, y: u32) -> f32 { 
-  return 1.0; 
-}`;
+    fn foo(x: i32, y: u32) -> f32 { 
+      return 1.0; 
+    }`;
   const result = link2Test(src);
   matchTrimmed(result, src);
 });

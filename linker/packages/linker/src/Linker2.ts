@@ -11,8 +11,7 @@ import {
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
 import { identToString } from "./ScopeLogging.ts";
-import { astTree, elemToString } from "./ASTLogging.ts";
-import { dlog } from "berry-pretty";
+import { astTree } from "./ASTLogging.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -94,8 +93,8 @@ export function linkRegistry(
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, rootModule } = found;
-  
-  // console.log(astTree(rootModule))
+
+  // console.log(astTree(rootModule));
 
   // found.imports.forEach(imp => console.log(treeToString(imp)))
   const flatImports = found.imports.flatMap(flattenTreeImport);
@@ -125,7 +124,7 @@ export function linkRegistry(
   //     return [];
   //   });
   // lowerAndEmit(srcBuilder, rootElems, conditions);
-  lowerAndEmit(srcBuilder, [rootModule], conditions);
+  lowerAndEmit(srcBuilder, [rootModule], conditions, false);
   lowerAndEmit(srcBuilder, newDecls, conditions);
   return srcBuilder.build();
 }

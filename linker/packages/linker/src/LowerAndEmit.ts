@@ -7,12 +7,12 @@ import {
   TextElem,
 } from "./AbstractElems2.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
-import { dlog } from "berry-pretty";
 
 /** passed to the emitters */
 interface EmitContext {
   srcBuilder: SrcMapBuilder; // constructing the linked output
   conditions: Conditions; // settings for conditional compilation
+  extracting: boolean; // are we extracting or copying the root module
 }
 
 /** traverse the AST, starting from root elements, emitting wgsl for each */
@@ -20,8 +20,9 @@ export function lowerAndEmit(
   srcBuilder: SrcMapBuilder,
   rootElems: AbstractElem2[],
   conditions: Conditions,
+  extracting = true,
 ): void {
-  const emitContext: EmitContext = { conditions, srcBuilder };
+  const emitContext: EmitContext = { conditions, srcBuilder, extracting };
   lowerAndEmitRecursive(rootElems, emitContext);
 }
 
@@ -45,8 +46,10 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "const":
     case "assert":
     case "gvar":
-      ctx.srcBuilder.addNl();
-      ctx.srcBuilder.addNl();
+      if (ctx.extracting) {
+        ctx.srcBuilder.addNl();
+        ctx.srcBuilder.addNl();
+      }
       return emitContents(e, ctx);
     case "text":
       return emitText(e, ctx);
