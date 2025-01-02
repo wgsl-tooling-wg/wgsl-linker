@@ -185,7 +185,9 @@ export function collectModule():
 }
 
 export function importSegment(cc: CollectContext): SimpleSegment {
-  return new SimpleSegment(cc.tags.segment?.[0], cc.tags.as?.[0]);
+  const segOrig = cc.tags.segment?.[0] as string;
+  const seg = (segOrig === ".") ? "package" : segOrig;  // TODO convert legacy syntax for now
+  return new SimpleSegment(seg, cc.tags.as?.[0]);
 }
 
 export function importTree(cc: CollectContext): ImportTree {

@@ -132,7 +132,7 @@ test("parse import", () => {
   const astString = astTree(ast.rootModule);
   expect(astString).toMatchInlineSnapshot(`
     "module
-      import ./foo/bar
+      import package/foo/bar
         text 'import ./foo/bar;'"
   `);
 });
