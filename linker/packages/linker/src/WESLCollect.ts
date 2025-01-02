@@ -3,9 +3,11 @@ import {
   AbstractElem2,
   AliasElem,
   ConstElem,
+  DeclarationElem,
   DeclIdentElem,
   ElemWithContents,
   FnElem,
+  GlobalVarElem,
   IdentElem,
   ImportElem,
   ModuleElem,
@@ -100,7 +102,12 @@ export type OpenElem<T extends AbstractElem2 = AbstractElem2> =
 export type PartElem<T extends AbstractElem2 = AbstractElem2> = 
   Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem2[] };
 
-type VarLikeElem = VarElem | ConstElem | OverrideElem | AliasElem;
+type VarLikeElem =
+  | GlobalVarElem
+  | VarElem
+  | ConstElem
+  | OverrideElem
+  | AliasElem;
 
 export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],

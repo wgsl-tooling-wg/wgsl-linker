@@ -11,6 +11,7 @@ import {
   req,
   seq,
   setTraceName,
+  tagScope,
   text,
   tokens,
   tokenSkipSet,
@@ -190,7 +191,11 @@ const variable_decl = seq(
   () => opt_template_list,
   req_optionally_typed_ident,
   opt(seq("=", () => expression)),
-).collect(collectVarLike("var"), "variable_decl");
+);
+
+// prettier-ignore
+const local_variable_decl = variable_decl
+  .collect(collectVarLike("var"), "variable_decl");
 
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
@@ -376,7 +381,7 @@ const lhs_expression: Parser<any> = or(
 
 const variable_or_value_statement = or(
   // Also covers the = expression case
-  variable_decl,
+  local_variable_decl,
   seq("const", req_optionally_typed_ident, req("="), expression),
   seq("let", req_optionally_typed_ident, req("="), expression),
 );
@@ -418,16 +423,17 @@ export const fn_decl = seq(
     r.app.stable.elems.push(e);
   });
 
+// prettier-ignore
 const global_value_decl = or(
   seq(
     opt_attributes,
     "override",
     optionally_typed_ident,
     opt(seq("=", expression)),
+    ";",
   ).collect(collectVarLike("override")),
-  seq("const", optionally_typed_ident, "=", expression).collect(
-    collectVarLike("const"),
-  ),
+  seq("const", optionally_typed_ident, "=", expression, ";")
+    .collect(collectVarLike("const")),
 );
 
 export const global_alias = seq(
@@ -461,27 +467,30 @@ const global_directive = seq(
   r.app.stable.elems.push(e);
 });
 
-export const global_decl = or(
-  fn_decl,
-  seq(opt_attributes, variable_decl, ";").map(r => {
-    const e = makeElem("var", r, ["name"]);
-    e.typeRefs = r.tags.typeRefs?.flat() || [];
-    r.app.stable.elems.push(e);
-  }),
-  seq(global_value_decl, ";").map(r => {
-    const e = makeElem("var", r, ["name"]);
-    e.typeRefs = r.tags.typeRefs?.flat() || [];
-    r.app.stable.elems.push(e);
-  }),
-  ";",
-  global_alias,
-  const_assert.map(r => {
-    const e = makeElem("globalDirective", r);
-    r.app.stable.elems.push(e);
-  }),
-  struct_decl,
+export const global_decl = tagScope(
+  or(
+    fn_decl,
+    seq(opt_attributes, variable_decl, ";")
+      .map(r => {
+        const e = makeElem("var", r, ["name"]);
+        e.typeRefs = r.tags.typeRefs?.flat() || [];
+        r.app.stable.elems.push(e);
+      })
+      .collect(collectVarLike("gvar"), "g_variable_decl"),
+    global_value_decl.map(r => {
+      const e = makeElem("var", r, ["name"]);
+      e.typeRefs = r.tags.typeRefs?.flat() || [];
+      r.app.stable.elems.push(e);
+    }),
+    ";",
+    global_alias,
+    const_assert.map(r => {
+      const e = makeElem("globalDirective", r);
+      r.app.stable.elems.push(e);
+    }),
+    struct_decl,
+  ),
 );
-// .commit("global_decl");
 
 const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
 export const weslRoot = preParse(

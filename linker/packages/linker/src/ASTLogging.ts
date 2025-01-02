@@ -49,7 +49,7 @@ function addVarishFields(
   str: LineWrapper,
 ): true | undefined {
   const { kind } = elem;
-  if (kind === "var" || kind === "const" || kind === "override") {
+  if (kind === "var" || kind === "gvar" || kind === "const" || kind === "override") {
     str.add(" " + elem.name.ident.originalName);
     if (elem.typeRef) {
       str.add(":" + elem.typeRef.ident.originalName);

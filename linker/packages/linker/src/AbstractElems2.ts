@@ -16,6 +16,7 @@ export type AbstractElem2 =
   | StructElem
   | StructMemberElem
   | TextElem
+  | GlobalVarElem 
   | VarElem;
 
 export type DeclarationElem =
@@ -73,6 +74,13 @@ export interface ParamElem extends ElemWithContents {
 /** a variable declaration */
 export interface VarElem extends ElemWithContents {
   kind: "var";
+  name: IdentElem;
+  typeRef?: IdentElem;
+}
+
+/** a global variable declaration (at the root level) */
+export interface GlobalVarElem extends ElemWithContents {
+  kind: "gvar";
   name: IdentElem;
   typeRef?: IdentElem;
 }

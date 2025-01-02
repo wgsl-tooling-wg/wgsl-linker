@@ -8,13 +8,12 @@ test("parse global var", () => {
   const astString = astTree(ast.rootModule);
   expect(astString).toMatchInlineSnapshot(`
     "module
-      var x:i32
+      gvar x:i32
         text 'var '
         decl %x
         text ': '
         ref i32
-        text ' = 1'
-      text ';'"
+        text ' = 1;'"
   `);
 });
 
@@ -42,8 +41,7 @@ test("parse const", () => {
       const y
         text 'const '
         decl %y
-        text ' = 11u'
-      text ';'"
+        text ' = 11u;'"
   `);
 });
 
@@ -58,7 +56,7 @@ test("parse override ", () => {
         decl %z
         text ': '
         ref f32
-      text ';'"
+        text ';'"
   `);
 });
 
