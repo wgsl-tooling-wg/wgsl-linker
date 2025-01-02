@@ -109,7 +109,9 @@ export function collectVarLike<E extends VarLikeElem>(
     const name = cc.tags.declIdent?.[0]!;
     const typeRef = cc.tags.typeRef?.[0];
     const partElem = { ...openElem, name, typeRef };
-    return withTextCover(partElem, cc) as E;
+    const varElem = withTextCover(partElem, cc) as E;
+    (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
+    return varElem;
   });
 }
 
@@ -144,7 +146,9 @@ export function collectStruct(): CollectPair<StructElem> {
       const name = cc.tags.typeName?.[0]!;
       const members = cc.tags.members!;
       const structElem = { ...openElem, name, members };
-      return withTextCover(structElem, cc);
+      const elem = withTextCover(structElem, cc);
+      (name.ident as DeclIdent).declElem = elem as DeclarationElem;
+      return elem;
     },
   );
 }
