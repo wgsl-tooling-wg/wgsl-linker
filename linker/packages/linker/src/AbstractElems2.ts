@@ -18,12 +18,13 @@ export type AbstractElem2 =
   | TextElem
   | VarElem;
 
-export type DeclarationElem = 
-| AliasElem
-| ConstElem
-| FnElem
-| StructElem
-| VarElem;
+export type DeclarationElem =
+  | AliasElem
+  | ConstElem
+  | OverrideElem
+  | FnElem
+  | StructElem
+  | VarElem;
 
 export interface AbstractElemBase2 {
   kind: string;
