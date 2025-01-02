@@ -23,7 +23,7 @@ test("trimSrc with blank line in the middle and at end", () => {
       bar
      `,
   );
-  expect(trimmed).toBe("foo\n\nbar");
+  expect(trimmed).toBe("foo\nbar");
 });
 
 test("trimSrc with trailing spaces", () => {

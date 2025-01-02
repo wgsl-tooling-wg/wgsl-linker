@@ -315,21 +315,7 @@ function linkTest2(name: string, expectation: LinkExpectation): void {
   /* -- trim and verify results line by line -- */
   const { linked, includes, excludes } = expectation;
   if (linked !== undefined) {
-    const expectTrimmed = trimSrc(linked);
-    const resultTrimmed = trimSrc(result);
-    if (resultTrimmed !== expectTrimmed) {
-      console.log(
-        "result:\n",
-        resultTrimmed,
-        "\n\n...failed. Expected:\n",
-        expectTrimmed,
-      );
-      const expectLines = expectTrimmed.split("\n");
-      const resultLines = result.split("\n");
-      expectLines.forEach((line, i) => {
-        expect(resultLines[i]).toBe(line);
-      });
-    }
+    matchTrimmed(result, linked);
   }
   if (includes !== undefined) {
     includes.forEach(inc => {
