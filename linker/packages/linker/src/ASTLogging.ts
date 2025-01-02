@@ -19,6 +19,19 @@ export function astTree(elem: AbstractElem2, indent = 0): string {
   return str.result;
 }
 
+export function elemToString(elem: AbstractElem2): string {
+  const { kind } = elem as ModuleElem;
+  const str = new LineWrapper();
+  str.add(kind);
+  addElemFields(elem, str);
+  let childStrings: string[] = [];
+  if (childStrings.length) {
+    str.nl();
+    str.addBlock(childStrings.join("\n"), false);
+  }
+  return str.result;
+}
+
 function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
   addTextFields(elem, str) ||
     addVarishFields(elem, str) ||
