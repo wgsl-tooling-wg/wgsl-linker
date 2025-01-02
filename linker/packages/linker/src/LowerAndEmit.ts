@@ -7,6 +7,7 @@ import {
   TextElem,
 } from "./AbstractElems2.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** passed to the emitters */
 interface EmitContext {
@@ -36,26 +37,30 @@ function lowerAndEmitRecursive(
 
 export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
   switch (e.kind) {
+    case "import":
+      return; // drop imports statements from emitted text
+    case "fn":
+    case "struct":
+    case "override":
+    case "const":
+    case "assert":
+    case "gvar":
+      ctx.srcBuilder.addNl();
+      ctx.srcBuilder.addNl();
+      return emitContents(e, ctx);
     case "text":
       return emitText(e, ctx);
     case "ref":
     case "decl":
       return emitIdent(e, ctx);
-    case "fn":
     case "param":
     case "var":
     case "module":
     case "alias":
-    case "override":
-    case "const":
-    case "assert":
-    case "struct":
     case "member":
       return emitContents(e, ctx);
     case "name":
       return emitName(e, ctx);
-    case "import":
-      return; // drop imports statements from emitted text
     default:
       const kind = (e as any).kind;
       console.log("NYI for emit, elem kind:", kind);

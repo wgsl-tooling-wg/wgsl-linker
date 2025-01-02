@@ -1,7 +1,7 @@
 import { afterAll, expect, test } from "vitest";
 import { importCases } from "wesl-testsuite";
 import { linkWeslFiles } from "../Linker2.js";
-import { trimSrc } from "./shared/StringUtil.js";
+import { matchTrimmed, trimSrc } from "./shared/StringUtil.js";
 
 interface LinkExpectation {
   includes?: string[];
@@ -50,7 +50,7 @@ test("import foo as bar", ctx => {
   });
 });
 
-test.skip("import twice doesn't get two copies", ctx => {
+test("import twice doesn't get two copies", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {

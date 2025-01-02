@@ -114,11 +114,7 @@ export function linkRegistry(
   // traverse the AST and emit WGSL (doesn't need scopes)
   const srcBuilder = new SrcMapBuilder();
   lowerAndEmit(srcBuilder, [rootModule], conditions);
-  if (newDecls.length) {
-    srcBuilder.addNl();
-    srcBuilder.addNl();
-    lowerAndEmit(srcBuilder, newDecls, conditions);
-  }
+  lowerAndEmit(srcBuilder, newDecls, conditions);
   return srcBuilder.build();
 }
 

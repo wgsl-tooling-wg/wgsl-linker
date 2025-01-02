@@ -10,16 +10,15 @@ test("link global var", () => {
 
 test("link an alias", () => {
   const src = `
-    alias Num = f32;
+alias Num = f32;
 
-    fn main() { Num(1.0); }
+fn main() { Num(1.0); }
   `;
   const result = link2Test(src);
   matchTrimmed(result, src);
 });
 
-// TODO
-test.skip("link an const_assert", () => {
+test("link a const_assert", () => {
   const src = `
     var x = 1;
     var y = 2;
