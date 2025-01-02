@@ -69,7 +69,7 @@ function saveIdent(cc: CollectContext, identElem: IdentElem | DeclIdentElem) {
 }
 
 /** start a new child Scope */
-function startScope<T>(cc: CollectContext) {
+function startScope(cc: CollectContext) {
   const { scope } = cc.app.context as WeslParseContext;
   const newScope = emptyBodyScope(scope);
   scope.children.push(newScope);
@@ -77,7 +77,7 @@ function startScope<T>(cc: CollectContext) {
 }
 
 /* close current Scope and set current scope to parent */
-function completeScope<T>(cc: CollectContext) {
+function completeScope(cc: CollectContext) {
   // ctxLog(r.ctx, "completeScope");
   const weslContext = cc.app.context as WeslParseContext;
   const completedScope = weslContext.scope;
@@ -116,7 +116,6 @@ export function collectVarLike<E extends VarLikeElem>(
 export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0]! as DeclIdentElem;
-    // dlog({ tags: Object.keys(cc.tags) });
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
     const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };

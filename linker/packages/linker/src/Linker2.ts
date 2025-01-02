@@ -91,6 +91,8 @@ export function linkRegistry(
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { scope, rootModule } = found;
+  
+  // console.log(astTree(rootModule))
 
   // found.imports.forEach(imp => console.log(treeToString(imp)))
   const flatImports = found.imports.flatMap(flattenTreeImport);

@@ -35,7 +35,7 @@ export interface RefIdent extends IdentBase {
 export interface DeclIdent extends IdentBase {
   kind: "decl";
   mangledName?: string; // name in the output code
-  declElem: DeclarationElem;
+  declElem: DeclarationElem; // link to AST so that we can traverse scopes and know what elems to emit
   scope: Scope; // scope for the references within this declaration
 }
 
