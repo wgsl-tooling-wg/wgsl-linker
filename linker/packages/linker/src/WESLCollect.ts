@@ -19,16 +19,7 @@ import {
 } from "./AbstractElems2.ts";
 import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
-import { DeclIdent, emptyBodyScope, Ident } from "./Scope.ts";
-
-/** add reference Ident to current scope */
-export function refIdent(cc: CollectContext) {
-  const weslContext: WeslParseContext = cc.app.context;
-  const { ident, identElem } = makeIdentElem(cc, "ref");
-  weslContext.scope.idents.push(ident);
-  addToOpenElem(cc, identElem);
-  return identElem;
-}
+import { DeclIdent, emptyBodyScope, Ident, RefIdent } from "./Scope.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
@@ -40,31 +31,41 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
   }
 }
 
-/** add declaration Ident to current scope */
-export function declIdent(cc: CollectContext): DeclIdentElem {
-  const weslContext: WeslParseContext = cc.app.context;
-  const { ident, identElem } = makeIdentElem<DeclIdentElem>(cc, "decl");
-  weslContext.scope.idents.push(ident);
+/** create reference Ident and add to context */
+export function refIdent(cc: CollectContext) {
+  const { src, start, end } = cc;
+  const originalName = src.slice(start, end);
 
-  addToOpenElem(cc, identElem);
+  const kind = "ref";
+  const ident: RefIdent = { kind, originalName };
+  const identElem: IdentElem = { kind, start, end, src, ident };
 
+  saveIdent(cc, identElem);
   return identElem;
 }
 
-type SomeIdentElem = IdentElem | DeclIdentElem;
-
-function makeIdentElem<K extends SomeIdentElem>(
-  cc: CollectContext,
-  kind: K["kind"],
-): { ident: any; identElem: K } {
-  // TODO typing
+/** create declaration Ident and add to context */
+export function declIdent(cc: CollectContext): DeclIdentElem {
   const { src, start, end } = cc;
   const originalName = src.slice(start, end);
-  // srcLog(cc.src, cc.start, kind, originalName);
-  const ident = { kind, originalName }; // we'll set declElem later
 
-  const identElem = { kind, start, end, src, ident } as K;
-  return { ident, identElem };
+  const kind = "decl";
+  const weslContext: WeslParseContext = cc.app.context;
+  const childScope = weslContext.scope;
+  const declElem = null as any; // we'll set declElem later
+  const ident: DeclIdent = { kind, originalName, scope: childScope, declElem }; // we'll set declElem later
+  const identElem: DeclIdentElem = { kind, start, end, src, ident };
+
+  saveIdent(cc, identElem);
+  return identElem;
+}
+
+/** add Ident to current open scope, add IdentElem to current open element */
+function saveIdent(cc: CollectContext, identElem: IdentElem | DeclIdentElem) {
+  const { ident } = identElem;
+  const weslContext: WeslParseContext = cc.app.context;
+  weslContext.scope.idents.push(ident);
+  addToOpenElem(cc, identElem);
 }
 
 /** start a new child Scope */
@@ -186,7 +187,7 @@ export function collectModule():
 
 export function importSegment(cc: CollectContext): SimpleSegment {
   const segOrig = cc.tags.segment?.[0] as string;
-  const seg = (segOrig === ".") ? "package" : segOrig;  // TODO convert legacy syntax for now
+  const seg = segOrig === "." ? "package" : segOrig; // TODO convert legacy syntax for now
   return new SimpleSegment(seg, cc.tags.as?.[0]);
 }
 
