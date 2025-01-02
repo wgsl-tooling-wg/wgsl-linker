@@ -1,5 +1,5 @@
 import { LineWrapper } from "./LineWrapper.ts";
-import { Scope } from "./Scope.ts";
+import { Ident, Scope } from "./Scope.ts";
 
 /** A debugging print of the scope tree with identifiers in nested brackets */
 export function scopeIdentTree(scope: Scope, indent = 0): string {
@@ -36,4 +36,15 @@ export function scopeIdentTree(scope: Scope, indent = 0): string {
   }
 
   return str.result;
+}
+
+export function identToString(ident?: Ident): string {
+  if (!ident) return JSON.stringify(ident);
+  const { kind, originalName } = ident;
+  if (kind === "ref") {
+    const ref = identToString(ident.refersTo!);
+    return `${originalName} -> ${ref}`;
+  } else {
+    return `%${originalName} (${ident.mangledName})`;
+  }
 }
