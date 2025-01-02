@@ -28,38 +28,53 @@ export function bindIdents(
 
     As global decl idents are found, mutate their mangled name to be globally unique.
 */
-  const found: FoundDecls = new Map();
-  const decls = bindIdentsRecursive(scope, imports, parsed, conditions, found);
+  const knownDecls: Set<DeclIdent> = new Set();
+  const foundScopes: Set<Scope> = new Set();
+  const bindContext = { imports, parsed, conditions, knownDecls, foundScopes };
+  const decls = bindIdentsRecursive(scope, bindContext);
   return decls.map(d => d.declElem);
 }
 
-type FoundDecls = Map<string, DeclIdent>;
+interface BindContext {
+  imports: FlatImport[];
+  parsed: ParsedRegistry2;
+  conditions: Record<string, any>;
+  knownDecls: Set<DeclIdent>; // decl idents discovered so far
+  foundScopes: Set<Scope>; // save work by not processing scopes multiple times
+}
 
 /**
- * Recursively bind references to declarations in this scope
- * using a hash set of found declarations to avoid duplicates
- * return any new declarations found
+ * Recursively bind references to declarations in this scope and
+ * any child scopes referenced by these declarations.
+ * Uses a hash set of found declarations to avoid duplication
+ * @ return any new declarations found
  */
 function bindIdentsRecursive(
   scope: Scope,
-  flatImports: FlatImport[],
-  parsed: ParsedRegistry2,
-  conditions: Record<string, any>,
-  found: FoundDecls,
+  bindContext: BindContext,
 ): DeclIdent[] {
-  const newDecls: DeclIdent[] = [];
+  const { imports, parsed, conditions, knownDecls, foundScopes } = bindContext;
+  if (foundScopes.has(scope)) return [];
+  foundScopes.add(scope);
+
+  const newDecls: DeclIdent[] = []; // queue of new decl idents to process
   scope.idents.forEach((ident, i) => {
     // dlog({ ident: ident.originalName, kind: ident.kind });
     if (ident.kind === "ref") {
-      if (stdWgsl(ident.originalName)) {
-        ident.std = true;
-      } else {
-        let foundDecl = findDeclInModule(scope, ident, i);
-        if (!foundDecl) {
-          foundDecl = findDeclImport(ident, flatImports, parsed);
-          if (foundDecl) newDecls.push(foundDecl);
+      if (!ident.refersTo && !ident.std) {
+        if (stdWgsl(ident.originalName)) {
+          ident.std = true;
+        } else {
+          let foundDecl = findDeclInModule(scope, ident, i);
+          if (!foundDecl) {
+            foundDecl = findDeclImport(ident, imports, parsed);
+            if (foundDecl && !knownDecls.has(foundDecl)) {
+              knownDecls.add(foundDecl);
+              newDecls.push(foundDecl);
+            }
+          }
+          bindRefToDecl(ident, foundDecl, knownDecls);
         }
-        bindRefToDecl(ident, foundDecl);
       }
     } else {
       if (!ident.mangledName) {
@@ -69,32 +84,21 @@ function bindIdentsRecursive(
     }
   });
 
-  for (const child of scope.children) {
-    const moreDecls = bindIdentsRecursive(
-      child,
-      flatImports,
-      parsed,
-      conditions,
-      found,
-    );
-    newDecls.push(...moreDecls);
-  }
+  const newFromChildren = scope.children.flatMap(child =>
+    bindIdentsRecursive(child, bindContext),
+  );
 
-  return newDecls;
+  const newFromRefs = newDecls.flatMap(decl =>
+    bindIdentsRecursive(decl.scope, bindContext));
+
+  return [newDecls, newFromChildren, newFromRefs].flat();
 }
 
-function importedDecl(
+function bindRefToDecl(
+  ident: RefIdent,
   foundDecl: DeclIdent | undefined,
-  newDecls: DeclarationElem[],
+  knownDecls: Set<DeclIdent>,
 ) {
-  if (foundDecl) {
-    newDecls.push(foundDecl.declElem);
-    // TODO use Map to avoid duplicates
-    // TODO traverse references from decl
-  }
-}
-
-function bindRefToDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
   if (foundDecl) {
     ident.refersTo = foundDecl;
 
@@ -103,6 +107,7 @@ function bindRefToDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
       const proposedName = ident.originalName;
       foundDecl.mangledName = proposedName;
     }
+    knownDecls.add(foundDecl);
   } else {
     // TODO log error with source position
     console.log(`--- unresolved ident: ${ident.originalName}`);
