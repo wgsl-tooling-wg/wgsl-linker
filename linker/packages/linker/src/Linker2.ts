@@ -10,6 +10,9 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
+import { identToString } from "./ScopeLogging.ts";
+import { astTree, elemToString } from "./ASTLogging.ts";
+import { dlog } from "berry-pretty";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -113,6 +116,15 @@ export function linkRegistry(
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
   const srcBuilder = new SrcMapBuilder();
+  // const rootElems = scope.idents
+  //   .filter(i => i.kind === "decl")
+  //   .flatMap(i => {
+  //     const { declElem } = i;
+  //     if (declElem) return [declElem];
+  //     console.log("ERR: declElem not found for decl ident", identToString(i));
+  //     return [];
+  //   });
+  // lowerAndEmit(srcBuilder, rootElems, conditions);
   lowerAndEmit(srcBuilder, [rootModule], conditions);
   lowerAndEmit(srcBuilder, newDecls, conditions);
   return srcBuilder.build();
