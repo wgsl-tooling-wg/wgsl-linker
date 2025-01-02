@@ -89,7 +89,7 @@ export function parseWESL(
 }
 
 export function blankWeslParseState(): WeslParseState {
-  const rootScope = emptyScope("module");
+  const rootScope = emptyScope("module-scope");
   return {
     context: { scope: rootScope, openElems: [] },
     stable: { conditions: {}, elems: [], imports: [], rootScope },

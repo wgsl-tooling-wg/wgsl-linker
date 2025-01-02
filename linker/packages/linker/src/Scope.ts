@@ -39,8 +39,9 @@ export interface DeclIdent extends IdentBase {
 }
 
 export type ScopeKind =
-  | "module" // root scope for a module (file)
-  | "body"; // a scope inside the module (fn body, nested block, etc.)
+  | "module-scope"    // root scope for a module (file)
+  | "decl-scope"      // scope for a declaration (synehtic scope for ident binding, not a wgsl scope)
+  | "body-scope";     // a scope inside the module (fn body, nested block, etc.)
 
 /** tree of ident references, organized by lexical scope */
 export interface Scope {
@@ -72,7 +73,7 @@ export function emptyScope(kind: ScopeKind): Scope {
 }
 
 export function emptyBodyScope(parent: Scope): Scope {
-  return makeScope({ kind: "body", idents: [], parent, children: [] });
+  return makeScope({ kind: "body-scope", idents: [], parent, children: [] });
 }
 
 /** For debugging,
