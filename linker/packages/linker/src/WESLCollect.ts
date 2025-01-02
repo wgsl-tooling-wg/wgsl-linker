@@ -21,7 +21,7 @@ import {
 } from "./AbstractElems2.ts";
 import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
-import { DeclIdent, emptyBodyScope, Ident, RefIdent } from "./Scope.ts";
+import { DeclIdent, emptyBodyScope, RefIdent } from "./Scope.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
