@@ -92,6 +92,7 @@ export function linkRegistry(
   }
   const { scope, rootModule } = found;
 
+  // found.imports.forEach(imp => console.log(treeToString(imp)))
   const flatImports = found.imports.flatMap(flattenTreeImport);
 
   /* --- Step #2   Binding Idents --- */

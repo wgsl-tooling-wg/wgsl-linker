@@ -103,7 +103,9 @@ export function findDecl(ident: Ident): DeclIdent {
     i = i.refersTo;
   } while (i);
 
-  throw new Error(`unresolved ident: ${ident.originalName}`);
+  throw new Error(
+    `unresolved ident: ${ident.originalName} (bug in bindIdents?)`,
+  );
 }
 
 /** check if the element is visible with the current current conditional compilation settings */

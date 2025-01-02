@@ -40,9 +40,7 @@ export function bindIdents(
           foundDecl = findDeclImport(ident, flatImports, parsed);
           importedDecl(foundDecl, newDecls);
         }
-        bindDecl(ident, foundDecl);
-
-        // dlog({ ident: ident.originalName, foundDecl: foundDecl?.originalName });
+        bindRefToDecl(ident, foundDecl);
       }
     } else {
       if (!ident.mangledName) {
@@ -64,12 +62,13 @@ function importedDecl(
   newDecls: DeclarationElem[],
 ) {
   if (foundDecl) {
-    newDecls.push(foundDecl.declElem); // TODO use Map to avoid duplicates
+    newDecls.push(foundDecl.declElem);
+    // TODO use Map to avoid duplicates
     // TODO traverse references from decl
   }
 }
 
-function bindDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
+function bindRefToDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
   if (foundDecl) {
     ident.refersTo = foundDecl;
 
@@ -80,7 +79,7 @@ function bindDecl(ident: RefIdent, foundDecl: DeclIdent | undefined) {
     }
   } else {
     // TODO log error with source position
-    console.warn(`unresolved ident: ${ident.originalName}`);
+    console.log(`--- unresolved ident: ${ident.originalName}`);
   }
 }
 
