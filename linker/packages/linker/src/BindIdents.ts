@@ -16,7 +16,7 @@ import { last, overlapTail } from "./Util.ts";
  */
 export function bindIdents(
   scope: Scope,
-  flatImports: FlatImport[],
+  imports: FlatImport[],
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
 ): DeclarationElem[] {
@@ -28,7 +28,26 @@ export function bindIdents(
 
     As global decl idents are found, mutate their mangled name to be globally unique.
 */
-  const newDecls: DeclarationElem[] = [];
+  const found: FoundDecls = new Map();
+  const decls = bindIdentsRecursive(scope, imports, parsed, conditions, found);
+  return decls.map(d => d.declElem);
+}
+
+type FoundDecls = Map<string, DeclIdent>;
+
+/**
+ * Recursively bind references to declarations in this scope
+ * using a hash set of found declarations to avoid duplicates
+ * return any new declarations found
+ */
+function bindIdentsRecursive(
+  scope: Scope,
+  flatImports: FlatImport[],
+  parsed: ParsedRegistry2,
+  conditions: Record<string, any>,
+  found: FoundDecls,
+): DeclIdent[] {
+  const newDecls: DeclIdent[] = [];
   scope.idents.forEach((ident, i) => {
     // dlog({ ident: ident.originalName, kind: ident.kind });
     if (ident.kind === "ref") {
@@ -38,19 +57,26 @@ export function bindIdents(
         let foundDecl = findDeclInModule(scope, ident, i);
         if (!foundDecl) {
           foundDecl = findDeclImport(ident, flatImports, parsed);
-          importedDecl(foundDecl, newDecls);
+          if (foundDecl) newDecls.push(foundDecl);
         }
         bindRefToDecl(ident, foundDecl);
       }
     } else {
       if (!ident.mangledName) {
+        // TODO use declUniqueName
         ident.mangledName = ident.originalName;
       }
     }
   });
 
   for (const child of scope.children) {
-    const moreDecls = bindIdents(child, flatImports, parsed, conditions);
+    const moreDecls = bindIdentsRecursive(
+      child,
+      flatImports,
+      parsed,
+      conditions,
+      found,
+    );
     newDecls.push(...moreDecls);
   }
 
