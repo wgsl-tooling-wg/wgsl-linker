@@ -1,4 +1,5 @@
 import { DeclarationElem } from "./AbstractElems2.ts";
+import { WeslAST } from "./ParseWESL.ts";
 
 export interface SrcModule {
   /** module path "rand_pkg::sub::foo", or "package::main" */
@@ -31,6 +32,7 @@ export interface RefIdent extends IdentBase {
   kind: "ref";
   refersTo?: Ident; // import or decl ident in scope to which this ident refers. undefined before binding
   std?: true; // true if this is a standard wgsl identifier (like sin, or u32)
+  ast: WeslAST; // AST from module that contains this ident
 }
 
 export interface DeclIdent extends IdentBase {

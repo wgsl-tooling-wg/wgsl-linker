@@ -10,6 +10,7 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -90,38 +91,15 @@ export function linkRegistry(
   if (!found) {
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
-  const { scope, rootModule } = found;
-
-  // console.log(astTree(rootModule));
-
-  // found.imports.forEach(imp => console.log(treeToString(imp)))
-  const flatImports = found.imports.flatMap(flattenTreeImport);
-
+  const { rootModule } = found;
+  
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
-  // note this requires requires the Scope tree and Idents, but the AST is not needed
-  const newDecls = bindIdents(scope, flatImports, parsed, conditions);
-
-  /* TODO
-   * for every decl we find, we need to:
-   * . get the element that's referred to by the decl
-   * . find and trace any other ident references from that declaration
-   * . add any elements visited to the list of elements we need to emit.
-   * . don't add newDecls twice
-   */
+  const newDecls = bindIdents(found, parsed, conditions);
 
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
   const srcBuilder = new SrcMapBuilder();
-  // const rootElems = scope.idents
-  //   .filter(i => i.kind === "decl")
-  //   .flatMap(i => {
-  //     const { declElem } = i;
-  //     if (declElem) return [declElem];
-  //     console.log("ERR: declElem not found for decl ident", identToString(i));
-  //     return [];
-  //   });
-  // lowerAndEmit(srcBuilder, rootElems, conditions);
   lowerAndEmit(srcBuilder, [rootModule], conditions, false);
   lowerAndEmit(srcBuilder, newDecls, conditions);
   return srcBuilder.build();

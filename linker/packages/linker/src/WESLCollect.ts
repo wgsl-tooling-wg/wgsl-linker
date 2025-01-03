@@ -42,7 +42,7 @@ export function refIdent(cc: CollectContext) {
   const originalName = src.slice(start, end);
 
   const kind = "ref";
-  const ident: RefIdent = { kind, originalName };
+  const ident: RefIdent = { kind, originalName, ast: cc.app.stable }
   const identElem: IdentElem = { kind, start, end, src, ident };
 
   saveIdent(cc, identElem);

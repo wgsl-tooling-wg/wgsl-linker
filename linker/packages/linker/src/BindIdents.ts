@@ -6,6 +6,8 @@ import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
 import { identToString } from "./ScopeLogging.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
 import { last, overlapTail } from "./Util.ts";
+import { dlog } from "berry-pretty";
+import { flatImports, WeslAST } from "./ParseWESL.ts";
 
 /**
  * Bind active reference idents to declaration Idents by mutating the refersTo: field
@@ -16,8 +18,7 @@ import { last, overlapTail } from "./Util.ts";
  * @return any new declaration elements found (they will need to be emitted)
  */
 export function bindIdents(
-  rootScope: Scope,
-  imports: FlatImport[],
+  ast: WeslAST,
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
 ): DeclarationElem[] {
@@ -29,6 +30,7 @@ export function bindIdents(
 
     As global decl idents are found, mutate their mangled name to be globally unique.
 */
+  const { rootScope } = ast;
 
   const globalNames = new Set<string>();
   const knownDecls = new Set<DeclIdent>();
@@ -41,7 +43,6 @@ export function bindIdents(
   });
 
   const bindContext = {
-    imports,
     parsed,
     conditions,
     knownDecls,
@@ -55,7 +56,6 @@ export function bindIdents(
 }
 
 interface BindContext {
-  imports: FlatImport[];
   parsed: ParsedRegistry2;
   conditions: Record<string, any>;
   knownDecls: Set<DeclIdent>; // decl idents discovered so far
@@ -80,7 +80,7 @@ function bindIdentsRecursive(
 
   // console.log(scopeIdentTree(scope));
 
-  const { imports, parsed, conditions } = bindContext;
+  const { parsed, conditions } = bindContext;
   const { globalNames, knownDecls } = bindContext;
   const newDecls: DeclIdent[] = []; // new decl idents to process (and return)
 
@@ -92,8 +92,7 @@ function bindIdentsRecursive(
           ident.std = true;
         } else {
           let foundDecl =
-            findDeclInModule(scope, ident, i) ??
-            findDeclImport(ident, imports, parsed);
+            findDeclInModule(scope, ident, i) ?? findDeclImport(ident, parsed);
 
           if (foundDecl)
             if (foundDecl && !knownDecls.has(foundDecl)) {
@@ -211,12 +210,13 @@ function findDeclInModule(
 /** Match a reference identifier to a declaration in
  * another module via an import statement */
 function findDeclImport(
-  ident: RefIdent,
-  flatImports: FlatImport[],
+  refIdent: RefIdent,
   parsed: ParsedRegistry2,
 ): DeclIdent | undefined {
+  const flatImps = flatImports(refIdent.ast);
+
   // find module path by combining identifer reference with import statement
-  const modulePathParts = matchingImport(ident, flatImports); // module path in array form
+  const modulePathParts = matchingImport(refIdent, flatImps); // module path in array form
 
   if (modulePathParts) {
     return findExport(modulePathParts, parsed);
@@ -251,7 +251,7 @@ function findExport(
     );
   }
 
-  return exportDecl(module.scope, last(modulePathParts)!);
+  return exportDecl(module.rootScope, last(modulePathParts)!);
 }
 
 /** return mangled name for decl ident,

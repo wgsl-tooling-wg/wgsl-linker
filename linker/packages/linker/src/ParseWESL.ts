@@ -6,13 +6,15 @@ import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope, SrcModule } from "./Scope.ts";
 import { OpenElem } from "./WESLCollect.ts";
 import { weslRoot } from "./WESLGrammar.ts";
+import { FlatImport, flattenTreeImport } from "./FlattenTreeImport.ts";
 
 /** result of a parse */
 export interface WeslAST {
   elems: AbstractElem[]; // legacy
-  rootModule: ModuleElem;
+  rootModule: ModuleElem; // TODO rename to moduleElem
   imports: ImportTree[];
-  scope: Scope;
+  flatImports?: FlatImport[]; // constructed on demand from import trees, and cached
+  rootScope: Scope;
 }
 
 /** stable and unstable state used during parsing */
@@ -59,8 +61,9 @@ export function parseSrcModule(
     throw new Error("parseWESL failed");
   }
 
-  const { rootModule, elems, rootScope, imports } = appState.stable;
-  return { rootModule: rootModule!, scope: rootScope, elems, imports };
+  // const { rootModule, elems, rootScope, imports } = appState.stable;
+  // return { rootModule: rootModule!, rootScope: rootScope, elems, imports };
+  return appState.stable as WeslAST;
 }
 
 // TODO make wrapper on srcModule
@@ -85,7 +88,7 @@ export function parseWESL(
   }
 
   const { rootModule, elems, rootScope, imports } = appState.stable;
-  return { rootModule: rootModule!, scope: rootScope, elems, imports };
+  return { rootModule: rootModule!, rootScope: rootScope, elems, imports };
 }
 
 export function blankWeslParseState(): WeslParseState {
@@ -94,4 +97,13 @@ export function blankWeslParseState(): WeslParseState {
     context: { scope: rootScope, openElems: [] },
     stable: { conditions: {}, elems: [], imports: [], rootScope },
   };
+}
+
+/** @return a flattened form of the import tree for convenience in binding idents. */
+export function flatImports(ast: WeslAST): FlatImport[] {
+  if (ast.flatImports) return ast.flatImports;
+
+  const flat = ast.imports.flatMap(flattenTreeImport);
+  ast.flatImports = flat;
+  return flat;
 }

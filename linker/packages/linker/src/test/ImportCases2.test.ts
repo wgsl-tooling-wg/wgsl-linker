@@ -92,7 +92,7 @@ test("import twice with two as names", ctx => {
   });
 });
 
-test.skip("import transitive conflicts with main", ctx => {
+test("import transitive conflicts with main", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {
