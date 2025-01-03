@@ -110,7 +110,7 @@ test("import transitive conflicts with main", ctx => {
   });
 });
 
-test.skip("multiple exports from the same module", ctx => {
+test("multiple exports from the same module", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {

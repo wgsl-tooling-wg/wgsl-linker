@@ -124,13 +124,25 @@ test("parse fn", () => {
   `);
 });
 
-test("parse import", () => {
-  const src = "import ./foo/bar;";
+test("import ./foo/bar;", (ctx) => {
+  const src = ctx.task.name
   const ast = parse2Test(src);
   const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       import package/foo/bar
         text 'import ./foo/bar;'"
+  `);
+});
+
+
+test("import ./file1/{foo, bar}", (ctx) => {
+  const src = ctx.task.name
+  const ast = parse2Test(src);
+  const astString = astTree(ast.moduleElem);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import package/file1/{(foo), (bar)}
+        text 'import ./file1/{foo, bar}'"
   `);
 });

@@ -29,7 +29,7 @@ import {
 } from "./ImportTree.js";
 import { digits, eol, word } from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
-import { importElem, importSegment } from "./WESLCollect.js";
+import { importElem, importList, importSegment } from "./WESLCollect.js";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ; @ #"; // Had to add @ and # here to get the parsing tests to work. Weird.
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
@@ -103,22 +103,26 @@ const collectionItem = or(
   itemImport.map(r => [r.value]),
 );
 
-const importCollection = withTags(
-  seq(
-    "{",
-    skipWs(
-      seq(
-        withSepPlus(",", () => collectionItem).tag("list"),
-        "}", //
+const importCollection = tagScope(
+  withTags(
+    seq(
+      "{",
+      skipWs(
+        seq(
+          withSepPlus(",", () => collectionItem)
+            .ptag("list")
+            .tag("list"),
+          "}", //
+        ),
       ),
-    ),
-  ).map(r => {
-    const elems = r.tags.list.flat().map(l => new ImportTree(l));
-    return new SegmentList(elems);
-  }),
+    )
+      .collect(importList)
+      .map(r => {
+        const elems = r.tags.list.flat().map(l => new ImportTree(l));
+        return new SegmentList(elems);
+      }),
+  ),
 );
-
-const pathSegment = or(simpleSegment, importCollection);
 
 const pathExtends = withTags(
   seq(simpleSegment.tag("s"), "/", () => pathTail.tag("s")).map(r =>
@@ -192,7 +196,6 @@ if (tracing) {
     itemImport,
     starImport,
     importCollection,
-    pathSegment,
     pathExtends,
     pathTail,
     relativeSegment,

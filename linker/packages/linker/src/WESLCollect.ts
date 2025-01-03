@@ -19,7 +19,12 @@ import {
   TextElem,
   VarElem,
 } from "./AbstractElems2.ts";
-import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
+import {
+  ImportTree,
+  PathSegment,
+  SegmentList,
+  SimpleSegment,
+} from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
 import { dlog } from "berry-pretty";
@@ -42,7 +47,7 @@ export function refIdent(cc: CollectContext) {
   const originalName = src.slice(start, end);
 
   const kind = "ref";
-  const ident: RefIdent = { kind, originalName, ast: cc.app.stable }
+  const ident: RefIdent = { kind, originalName, ast: cc.app.stable };
   const identElem: IdentElem = { kind, start, end, src, ident };
 
   saveIdent(cc, identElem);
@@ -210,6 +215,12 @@ export function collectModule():
       return moduleElem;
     },
   );
+}
+
+export function importList(cc: CollectContext): SegmentList {
+  const list = cc.tags.list?.flat(2) as PathSegment[];
+  const elems = list.map(l => new ImportTree([l]));
+  return new SegmentList(elems);
 }
 
 export function importSegment(cc: CollectContext): SimpleSegment {
