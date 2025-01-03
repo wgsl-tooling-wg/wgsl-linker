@@ -29,10 +29,12 @@ export function bindIdents(
 */
 
   const globalNames = new Set<string>();
+  const knownDecls = new Set<DeclIdent>();
   rootScope.idents.forEach(ident => {
     if (ident.kind === "decl") {
       ident.mangledName = ident.originalName;
       globalNames.add(ident.originalName);
+      knownDecls.add(ident);
     }
   });
 
@@ -40,7 +42,7 @@ export function bindIdents(
     imports,
     parsed,
     conditions,
-    knownDecls: new Set<DeclIdent>(),
+    knownDecls,
     foundScopes: new Set<Scope>(),
     globalNames,
   };
@@ -102,13 +104,7 @@ function bindIdentsRecursive(
           bindRefToDecl(ident, foundDecl, knownDecls);
         }
       }
-    } else {
-      // TODO can we get rid of this case?
-      const decl = ident as DeclIdent;
-      // dlog(`--- considering decl ${identToString(decl)}`);
-      // setDisplayName(decl.originalName, decl, globalNames); // TODO do we need this case?
-      knownDecls.add(decl);
-    }
+    } 
   });
 
   function setDisplayName(
