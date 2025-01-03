@@ -199,6 +199,22 @@ test("import a struct", ctx => {
   });
 });
 
+test("struct referenced by a fn param", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn main() { foo(); }
+
+        fn foo(a: AStruct) { 
+          let b = a.x;
+        }
+
+        struct AStruct {
+          x: u32
+        }
+    `,
+  });
+});
+
 test.skip("import fn with support struct constructor", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
