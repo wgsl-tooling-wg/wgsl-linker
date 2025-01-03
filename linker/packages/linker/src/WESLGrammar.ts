@@ -154,7 +154,9 @@ export const struct_decl = seq(
     req("{"),
     withSepPlus(",", struct_member).ptag("members").tag("members"),
     req("}"),
-  ).collect(scopeCollect()).ctag("decl_scope"),
+  )
+    .collect(scopeCollect())
+    .ctag("decl_scope"),
 )
   .collect(collectStruct())
   .map(r => {
@@ -180,7 +182,14 @@ const fnParam = tagScope(
   seq(
     opt_attributes,
     word.collect(declIdent).ctag("paramName"),
-    opt(seq(":", req(type_specifier.tag("typeRefs")))),
+    opt(
+      seq(
+        ":",
+        req(type_specifier.tag("typeRefs"))
+          .collect(scopeCollect()) // TODO decl scope
+          .ctag("decl_scope"),
+      ),
+    ),
   ).collect(collectFnParam()),
 ).ctag("fnParam");
 
@@ -411,7 +420,9 @@ export const fn_decl = seq(
       ),
     ),
     req(unscoped_compound_statement),
-  ).collect(scopeCollect()).ctag("body_scope"),
+  )
+    .collect(scopeCollect())
+    .ctag("body_scope"),
 )
   .collect(collectFn())
   .map(r => {
