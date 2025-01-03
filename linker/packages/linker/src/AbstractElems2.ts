@@ -23,8 +23,10 @@ export type DeclarationElem =
   | AliasElem
   | ConstElem
   | OverrideElem
+  | ParamElem
   | FnElem
   | StructElem
+  | GlobalVarElem 
   | VarElem;
 
 export interface AbstractElemBase2 {
@@ -67,35 +69,35 @@ export interface TextElem extends AbstractElemBase2 {
 /** a parameter in a function declaration */
 export interface ParamElem extends ElemWithContents {
   kind: "param";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef: IdentElem;
 }
 
 /** a variable declaration */
 export interface VarElem extends ElemWithContents {
   kind: "var";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef?: IdentElem;
 }
 
 /** a global variable declaration (at the root level) */
 export interface GlobalVarElem extends ElemWithContents {
   kind: "gvar";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef?: IdentElem;
 }
 
 /** a const declaration */
 export interface ConstElem extends ElemWithContents {
   kind: "const";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef?: IdentElem;
 }
 
 /** an override declaration */
 export interface OverrideElem extends ElemWithContents {
   kind: "override";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef?: IdentElem;
 }
 
@@ -107,7 +109,7 @@ export interface ModuleElem extends ElemWithContents {
 /** an alias statement */
 export interface AliasElem extends ElemWithContents {
   kind: "alias";
-  name: IdentElem;
+  name: DeclIdentElem;
   typeRef: IdentElem;
 }
 
@@ -119,7 +121,7 @@ export interface ConstAssertElem extends ElemWithContents {
 /** a struct declaration */
 export interface StructElem extends ElemWithContents {
   kind: "struct";
-  name: IdentElem;
+  name: DeclIdentElem;
   members: StructMemberElem[];
 }
 

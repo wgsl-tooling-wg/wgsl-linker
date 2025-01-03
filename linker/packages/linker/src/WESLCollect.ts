@@ -142,10 +142,12 @@ export function collectFnParam(): CollectPair<ParamElem> {
   return collectElem(
     "param",
     (cc: CollectContext, openElem: PartElem<ParamElem>) => {
-      const typeRef = cc.tags.typeRef?.[0]!;
-      const name = cc.tags.paramName?.[0]!;
-      const paramElem = { ...openElem, name, typeRef };
-      return withTextCover(paramElem, cc);
+      const typeRef = cc.tags.typeRef?.[0]! as IdentElem;
+      const name = cc.tags.paramName?.[0]! as DeclIdentElem;
+      const elem: ParamElem = { ...openElem, name, typeRef };
+      const paramElem = withTextCover(elem, cc);
+      name.ident.declElem = paramElem;
+      return paramElem;
     },
   );
 }
