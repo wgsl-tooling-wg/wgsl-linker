@@ -176,12 +176,13 @@ export const fn_call = seq(
   argument_expression_list,
 );
 
-// prettier-ignore
-const fnParam = seq(
-  opt_attributes,
-  word.collect(declIdent).ctag("paramName"),
-  opt(seq(":", req(type_specifier.tag("typeRefs")))),
-).collect(collectFnParam()).ctag("fnParam");
+const fnParam = tagScope(
+  seq(
+    opt_attributes,
+    word.collect(declIdent).ctag("paramName"),
+    opt(seq(":", req(type_specifier.tag("typeRefs")))),
+  ).collect(collectFnParam()),
+).ctag("fnParam");
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
 

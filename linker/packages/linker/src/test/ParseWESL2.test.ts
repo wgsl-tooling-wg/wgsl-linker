@@ -105,7 +105,7 @@ test("parse fn", () => {
   const astString = astTree(ast.rootModule);
   expect(astString).toMatchInlineSnapshot(`
     "module
-      fn foo(x: i32, x: i32) -> f32
+      fn foo(x: i32, y: u32) -> f32
         text 'fn '
         decl %foo
         text '('
