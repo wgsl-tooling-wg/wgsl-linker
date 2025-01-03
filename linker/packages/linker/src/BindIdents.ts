@@ -49,7 +49,9 @@ export function bindIdents(
     globalNames,
   };
   const decls = bindIdentsRecursive(rootScope, bindContext);
-  return decls.flatMap(d => d.declElem ? [d.declElem] : []);
+  return decls.flatMap(d =>
+    d.declElem && isGlobal(d.declElem) ? [d.declElem] : [],
+  );
 }
 
 interface BindContext {
