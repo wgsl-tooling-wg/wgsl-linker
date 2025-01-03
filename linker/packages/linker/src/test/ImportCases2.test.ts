@@ -82,7 +82,7 @@ test("imported fn calls support fn with root conflict", ctx => {
   });
 });
 
-test.skip("import twice with two as names", ctx => {
+test("import twice with two as names", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() { bar(); bar(); }
@@ -164,7 +164,7 @@ test.skip("import support fn that references another import", ctx => {
   });
 });
 
-test.skip("import support fn from two exports", ctx => {
+test("import support fn from two exports", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {
@@ -215,7 +215,7 @@ test("struct referenced by a fn param", ctx => {
   });
 });
 
-test.skip("import fn with support struct constructor", ctx => {
+test("import fn with support struct constructor", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {
@@ -251,14 +251,12 @@ test.skip("import a transitive struct", ctx => {
   });
 });
 
-test.skip("'import as' a struct", ctx => {
+test("'import as' a struct", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn foo (a: AA) { }
 
-      struct AA {
-        x: u32
-      }
+      struct AA { x: u32 }
     `,
   });
 });
