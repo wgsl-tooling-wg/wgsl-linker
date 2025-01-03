@@ -21,7 +21,7 @@ import {
 } from "./AbstractElems2.ts";
 import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
-import { DeclIdent, emptyBodyScope, RefIdent } from "./Scope.ts";
+import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
@@ -52,10 +52,8 @@ export function declIdent(cc: CollectContext): DeclIdentElem {
   const originalName = src.slice(start, end);
 
   const kind = "decl";
-  const weslContext: WeslParseContext = cc.app.context;
-  const childScope = weslContext.scope;
   const declElem = null as any; // we'll set declElem later
-  const ident: DeclIdent = { kind, originalName, scope: childScope, declElem }; // we'll set declElem later
+  const ident: DeclIdent = { kind, originalName, scope: null as any, declElem }; // we'll set declElem later
   const identElem: DeclIdentElem = { kind, start, end, src, ident };
 
   saveIdent(cc, identElem);
@@ -81,7 +79,7 @@ function startScope(cc: CollectContext) {
 }
 
 /* close current Scope and set current scope to parent */
-function completeScope(cc: CollectContext) {
+function completeScope(cc: CollectContext): Scope {
   // ctxLog(r.ctx, "completeScope");
   const weslContext = cc.app.context as WeslParseContext;
   const completedScope = weslContext.scope;
@@ -94,6 +92,7 @@ function completeScope(cc: CollectContext) {
     const { idents, kind } = completedScope;
     console.log("ERR: completeScope, no parent scope", { kind, idents });
   }
+  return completedScope;
 }
 
 // prettier-ignore
@@ -127,11 +126,14 @@ export function collectVarLike<E extends VarLikeElem>(
 export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0]! as DeclIdentElem;
+    const body_scope = cc.tags.body_scope?.[0] as Scope;
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
     const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
     const fnElem = withTextCover(partElem, cc);
     (name.ident as DeclIdent).declElem = fnElem;
+    name.ident.scope = body_scope;
+
     return fnElem;
   });
 }

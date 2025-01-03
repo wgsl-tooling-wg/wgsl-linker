@@ -411,7 +411,7 @@ export const fn_decl = seq(
       ),
     ),
     req(unscoped_compound_statement),
-  ).collect(scopeCollect()),
+  ).collect(scopeCollect()).ctag("body_scope"),
 )
   .collect(collectFn())
   .map(r => {

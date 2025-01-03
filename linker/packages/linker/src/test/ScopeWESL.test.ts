@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { parseWESL } from "../ParseWESL.ts";
 import { scopeIdentTree } from "../ScopeLogging.ts";
+import { DeclIdent } from "../Scope.ts";
 
 test("scope from simple fn", () => {
   const src = `
@@ -146,6 +147,18 @@ test("fn with param", () => {
         {  }
       }
     }"
+  `);
+});
+
+test("fn decl scope", () => {
+  const src = `
+    fn main(i: i32) {
+      var x = i;
+    }`;
+  const { scope } = parseWESL(src);
+  const mainIdent = scope.idents[0] as DeclIdent;
+  expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(`
+    "{ %i, i32, %x, i }"
   `);
 });
 
