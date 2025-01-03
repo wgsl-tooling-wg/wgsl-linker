@@ -94,9 +94,26 @@ export function emitIdent(
     ctx.srcBuilder.add(e.ident.originalName, e.src, e.start, e.end);
   } else {
     const declIdent = findDecl(e.ident);
-    const mangledName = declIdent.mangledName!; // mangled name was set in binding step
-    ctx.srcBuilder.add(mangledName, e.src, e.start, e.end);
+    const mangledName = displayName(declIdent);
+    ctx.srcBuilder.add(mangledName!, e.src, e.start, e.end);
   }
+}
+
+function displayName(declIdent: DeclIdent): string {
+  if (isGlobal(declIdent.declElem)) {
+    // mangled name was set in binding step
+    const mangledName = declIdent.mangledName;
+    if (!mangledName) {
+      // TODO wrap in 'debug' build time conditional
+      console.log(
+        "ERR: mangled name not found for decl ident",
+        identToString(declIdent),
+      );
+    }
+    return mangledName!;
+  }
+
+  return declIdent.mangledName || declIdent.originalName;
 }
 
 /** trace through refersTo links in reference Idents until we find the declaration
