@@ -65,7 +65,7 @@ test("import twice doesn't get two copies", ctx => {
   });
 });
 
-test.skip("imported fn calls support fn with root conflict", ctx => {
+test("imported fn calls support fn with root conflict", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() { foo(); }
@@ -283,8 +283,9 @@ test("copy diagnostics to output", ctx => {
   });
 });
 
-// TODO re-enable once test converage is complete
-//
+// TODO add case for const_assert in non root module
+// TODO add case for diagnostic in non-root module (should fail?)
+
 afterAll(c => {
   const testNameSet = new Set(c.tasks.map(t => t.name));
   const cases = importCases.map(c => c.name);

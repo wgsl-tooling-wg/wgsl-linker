@@ -1,4 +1,3 @@
-import { dlog } from "berry-pretty";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
@@ -15,7 +14,7 @@ import { last, overlapTail } from "./Util.ts";
  * @return any new declaration elements found (they will need to be emitted)
  */
 export function bindIdents(
-  scope: Scope,
+  rootScope: Scope,
   imports: FlatImport[],
   parsed: ParsedRegistry2,
   conditions: Record<string, any>,
@@ -28,10 +27,24 @@ export function bindIdents(
 
     As global decl idents are found, mutate their mangled name to be globally unique.
 */
-  const knownDecls: Set<DeclIdent> = new Set();
-  const foundScopes: Set<Scope> = new Set();
-  const bindContext = { imports, parsed, conditions, knownDecls, foundScopes };
-  const decls = bindIdentsRecursive(scope, bindContext);
+
+  const globalNames = new Set<string>();
+  rootScope.idents.forEach(ident => {
+    if (ident.kind === "decl") {
+      ident.mangledName = ident.originalName;
+      globalNames.add(ident.originalName);
+    }
+  });
+
+  const bindContext = {
+    imports,
+    parsed,
+    conditions,
+    knownDecls: new Set<DeclIdent>(),
+    foundScopes: new Set<Scope>(),
+    globalNames,
+  };
+  const decls = bindIdentsRecursive(rootScope, bindContext);
   return decls.map(d => d.declElem);
 }
 
@@ -41,6 +54,7 @@ interface BindContext {
   conditions: Record<string, any>;
   knownDecls: Set<DeclIdent>; // decl idents discovered so far
   foundScopes: Set<Scope>; // save work by not processing scopes multiple times
+  globalNames: Set<string>; // root level names  used so far
 }
 
 /**
@@ -53,43 +67,87 @@ function bindIdentsRecursive(
   scope: Scope,
   bindContext: BindContext,
 ): DeclIdent[] {
-  const { imports, parsed, conditions, knownDecls, foundScopes } = bindContext;
+  // early exist if we've processed this scope before
+  const { foundScopes } = bindContext;
   if (foundScopes.has(scope)) return [];
   foundScopes.add(scope);
 
-  const newDecls: DeclIdent[] = []; // queue of new decl idents to process
+  // console.log(scopeIdentTree(scope));
+
+  const { imports, parsed, conditions } = bindContext;
+  const { globalNames, knownDecls } = bindContext;
+  const newDecls: DeclIdent[] = []; // new decl idents to process (and return)
+
   scope.idents.forEach((ident, i) => {
-    // dlog({ ident: ident.originalName, kind: ident.kind });
+    // dlog(`--- considering ident ${identToString(ident)}`);
     if (ident.kind === "ref") {
       if (!ident.refersTo && !ident.std) {
         if (stdWgsl(ident.originalName)) {
           ident.std = true;
         } else {
-          let foundDecl = findDeclInModule(scope, ident, i);
-          if (!foundDecl) {
-            foundDecl = findDeclImport(ident, imports, parsed);
+          let foundDecl =
+            findDeclInModule(scope, ident, i) ??
+            findDeclImport(ident, imports, parsed);
+
+          if (foundDecl)
             if (foundDecl && !knownDecls.has(foundDecl)) {
-              knownDecls.add(foundDecl);
+              // dlog(
+              //   `  > found decl: ${identToString(foundDecl)} known: ${knownDecls.has(foundDecl)}`,
+              // );
+              setDisplayName(ident.originalName, foundDecl, globalNames);
+              // dlog(`  > queuing new decl: ${identToString(foundDecl)}`);
               newDecls.push(foundDecl);
+              knownDecls.add(foundDecl);
             }
-          }
           bindRefToDecl(ident, foundDecl, knownDecls);
         }
       }
     } else {
-      if (!ident.mangledName) {
-        // TODO use declUniqueName
-        ident.mangledName = ident.originalName;
-      }
+      // TODO can we get rid of this case?
+      const decl = ident as DeclIdent;
+      // dlog(`--- considering decl ${identToString(decl)}`);
+      // setDisplayName(decl.originalName, decl, globalNames); // TODO do we need this case?
+      knownDecls.add(decl);
     }
   });
 
+  function setDisplayName(
+    proposedName: string,
+    decl: DeclIdent,
+    globalNames: Set<string>,
+  ): void {
+    if (!decl.mangledName) {
+      // if (!decl.declElem) {
+      //   console.log(
+      //     `--- decl ident ${identToString(decl)} has no declElem attached`,)
+      // } else
+      if (isGlobal(decl.declElem)) {
+        decl.mangledName = declUniqueName(proposedName, globalNames);
+        // dlog(`  > mangle global decl: ${identToString(decl)}`);
+      } else {
+        // dlog(`  > no-mangle local decl: ${identToString(decl)}`);
+        decl.mangledName = decl.originalName;
+      }
+    }
+  }
+
+  // follow references from child scopes
   const newFromChildren = scope.children.flatMap(child =>
     bindIdentsRecursive(child, bindContext),
   );
+  // console.log(
+  //   "new from children",
+  //   newFromChildren.map(d => identToString(d)),
+  // );
 
+  // follow references from referenced declarations
   const newFromRefs = newDecls.flatMap(decl =>
-    bindIdentsRecursive(decl.scope, bindContext));
+    bindIdentsRecursive(decl.scope, bindContext),
+  );
+  // console.log(
+  //   "new from refs",
+  //   newFromRefs.map(d => identToString(d)),
+  // );
 
   return [newDecls, newFromChildren, newFromRefs].flat();
 }
@@ -102,11 +160,11 @@ function bindRefToDecl(
   if (foundDecl) {
     ident.refersTo = foundDecl;
 
-    if (!foundDecl.mangledName) {
-      // TODO check for conflicts and actually mangle
-      const proposedName = ident.originalName;
-      foundDecl.mangledName = proposedName;
-    }
+    // if (!foundDecl.mangledName) {
+    // TODO check for conflicts and actually mangle
+    //   const proposedName = ident.originalName;
+    //   foundDecl.mangledName = proposedName;
+    // }
     knownDecls.add(foundDecl);
   } else {
     // TODO log error with source position
@@ -127,6 +185,7 @@ function findDeclInModule(
   const { idents, parent } = scope;
   const { originalName } = ident;
 
+  // dlog(`  |> findDeclInModule ${originalName}`);
   // see if the declaration is in this scope
   for (let i = identDex - 1; i >= 0; i--) {
     const checkIdent = idents[i];
@@ -134,6 +193,7 @@ function findDeclInModule(
       checkIdent.kind === "decl" &&
       originalName === checkIdent.originalName
     ) {
+      // dlog(`  |> found decl in scope: ${identToString(checkIdent)}`);
       return checkIdent;
     }
   }
@@ -193,18 +253,13 @@ function findExport(
 /** return mangled name for decl ident,
  *  mutating the Ident to remember mangled name if it hasn't yet been determined */
 export function declUniqueName(
-  decl: DeclIdent,
+  proposedName: string,
   rootNames: Set<string>,
 ): string {
-  let { mangledName } = decl;
+  const displayName = uniquifyName(proposedName, rootNames);
+  rootNames.add(displayName);
 
-  if (!mangledName) {
-    mangledName = uniquifyName(decl.originalName, rootNames);
-    rootNames.add(mangledName);
-    decl.mangledName = mangledName;
-  }
-
-  return mangledName;
+  return displayName;
 }
 
 /** construct global unique name for use in the output */
@@ -217,5 +272,12 @@ function uniquifyName(proposedName: string, rootNames: Set<string>): string {
     renamed = proposedName + conflicts++;
   }
 
+  // dlog({ proposedName, renamed });
   return renamed;
+}
+
+export function isGlobal(elem: DeclarationElem): boolean {
+  return ["alias", "const", "override", "fn", "struct", "gvar"].includes(
+    elem.kind,
+  );
 }
