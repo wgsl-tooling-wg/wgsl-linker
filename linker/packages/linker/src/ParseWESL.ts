@@ -10,11 +10,19 @@ import { FlatImport, flattenTreeImport } from "./FlattenTreeImport.ts";
 
 /** result of a parse */
 export interface WeslAST {
-  elems: AbstractElem[]; // legacy
-  moduleElem: ModuleElem; // TODO rename to moduleElem
-  imports: ImportTree[];
-  flatImports?: FlatImport[]; // constructed on demand from import trees, and cached
+  /** root module element */
+  moduleElem: ModuleElem;
+
+  /** root scope for this module */
   rootScope: Scope;
+
+  /** imports found in this module */
+  imports: ImportTree[];
+
+  /* constructed on demand from import trees, and cached */
+  _flatImports?: FlatImport[];
+
+  elems: AbstractElem[]; // legacy
 }
 
 /** stable and unstable state used during parsing */
@@ -24,21 +32,9 @@ export interface WeslParseState extends AppState<WeslParseContext> {
 }
 
 /** stable values used or accumulated during parsing */
-export interface StableState {
+export interface StableState extends WeslAST {
   // parameters for evaluating conditions while parsing this module
-  conditions: Record<string, any>;
-
-  // legacy elems succesfully parsed in this module
-  elems: AbstractElem[];
-
-  // elems succesfully parsed in this module
-  moduleElem?: ModuleElem;
-
-  // root scope for this module
-  rootScope: Scope;
-
-  // imports found in this module
-  imports: ImportTree[];
+  _conditions: Record<string, any>;
 }
 
 /** unstable values used during parse collection */
@@ -91,17 +87,18 @@ export function parseWESL(
 
 export function blankWeslParseState(): WeslParseState {
   const rootScope = emptyScope("module-scope");
+  const moduleElem = null as any; // we'll fill this in later
   return {
     context: { scope: rootScope, openElems: [] },
-    stable: { conditions: {}, elems: [], imports: [], rootScope },
+    stable: { _conditions: {}, elems: [], imports: [], rootScope, moduleElem },
   };
 }
 
 /** @return a flattened form of the import tree for convenience in binding idents. */
 export function flatImports(ast: WeslAST): FlatImport[] {
-  if (ast.flatImports) return ast.flatImports;
+  if (ast._flatImports) return ast._flatImports;
 
   const flat = ast.imports.flatMap(flattenTreeImport);
-  ast.flatImports = flat;
+  ast._flatImports = flat;
   return flat;
 }
