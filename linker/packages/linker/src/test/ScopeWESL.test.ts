@@ -145,7 +145,8 @@ test("fn with param", () => {
   const { scope } = parseWESL(src);
   expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
     "{ %main
-      { %i, i32, %x, i
+      { %i, %x, i
+        { i32 }
         { %i, i, x, i }
         {  }
       }
@@ -161,7 +162,9 @@ test("fn decl scope", () => {
   const { scope } = parseWESL(src);
   const mainIdent = scope.idents[0] as DeclIdent;
   expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(`
-    "{ %i, i32, %x, i }"
+    "{ %i, %x, i
+      { i32 }
+    }"
   `);
 });
 
@@ -212,12 +215,14 @@ test("larger example", () => {
       rgba8unorm, write, %import_level, %export_level
       { u32 }
       { array, f32 }
-      { global_invocation_id, %coord, vec3u, buf_in, %offset, 
-        coord, coord, ubo, buf_out, offset, textureLoad, tex_in, 
-        vec2i, coord
+      { global_invocation_id, %coord, buf_in, %offset, coord, 
+        coord, ubo, buf_out, offset, textureLoad, tex_in, vec2i, 
+        coord
+        { vec3u }
       }
-      { global_invocation_id, %coord, vec3u, all, coord, vec2u, 
+      { global_invocation_id, %coord, all, coord, vec2u, 
         textureDimensions, tex_out
+        { vec3u }
         { %dst_offset, coord, coord, ubo, %src_offset, coord, 
           coord, ubo, %a, buf_in, src_offset, %b, buf_in, 
           src_offset, %c, buf_in, src_offset, ubo, %d, buf_in, 
