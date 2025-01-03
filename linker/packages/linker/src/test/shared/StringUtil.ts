@@ -38,15 +38,16 @@ export function matchTrimmed(result: string, expected: string): void {
   if (resultTrimmed !== expectTrimmed) {
     const expectLines = expectTrimmed.split("\n");
     const resultLines = resultTrimmed.split("\n");
-    expectLines.find((line, i) => {
+    const len = Math.max(expectLines.length, resultLines.length);
+    for (let i = 0; i < len; i++) {
       const diff = expectLines[i] !== resultLines[i];
       if (diff) {
         console.log(`...failed.  Line ${i + 1} differs:
   expected: ${expectLines[i]}
     actual: ${resultLines[i] ?? ""}`);
+        break;
       }
-      return diff;
-    });
+    }
     console.log(
       `\ntrimmed result:\n${resultTrimmed}\n\ntrimmed expected:\n${expectTrimmed}\n`,
     );
