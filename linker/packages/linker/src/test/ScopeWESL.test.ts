@@ -88,8 +88,11 @@ test("alias", () => {
     alias A = B;
   `;
   const { scope } = parseWESL(src);
-  const scopeIdents = scope.idents.map(i => i.originalName);
-  expect(scopeIdents).toEqual(["A", "B"]);
+  expect(scopeIdentTree(scope)).toMatchInlineSnapshot(`
+    "{ %A
+      { B }
+    }"
+  `);
 });
 
 test("switch", () => {

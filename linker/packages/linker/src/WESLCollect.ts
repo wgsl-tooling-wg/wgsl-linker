@@ -114,18 +114,21 @@ export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
-    const name = cc.tags.declIdent?.[0]!;
+    const name = cc.tags.declIdent?.[0] as DeclIdentElem;
     const typeRef = cc.tags.typeRef?.[0];
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
+    const var_scope = cc.tags.var_scope?.[0] as Scope;
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
+    name.ident.scope = var_scope;
+
     return varElem;
   });
 }
 
 export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
-    const name = cc.tags.fnName?.[0]! as DeclIdentElem;
+    const name = cc.tags.fnName?.[0] as DeclIdentElem;
     const body_scope = cc.tags.body_scope?.[0] as Scope;
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
     const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
@@ -147,6 +150,7 @@ export function collectFnParam(): CollectPair<ParamElem> {
       const elem: ParamElem = { ...openElem, name, typeRef };
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
+      // TODO set scope?
       return paramElem;
     },
   );
@@ -161,6 +165,7 @@ export function collectStruct(): CollectPair<StructElem> {
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
       (name.ident as DeclIdent).declElem = elem as DeclarationElem;
+      // TODO set scope?
       return elem;
     },
   );

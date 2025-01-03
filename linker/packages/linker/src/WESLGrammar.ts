@@ -441,7 +441,7 @@ export const global_alias = seq(
   "alias",
   req(word.tag("name")).collect(declIdent, "global_alias").ctag("declIdent"),
   req("="),
-  req(type_specifier).tag("typeRefs"),
+  req(type_specifier).tag("typeRefs").collect(scopeCollect()).ctag("var_scope"), // TODO set decl-scope
   req(";"),
 )
   .collect(collectVarLike("alias"), "global_alias")
