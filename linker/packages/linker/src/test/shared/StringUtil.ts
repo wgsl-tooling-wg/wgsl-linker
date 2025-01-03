@@ -50,9 +50,9 @@ export function matchTrimmed(result: string, expected: string): void {
     console.log(
       `\ntrimmed result:\n${resultTrimmed}\n\ntrimmed expected:\n${expectTrimmed}\n`,
     );
-    console.log(
-      `\nresult:\n${result}\n\nexpected:\n${expected}\n`,
-    );
+    // console.log(
+    //   `\nresult:\n${result}\n\nexpected:\n${expected}\n`,
+    // );
   }
   expect(resultTrimmed).toBe(expectTrimmed);
 }
