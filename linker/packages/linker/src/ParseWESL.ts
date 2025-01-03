@@ -32,10 +32,7 @@ export interface WeslParseState extends AppState<WeslParseContext> {
 }
 
 /** stable values used or accumulated during parsing */
-export interface StableState extends WeslAST {
-  // parameters for evaluating conditions while parsing this module
-  _conditions: Record<string, any>;
-}
+export type StableState  = WeslAST 
 
 /** unstable values used during parse collection */
 export interface WeslParseContext {
@@ -45,28 +42,16 @@ export interface WeslParseContext {
 
 export function parseSrcModule(
   srcModule: SrcModule,
+  srcMap?: SrcMap,
   maxParseCount: number | undefined = undefined,
 ): WeslAST {
-  const lexer = matchingLexer(srcModule.src, mainTokens);
-
-  const appState = blankWeslParseState();
-
-  const init: ParserInit = { lexer, appState, maxParseCount };
-  const parseResult = weslRoot.parse(init);
-  if (parseResult === null) {
-    throw new Error("parseWESL failed");
-  }
-
-  return appState.stable as WeslAST;
+  return parseWESL(srcModule.src, srcMap, maxParseCount);
 }
 
-// TODO make wrapper on srcModule
 export function parseWESL(
   src: string,
   srcMap?: SrcMap,
-  conditions: Record<string, any> = {},
   maxParseCount: number | undefined = undefined,
-  grammar = weslRoot,
 ): WeslAST {
   // TODO allow returning undefined for failure, or throw?
 
@@ -75,14 +60,13 @@ export function parseWESL(
 
   const appState = blankWeslParseState();
 
-  const init: ParserInit = { lexer, appState: appState, srcMap, maxParseCount };
-  const parseResult = grammar.parse(init);
+  const init: ParserInit = { lexer, appState, srcMap, maxParseCount };
+  const parseResult = weslRoot.parse(init);
   if (parseResult === null) {
     throw new Error("parseWESL failed");
   }
 
-  const { moduleElem: rootModule, elems, rootScope, imports } = appState.stable;
-  return { moduleElem: rootModule!, rootScope: rootScope, elems, imports };
+  return appState.stable as WeslAST;
 }
 
 export function blankWeslParseState(): WeslParseState {
@@ -90,7 +74,7 @@ export function blankWeslParseState(): WeslParseState {
   const moduleElem = null as any; // we'll fill this in later
   return {
     context: { scope: rootScope, openElems: [] },
-    stable: { _conditions: {}, elems: [], imports: [], rootScope, moduleElem },
+    stable: { elems: [], imports: [], rootScope, moduleElem },
   };
 }
 
