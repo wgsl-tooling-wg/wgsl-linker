@@ -102,7 +102,7 @@ export function emitIdent(
 }
 
 function displayName(declIdent: DeclIdent): string {
-  if (isGlobal(declIdent.declElem)) {
+  if (declIdent.declElem && isGlobal(declIdent.declElem)) {
     // mangled name was set in binding step
     const mangledName = declIdent.mangledName;
     if (!mangledName) {

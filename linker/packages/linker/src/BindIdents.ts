@@ -1,7 +1,9 @@
+import { debugNames } from "mini-parse";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
+import { identToString } from "./ScopeLogging.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
 import { last, overlapTail } from "./Util.ts";
 
@@ -47,7 +49,7 @@ export function bindIdents(
     globalNames,
   };
   const decls = bindIdentsRecursive(rootScope, bindContext);
-  return decls.map(d => d.declElem);
+  return decls.flatMap(d => d.declElem ? [d.declElem] : []);
 }
 
 interface BindContext {
@@ -104,7 +106,7 @@ function bindIdentsRecursive(
           bindRefToDecl(ident, foundDecl, knownDecls);
         }
       }
-    } 
+    }
   });
 
   function setDisplayName(
@@ -117,7 +119,7 @@ function bindIdentsRecursive(
       //   console.log(
       //     `--- decl ident ${identToString(decl)} has no declElem attached`,)
       // } else
-      if (isGlobal(decl.declElem)) {
+      if (decl.declElem && isGlobal(decl.declElem)) {
         decl.mangledName = declUniqueName(proposedName, globalNames);
         // dlog(`  > mangle global decl: ${identToString(decl)}`);
       } else {
@@ -137,9 +139,13 @@ function bindIdentsRecursive(
   // );
 
   // follow references from referenced declarations
-  const newFromRefs = newDecls.flatMap(decl =>
-    bindIdentsRecursive(decl.scope, bindContext),
-  );
+  const newFromRefs = newDecls.flatMap(decl => {
+    if (debugNames && !decl.scope) {
+      console.log(`--- decl ${identToString(decl)} has no scope`);
+      return [];
+    }
+    return bindIdentsRecursive(decl.scope, bindContext);
+  });
   // console.log(
   //   "new from refs",
   //   newFromRefs.map(d => identToString(d)),
