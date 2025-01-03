@@ -91,7 +91,7 @@ export function linkRegistry(
   if (!found) {
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
-  const { rootModule } = found;
+  const { moduleElem: rootModule } = found;
   
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations

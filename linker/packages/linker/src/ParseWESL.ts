@@ -11,7 +11,7 @@ import { FlatImport, flattenTreeImport } from "./FlattenTreeImport.ts";
 /** result of a parse */
 export interface WeslAST {
   elems: AbstractElem[]; // legacy
-  rootModule: ModuleElem; // TODO rename to moduleElem
+  moduleElem: ModuleElem; // TODO rename to moduleElem
   imports: ImportTree[];
   flatImports?: FlatImport[]; // constructed on demand from import trees, and cached
   rootScope: Scope;
@@ -32,7 +32,7 @@ export interface StableState {
   elems: AbstractElem[];
 
   // elems succesfully parsed in this module
-  rootModule?: ModuleElem;
+  moduleElem?: ModuleElem;
 
   // root scope for this module
   rootScope: Scope;
@@ -61,8 +61,6 @@ export function parseSrcModule(
     throw new Error("parseWESL failed");
   }
 
-  // const { rootModule, elems, rootScope, imports } = appState.stable;
-  // return { rootModule: rootModule!, rootScope: rootScope, elems, imports };
   return appState.stable as WeslAST;
 }
 
@@ -87,8 +85,8 @@ export function parseWESL(
     throw new Error("parseWESL failed");
   }
 
-  const { rootModule, elems, rootScope, imports } = appState.stable;
-  return { rootModule: rootModule!, rootScope: rootScope, elems, imports };
+  const { moduleElem: rootModule, elems, rootScope, imports } = appState.stable;
+  return { moduleElem: rootModule!, rootScope: rootScope, elems, imports };
 }
 
 export function blankWeslParseState(): WeslParseState {

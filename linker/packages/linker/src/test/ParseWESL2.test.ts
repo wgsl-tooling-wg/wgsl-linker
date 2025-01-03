@@ -5,7 +5,7 @@ import { parse2Test } from "./TestUtil.ts";
 test("parse global var", () => {
   const src = `var x: i32 = 1;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       gvar x:i32
@@ -20,7 +20,7 @@ test("parse global var", () => {
 test("parse alias", () => {
   const src = `alias Num = i32;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       alias %Num=i32
@@ -35,7 +35,7 @@ test("parse alias", () => {
 test("parse const", () => {
   const src = `const y = 11u;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       const y
@@ -48,7 +48,7 @@ test("parse const", () => {
 test("parse override ", () => {
   const src = `override z: f32;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       override z:f32
@@ -63,7 +63,7 @@ test("parse override ", () => {
 test("parse const_assert", () => {
   const src = `const_assert x < y;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       assert
@@ -78,7 +78,7 @@ test("parse const_assert", () => {
 test("parse struct", () => {
   const src = `struct foo { bar: i32, zip: u32, } ;`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       struct foo
@@ -102,7 +102,7 @@ test("parse struct", () => {
 test("parse fn", () => {
   const src = `fn foo(x: i32, y: u32) -> f32 { return 1.0; }`;
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       fn foo(x: i32, y: u32) -> f32
@@ -127,7 +127,7 @@ test("parse fn", () => {
 test("parse import", () => {
   const src = "import ./foo/bar;";
   const ast = parse2Test(src);
-  const astString = astTree(ast.rootModule);
+  const astString = astTree(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       import package/foo/bar

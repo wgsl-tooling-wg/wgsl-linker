@@ -206,7 +206,7 @@ export function collectModule():
       const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
       const moduleElem: ModuleElem = withTextCover(openElem, ccComplete);
       const weslState: StableState = cc.app.stable;
-      weslState.rootModule = moduleElem;
+      weslState.moduleElem = moduleElem;
       return moduleElem;
     },
   );
