@@ -10,8 +10,6 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
-import { identToString } from "./ScopeLogging.ts";
-import { astTree } from "./ASTLogging.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 

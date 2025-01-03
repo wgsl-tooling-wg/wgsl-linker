@@ -6,7 +6,9 @@ import {
   NameElem,
   TextElem,
 } from "./AbstractElems2.ts";
+import { isGlobal } from "./BindIdents.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
+import { identToString } from "./ScopeLogging.ts";
 
 /** passed to the emitters */
 interface EmitContext {
