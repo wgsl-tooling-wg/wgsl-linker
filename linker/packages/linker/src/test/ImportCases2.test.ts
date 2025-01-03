@@ -185,7 +185,7 @@ test.skip("import support fn from two exports", ctx => {
   });
 });
 
-test.skip("import a struct", ctx => {
+test("import a struct", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn main() {
@@ -193,7 +193,7 @@ test.skip("import a struct", ctx => {
       }
 
       struct AStruct {
-        x: u32
+        x: u32,
       }
     `,
   });

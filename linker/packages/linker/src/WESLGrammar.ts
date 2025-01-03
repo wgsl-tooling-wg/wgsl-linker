@@ -154,7 +154,7 @@ export const struct_decl = seq(
     req("{"),
     withSepPlus(",", struct_member).ptag("members").tag("members"),
     req("}"),
-  ).collect(scopeCollect()),
+  ).collect(scopeCollect()).ctag("decl_scope"),
 )
   .collect(collectStruct())
   .map(r => {

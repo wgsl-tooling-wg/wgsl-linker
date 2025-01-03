@@ -22,6 +22,9 @@ import {
 import { ImportTree, PathSegment, SimpleSegment } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
+import { dlog } from "berry-pretty";
+import { identToString } from "./ScopeLogging.ts";
+import { elemToString } from "./ASTLogging.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
@@ -160,12 +163,14 @@ export function collectStruct(): CollectPair<StructElem> {
   return collectElem(
     "struct",
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
-      const name = cc.tags.typeName?.[0]!;
-      const members = cc.tags.members!;
+      const name = cc.tags.typeName?.[0] as DeclIdentElem;
+      const decl_scope = cc.tags.decl_scope?.[0] as Scope;
+      const members = cc.tags.members as StructMemberElem[];
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
       (name.ident as DeclIdent).declElem = elem as DeclarationElem;
-      // TODO set scope?
+      name.ident.scope = decl_scope;
+      
       return elem;
     },
   );
