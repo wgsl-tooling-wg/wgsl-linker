@@ -125,7 +125,7 @@ test("multiple exports from the same module", ctx => {
   });
 });
 
-test.skip("import and resolve conflicting support function", ctx => {
+test("import and resolve conflicting support function", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn support() {
@@ -141,7 +141,7 @@ test.skip("import and resolve conflicting support function", ctx => {
   });
 });
 
-test.skip("import support fn that references another import", ctx => {
+test("import support fn that references another import", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       fn support() {
@@ -233,19 +233,19 @@ test("import fn with support struct constructor", ctx => {
   });
 });
 
-test.skip("import a transitive struct", ctx => {
+test("import a transitive struct", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       struct SrcStruct {
-        a: AStruct
+        a: AStruct,
       }
 
       struct AStruct {
-        s: BStruct
+        s: BStruct,
       }
 
       struct BStruct {
-        x: u32
+        x: u32,
       }
     `,
   });
