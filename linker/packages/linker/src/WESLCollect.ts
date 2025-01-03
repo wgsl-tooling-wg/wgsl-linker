@@ -62,9 +62,11 @@ export function declIdent(cc: CollectContext): DeclIdentElem {
   return identElem;
 }
 
+let identId = 0;
 /** add Ident to current open scope, add IdentElem to current open element */
 function saveIdent(cc: CollectContext, identElem: IdentElem | DeclIdentElem) {
   const { ident } = identElem;
+  ident.id = identId++;
   const weslContext: WeslParseContext = cc.app.context;
   weslContext.scope.idents.push(ident);
   addToOpenElem(cc, identElem);

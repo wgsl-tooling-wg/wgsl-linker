@@ -41,10 +41,11 @@ export function scopeIdentTree(scope: Scope, indent = 0): string {
 export function identToString(ident?: Ident): string {
   if (!ident) return JSON.stringify(ident);
   const { kind, originalName } = ident;
+  const idStr = ident.id ? `#${ident.id}` : "";
   if (kind === "ref") {
     const ref = identToString(ident.refersTo!);
-    return `${originalName} -> ${ref}`;
+    return `${originalName} ${idStr} -> ${ref}`;
   } else {
-    return `%${originalName} (${ident.mangledName})`;
+    return `%${originalName} ${idStr} (${ident.mangledName})`;
   }
 }
