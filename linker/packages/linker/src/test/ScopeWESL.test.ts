@@ -88,11 +88,7 @@ test("alias", () => {
     alias A = B;
   `;
   const { rootScope } = parseWESL(src);
-  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
-    "{ %A
-      { B }
-    }"
-  `);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`"{ %A, B }"`);
 });
 
 test("switch", () => {
@@ -145,8 +141,7 @@ test("fn with param", () => {
   const { rootScope } = parseWESL(src);
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
     "{ %main
-      { %i, %x, i
-        { i32 }
+      { %i, i32, %x, i
         { %i, i, x, i }
         {  }
       }
@@ -161,11 +156,7 @@ test("fn decl scope", () => {
     }`;
   const { rootScope } = parseWESL(src);
   const mainIdent = rootScope.idents[0] as DeclIdent;
-  expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(`
-    "{ %i, %x, i
-      { i32 }
-    }"
-  `);
+  expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(`"{ %i, i32, %x, i }"`);
 });
 
 test("larger example", () => {
@@ -215,14 +206,12 @@ test("larger example", () => {
       rgba8unorm, write, %import_level, %export_level
       { u32 }
       { array, f32 }
-      { global_invocation_id, %coord, buf_in, %offset, coord, 
-        coord, ubo, buf_out, offset, textureLoad, tex_in, vec2i, 
-        coord
-        { vec3u }
+      { global_invocation_id, %coord, vec3u, buf_in, %offset, 
+        coord, coord, ubo, buf_out, offset, textureLoad, tex_in, 
+        vec2i, coord
       }
-      { global_invocation_id, %coord, all, coord, vec2u, 
+      { global_invocation_id, %coord, vec3u, all, coord, vec2u, 
         textureDimensions, tex_out
-        { vec3u }
         { %dst_offset, coord, coord, ubo, %src_offset, coord, 
           coord, ubo, %a, buf_in, src_offset, %b, buf_in, 
           src_offset, %c, buf_in, src_offset, ubo, %d, buf_in, 

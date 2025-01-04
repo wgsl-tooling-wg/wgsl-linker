@@ -170,12 +170,11 @@ export function collectFnParam(): CollectPair<ParamElem> {
     "param",
     (cc: CollectContext, openElem: PartElem<ParamElem>) => {
       const name = cc.tags.paramName?.[0]! as DeclIdentElem;
-      const decl_scope = cc.tags.decl_scope?.[0] as Scope;
       const typeRef = cc.tags.typeRef?.[0]! as IdentElem;
       const elem: ParamElem = { ...openElem, name, typeRef };
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
-      name.ident.scope = decl_scope;
+      // name.ident.scope = decl_scope; // TODO set scope for param?
       return paramElem;
     },
   );
@@ -191,7 +190,7 @@ export function collectStruct(): CollectPair<StructElem> {
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
       (name.ident as DeclIdent).declElem = elem as DeclarationElem;
-      name.ident.scope = decl_scope;
+      name.ident.scope = decl_scope; // TODO make synthetic scope?
 
       return elem;
     },

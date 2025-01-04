@@ -186,8 +186,6 @@ const fnParam = tagScope(
       seq(
         ":",
         req(type_specifier.tag("typeRefs"))
-          .collect(scopeCollect()) // TODO decl scope
-          .ctag("decl_scope"),
       ),
     ),
   ).collect(collectFnParam()),
@@ -455,9 +453,7 @@ export const global_alias = seq(
     .ctag("declIdent"),
   req("="),
   req(type_specifier)
-    .tag("typeRefs")
-    .collect(scopeCollect())
-    .ctag("decl_scope"), // TODO set decl-scope
+    .tag("typeRefs"),
   req(";"),
 )
   .collect(collectVarLike("alias"), "global_alias")
