@@ -26,7 +26,13 @@ import {
   SimpleSegment,
 } from "./ImportTree.ts";
 import { StableState, WeslParseContext } from "./ParseWESL.ts";
-import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
+import {
+  DeclIdent,
+  emptyBodyScope,
+  makeScope,
+  RefIdent,
+  Scope,
+} from "./Scope.ts";
 import { dlog } from "berry-pretty";
 import { identToString } from "./ScopeLogging.ts";
 import { elemToString } from "./ASTLogging.ts";
@@ -42,7 +48,7 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
 }
 
 /** create reference Ident and add to context */
-export function refIdent(cc: CollectContext) {
+export function refIdent(cc: CollectContext): IdentElem {
   const { src, start, end } = cc;
   const originalName = src.slice(start, end);
 
@@ -55,7 +61,7 @@ export function refIdent(cc: CollectContext) {
 }
 
 /** create declaration Ident and add to context */
-export function declIdent(cc: CollectContext): DeclIdentElem {
+export function declIdentElem(cc: CollectContext): DeclIdentElem {
   const { src, start, end } = cc;
   const originalName = src.slice(start, end);
 

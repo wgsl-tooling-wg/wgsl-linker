@@ -261,7 +261,7 @@ test("'import as' a struct", ctx => {
   });
 });
 
-test.skip("import a struct with name conflicting support struct", ctx => {
+test("import a struct with name conflicting support struct", ctx => {
   linkTest2(ctx.task.name, {
     linked: `
       struct Base {

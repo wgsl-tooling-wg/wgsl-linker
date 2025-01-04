@@ -30,7 +30,7 @@ import {
 } from "./ParsingHacks.ts";
 import {
   collectModule,
-  declIdent,
+  declIdentElem,
   refIdent,
   collectVarLike,
   collectSimpleElem,
@@ -102,14 +102,14 @@ const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
-  word.collect(declIdent, "typeNameDecl").ctag("typeName").tag("name"),
+  word.collect(declIdentElem, "typeNameDecl").ctag("typeName").tag("name"),
 ).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem;
 });
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.tag("name").collect(declIdent, "fnNameDecl").ctag("fnName"),
+  word.tag("name").collect(declIdentElem, "fnNameDecl").ctag("fnName"),
   "missing fn name",
 ).map(r => {
   return makeElem("fnName", r, ["name"]);
@@ -129,7 +129,7 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
 const optionally_typed_ident = seq(
   word
     .tag("name")
-    .collect(declIdent, "optionally_typed_ident")
+    .collect(declIdentElem, "optionally_typed_ident")
     .ctag("declIdent"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
@@ -181,7 +181,7 @@ export const fn_call = seq(
 const fnParam = tagScope(
   seq(
     opt_attributes,
-    word.collect(declIdent).ctag("paramName"),
+    word.collect(declIdentElem).ctag("paramName"),
     opt(
       seq(
         ":",
@@ -450,9 +450,14 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name")).collect(declIdent, "global_alias").ctag("declIdent"),
+  req(word.tag("name"))
+    .collect(declIdentElem, "global_alias")
+    .ctag("declIdent"),
   req("="),
-  req(type_specifier).tag("typeRefs").collect(scopeCollect()).ctag("var_scope"), // TODO set decl-scope
+  req(type_specifier)
+    .tag("typeRefs")
+    .collect(scopeCollect())
+    .ctag("decl_scope"), // TODO set decl-scope
   req(";"),
 )
   .collect(collectVarLike("alias"), "global_alias")

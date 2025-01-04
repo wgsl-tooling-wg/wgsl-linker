@@ -3,7 +3,7 @@ import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
-import { identToString } from "./ScopeLogging.ts";
+import { identToString, scopeIdentTree } from "./ScopeLogging.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
 import { last, overlapTail } from "./Util.ts";
 import { dlog } from "berry-pretty";
@@ -78,7 +78,7 @@ function bindIdentsRecursive(
   if (foundScopes.has(scope)) return [];
   foundScopes.add(scope);
 
-  // console.log(scopeIdentTree(scope));
+  // dlog(scopeIdentTree(scope));
 
   const { parsed, conditions } = bindContext;
   const { globalNames, knownDecls } = bindContext;
@@ -111,30 +111,11 @@ function bindIdentsRecursive(
     }
   });
 
-  function setDisplayName(
-    proposedName: string,
-    decl: DeclIdent,
-    globalNames: Set<string>,
-  ): void {
-    if (!decl.mangledName) {
-      // if (!decl.declElem) {
-      //   console.log(
-      //     `--- decl ident ${identToString(decl)} has no declElem attached`,)
-      // } else
-      if (decl.declElem && isGlobal(decl.declElem)) {
-        decl.mangledName = declUniqueName(proposedName, globalNames);
-        // dlog(`  > mangle global decl: ${identToString(decl)}`);
-      } else {
-        // dlog(`  > no-mangle local decl: ${identToString(decl)}`);
-        decl.mangledName = decl.originalName;
-      }
-    }
-  }
-
   // follow references from child scopes
-  const newFromChildren = scope.children.flatMap(child =>
-    bindIdentsRecursive(child, bindContext),
-  );
+  const newFromChildren = scope.children.flatMap(child => {
+    // dlog("newFromChildren", { childScope: scopeIdentTree(child) });
+    return bindIdentsRecursive(child, bindContext);
+  });
   // console.log(
   //   "new from children",
   //   newFromChildren.map(d => identToString(d)),
@@ -142,6 +123,10 @@ function bindIdentsRecursive(
 
   // follow references from referenced declarations
   const newFromRefs = newDecls.flatMap(decl => {
+    // dlog("newFromRefs", {
+    //   decl: identToString(decl),
+    //   declScope: scopeIdentTree(decl.scope),
+    // });
     if (debugNames && !decl.scope) {
       console.log(`--- decl ${identToString(decl)} has no scope`);
       return [];
@@ -156,11 +141,32 @@ function bindIdentsRecursive(
   return [newDecls, newFromChildren, newFromRefs].flat();
 }
 
+function setDisplayName(
+  proposedName: string,
+  decl: DeclIdent,
+  globalNames: Set<string>,
+): void {
+  if (!decl.mangledName) {
+    // if (!decl.declElem) {
+    //   console.log(
+    //     `--- decl ident ${identToString(decl)} has no declElem attached`,)
+    // } else
+    if (decl.declElem && isGlobal(decl.declElem)) {
+      decl.mangledName = declUniqueName(proposedName, globalNames);
+      // dlog(`  > mangle global decl: ${identToString(decl)}`);
+    } else {
+      // dlog(`  > no-mangle local decl: ${identToString(decl)}`);
+      decl.mangledName = decl.originalName;
+    }
+  }
+}
+
 function bindRefToDecl(
   ident: RefIdent,
   foundDecl: DeclIdent | undefined,
   knownDecls: Set<DeclIdent>,
 ) {
+  // dlog({ ident: identToString(ident), foundDecl: identToString(foundDecl) });
   if (foundDecl) {
     ident.refersTo = foundDecl;
 
@@ -193,10 +199,8 @@ function findDeclInModule(
   // see if the declaration is in this scope
   for (let i = identDex - 1; i >= 0; i--) {
     const checkIdent = idents[i];
-    if (
-      checkIdent.kind === "decl" &&
-      originalName === checkIdent.originalName
-    ) {
+    const { kind } = checkIdent;
+    if (kind === "decl" && originalName === checkIdent.originalName) {
       // dlog(`  |> found decl in scope: ${identToString(checkIdent)}`);
       return checkIdent;
     }
@@ -214,6 +218,7 @@ function findDeclImport(
   refIdent: RefIdent,
   parsed: ParsedRegistry2,
 ): DeclIdent | undefined {
+  dlog(identToString(refIdent), { ast: !!refIdent.ast });
   const flatImps = flatImports(refIdent.ast);
 
   // find module path by combining identifer reference with import statement
