@@ -126,9 +126,19 @@ export function collectVarLike<E extends VarLikeElem>(
     const typeRef = cc.tags.typeRef?.[0];
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
-    const var_scope = cc.tags.var_scope?.[0] as Scope;
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
-    name.ident.scope = var_scope;
+    const miniScope: Scope = makeScope({
+      idents: [typeRef],
+      parent: null,
+      children: [],
+      kind: "decl-scope",
+    });
+    name.ident.scope = miniScope;
+    // dlog({
+    //   varElem: elemToString(varElem),
+    //   name: elemToString(name),
+    //   typeRef: typeRef ? elemToString(typeRef) : "undefined",
+    // });
 
     return varElem;
   });
