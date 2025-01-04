@@ -94,16 +94,17 @@ function bindIdentsRecursive(
           let foundDecl =
             findDeclInModule(scope, ident, i) ?? findDeclImport(ident, parsed);
 
-          if (foundDecl)
-            if (foundDecl && !knownDecls.has(foundDecl)) {
-              // dlog(
-              //   `  > found decl: ${identToString(foundDecl)} known: ${knownDecls.has(foundDecl)}`,
-              // );
-              setDisplayName(ident.originalName, foundDecl, globalNames);
-              // dlog(`  > queuing new decl: ${identToString(foundDecl)}`);
+          if (foundDecl && !knownDecls.has(foundDecl)) {
+            // dlog(
+            //   `  > found decl: ${identToString(foundDecl)} known: ${knownDecls.has(foundDecl)}`,
+            // );
+            setDisplayName(ident.originalName, foundDecl, globalNames);
+            // dlog(`  > queuing new decl: ${identToString(foundDecl)}`);
+            if (foundDecl.declElem && isGlobal(foundDecl.declElem)) {
               newDecls.push(foundDecl);
-              knownDecls.add(foundDecl);
             }
+            knownDecls.add(foundDecl);
+          }
           bindRefToDecl(ident, foundDecl, knownDecls);
         }
       }
