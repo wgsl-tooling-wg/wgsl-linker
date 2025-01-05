@@ -156,7 +156,7 @@ export const struct_decl = seq(
     req("}"),
   )
     .collect(scopeCollect())
-    .ctag("decl_scope"),
+    .ctag("struct_scope"),
 )
   .collect(collectStruct())
   .map(r => {

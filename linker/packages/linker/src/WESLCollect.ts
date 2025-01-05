@@ -181,12 +181,11 @@ export function collectStruct(): CollectPair<StructElem> {
     "struct",
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
       const name = cc.tags.typeName?.[0] as DeclIdentElem;
-      const decl_scope = cc.tags.decl_scope?.[0] as Scope;
       const members = cc.tags.members as StructMemberElem[];
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
       (name.ident as DeclIdent).declElem = elem as DeclarationElem;
-      name.ident.scope = decl_scope; // TODO make synthetic scope?
+      name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
 
       return elem;
     },
