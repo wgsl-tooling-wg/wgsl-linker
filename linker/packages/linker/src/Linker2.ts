@@ -75,9 +75,10 @@ export function linkWeslFiles(
   weslSrc: Record<string, string>,
   rootModuleName: string = "main",
   conditions: Conditions = {},
+  maxParseCount?: number,
 ): SrcMap {
   const registry = parsedRegistry();
-  parseIntoRegistry(weslSrc, registry, "package", 500);
+  parseIntoRegistry(weslSrc, registry, "package", maxParseCount);
   return linkRegistry(registry, rootModuleName, conditions);
 }
 
