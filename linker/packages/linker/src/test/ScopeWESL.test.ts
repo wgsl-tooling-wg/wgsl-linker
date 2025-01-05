@@ -163,6 +163,17 @@ test("fn decl scope", () => {
   );
 });
 
+test("builtin scope", () => {
+  const src = `
+  fn main( @builtin(vertex_index) a: u32) { }`;
+  const { rootScope } = parseWESL(src);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
+    "{ %main
+      { %a, u32 }
+    }"
+  `);
+});
+
 test("larger example", () => {
   const src = `
     struct UBO { width : u32, }
@@ -210,12 +221,11 @@ test("larger example", () => {
       rgba8unorm, write, %import_level, %export_level
       { u32 }
       { array, f32 }
-      { global_invocation_id, %coord, vec3u, buf_in, %offset, 
-        coord, coord, ubo, buf_out, offset, textureLoad, tex_in, 
-        vec2i, coord
+      { %coord, vec3u, buf_in, %offset, coord, coord, ubo, 
+        buf_out, offset, textureLoad, tex_in, vec2i, coord
       }
-      { global_invocation_id, %coord, vec3u, all, coord, vec2u, 
-        textureDimensions, tex_out
+      { %coord, vec3u, all, coord, vec2u, textureDimensions, 
+        tex_out
         { %dst_offset, coord, coord, ubo, %src_offset, coord, 
           coord, ubo, %a, buf_in, src_offset, %b, buf_in, 
           src_offset, %c, buf_in, src_offset, ubo, %d, buf_in, 

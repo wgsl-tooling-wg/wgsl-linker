@@ -56,6 +56,9 @@ const diagnostic_control = seq(
   ")",
 );
 
+/** list of words that we don't need to collect (e.g. for @interpolate) */
+const word_list = seq("(", withSep(",", word, { requireOne: true }), ")");
+
 const attribute = seq(
   "@",
   req(
@@ -65,7 +68,7 @@ const attribute = seq(
       // These attributes have arguments, but the argument doesn't have any identifiers
       seq(
         or("interpolate", "builtin"),
-        req(() => argument_expression_list), // TODO: Throw away the identifiers
+        req(() => word_list),
       ),
       seq("diagnostic", diagnostic_control),
       // These are normal attributes

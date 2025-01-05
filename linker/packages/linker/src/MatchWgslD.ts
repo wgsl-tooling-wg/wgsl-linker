@@ -18,6 +18,7 @@ const symbolSet =
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
+// TODO rename to ident or ident_pattern_token..
 export const word =
   /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
 
