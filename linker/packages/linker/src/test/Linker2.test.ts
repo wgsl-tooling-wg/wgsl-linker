@@ -47,3 +47,13 @@ test("link a fn", () => {
   const result = link2Test(src);
   matchTrimmed(result, src);
 });
+
+test("handle a ptr type", () => {
+  const src = `
+    fn uint_bitfieldExtract_u1_i1_i1_(
+      value: ptr<function, u32>, 
+      bits: ptr<function, i32>) -> u32 { }
+  `;
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
