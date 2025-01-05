@@ -10,11 +10,11 @@ test("scope from simple fn", () => {
     }
   `;
   const { rootScope } = parseWESL(src);
-  const scopeIdents = rootScope.idents.map(i => i.originalName);
-  expect(scopeIdents).toEqual(["main"]);
-  expect(rootScope.children.length).toBe(1);
-  const firstChildIdents = rootScope.children[0].idents.map(i => i.originalName);
-  expect(firstChildIdents).toEqual(["x", "i32"]);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
+    "{ %main
+      { %x, i32 }
+    }"
+  `);
 });
 
 test("scope from fn with reference", () => {
@@ -27,7 +27,9 @@ test("scope from fn with reference", () => {
   const { rootScope } = parseWESL(src);
   const scopeIdents = rootScope.idents.map(i => i.originalName);
   expect(scopeIdents).toEqual(["main"]);
-  const firstChildIdents = rootScope.children[0].idents.map(i => i.originalName);
+  const firstChildIdents = rootScope.children[0].idents.map(
+    i => i.originalName,
+  );
   expect(firstChildIdents).toEqual(["x", "i32", "x"]);
 });
 
@@ -156,7 +158,9 @@ test("fn decl scope", () => {
     }`;
   const { rootScope } = parseWESL(src);
   const mainIdent = rootScope.idents[0] as DeclIdent;
-  expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(`"{ %i, i32, %x, i }"`);
+  expect(scopeIdentTree(mainIdent.scope)).toMatchInlineSnapshot(
+    `"{ %i, i32, %x, i }"`,
+  );
 });
 
 test("larger example", () => {
