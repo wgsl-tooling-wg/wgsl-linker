@@ -13,6 +13,7 @@ test("package two wgsl files", async () => {
   packageCli(
     `--projectDir ${projectDir} --rootDir ${srcDir} --outDir ${distDir}`,
   );
+  // TODO verify results
 });
 
 function packageCli(argsLine: string): Promise<void> {
