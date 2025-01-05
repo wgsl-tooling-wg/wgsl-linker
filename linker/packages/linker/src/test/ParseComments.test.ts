@@ -1,4 +1,4 @@
-import { expectNoLogErr } from "mini-parse/test-util";
+import { expectNoLog } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
 import { lineComment } from "../ParseDirective.js";
@@ -20,7 +20,7 @@ test("lineComment parse // foo bar \\n", () => {
 
 test("blockComment parses /* comment */", () => {
   const src = "/* comment */";
-  expectNoLogErr(() => {
+  expectNoLog(() => {
     const { parsed } = testAppParse(blockComment, src);
     expect(parsed).toMatchSnapshot();
   });
@@ -28,7 +28,7 @@ test("blockComment parses /* comment */", () => {
 
 test("skipBlockComment parses nested comment", () => {
   const src = "/** comment1 /* comment2 */ */";
-  expectNoLogErr(() => {
+  expectNoLog(() => {
     testAppParse(blockComment, src);
   });
 });
@@ -59,12 +59,12 @@ test("parse empty line comment", () => {
   const src = `
   var workgroupThreads= 4;                          // 
   `;
-  expectNoLogErr(() => parseWESL(src));
+  expectNoLog(() => parseWESL(src));
 });
 
 test.skip("parse line comment with #replace", () => {
   const src = ` 
   const workgroupThreads= 4;                          // #replace 4=workgroupThreads
   `;
-  expectNoLogErr(() => parseWESL(src));
+  expectNoLog(() => parseWESL(src));
 });

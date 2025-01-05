@@ -45,15 +45,6 @@ export function testParse<T, N extends TagRecord = NoTags, S = any>(
   return { parsed, position: lexer.position(), stable: appState.stable };
 }
 
-// TODO drop this
-/** run a test function and expect that no error logs are produced */
-export function expectNoLogErr<T>(fn: () => T): T {
-  const { log, logged } = logCatch();
-  const result = _withBaseLogger(log, fn);
-  expect(logged()).toBe("");
-  return result;
-}
-
 /** run a test function and expect that no error logs are produced */
 export function expectNoLog<T>(fn: () => T): T {
   const { log, logged } = logCatch();

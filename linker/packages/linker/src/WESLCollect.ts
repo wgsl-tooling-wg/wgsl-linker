@@ -1,5 +1,5 @@
 import { dlog } from "berry-pretty";
-import { CollectContext, CollectPair } from "mini-parse";
+import { CollectContext, CollectPair, tracing } from "mini-parse";
 import {
   AbstractElem2,
   AliasElem,
@@ -100,11 +100,9 @@ function completeScope(cc: CollectContext): Scope {
   // srcLog(cc.src, cc.start, "completeScope", completedScope.id);
   // console.log(scopeIdentTree(completedScope));
   const { parent } = completedScope;
-  // TODO if scope is empty, drop it?
   if (parent) {
     weslContext.scope = parent;
-  } else {
-    // TODO should never happen
+  } else if (tracing) {
     const { idents, kind } = completedScope;
     console.log("ERR: completeScope, no parent scope", { kind, idents });
   }
