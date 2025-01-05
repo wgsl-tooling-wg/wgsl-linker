@@ -7,7 +7,7 @@ export type AbstractElem2 =
   | ImportElem
   | ConstAssertElem
   | FnElem
-  | IdentElem
+  | RefIdentElem
   | DeclIdentElem
   | ModuleElem
   | NameElem
@@ -45,7 +45,7 @@ export interface ImportElem extends ElemWithContents {
 }
 
 /** an identifier in WESL source */
-export interface IdentElem extends AbstractElemBase2 {
+export interface RefIdentElem extends AbstractElemBase2 {
   kind: RefIdent["kind"];
   ident: RefIdent;
   src: string; // TODO SrcModule
@@ -70,35 +70,35 @@ export interface TextElem extends AbstractElemBase2 {
 export interface ParamElem extends ElemWithContents {
   kind: "param";
   name: DeclIdentElem;
-  typeRef: IdentElem;
+  typeRef: RefIdentElem;
 }
 
 /** a variable declaration */
 export interface VarElem extends ElemWithContents {
   kind: "var";
   name: DeclIdentElem;
-  typeRef?: IdentElem;
+  typeRef?: RefIdentElem;
 }
 
 /** a global variable declaration (at the root level) */
 export interface GlobalVarElem extends ElemWithContents {
   kind: "gvar";
   name: DeclIdentElem;
-  typeRef?: IdentElem;
+  typeRef?: RefIdentElem;
 }
 
 /** a const declaration */
 export interface ConstElem extends ElemWithContents {
   kind: "const";
   name: DeclIdentElem;
-  typeRef?: IdentElem;
+  typeRef?: RefIdentElem;
 }
 
 /** an override declaration */
 export interface OverrideElem extends ElemWithContents {
   kind: "override";
   name: DeclIdentElem;
-  typeRef?: IdentElem;
+  typeRef?: RefIdentElem;
 }
 
 /** an entire file */
@@ -110,7 +110,7 @@ export interface ModuleElem extends ElemWithContents {
 export interface AliasElem extends ElemWithContents {
   kind: "alias";
   name: DeclIdentElem;
-  typeRef: IdentElem;
+  typeRef: RefIdentElem;
 }
 
 /** a const_assert statement */
@@ -129,7 +129,7 @@ export interface StructElem extends ElemWithContents {
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
-  typeRef: IdentElem;
+  typeRef: RefIdentElem;
 }
 
 /** a name (e.g. a struct member name) that doesn't need to be an Ident */
@@ -144,7 +144,7 @@ export interface FnElem extends ElemWithContents {
   kind: "fn";
   name: DeclIdentElem;
   params: ParamElem[];
-  returnType?: IdentElem;
+  returnType?: RefIdentElem;
 }
 
 // type ChunkChild = ChunkElem | IdentElem | TextElem;

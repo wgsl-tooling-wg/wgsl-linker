@@ -2,7 +2,7 @@ import { SrcMapBuilder } from "mini-parse";
 import {
   AbstractElem2,
   DeclIdentElem,
-  IdentElem,
+  RefIdentElem,
   NameElem,
   TextElem,
 } from "./AbstractElems2.ts";
@@ -89,7 +89,7 @@ export function emitContents(
 }
 
 export function emitIdent(
-  e: IdentElem | DeclIdentElem,
+  e: RefIdentElem | DeclIdentElem,
   ctx: EmitContext,
 ): void {
   if ((e.ident as RefIdent).std) {

@@ -9,7 +9,7 @@ import {
   ElemWithContents,
   FnElem,
   GlobalVarElem,
-  IdentElem,
+  RefIdentElem,
   ImportElem,
   ModuleElem,
   NameElem,
@@ -47,14 +47,14 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
 }
 
 /** create reference Ident and add to context */
-export function refIdent(cc: CollectContext): IdentElem {
+export function refIdent(cc: CollectContext): RefIdentElem {
   const { src, start, end } = cc;
   const { scope } = cc.app.context;
   const originalName = src.slice(start, end);
 
   const kind = "ref";
   const ident: RefIdent = { kind, originalName, ast: cc.app.stable, scope };
-  const identElem: IdentElem = { kind, start, end, src, ident };
+  const identElem: RefIdentElem = { kind, start, end, src, ident };
 
   saveIdent(cc, identElem);
   return identElem;
@@ -76,7 +76,7 @@ export function declIdentElem(cc: CollectContext): DeclIdentElem {
 
 let identId = 0;
 /** add Ident to current open scope, add IdentElem to current open element */
-function saveIdent(cc: CollectContext, identElem: IdentElem | DeclIdentElem) {
+function saveIdent(cc: CollectContext, identElem: RefIdentElem | DeclIdentElem) {
   const { ident } = identElem;
   ident.id = identId++;
   const weslContext: WeslParseContext = cc.app.context;
@@ -130,7 +130,7 @@ export function collectVarLike<E extends VarLikeElem>(
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     // dlog({ tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
-    const typeRef = cc.tags.typeRef?.[0] as IdentElem;
+    const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
@@ -163,7 +163,7 @@ export function collectFn(): CollectPair<FnElem> {
     const name = cc.tags.fnName?.[0] as DeclIdentElem;
     const body_scope = cc.tags.body_scope?.[0] as Scope;
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
-    const returnType: IdentElem | undefined = cc.tags.returnType?.flat(3)[0];
+    const returnType: RefIdentElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
     const fnElem = withTextCover(partElem, cc);
     (name.ident as DeclIdent).declElem = fnElem;
@@ -178,7 +178,7 @@ export function collectFnParam(): CollectPair<ParamElem> {
     "param",
     (cc: CollectContext, openElem: PartElem<ParamElem>) => {
       const name = cc.tags.paramName?.[0]! as DeclIdentElem;
-      const typeRef = cc.tags.typeRef?.[0]! as IdentElem;
+      const typeRef = cc.tags.typeRef?.[0]! as RefIdentElem;
       const elem: ParamElem = { ...openElem, name, typeRef };
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
