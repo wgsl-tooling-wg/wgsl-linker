@@ -24,7 +24,7 @@
       "mini-parse/test-util": ["../mini-parse/src/test-util"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../../wesl-testsuite/src/test-cases/**/*"],
   "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig-node.json" }]
 }
