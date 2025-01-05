@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { CollectContext, CollectPair } from "mini-parse";
 import {
   AbstractElem2,
@@ -33,9 +34,7 @@ import {
   RefIdent,
   Scope,
 } from "./Scope.ts";
-import { dlog } from "berry-pretty";
 import { identToString } from "./ScopeLogging.ts";
-import { elemToString } from "./ASTLogging.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
@@ -91,13 +90,15 @@ function startScope(cc: CollectContext) {
   const newScope = emptyBodyScope(scope);
   scope.children.push(newScope);
   cc.app.context.scope = newScope;
+  // srcLog(cc.src, cc.start, "startScope", newScope.id);
 }
 
 /* close current Scope and set current scope to parent */
 function completeScope(cc: CollectContext): Scope {
-  // ctxLog(r.ctx, "completeScope");
   const weslContext = cc.app.context as WeslParseContext;
   const completedScope = weslContext.scope;
+  // srcLog(cc.src, cc.start, "completeScope", completedScope.id);
+  // console.log(scopeIdentTree(completedScope));
   const { parent } = completedScope;
   // TODO if scope is empty, drop it?
   if (parent) {
@@ -147,6 +148,18 @@ export function collectVarLike<E extends VarLikeElem>(
   });
 }
 
+/** @return a synthetic scope useful for ident binding, but
+ * not part of the scope tree */
+function pseudoScope(refIdent: RefIdent): Scope {
+  dlog(identToString(refIdent));
+  return makeScope({
+    idents: [refIdent],
+    parent: null,
+    children: [],
+    kind: "decl-scope",
+  });
+}
+
 export function collectFn(): CollectPair<FnElem> {
   return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0] as DeclIdentElem;
@@ -171,7 +184,8 @@ export function collectFnParam(): CollectPair<ParamElem> {
       const elem: ParamElem = { ...openElem, name, typeRef };
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
-      // name.ident.scope = decl_scope; // TODO set scope for param?
+
+      // name.ident.scope = pseudoScope(typeRef); // TODO set scope for param?
       return paramElem;
     },
   );
