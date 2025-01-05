@@ -44,7 +44,7 @@ export interface DeclIdent extends IdentBase {
 
 export type ScopeKind =
   | "module-scope" // root scope for a module (file)
-  | "decl-scope" // scope for a declaration (synehtic scope for ident binding, not a wgsl scope)
+  | "decl-scope" // synthetic scope for a declaration (for ident binding, not a wgsl scope)
   | "body-scope"; // a scope inside the module (fn body, nested block, etc.)
 
 /** tree of ident references, organized by lexical scope */

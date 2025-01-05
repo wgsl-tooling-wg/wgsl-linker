@@ -170,11 +170,6 @@ function bindRefToDecl(
   if (foundDecl) {
     ident.refersTo = foundDecl;
 
-    // if (!foundDecl.mangledName) {
-    // TODO check for conflicts and actually mangle
-    //   const proposedName = ident.originalName;
-    //   foundDecl.mangledName = proposedName;
-    // }
     knownDecls.add(foundDecl);
   } else {
     // TODO log error with source position
@@ -218,7 +213,7 @@ function findDeclImport(
   refIdent: RefIdent,
   parsed: ParsedRegistry2,
 ): DeclIdent | undefined {
-  dlog(identToString(refIdent), { ast: !!refIdent.ast });
+  // dlog(identToString(refIdent), { ast: !!refIdent.ast });
   const flatImps = flatImports(refIdent.ast);
 
   // find module path by combining identifer reference with import statement
