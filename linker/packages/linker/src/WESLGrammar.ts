@@ -193,17 +193,21 @@ const fnParam = tagScope(
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
 
-/** Covers variable_decl and the 'var' case in global_decl */
-const variable_decl = seq(
+const variable_decl_prefix = seq(
   "var",
   () => opt_template_list,
   req_optionally_typed_ident,
-  opt(seq("=", () => expression)),
 );
 
-// prettier-ignore
-const local_variable_decl = variable_decl
-  .collect(collectVarLike("var"), "variable_decl");
+const local_variable_decl = seq(
+  variable_decl_prefix,
+  opt(seq("=", () => expression)),
+).collect(collectVarLike("var"), "variable_decl");
+
+const global_variable_decl = seq(
+  variable_decl_prefix,
+  opt(seq("=", () => expression.collect(scopeCollect()).ctag("decl_scope"))),
+);
 
 /** Aka template_elaborated_ident.post.ident */
 const opt_template_list = opt(
@@ -433,17 +437,21 @@ export const fn_decl = seq(
     r.app.stable.elems.push(e);
   });
 
-// prettier-ignore
 const global_value_decl = or(
   seq(
     opt_attributes,
     "override",
     optionally_typed_ident,
-    opt(seq("=", expression)),
+    seq(opt(seq("=", expression.collect(scopeCollect()).ctag("decl_scope")))),
     ";",
   ).collect(collectVarLike("override")),
-  seq("const", optionally_typed_ident, "=", expression, ";")
-    .collect(collectVarLike("const")),
+  seq(
+    "const",
+    optionally_typed_ident,
+    "=",
+    seq(expression).collect(scopeCollect()).ctag("decl_scope"),
+    ";",
+  ).collect(collectVarLike("const")),
 );
 
 export const global_alias = seq(
@@ -452,8 +460,7 @@ export const global_alias = seq(
     .collect(declIdentElem, "global_alias")
     .ctag("declIdent"),
   req("="),
-  req(type_specifier)
-    .tag("typeRefs"),
+  req(type_specifier).tag("typeRefs"),
   req(";"),
 )
   .collect(collectVarLike("alias"), "global_alias")
@@ -483,7 +490,7 @@ const global_directive = seq(
 export const global_decl = tagScope(
   or(
     fn_decl,
-    seq(opt_attributes, variable_decl, ";")
+    seq(opt_attributes, global_variable_decl, ";")
       .map(r => {
         const e = makeElem("var", r, ["name"]);
         e.typeRefs = r.tags.typeRefs?.flat() || [];
@@ -533,6 +540,9 @@ if (tracing) {
     fn_call,
     fnParam,
     fnParamList,
+    variable_decl_prefix,
+    local_variable_decl,
+    global_variable_decl,
     opt_template_list,
     template_elaborated_ident,
     literal,

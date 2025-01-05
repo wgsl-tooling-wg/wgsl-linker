@@ -128,18 +128,14 @@ export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
+    // dlog({ tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
-    const typeRef = cc.tags.typeRef?.[0];
+    const typeRef = cc.tags.typeRef?.[0] as IdentElem;
+    const decl_scope = cc.tags.decl_scope?.[0] as Scope;
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
-    const miniScope: Scope = makeScope({
-      idents: [typeRef],
-      parent: null,
-      children: [],
-      kind: "decl-scope",
-    });
-    name.ident.scope = miniScope;
+    name.ident.scope = decl_scope;
     // dlog({
     //   varElem: elemToString(varElem),
     //   name: elemToString(name),
