@@ -297,6 +297,20 @@ test("copy diagnostics to output", ctx => {
   });
 });
 
+test("const referenced by imported fn", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn main() { foo(); }
+
+        fn foo() {
+          let a = conA;
+        }
+
+        const conA = 7;
+    `,
+  });
+});
+
 // TODO add case for const_assert in non root module
 // TODO add case for diagnostic in non-root module (should fail?)
 

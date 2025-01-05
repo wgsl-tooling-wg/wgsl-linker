@@ -286,6 +286,7 @@ test("copy diagnostics to output", ctx => {
 
 
 test.skip("struct referenced by a fn param");
+test.skip("const referenced by imported fn");
 
 afterAll(c => {
   const testNameSet = new Set(c.tasks.map(t => t.name));
