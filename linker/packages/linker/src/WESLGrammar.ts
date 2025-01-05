@@ -182,12 +182,7 @@ const fnParam = tagScope(
   seq(
     opt_attributes,
     word.collect(declIdentElem).ctag("paramName"),
-    opt(
-      seq(
-        ":",
-        req(type_specifier.tag("typeRefs"))
-      ),
-    ),
+    opt(seq(":", req(type_specifier.tag("typeRefs")))),
   ).collect(collectFnParam()),
 ).ctag("fnParam");
 
