@@ -1,3 +1,4 @@
+import { dlog } from "berry-pretty";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { WeslAST } from "./ParseWESL.ts";
 
@@ -32,7 +33,8 @@ export interface RefIdent extends IdentBase {
   kind: "ref";
   refersTo?: Ident; // import or decl ident in scope to which this ident refers. undefined before binding
   std?: true; // true if this is a standard wgsl identifier (like sin, or u32)
-  ast: WeslAST; // AST from module that contains this ident
+  ast: WeslAST; // AST from module that contains this ident (to find imports during decl binding)
+  scope: Scope; // scope containing this reference (bind to decls starting from this scope)
 }
 
 export interface DeclIdent extends IdentBase {

@@ -50,10 +50,11 @@ function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
 /** create reference Ident and add to context */
 export function refIdent(cc: CollectContext): IdentElem {
   const { src, start, end } = cc;
+  const { scope } = cc.app.context;
   const originalName = src.slice(start, end);
 
   const kind = "ref";
-  const ident: RefIdent = { kind, originalName, ast: cc.app.stable };
+  const ident: RefIdent = { kind, originalName, ast: cc.app.stable, scope };
   const identElem: IdentElem = { kind, start, end, src, ident };
 
   saveIdent(cc, identElem);

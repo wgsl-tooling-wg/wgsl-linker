@@ -92,20 +92,22 @@ function bindIdentsRecursive(
           ident.std = true;
         } else {
           let foundDecl =
-            findDeclInModule(scope, ident, i) ?? findDeclImport(ident, parsed);
+            findDeclInModule(ident.scope, ident, i) ??
+            findDeclImport(ident, parsed);
 
-          if (foundDecl && !knownDecls.has(foundDecl)) {
-            // dlog(
-            //   `  > found decl: ${identToString(foundDecl)} known: ${knownDecls.has(foundDecl)}`,
-            // );
-            setDisplayName(ident.originalName, foundDecl, globalNames);
-            // dlog(`  > queuing new decl: ${identToString(foundDecl)}`);
-            if (foundDecl.declElem && isGlobal(foundDecl.declElem)) {
-              newDecls.push(foundDecl);
+          if (foundDecl) {
+            ident.refersTo = foundDecl;
+            if (!knownDecls.has(foundDecl)) {
+              knownDecls.add(foundDecl);
+              setDisplayName(ident.originalName, foundDecl, globalNames);
+              if (foundDecl.declElem && isGlobal(foundDecl.declElem)) {
+                newDecls.push(foundDecl);
+              }
+              // dlog(`  > found new decl: ${identToString(foundDecl)}`);
             }
-            knownDecls.add(foundDecl);
+          } else {
+            console.log(`--- unresolved identifier: ${ident.originalName}`);
           }
-          bindRefToDecl(ident, foundDecl, knownDecls);
         }
       }
     }
@@ -113,7 +115,7 @@ function bindIdentsRecursive(
 
   // follow references from child scopes
   const newFromChildren = scope.children.flatMap(child => {
-    // dlog("newFromChildren", { childScope: scopeIdentTree(child) });
+    // dlog("to newFromChildren", { childScope: scopeIdentTree(child) });
     return bindIdentsRecursive(child, bindContext);
   });
   // console.log(
@@ -123,7 +125,7 @@ function bindIdentsRecursive(
 
   // follow references from referenced declarations
   const newFromRefs = newDecls.flatMap(decl => {
-    // dlog("newFromRefs", {
+    // dlog("to newFromRefs", {
     //   decl: identToString(decl),
     //   declScope: scopeIdentTree(decl.scope),
     // });
@@ -161,22 +163,6 @@ function setDisplayName(
   }
 }
 
-function bindRefToDecl(
-  ident: RefIdent,
-  foundDecl: DeclIdent | undefined,
-  knownDecls: Set<DeclIdent>,
-) {
-  // dlog({ ident: identToString(ident), foundDecl: identToString(foundDecl) });
-  if (foundDecl) {
-    ident.refersTo = foundDecl;
-
-    knownDecls.add(foundDecl);
-  } else {
-    // TODO log error with source position
-    console.log(`--- unresolved ident: ${ident.originalName}`);
-  }
-}
-
 function stdWgsl(name: string): boolean {
   return stdType(name) || stdFn(name);
 }
@@ -203,6 +189,10 @@ function findDeclInModule(
 
   // recurse to check all idents in parent scope
   if (parent) {
+    // dlog("checking parent scope", {
+    //   ident: identToString(ident),
+    // });
+    // console.log(scopeIdentTree(parent));
     return findDeclInModule(parent, ident);
   }
 }
