@@ -40,6 +40,7 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   return registry.link("./root", runtimeParams);
 }
 
+// TODO legacy test runner, remove 
 export function testParseWgsl(src: string): AbstractElem[] {
   return expectNoLog(() => parseWESL(src, undefined, 500).elems);
 }

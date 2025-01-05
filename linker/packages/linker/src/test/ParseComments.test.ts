@@ -5,6 +5,7 @@ import { lineComment } from "../ParseDirective.js";
 import { blockComment } from "../ParseSupport.js";
 import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
+import { astTree } from "../ASTLogging.js";
 
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";
@@ -28,9 +29,7 @@ test("blockComment parses /* comment */", () => {
 
 test("skipBlockComment parses nested comment", () => {
   const src = "/** comment1 /* comment2 */ */";
-  expectNoLog(() => {
-    testAppParse(blockComment, src);
-  });
+  expectNoLog(() => testAppParse(blockComment, src));
 });
 
 test("parse fn with line comment", () => {
@@ -38,21 +37,16 @@ test("parse fn with line comment", () => {
     fn binaryOp() { // binOpImpl
     }`;
   const parsed = parseWESL(src);
-  expect(parsed.elems).toMatchSnapshot();
-});
-
-test.skip("wordNumArgs parses (a, b, 1) with line comments everywhere", () => {
-  const src = `(
-    // aah
-    a, 
-    // boh
-    b, 
-    // oneness
-    1
-    // satsified
-    )`;
-  // const { parsed } = testAppParse(preParse(comment, wordNumArgs), src); // TODO fixme
-  // expect(parsed?.value).toMatchSnapshot();
+  expect(astTree(parsed.moduleElem)).toMatchInlineSnapshot(`
+    "module
+      text '
+        '
+      fn binaryOp()
+        text 'fn '
+        decl %binaryOp
+        text '() { // binOpImpl
+        }'"
+  `);
 });
 
 test("parse empty line comment", () => {
@@ -62,7 +56,7 @@ test("parse empty line comment", () => {
   expectNoLog(() => parseWESL(src));
 });
 
-test.skip("parse line comment with #replace", () => {
+test("parse line comment with #replace", () => {
   const src = ` 
   const workgroupThreads= 4;                          // #replace 4=workgroupThreads
   `;
