@@ -11,9 +11,7 @@ test("collect runs a fn on commit", () => {
     "a",
     text("b").collect(() => results.push("collected")),
     "c",
-  )
-    .map(() => results.push("parsed"))
-    .commit();
+  ).map(() => results.push("parsed"));
 
   testParse(p, src);
   expect(results).toEqual(["parsed", "collected"]);
@@ -30,7 +28,7 @@ test("collect fn sees tags", () => {
         results.push(`collected: ${tags.x}, ${tags.y}`);
       }),
     "c",
-  ).commit();
+  );
 
   testParse(p, src);
   expect(results).toEqual(["collected: a, b"]);
@@ -54,7 +52,7 @@ test("backtracking", () => {
         results.push(`collected2: ${as}, ${bs}`);
       }),
     ),
-  ).commit();
+  );
 
   testParse(p, src);
   expect(results).toEqual(["collected2: undefined, b"]);
@@ -69,12 +67,10 @@ test("collect with tag", () => {
       .collect(() => "x", "1")
       .ctag("B"),
     "c",
-  )
-    .collect(cc => {
-      // dlog("test collectionFn", { tags: cc.tags });
-      results.push(`collected: ${cc.tags.B}`);
-    }, "2")
-    .commit();
+  ).collect(cc => {
+    // dlog("test collectionFn", { tags: cc.tags });
+    results.push(`collected: ${cc.tags.B}`);
+  }, "2");
   testParse(p, src);
 
   expect(results).toEqual(["collected: x"]);
@@ -87,8 +83,7 @@ test("ctag earlier collect", () => {
     text("b").collect(() => "B", "1"),
   )
     .ctag("bee")
-    .collect(cc => results.push(`collected: ${cc.tags.bee}`))
-    .commit();
+    .collect(cc => results.push(`collected: ${cc.tags.bee}`));
   testParse(p, "b");
   expect(results).toEqual(["collected: B"]);
 });
@@ -102,8 +97,7 @@ test("ctag collect inside seq", () => {
     .ctag("bee")
     .collect(cc => {
       results.push({ bee: cc.tags.bee?.[0] });
-    }, "2")
-    .commit();
+    }, "2");
   testParse(p, "a b");
   expect(results).toEqual([{ bee: ["B"] }]);
 });
@@ -118,11 +112,9 @@ test("tagScope clears tags", () => {
           results.push(`inTagScope: ${cc.tags.A?.[0]}`);
         }),
     ),
-  )
-    .collect(cc => {
-      results.push(`outsideTagScope: ${cc.tags.A?.[0]}`);
-    })
-    .commit();
+  ).collect(cc => {
+    results.push(`outsideTagScope: ${cc.tags.A?.[0]}`);
+  });
 
   testParse(p, "a");
   expect(results).toMatchInlineSnapshot(`
@@ -141,9 +133,7 @@ test("ctag propogates up through seq", () => {
       .collect(() => "B", "collect-1")
       .ctag("btag"),
     text("c"),
-  )
-    .collect(cc => results.push({ btag: cc.tags.btag?.flat() }), "collect-2")
-    .commit();
+  ).collect(cc => results.push({ btag: cc.tags.btag?.flat() }), "collect-2");
   testParse(p, "a b c");
   expect(results).toEqual([{ btag: ["B"] }]);
 });
@@ -153,9 +143,7 @@ test("tagScope resets original tags", () => {
   const p = seq(
     text("a").ptag("atag"),
     tagScope(text("b")), // shouldn't reset 'atag' for later collect
-  )
-    .collect(cc => results.push({ atag: cc.tags.atag?.flat() }), "collect-1")
-    .commit();
+  ).collect(cc => results.push({ atag: cc.tags.atag?.flat() }), "collect-1");
   testParse(p, "a b");
   expect(results).toEqual([{ atag: ["a"] }]);
 });

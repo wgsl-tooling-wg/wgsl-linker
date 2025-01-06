@@ -89,13 +89,18 @@ export function tagScope<A extends CombinatorArg>(
     `tagScope`,
     (ctx: ParserContext): OptParserResult<ResultFromArg<A>, any> => {
       const origStart = ctx.lexer.position();
-      let origTags:TagRecord;
-      queueCollectFn(ctx, origStart, (cc:CollectContext) => origTags = cloneTags(cc.tags), `scope.before ${p.debugName}`)
+      let origTags: TagRecord;
+      queueCollectFn(
+        ctx,
+        origStart,
+        (cc: CollectContext) => (origTags = cloneTags(cc.tags)),
+        `scope.before ${p.debugName}`,
+      );
       return runAndCollectAfter(
         p,
         ctx,
         (cc: CollectContext) => {
-          cc.tags = origTags; 
+          cc.tags = origTags;
           // Object.keys(cc.tags).forEach(key => delete cc.tags[key]);
         },
         `tagScope`,
@@ -107,8 +112,8 @@ export function tagScope<A extends CombinatorArg>(
 }
 
 /** duplicate a tags record */
-function cloneTags(tags:TagRecord):TagRecord {
-  const cloned = Object.entries(tags).map(([tag,values]) => {
+function cloneTags(tags: TagRecord): TagRecord {
+  const cloned = Object.entries(tags).map(([tag, values]) => {
     return [tag, [...values!]];
   });
   return Object.fromEntries(cloned);
@@ -208,43 +213,37 @@ function addTagValue(tags: TagRecord, name: string, value: any) {
 }
 
 /** When the provided parser succeeds,
- * run any pending collect() fns, and clear the pending list */
-export function commit<N extends TagRecord, T>(
-  p: Parser<T, N>,
-  commitDebugName?: string,
-): Parser<T, N> {
-  const commitParser = parser(
-    `commit`,
-    (ctx: ParserContext): OptParserResult<T, N> => {
-      const result = p._run(ctx);
-      if (result) {
-        const tags: Record<string, any> = {};
-        const { app, lexer } = ctx;
-        const { src } = lexer;
-        const _values: CollectValue[] = [{ value: null, openArray: undefined }];
-        // ctx._collect.forEach(entry => {
-        //   dlog("collect-list", entry.debugName)
-        // });
-        const collectContext:CollectContext = {tags, src, start:-1, end:-1, app, _values};
-        ctx._collect.forEach(entry => {
-          // dlog("commit", {
-          //   entryName: entry.debugName,
-          //   entryFn: entry.collectFn,
-          // });
-          const { collectFn, srcPosition } = entry;
-          collectContext.start = srcPosition.start; 
-          collectContext.end = srcPosition.end;
-          const collectResult = collectFn(collectContext);
-          saveCollectValue(collectContext, collectResult);
-        });
-        ctx._collect.length = 0;
-      }
-      return result;
-    },
-  );
-
-  trackChildren(commitParser, p);
-  return commitParser;
+ * run any pending collect() fns */
+export function runCollection(
+  _collect: CollectFnEntry<any>[],
+  app: AppState<any>,
+  lexer: Lexer,
+) {
+  const tags: Record<string, any> = {};
+  const { src } = lexer;
+  const _values: CollectValue[] = [{ value: null, openArray: undefined }];
+  // ctx._collect.forEach(entry => {
+  //   dlog("collect-list", entry.debugName)
+  // });
+  const collectContext: CollectContext = {
+    tags,
+    src,
+    start: -1,
+    end: -1,
+    app,
+    _values,
+  };
+  _collect.forEach(entry => {
+    // dlog("commit", {
+    //   entryName: entry.debugName,
+    //   entryFn: entry.collectFn,
+    // });
+    const { collectFn, srcPosition } = entry;
+    collectContext.start = srcPosition.start;
+    collectContext.end = srcPosition.end;
+    const collectResult = collectFn(collectContext);
+    saveCollectValue(collectContext, collectResult);
+  });
 }
 
 function saveCollectValue(cc: CollectContext, value: any) {

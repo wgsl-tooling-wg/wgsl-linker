@@ -5,9 +5,9 @@ import {
   CollectFn,
   CollectFnEntry,
   CollectPair,
-  commit,
   ctag,
   ptag,
+  runCollection,
 } from "./ParserCollect.js";
 import { ParseError, parserArg } from "./ParserCombinator.js";
 import { srcLog } from "./ParserLogging.js";
@@ -241,11 +241,6 @@ export class Parser<T, N extends TagRecord = NoTags> {
     return collect(this, fn, collectName);
   }
 
-  /** When this parser succeeds, run any pending collect() fns (and clear the collection list) */
-  commit(debugName?: string): Parser<T, N> {
-    return commit(this, debugName);
-  }
-
   /** switch next parser based on results */
   toParser<U, V extends TagRecord>(
     fn: ToParserFn<T, N, U, V>,
@@ -262,7 +257,8 @@ export class Parser<T, N extends TagRecord = NoTags> {
         srcMap,
         appState: app = { context: {}, stable: [] },
       } = init;
-      return this._run({
+      const _collect: CollectFnEntry<any>[] = [];
+      const result = this._run({
         lexer,
         app,
         srcMap,
@@ -270,9 +266,11 @@ export class Parser<T, N extends TagRecord = NoTags> {
         _parseCount: 0,
         _preCacheFails: new Map(),
         maxParseCount,
-        _collect: [],
+        _collect,
         _debugNames: [],
       });
+      if (result) runCollection(_collect, app, lexer);
+      return result;
     } catch (e) {
       if (e instanceof ParseError) {
         return null;

@@ -548,7 +548,7 @@ export const weslRoot = preParse(
     repeat(or(global_decl, directive)),
     req(end),
   ).collect(collectModule(), "collectModule"),
-).commit("weslRoot");
+);
 
 if (tracing) {
   const names: Record<string, Parser<unknown>> = {
