@@ -49,14 +49,15 @@ test("reference an alias", () => {
   expectNoLog(() => registry.link("./main"));
 });
 
-test("handle a ptr type", () => {
-  const src = `
-    fn uint_bitfieldExtract_u1_i1_i1_(
-      value: ptr<function, u32>, 
-      bits: ptr<function, i32>) -> u32 { }
-  `;
-  const registry = new ModuleRegistry({
-    wgsl: { "./main.wgsl": src },
-  });
-  expectNoLog(() => registry.link("./main"));
-});
+// removing legacy
+// test("handle a ptr type", () => {
+//   const src = `
+//     fn uint_bitfieldExtract_u1_i1_i1_(
+//       value: ptr<function, u32>, 
+//       bits: ptr<function, i32>) -> u32 { }
+//   `;
+//   const registry = new ModuleRegistry({
+//     wgsl: { "./main.wgsl": src },
+//   });
+//   expectNoLog(() => registry.link("./main"));
+// });

@@ -179,7 +179,29 @@ test("texture_storage_2d", () => {
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`"{ %tex_out }"`);
 });
 
-// TODO add test for ptr type 
+test("ptr 2 params", () => {
+  const src = `
+    fn foo(ptr: ptr<private, u32>) { }
+  `;
+  const { rootScope } = parseWESL(src);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
+    "{ %foo
+      { %ptr, u32 }
+    }"
+  `);
+});
+
+test("ptr 3 params", () => {
+  const src = `
+    fn foo(ptr: ptr<storage, array<u32, 128>, read>) { }
+  `;
+  const { rootScope } = parseWESL(src);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
+    "{ %foo
+      { %ptr, array, u32 }
+    }"
+  `);
+});
 
 test("larger example", () => {
   const src = `

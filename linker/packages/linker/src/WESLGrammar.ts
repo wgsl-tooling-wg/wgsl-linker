@@ -134,8 +134,19 @@ const texture_storage_type = seq(
   () => opt_template_words,
 );
 
+const ptr_type = seq(
+  "ptr",
+  req("<"),
+  word,
+  req(","),
+  () => template_arg_expression,
+  opt(seq(",", word)),
+  req(">"),
+);
+
 export const type_specifier: Parser<TypeRefElem[]> = or(
   texture_storage_type,
+  ptr_type,
   std_type_specifier,
 ) as any;
 
