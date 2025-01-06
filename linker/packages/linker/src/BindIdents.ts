@@ -1,4 +1,4 @@
-import { debugNames } from "mini-parse";
+import { debugNames, srcLog } from "mini-parse";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
@@ -105,7 +105,13 @@ function bindIdentsRecursive(
               // dlog(`  > found new decl: ${identToString(foundDecl)}`);
             }
           } else {
-            console.log(`--- unresolved identifier: ${ident.originalName}`);
+            const { refIdentElem } = ident;
+            if (refIdentElem) {
+              const { srcModule, start, end } = refIdentElem;
+              const { filePath } = srcModule;
+              const msg = `unresolved identifier in file: ${filePath}`;
+              srcLog(srcModule.src, [start, end], msg);
+            }
           }
         }
       }

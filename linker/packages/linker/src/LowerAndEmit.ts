@@ -93,11 +93,11 @@ export function emitIdent(
   ctx: EmitContext,
 ): void {
   if ((e.ident as RefIdent).std) {
-    ctx.srcBuilder.add(e.ident.originalName, e.src, e.start, e.end);
+    ctx.srcBuilder.add(e.ident.originalName, e.srcModule.src, e.start, e.end);
   } else {
     const declIdent = findDecl(e.ident);
     const mangledName = displayName(declIdent);
-    ctx.srcBuilder.add(mangledName!, e.src, e.start, e.end);
+    ctx.srcBuilder.add(mangledName!, e.srcModule.src, e.start, e.end);
   }
 }
 

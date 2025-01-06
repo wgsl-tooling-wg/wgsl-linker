@@ -1,5 +1,5 @@
 import { ImportTree } from "./ImportTree.ts";
-import { DeclIdent, RefIdent } from "./Scope.ts";
+import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 
 export type AbstractElem2 =
   | AliasElem
@@ -16,7 +16,7 @@ export type AbstractElem2 =
   | StructElem
   | StructMemberElem
   | TextElem
-  | GlobalVarElem 
+  | GlobalVarElem
   | VarElem;
 
 export type DeclarationElem =
@@ -26,7 +26,7 @@ export type DeclarationElem =
   | ParamElem
   | FnElem
   | StructElem
-  | GlobalVarElem 
+  | GlobalVarElem
   | VarElem;
 
 export interface AbstractElemBase2 {
@@ -48,14 +48,14 @@ export interface ImportElem extends ElemWithContents {
 export interface RefIdentElem extends AbstractElemBase2 {
   kind: RefIdent["kind"];
   ident: RefIdent;
-  src: string; // TODO SrcModule
+  srcModule: SrcModule;
 }
 
 /** an identifier in WESL source */
 export interface DeclIdentElem extends AbstractElemBase2 {
   kind: DeclIdent["kind"];
   ident: DeclIdent;
-  src: string; // TODO SrcModule
+  srcModule: SrcModule;
 }
 
 /** a raw bit of text in WESL source that's typically copied to the linked WGSL. 

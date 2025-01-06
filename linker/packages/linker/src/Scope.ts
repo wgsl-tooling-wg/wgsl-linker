@@ -1,21 +1,15 @@
-import { dlog } from "berry-pretty";
-import { DeclarationElem } from "./AbstractElems2.ts";
+import { DeclarationElem, RefIdentElem } from "./AbstractElems2.ts";
 import { WeslAST } from "./ParseWESL.ts";
 
 export interface SrcModule {
   /** module path "rand_pkg::sub::foo", or "package::main" */
-  modulePath: string;
+  modulePath: string; // TODO drop this?
 
   /** file path to the module for user error reporting e.g "rand_pkg:sub/foo.wesl", or "./sub/foo.wesl" */
   filePath: string;
 
   /** original src for module */
   src: string;
-}
-
-export interface SrcLoc {
-  pos: number;
-  src: SrcModule;
 }
 
 /** a src declaration or reference to an ident */
@@ -35,6 +29,7 @@ export interface RefIdent extends IdentBase {
   std?: true; // true if this is a standard wgsl identifier (like sin, or u32)
   ast: WeslAST; // AST from module that contains this ident (to find imports during decl binding)
   scope: Scope; // scope containing this reference (bind to decls starting from this scope)
+  refIdentElem?: RefIdentElem; // for error reporting
 }
 
 export interface DeclIdent extends IdentBase {

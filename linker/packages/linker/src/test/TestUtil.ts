@@ -1,17 +1,22 @@
-import { NoTags, Parser, TagRecord } from "mini-parse";
-import { expectNoLog, testParse, TestParseResult } from "mini-parse/test-util";
+import { _withBaseLogger, NoTags, Parser, TagRecord } from "mini-parse";
+import {
+  expectNoLog,
+  logCatch,
+  testParse,
+  TestParseResult,
+} from "mini-parse/test-util";
 import { TaskContext } from "vitest";
 import { AbstractElem } from "../AbstractElems.js";
 import { linkWesl } from "../Linker2.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { blankWeslParseState, parseWESL, WeslAST } from "../ParseWESL.js";
+import { parseWESL, syntheticWeslParseState, WeslAST } from "../ParseWESL.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(
   parser: Parser<T, N>,
   src: string,
 ): TestParseResult<T, N, WeslAST> {
-  const appState = blankWeslParseState();
+  const appState = syntheticWeslParseState();
   return testParse(parser, src, mainTokens, appState);
 }
 
@@ -40,7 +45,7 @@ export function linkTestOpts(opts: LinkTestOpts, ...rawWgsl: string[]): string {
   return registry.link("./root", runtimeParams);
 }
 
-// TODO legacy test runner, remove 
+// TODO legacy test runner, remove
 export function testParseWgsl(src: string): AbstractElem[] {
   return expectNoLog(() => parseWESL(src, undefined, 500).elems);
 }
@@ -62,6 +67,21 @@ export function link2Test(...rawWgsl: string[]): string {
 
   const srcMap = linkWesl(wesl, "root");
   return srcMap.dest;
+}
+
+/** link wesl for tests, and return the console log as well */
+export function linkWithLog(...rawWgsl: string[]): {
+  log: string;
+  result: string;
+} {
+  const { log, logged } = logCatch();
+  let result = "???";
+  _withBaseLogger(log, () => {
+    try {
+      result = link2Test(...rawWgsl);
+    } catch (e) {}
+  });
+  return { result, log: logged() };
 }
 
 export function parse2Test(src: string): WeslAST {

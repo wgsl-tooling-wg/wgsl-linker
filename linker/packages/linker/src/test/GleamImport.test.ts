@@ -1,10 +1,10 @@
 import { testParse, TestParseResult } from "mini-parse/test-util";
 import { expect, TaskContext, test } from "vitest";
 import { gleamImport, gleamImportTokens } from "../GleamImport.js";
-import { blankWeslParseState, WeslAST, WeslParseState } from "../ParseWESL.js";
+import { syntheticWeslParseState } from "../ParseWESL.js";
 
 function expectParses(ctx: TaskContext): TestParseResult<void> {
-  const appState = blankWeslParseState();
+  const appState = syntheticWeslParseState();
   const result = testParse(
     gleamImport,
     ctx.task.name,
