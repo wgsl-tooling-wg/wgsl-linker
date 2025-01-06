@@ -146,12 +146,3 @@ export interface FnElem extends ElemWithContents {
   params: ParamElem[];
   returnType?: RefIdentElem;
 }
-
-// type ChunkChild = ChunkElem | IdentElem | TextElem;
-
-// /** kn undifferentiated chunk of WESL source */
-// export interface ChunkElem extends AbstractElemBase2 {
-//   kind: "chunk";
-//   elems: ChunkChild[];
-//   conditions?: any; // TODO
-// }
