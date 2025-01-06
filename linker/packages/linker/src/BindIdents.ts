@@ -83,7 +83,7 @@ function bindIdentsRecursive(
   const { globalNames, knownDecls } = bindContext;
   const newDecls: DeclIdent[] = []; // new decl idents to process (and return)
 
-  scope.idents.forEach((ident, i) => {
+  scope.idents.forEach(ident => {
     // dlog(`--- considering ident ${identToString(ident)}`);
     if (ident.kind === "ref") {
       if (!ident.refersTo && !ident.std) {
@@ -91,7 +91,7 @@ function bindIdentsRecursive(
           ident.std = true;
         } else {
           let foundDecl =
-            findDeclInModule(ident.scope, ident, i) ??
+            findDeclInModule(ident.scope, ident) ??
             findDeclImport(ident, parsed);
 
           if (foundDecl) {
@@ -170,21 +170,14 @@ function stdWgsl(name: string): boolean {
 function findDeclInModule(
   scope: Scope,
   ident: RefIdent,
-  identDex: number = scope.idents.length,
 ): DeclIdent | undefined {
-  const { idents, parent } = scope;
+  const { parent } = scope;
   const { originalName } = ident;
 
-  // dlog(`  |> findDeclInModule ${originalName}`);
-  // see if the declaration is in this scope
-  for (let i = identDex - 1; i >= 0; i--) {
-    const checkIdent = idents[i];
-    const { kind } = checkIdent;
-    if (kind === "decl" && originalName === checkIdent.originalName) {
-      // dlog(`  |> found decl in scope: ${identToString(checkIdent)}`);
-      return checkIdent;
-    }
-  }
+  const found = scope.idents.find(
+    i => i.kind === "decl" && i.originalName === originalName,
+  );
+  if (found) return found as DeclIdent;
 
   // recurse to check all idents in parent scope
   if (parent) {

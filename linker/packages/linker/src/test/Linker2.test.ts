@@ -57,3 +57,15 @@ test("handle a ptr type", () => {
   const result = link2Test(src);
   matchTrimmed(result, src);
 });
+
+test("struct after var", () => {
+  const src = `
+    var config: TwoPassConfig;
+
+    struct TwoPassConfig {
+      x: u32,
+    }
+  `;
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
