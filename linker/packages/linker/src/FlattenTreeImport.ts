@@ -1,3 +1,4 @@
+import { tracing } from "mini-parse";
 import {
   ImportTree,
   PathSegment,
@@ -52,7 +53,7 @@ export function flattenTreeImport(imp: ImportTree): FlatImport[] {
       );
     }
 
-    console.error("unknown segment type", segment); // should be impossible
+    if (tracing) console.error("unknown segment type", segment); // should be impossible
     return [];
   }
 }
