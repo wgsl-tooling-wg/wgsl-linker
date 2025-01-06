@@ -179,6 +179,8 @@ test("texture_storage_2d", () => {
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`"{ %tex_out }"`);
 });
 
+// TODO add test for ptr type 
+
 test("larger example", () => {
   const src = `
     struct UBO { width : u32, }

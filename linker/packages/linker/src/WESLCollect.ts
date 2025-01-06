@@ -127,67 +127,19 @@ type VarLikeElem =
   | OverrideElem
   | AliasElem;
 
-const textureStorageType =
-  /texture_storage_1d|texture_storage_2d|texture_storage_2d_array|texture_storage_3d/;
-
 export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     // dlog({ tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
-    const typeRef = handleTypeRef(cc);
+    const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
     name.ident.scope = decl_scope;
     return varElem;
-  });
-}
-
-/** @return a RefIdent captured from the 'typeRef' tag in the grammar
- * If the typeRef is to a texture storage type, or a ptr,
- * examing the template parmeters found via the 'typeTemplate' tag in the grammar.
- *
- * The mutate the current scope to remove the template parameters that refer
- * to type constructor enumerants lest we try to bind them as symbols later.
- * We want to remove things like address spaces (e.g. 'function'),
- * texture formats (e.g. 'rgbaunorm'), and access modes (e.g. 'write').
- */
-function handleTypeRef(cc: CollectContext): RefIdentElem | undefined {
-  const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
-  if (!typeRef) {
-    return;
-  }
-  const templateTag = cc.tags.typeTemplate?.[0] as RefIdentElem[][] | undefined;
-
-  if (textureStorageType.test(typeRef.ident.originalName)) {
-    const template = templateTag?.flat(8);
-    if (template && template.length) {
-      const templateIdents = template.map(t => t.ident);
-      console.log(identToString(typeRef.ident));
-      console.log(scopeIdentTree(cc.app.context.scope));
-      const scope = (cc.app.context as WeslParseContext).scope;
-      const newIdents = scope.idents.filter(
-        i => !templateIdents.includes(i as any),
-      );
-      scope.idents = newIdents;
-      console.log(scopeIdentTree(cc.app.context.scope));
-    }
-  }
-  return typeRef;
-}
-
-/** @return a synthetic scope useful for ident binding, but
- * not part of the scope tree */
-function pseudoScope(refIdent: RefIdent): Scope {
-  dlog(identToString(refIdent));
-  return makeScope({
-    idents: [refIdent],
-    parent: null,
-    children: [],
-    kind: "decl-scope",
   });
 }
 

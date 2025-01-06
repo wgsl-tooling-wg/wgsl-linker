@@ -120,7 +120,7 @@ export const fnNameDecl = req(
 
 const std_type_specifier = seq(
   word.tag(possibleTypeRef).collect(refIdent, "type_specifier").ctag("typeRef"),
-  () => opt_template_list, // .ctag("typeTemplate"),
+  () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
@@ -135,7 +135,7 @@ const texture_storage_type = seq(
     "texture_storage_2d",
     "texture_storage_1d",
     "texture_storage_3d",
-  ), // TODO add to tokenizer instead
+  ), // TODO try tokenizer instead of using or()
   () => opt_template_words,
 );
 
