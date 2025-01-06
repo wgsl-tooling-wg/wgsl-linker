@@ -2,12 +2,11 @@ import { debugNames } from "mini-parse";
 import { DeclarationElem } from "./AbstractElems2.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
+import { flatImports, WeslAST } from "./ParseWESL.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
-import { identToString, scopeIdentTree } from "./ScopeLogging.ts";
+import { identToString } from "./ScopeLogging.ts";
 import { stdFn, stdType } from "./TraverseRefs.ts";
 import { last, overlapTail } from "./Util.ts";
-import { dlog } from "berry-pretty";
-import { flatImports, WeslAST } from "./ParseWESL.ts";
 
 /**
  * Bind active reference idents to declaration Idents by mutating the refersTo: field
