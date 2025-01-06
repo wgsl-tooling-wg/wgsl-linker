@@ -215,10 +215,10 @@ test("larger example", () => {
 
   const { rootScope } = parseWESL(src);
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
-    "{ %UBO, %Buffer, uniform, %ubo, UBO, storage, read, 
-      %buf_in, Buffer, storage, read_write, %buf_out, Buffer, 
-      %tex_in, texture_2d, f32, %tex_out, texture_storage_2d, 
-      rgba8unorm, write, %import_level, %export_level
+    "{ %UBO, %Buffer, %ubo, UBO, %buf_in, Buffer, %buf_out, 
+      Buffer, %tex_in, texture_2d, f32, %tex_out, 
+      texture_storage_2d, rgba8unorm, write, %import_level, 
+      %export_level
       { u32 }
       { array, f32 }
       { %coord, vec3u, buf_in, %offset, coord, coord, ubo, 

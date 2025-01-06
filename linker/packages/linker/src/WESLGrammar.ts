@@ -191,19 +191,17 @@ const fnParam = tagScope(
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
 
-const variable_decl_prefix = seq(
+const local_variable_decl = seq(
   "var",
   () => opt_template_list,
   req_optionally_typed_ident,
-);
-
-const local_variable_decl = seq(
-  variable_decl_prefix,
   opt(seq("=", () => expression)),
 ).collect(collectVarLike("var"), "variable_decl");
 
 const global_variable_decl = seq(
-  variable_decl_prefix,
+  "var",
+  () => opt_template_words,
+  req_optionally_typed_ident,
   opt(seq("=", () => expression.collect(scopeCollect()).ctag("decl_scope"))),
 );
 
@@ -214,6 +212,15 @@ const opt_template_list = opt(
     withSepPlus(",", () => template_arg_expression),
     tokens(bracketTokens, ">"),
   ).tag("template"),
+);
+
+/** template list of non-identifier words. e.g. var <storage> */
+const opt_template_words = opt(
+  seq(
+    tokens(bracketTokens, "<"),
+    withSepPlus(",", () => word),
+    tokens(bracketTokens, ">"),
+  )
 );
 
 const template_elaborated_ident = seq(
@@ -538,7 +545,6 @@ if (tracing) {
     fn_call,
     fnParam,
     fnParamList,
-    variable_decl_prefix,
     local_variable_decl,
     global_variable_decl,
     opt_template_list,
