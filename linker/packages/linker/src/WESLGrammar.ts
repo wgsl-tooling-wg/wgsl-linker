@@ -317,6 +317,7 @@ const for_statement = seq(
     req(";"),
     opt(for_update),
     req(")"),
+    unscoped_compound_statement,
   ).collect(scopeCollect()),
 );
 
