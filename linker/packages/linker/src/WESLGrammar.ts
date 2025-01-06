@@ -44,7 +44,7 @@ import {
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
-const qualified_ident = withSep("::", word);
+const qualified_ident = withSepPlus("::", word);
 
 const diagnostic_rule_name = withSep(".", word, { requireOne: true });
 const diagnostic_control = seq(

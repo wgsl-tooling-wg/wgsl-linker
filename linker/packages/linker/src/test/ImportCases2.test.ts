@@ -311,6 +311,16 @@ test("const referenced by imported fn", ctx => {
   });
 });
 
+test.skip("fn call with a separator", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn main() { bar(); }
+
+        fn bar() { }
+    `,
+  });
+});
+
 // TODO add case for const_assert in non root module
 // TODO add case for diagnostic in non-root module (should fail?)
 
