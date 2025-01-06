@@ -27,7 +27,7 @@ import {
   SimpleSegment,
   Wildcard,
 } from "./ImportTree.js";
-import { digits, eol, word } from "./MatchWgslD.js";
+import { digits, eol, ident} from "./MatchWgslD.js";
 import { makeElem } from "./ParseSupport.js";
 import { importElem, importList, importSegment } from "./WESLCollect.js";
 
@@ -46,7 +46,7 @@ const ws = /\s+/;
 export const gleamImportTokens = tokenMatcher({
   ws,
   gleamImportSymbol,
-  word,
+  ident,
   digits,
 });
 
@@ -64,7 +64,7 @@ export const eolTokens = tokenMatcher({
 const eolf = disablePreParse(
   makeEolf(eolTokens, gleamImportTokens.ws).traceName("gleam_eolf"),
 );
-const wordToken = kind(gleamImportTokens.word);
+const wordToken = kind(gleamImportTokens.ident);
 const pkgToken = kind(packageTokens.pkg);
 
 // forward references for mutual recursion

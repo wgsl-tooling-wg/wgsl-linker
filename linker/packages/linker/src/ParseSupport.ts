@@ -21,7 +21,10 @@ import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 
-export const word = kind(mainTokens.word);
+export const word = or(
+  kind(mainTokens.ident),
+  kind(mainTokens.textureStorage),
+);
 
 export const unknown = any().map(r => {
   const { kind, text } = r.value;

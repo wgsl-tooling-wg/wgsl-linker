@@ -87,7 +87,7 @@ const attribute = seq(
       ),
       // Everything else is also a normal attribute, it might have an expression list
       seq(
-        kind(mainTokens.word),
+        word,
         opt(() => argument_expression_list),
       ),
     ),
@@ -130,16 +130,11 @@ const std_type_specifier = seq(
 );
 
 const texture_storage_type = seq(
-  or(
-    "texture_storage_2d_array",
-    "texture_storage_2d",
-    "texture_storage_1d",
-    "texture_storage_3d",
-  ), // TODO try tokenizer instead of using or()
+  kind(mainTokens.textureStorage),
   () => opt_template_words,
 );
 
-const type_specifier: Parser<TypeRefElem[]> = or(
+export const type_specifier: Parser<TypeRefElem[]> = or(
   texture_storage_type,
   std_type_specifier,
 ) as any;

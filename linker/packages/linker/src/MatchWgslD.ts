@@ -18,8 +18,7 @@ const symbolSet =
 const symbol = matchOneOf(symbolSet);
 const quote = /["']/;
 
-// TODO rename to ident or ident_pattern_token..
-export const word =
+export const ident =
   /(?:(?:[_\p{XID_Start}][\p{XID_Continue}]+)|(?:[\p{XID_Start}]))/u;
 
 export const digits = new RegExp(
@@ -38,11 +37,16 @@ export const digits = new RegExp(
     /|(?:0[iu]?)|(?:[1-9][0-9]*[iu]?)/.source,
 );
 
+const textureStorage = matchOneOf(
+  "texture_strorage_1d texture_storage_2d texture_storage_2d_array texture_storage_3d",
+);
+
 /** matching tokens at wgsl root level */
 export const mainTokens = tokenMatcher(
   {
     directive,
-    word,
+    textureStorage,
+    ident,
     digits,
     symbol,
     quote,
@@ -111,7 +115,7 @@ export const treeImportTokens = tokenMatcher(
     quote,
     ws: blankspaces,
     importSymbol,
-    word,
+    ident,
     digits,
   },
   "treeTokens",
