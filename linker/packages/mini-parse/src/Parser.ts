@@ -236,9 +236,9 @@ export class Parser<T, N extends TagRecord = NoTags> {
    * only succsessful parses are collected. */
   collect<U>(
     fn: CollectFn<U> | CollectPair<U>,
-    collectName = "",
+    ctag?: string
   ): Parser<T, N> {
-    return collect(this, fn, collectName);
+    return collect(this, fn, ctag);
   }
 
   /** switch next parser based on results */

@@ -147,3 +147,18 @@ test("tagScope resets original tags", () => {
   testParse(p, "a b");
   expect(results).toEqual([{ atag: ["a"] }]);
 });
+
+test("collect with ctag param", () => {
+  const src = "a b";
+  const results: string[] = [];
+  const p = seq(
+    "a",
+    text("b")
+      .collect(() =>  "B", "tagged"),
+  ).collect( cc => {
+    results.push(`tagged: ${cc.tags.tagged}`);
+  });
+
+  testParse(p, src);
+  expect(results).toEqual(["tagged: B"]);
+})

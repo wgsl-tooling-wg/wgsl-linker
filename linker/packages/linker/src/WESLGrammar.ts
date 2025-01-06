@@ -105,21 +105,21 @@ const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
-  word.collect(declIdentElem, "typeNameDecl").ctag("typeName").tag("name"),
+  word.collect(declIdentElem, "typeName").tag("name"),
 ).map(r => {
   return makeElem("typeName", r, ["name"]) as TypeNameElem;
 });
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.tag("name").collect(declIdentElem, "fnNameDecl").ctag("fnName"),
+  word.tag("name").collect(declIdentElem, "fnName"),
   "missing fn name",
 ).map(r => {
   return makeElem("fnName", r, ["name"]);
 });
 
 const std_type_specifier = seq(
-  word.tag(possibleTypeRef).collect(refIdent, "type_specifier").ctag("typeRef"),
+  word.tag(possibleTypeRef).collect(refIdent, "typeRef"),
   () => opt_template_list,
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
@@ -151,10 +151,7 @@ export const type_specifier: Parser<TypeRefElem[]> = or(
 ) as any;
 
 const optionally_typed_ident = seq(
-  word
-    .tag("name")
-    .collect(declIdentElem, "optionally_typed_ident")
-    .ctag("declIdent"),
+  word.tag("name").collect(declIdentElem, "declIdent"),
   opt(seq(":", type_specifier.tag("typeRefs"))),
 );
 
@@ -162,7 +159,7 @@ const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const struct_member = seq(
   opt_attributes,
-  word.tag("name").collect(collectNameElem).ctag("nameElem"),
+  word.tag("name").collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier.tag("typeRefs")),
 )
@@ -178,9 +175,7 @@ export const struct_decl = seq(
     req("{"),
     withSepPlus(",", struct_member).ptag("members").tag("members"),
     req("}"),
-  )
-    .collect(scopeCollect())
-    .ctag("struct_scope"),
+  ).collect(scopeCollect(), "struct_scope"),
 )
   .collect(collectStruct())
   .map(r => {
@@ -205,7 +200,7 @@ export const fn_call = seq(
 const fnParam = tagScope(
   seq(
     opt_attributes,
-    word.collect(declIdentElem).ctag("paramName"),
+    word.collect(declIdentElem, "paramName"),
     opt(seq(":", req(type_specifier.tag("typeRefs")))),
   ).collect(collectFnParam()),
 ).ctag("fnParam");
@@ -223,7 +218,7 @@ const global_variable_decl = seq(
   "var",
   () => opt_template_words,
   req_optionally_typed_ident,
-  opt(seq("=", () => expression.collect(scopeCollect()).ctag("decl_scope"))),
+  opt(seq("=", () => expression.collect(scopeCollect(), "decl_scope"))),
 );
 
 /** Aka template_elaborated_ident.post.ident */
@@ -449,9 +444,7 @@ export const fn_decl = seq(
       ),
     ),
     req(unscoped_compound_statement),
-  )
-    .collect(scopeCollect())
-    .ctag("body_scope"),
+  ).collect(scopeCollect(), "body_scope"),
 )
   .collect(collectFn())
   .map(r => {
@@ -469,23 +462,21 @@ const global_value_decl = or(
     opt_attributes,
     "override",
     optionally_typed_ident,
-    seq(opt(seq("=", expression.collect(scopeCollect()).ctag("decl_scope")))),
+    seq(opt(seq("=", expression.collect(scopeCollect(), "decl_scope")))),
     ";",
   ).collect(collectVarLike("override")),
   seq(
     "const",
     optionally_typed_ident,
     "=",
-    seq(expression).collect(scopeCollect()).ctag("decl_scope"),
+    seq(expression).collect(scopeCollect(), "decl_scope"),
     ";",
   ).collect(collectVarLike("const")),
 );
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name"))
-    .collect(declIdentElem, "global_alias")
-    .ctag("declIdent"),
+  req(word.tag("name")).collect(declIdentElem, "declIdent"),
   req("="),
   req(type_specifier).tag("typeRefs"),
   req(";"),

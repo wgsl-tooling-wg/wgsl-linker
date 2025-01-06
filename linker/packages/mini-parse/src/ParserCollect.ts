@@ -51,15 +51,29 @@ export interface CollectPair<V> {
 
 /** Queue a collection function that runs later, when a commit() is parsed.
  * Collection functions are dropped with parser backtracking, so
- * only succsessful parses are collected. */
+ * only succsessful parses are collected. 
+ * 
+ * optionally tag the collection results
+ * */
 export function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
   collectFn: CollectFn<V> | CollectPair<V>,
-  debugName: string, // for debug
+  ctag?: string, 
 ): Parser<T, N> {
-  const afterFn: CollectFn<V> =
+  const origAfter: CollectFn<V> =
     (collectFn as CollectPair<V>).after ?? collectFn;
   const beforeFn = (collectFn as Partial<CollectPair<V>>).before;
+  
+  let afterFn = origAfter;
+  if (ctag) {
+    afterFn = (cc: CollectContext) => {
+      const result = origAfter(cc);
+      addTagValue(cc.tags, ctag, result);
+      return result;
+    }; 
+  }
+
+  const debugName = ctag ? `${p.debugName}-${ctag}` : `${p.debugName}`;
 
   const collectParser = parser(
     `collect`,
