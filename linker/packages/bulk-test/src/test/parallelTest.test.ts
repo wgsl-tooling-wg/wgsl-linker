@@ -1,7 +1,7 @@
 import { expectNoLog } from "mini-parse/test-util";
 import fs from "node:fs/promises";
 import { test } from "vitest";
-import { ModuleRegistry } from "wgsl-linker";
+import { linkWeslFiles, noSuffix } from "wgsl-linker";
 import { findBulkTestPaths } from "../findBulkTests.ts";
 
 export interface NamedPath {
@@ -21,13 +21,7 @@ export function testWgslFiles(namedPaths: NamedPath[]) {
     const shortPath = "./" + name;
     test(name, async () => {
       const text = await fs.readFile(filePath, { encoding: "utf8" });
-      expectNoLog(() => {
-        const registry = new ModuleRegistry({ wgsl: { [shortPath]: text } });
-        registry.parsed();
-
-        // TODO-lee more validation, not just parsing
-        // registry.link(shortPath);
-      });
+      expectNoLog(() => linkWeslFiles({ [shortPath]: text }, noSuffix(name)));
     });
   });
 }
