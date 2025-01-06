@@ -9,12 +9,12 @@ import {
   ElemWithContents,
   FnElem,
   GlobalVarElem,
-  RefIdentElem,
   ImportElem,
   ModuleElem,
   NameElem,
   OverrideElem,
   ParamElem,
+  RefIdentElem,
   StructElem,
   StructMemberElem,
   TextElem,
@@ -34,7 +34,7 @@ import {
   RefIdent,
   Scope,
 } from "./Scope.ts";
-import { identToString } from "./ScopeLogging.ts";
+import { identToString, scopeIdentTree } from "./ScopeLogging.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
@@ -76,7 +76,10 @@ export function declIdentElem(cc: CollectContext): DeclIdentElem {
 
 let identId = 0;
 /** add Ident to current open scope, add IdentElem to current open element */
-function saveIdent(cc: CollectContext, identElem: RefIdentElem | DeclIdentElem) {
+function saveIdent(
+  cc: CollectContext,
+  identElem: RefIdentElem | DeclIdentElem,
+) {
   const { ident } = identElem;
   ident.id = identId++;
   const weslContext: WeslParseContext = cc.app.context;
@@ -124,26 +127,56 @@ type VarLikeElem =
   | OverrideElem
   | AliasElem;
 
+const textureStorageType =
+  /texture_storage_1d|texture_storage_2d|texture_storage_2d_array|texture_storage_3d/;
+
 export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     // dlog({ tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
-    const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
+    const typeRef = handleTypeRef(cc);
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
     name.ident.scope = decl_scope;
-    // dlog({
-    //   varElem: elemToString(varElem),
-    //   name: elemToString(name),
-    //   typeRef: typeRef ? elemToString(typeRef) : "undefined",
-    // });
-
     return varElem;
   });
+}
+
+/** @return a RefIdent captured from the 'typeRef' tag in the grammar
+ * If the typeRef is to a texture storage type, or a ptr,
+ * examing the template parmeters found via the 'typeTemplate' tag in the grammar.
+ *
+ * The mutate the current scope to remove the template parameters that refer
+ * to type constructor enumerants lest we try to bind them as symbols later.
+ * We want to remove things like address spaces (e.g. 'function'),
+ * texture formats (e.g. 'rgbaunorm'), and access modes (e.g. 'write').
+ */
+function handleTypeRef(cc: CollectContext): RefIdentElem | undefined {
+  const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
+  if (!typeRef) {
+    return;
+  }
+  const templateTag = cc.tags.typeTemplate?.[0] as RefIdentElem[][] | undefined;
+
+  if (textureStorageType.test(typeRef.ident.originalName)) {
+    const template = templateTag?.flat(8);
+    if (template && template.length) {
+      const templateIdents = template.map(t => t.ident);
+      console.log(identToString(typeRef.ident));
+      console.log(scopeIdentTree(cc.app.context.scope));
+      const scope = (cc.app.context as WeslParseContext).scope;
+      const newIdents = scope.idents.filter(
+        i => !templateIdents.includes(i as any),
+      );
+      scope.idents = newIdents;
+      console.log(scopeIdentTree(cc.app.context.scope));
+    }
+  }
+  return typeRef;
 }
 
 /** @return a synthetic scope useful for ident binding, but

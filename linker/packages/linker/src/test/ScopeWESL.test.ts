@@ -162,14 +162,21 @@ test("fn decl scope", () => {
 });
 
 test("builtin scope", () => {
-  const src = `
-  fn main( @builtin(vertex_index) a: u32) { }`;
+  const src = `fn main( @builtin(vertex_index) a: u32) { }`;
   const { rootScope } = parseWESL(src);
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
     "{ %main
       { %a, u32 }
     }"
   `);
+});
+
+test("texture_storage_2d", () => {
+  const src = `
+    @binding(3) @group(0) var tex_out : texture_storage_2d<rgba8unorm, write>;
+  `;
+  const { rootScope } = parseWESL(src);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`"{ %tex_out }"`);
 });
 
 test("larger example", () => {
@@ -214,8 +221,7 @@ test("larger example", () => {
   const { rootScope } = parseWESL(src);
   expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
     "{ %UBO, %Buffer, %ubo, UBO, %buf_in, Buffer, %buf_out, 
-      Buffer, %tex_in, texture_2d, f32, %tex_out, 
-      texture_storage_2d, rgba8unorm, write, %import_level, 
+      Buffer, %tex_in, texture_2d, f32, %tex_out, %import_level, 
       %export_level
       { u32 }
       { array, f32 }

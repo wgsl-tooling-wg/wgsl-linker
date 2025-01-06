@@ -118,9 +118,9 @@ export const fnNameDecl = req(
   return makeElem("fnName", r, ["name"]);
 });
 
-export const type_specifier: Parser<TypeRefElem[]> = seq(
+const std_type_specifier = seq(
   word.tag(possibleTypeRef).collect(refIdent, "type_specifier").ctag("typeRef"),
-  () => opt_template_list,
+  () => opt_template_list, // .ctag("typeTemplate"),
 ).map(r =>
   r.tags[possibleTypeRef].map(name => {
     const e = makeElem("typeRef", r as ExtendedResult<any>);
@@ -128,6 +128,21 @@ export const type_specifier: Parser<TypeRefElem[]> = seq(
     return e as Required<typeof e>;
   }),
 );
+
+const texture_storage_type = seq(
+  or(
+    "texture_storage_2d_array",
+    "texture_storage_2d",
+    "texture_storage_1d",
+    "texture_storage_3d",
+  ), // TODO add to tokenizer instead
+  () => opt_template_words,
+);
+
+const type_specifier: Parser<TypeRefElem[]> = or(
+  texture_storage_type,
+  std_type_specifier,
+) as any;
 
 const optionally_typed_ident = seq(
   word
@@ -220,7 +235,7 @@ const opt_template_words = opt(
     tokens(bracketTokens, "<"),
     withSepPlus(",", () => word),
     tokens(bracketTokens, ">"),
-  )
+  ),
 );
 
 const template_elaborated_ident = seq(
