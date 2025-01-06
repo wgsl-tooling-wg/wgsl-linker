@@ -64,16 +64,6 @@ export const bracketTokens = tokenMatcher(
   "bracket",
 );
 
-export const identTokens = tokenMatcher(
-  {
-    ws: blankspaces,
-    symbol,
-    digits,
-    quote,
-  },
-  "longIdent",
-);
-
 export const moduleTokens = tokenMatcher(
   {
     ws: blankspaces,
@@ -104,21 +94,6 @@ export const argsTokens = tokenMatcher(
     eol,
   },
   "argsTokens",
-);
-
-const treeImportSymbolSet = ":: { } , ( ) _ . ; *";
-const importSymbol = matchOneOf(treeImportSymbolSet);
-
-export const treeImportTokens = tokenMatcher(
-  {
-    directive,
-    quote,
-    ws: blankspaces,
-    importSymbol,
-    ident,
-    digits,
-  },
-  "treeTokens",
 );
 
 export const rootWs = tokenMatcher(
