@@ -136,7 +136,7 @@ export interface StructMemberElem extends ElemWithContents {
 export interface NameElem extends AbstractElemBase2 {
   kind: "name";
   name: string;
-  src: string; // TODO SrcModule
+  srcModule: SrcModule;
 }
 
 /** a function declaration */

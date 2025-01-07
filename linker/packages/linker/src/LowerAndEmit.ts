@@ -78,7 +78,7 @@ export function emitText(e: TextElem, ctx: EmitContext): void {
 }
 
 export function emitName(e: NameElem, ctx: EmitContext): void {
-  ctx.srcBuilder.add(e.name, e.src, e.start, e.end);
+  ctx.srcBuilder.add(e.name, e.srcModule.src, e.start, e.end);
 }
 
 export function emitContents(

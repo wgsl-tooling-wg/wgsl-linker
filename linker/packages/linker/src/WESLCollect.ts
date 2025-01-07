@@ -205,9 +205,10 @@ export function collectStructMember(): CollectPair<StructMemberElem> {
 }
 
 export function collectNameElem(cc: CollectContext): NameElem {
-  const { start, end, src } = cc;
+  const { start, end, src, app } = cc;
+  const { srcModule } = app.stable as WeslAST;
   const name = src.slice(start, end);
-  const elem: NameElem = { kind: "name", src, start, end, name };
+  const elem: NameElem = { kind: "name", srcModule, start, end, name };
   addToOpenElem(cc, elem);
   return elem;
 }
