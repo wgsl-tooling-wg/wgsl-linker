@@ -1,4 +1,3 @@
-module main
-import util/bar
+import ./wgsl_1/util/bar;
 
 fn main() { bar(); }
