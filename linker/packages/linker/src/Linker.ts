@@ -21,9 +21,6 @@ type DirectiveRef = {
 
 type LoadableRef = TextRef | DirectiveRef;
 
-/** TODO a simple wrapper */
-export function link(args: RegistryParams) {}
-
 /**
  * Produce a linked wgsl string with all directives processed
  * (e.g. #import'd functions from other modules are inserted into the resulting string).
