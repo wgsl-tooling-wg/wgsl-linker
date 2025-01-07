@@ -1,4 +1,3 @@
-import { TestParseResult } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import { importSyntaxCases } from "wesl-testsuite";
 import { gleamImport } from "../GleamImport.js";
@@ -6,13 +5,12 @@ import { testAppParse } from "./TestUtil.js";
 
 function expectParseFail(src: string): void {
   const result = testAppParse(gleamImport, src);
-  expect(result.parsed).toBeNull();
+  expect(result.stable.imports).toEqual([]);
 }
 
-function expectParses(src: string): TestParseResult<void> {
+function expectParses(src: string): void {
   const result = testAppParse(gleamImport, src);
-  expect(result.parsed).not.toBeNull();
-  return result;
+  expect(result.stable.imports.length).toBeGreaterThan(0);
 }
 
 importSyntaxCases.forEach(c => {
