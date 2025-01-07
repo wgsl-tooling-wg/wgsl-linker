@@ -83,8 +83,6 @@ export function text(value: string): Parser<string, NoTags> {
   );
 }
 
-let seqId = 0; // for debug for now, LATER remove
-
 /** Parse a sequence of parsers
  * @return an array of all parsed results, or null if any parser fails */
 export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
@@ -105,7 +103,7 @@ export function seq<P extends CombinatorArg[]>(...args: P): SeqParser<P> {
     }
     if (failed) return null;
     return { value: values, tags: tagged };
-  }).collect({ before: pushOpenArray, after: closeArray }, `seq-${seqId++}`);
+  }).collect({ before: pushOpenArray, after: closeArray });
 
   trackChildren(seqParser, ...parsers);
 
