@@ -127,7 +127,11 @@ async function loadAllFiles(): Promise<LoadedFile[]> {
     "reduceBuffer",
     "../../../community-wgsl/webgpu-samples/sample/particles/particle.wgsl",
   );
-  return [reduceBuffer, particle];
+  const boat = await loadFile(
+    "unity_webgpu_0000026E5689B260",
+    "../../../community-wgsl/unity_web_research/webgpu/wgsl/boat_attack/unity_webgpu_0000026E5689B260.fs.wgsl",
+  );
+  return [particle, reduceBuffer, boat];
 }
 
 async function loadFile(name: string, path: string): Promise<LoadedFile> {
