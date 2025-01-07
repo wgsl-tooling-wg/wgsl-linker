@@ -74,7 +74,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
 }
 
 export function emitText(e: TextElem, ctx: EmitContext): void {
-  ctx.srcBuilder.addCopy(e.src, e.start, e.end);
+  ctx.srcBuilder.addCopy(e.srcModule.src, e.start, e.end);
 }
 
 export function emitName(e: NameElem, ctx: EmitContext): void {

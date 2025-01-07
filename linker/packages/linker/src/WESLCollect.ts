@@ -25,7 +25,12 @@ import {
   SegmentList,
   SimpleSegment,
 } from "./ImportTree.ts";
-import { StableState, WeslParseContext, WeslParseState } from "./ParseWESL.ts";
+import {
+  StableState,
+  WeslAST,
+  WeslParseContext,
+  WeslParseState,
+} from "./ParseWESL.ts";
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
 
 /** add an elem to the .contents array of the currently containing element */
@@ -309,7 +314,8 @@ function coverWithText(
   existing: AbstractElem2[],
 ): AbstractElem2[] {
   let { start: pos } = cc;
-  const { end, src } = cc;
+  const { end, app } = cc;
+  const ast: WeslAST = app.stable;
   const sorted = existing.sort((a, b) => a.start - b.start);
 
   const elems = sorted.flatMap(elem => {
@@ -325,6 +331,6 @@ function coverWithText(
   return elems;
 
   function makeTextElem(end: number): TextElem {
-    return { kind: "text", start: pos, end, src };
+    return { kind: "text", start: pos, end, srcModule: ast.srcModule };
   }
 }

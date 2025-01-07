@@ -49,7 +49,12 @@ function addVarishFields(
   str: LineWrapper,
 ): true | undefined {
   const { kind } = elem;
-  if (kind === "var" || kind === "gvar" || kind === "const" || kind === "override") {
+  if (
+    kind === "var" ||
+    kind === "gvar" ||
+    kind === "const" ||
+    kind === "override"
+  ) {
     str.add(" " + elem.name.ident.originalName);
     if (elem.typeRef) {
       str.add(":" + elem.typeRef.ident.originalName);
@@ -63,32 +68,25 @@ function addTextFields(
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "text") {
-    const { src, start, end } = elem;
-    str.add(` '${src.slice(start, end)}'`);
+    const { srcModule, start, end } = elem;
+    str.add(` '${srcModule.src.slice(start, end)}'`);
     return true;
   }
 }
 
-function addRefIdent(
-  elem: AbstractElem2,
-  str: LineWrapper,
-): true | undefined {
+function addRefIdent(elem: AbstractElem2, str: LineWrapper): true | undefined {
   if (elem.kind === "ref") {
     str.add(" " + elem.ident.originalName);
     return true;
   }
 }
 
-function addDeclIdent(
-  elem: AbstractElem2,
-  str: LineWrapper,
-): true | undefined {
+function addDeclIdent(elem: AbstractElem2, str: LineWrapper): true | undefined {
   if (elem.kind === "decl") {
     str.add(" %" + elem.ident.originalName);
     return true;
   }
 }
-
 
 function addAliasFields(
   elem: AbstractElem2,

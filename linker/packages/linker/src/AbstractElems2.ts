@@ -63,7 +63,7 @@ export interface DeclIdentElem extends AbstractElemBase2 {
 */
 export interface TextElem extends AbstractElemBase2 {
   kind: "text";
-  src: string; // TODO SrcModule
+  srcModule: SrcModule;
 }
 
 /** a parameter in a function declaration */
