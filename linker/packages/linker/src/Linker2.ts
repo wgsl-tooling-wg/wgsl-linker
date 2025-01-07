@@ -1,4 +1,4 @@
-import { SrcMap, SrcMapBuilder } from "mini-parse";
+import { SrcMap, SrcMapBuilder, tracing } from "mini-parse";
 import { bindIdents } from "./BindIdents.ts";
 import { flattenTreeImport } from "./FlattenTreeImport.ts";
 import { lowerAndEmit } from "./LowerAndEmit.ts";
@@ -90,6 +90,10 @@ export function linkRegistry(
   // get a reference to the root module
   const found = selectModule(parsed, rootModuleName);
   if (!found) {
+    if (tracing) {
+      console.log(`parsed modules: ${Object.keys(parsed.modules)}`); 
+      console.log(`root module not found: ${rootModuleName}`); 
+    }
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { moduleElem: rootModule } = found;
