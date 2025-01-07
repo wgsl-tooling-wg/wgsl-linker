@@ -1,4 +1,4 @@
-import { SrcMapBuilder } from "mini-parse";
+import { SrcMapBuilder, tracing } from "mini-parse";
 import {
   AbstractElem2,
   DeclIdentElem,
@@ -105,8 +105,7 @@ function displayName(declIdent: DeclIdent): string {
   if (declIdent.declElem && isGlobal(declIdent.declElem)) {
     // mangled name was set in binding step
     const mangledName = declIdent.mangledName;
-    if (!mangledName) {
-      // TODO wrap in 'debug' build time conditional
+    if (tracing && !mangledName) {
       console.log(
         "ERR: mangled name not found for decl ident",
         identToString(declIdent),
