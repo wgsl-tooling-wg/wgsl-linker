@@ -235,6 +235,7 @@ function findExport(
   const modulePath = legacyConvert.slice(0, -1).join("::");
   const module = parsed.modules[modulePath];
   if (!module) {
+    // TODO show error with source location
     console.log(
       `ident ${modulePathParts.join("::")} in import statement, but module not found`,
     );
