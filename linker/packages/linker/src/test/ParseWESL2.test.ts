@@ -631,16 +631,6 @@ test("import ./foo/bar;", ctx => {
   `);
 });
 
-test("import ./file1/{foo, bar}", ctx => {
-  const src = ctx.task.name;
-  const ast = parse2Test(src);
-  const astString = astTree(ast.moduleElem);
-  expect(astString).toMatchInlineSnapshot(`
-    "module
-      import package/file1/{(foo), (bar)}
-        text 'import ./file1/{foo, bar}'"
-  `);
-});
 
 // TODO
 test.skip("parse foo::bar(); ", () => {
@@ -847,5 +837,27 @@ test("var foo: vec2<f32 >= vec2( 0.5, -0.5);", ctx => {
         text ' >= '
         ref vec2
         text '( 0.5, -0.5);'"
+  `);
+});
+
+test("import ./a/b/c", ctx => {
+  const ast = parse2Test(ctx.task.name);
+  const astString = astTree(ast.moduleElem);
+  console.log(astString);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import package/a/b/c
+        text 'import ./a/b/c'"
+  `);
+})
+
+test("import ./file1/{foo, bar}", ctx => {
+  const src = ctx.task.name;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.moduleElem);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import package/file1/{foo, bar}
+        text 'import ./file1/{foo, bar}'"
   `);
 });

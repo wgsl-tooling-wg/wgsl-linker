@@ -229,9 +229,8 @@ export function collectModule():
 }
 
 export function importList(cc: CollectContext): SegmentList {
-  const list = cc.tags.list?.flat(2) as PathSegment[];
-  const elems = list.map(l => new ImportTree([l]));
-  return new SegmentList(elems);
+  const list = cc.tags.list as PathSegment[];
+  return new SegmentList(list);
 }
 
 export function importSegment(cc: CollectContext): SimpleSegment {
@@ -241,7 +240,7 @@ export function importSegment(cc: CollectContext): SimpleSegment {
 }
 
 export function importTree(cc: CollectContext): ImportTree {
-  const path = cc.tags.path?.flat() as PathSegment[]; // LATER fix typing
+  const path = cc.tags.p?.flat() as PathSegment[]; // LATER fix typing
   return new ImportTree(path);
 }
 
@@ -249,7 +248,7 @@ export function importElem(): CollectPair<ImportElem> {
   return collectElem(
     "import",
     (cc: CollectContext, openElem: PartElem<ImportElem>) => {
-      const path = cc.tags.seg?.flat(8) as PathSegment[]; // LATER ts typing
+      const path = cc.tags.p as PathSegment[]; // LATER ts typing
       const imports = new ImportTree(path);
       const partialElem: ImportElem = { ...openElem, imports };
       const importElem = withTextCover(partialElem, cc);

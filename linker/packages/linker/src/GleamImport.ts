@@ -7,6 +7,7 @@ import {
   opt,
   or,
   Parser,
+  repeat,
   repeatPlus,
   seq,
   setTraceName,
@@ -17,19 +18,14 @@ import {
   tokenSkipSet,
   tracing,
   withSepPlus,
-  withTags,
 } from "mini-parse";
-import { TreeImportElem } from "./AbstractElems.js";
+import { digits, eol, ident } from "./MatchWgslD.js";
 import {
-  ImportTree,
-  PathSegment,
-  SegmentList,
-  SimpleSegment,
-  Wildcard,
-} from "./ImportTree.js";
-import { digits, eol, ident} from "./MatchWgslD.js";
-import { makeElem } from "./ParseSupport.js";
-import { importElem, importList, importSegment } from "./WESLCollect.js";
+  importElem,
+  importList,
+  importSegment,
+  importTree,
+} from "./WESLCollect.js";
 
 const gleamImportSymbolSet = "/ { } , ( ) .. . * ; @ #"; // Had to add @ and # here to get the parsing tests to work. Weird.
 const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
@@ -61,145 +57,78 @@ export const eolTokens = tokenMatcher({
   eol,
 });
 
-const eolf = disablePreParse(
-  makeEolf(eolTokens, gleamImportTokens.ws).traceName("gleam_eolf"),
-);
+const eolf = disablePreParse(makeEolf(eolTokens, gleamImportTokens.ws));
 const wordToken = kind(gleamImportTokens.ident);
-const pkgToken = kind(packageTokens.pkg);
+const pkgToken = kind(packageTokens.pkg); // TODO just use ident?
 
 // forward references for mutual recursion
-let pathTail: Parser<PathSegment[], NoTags> = null as any;
-let packagePath: Parser<PathSegment[], NoTags> = null as any;
+let packagePath: Parser<any, NoTags> = null as any;
 
 const simpleSegment = tagScope(
-  wordToken
-    .ptag("segment")
-    .collect(importSegment)
-    .map(r => {
-      return new SimpleSegment(r.value);
-    }),
+  wordToken.ptag("segment").collect(importSegment),
 );
 
-const itemImport = tagScope(
-  withTags(
-    seq(
-      wordToken.tag("segment").ptag("segment"),
-      skipWs(opt(seq("as", wordToken.ptag("as").tag("as")))),
-    )
-      .collect(importSegment)
-      .map(r => {
-        const segment = r.tags.segment[0];
-        return new SimpleSegment(segment, r.tags.as?.[0]);
-      }),
-  ),
+/** last simple segment is allowed to have an 'as' rename */
+const lastSimpleSegment = tagScope(
+  seq(
+    wordToken.ptag("segment"),
+    skipWs(opt(seq("as", wordToken.ptag("as")))),
+  ).collect(importSegment),
 );
 
-const starImport = seq(
-  skipWs(seq("*", opt(seq("as", wordToken.tag("as"))))),
-).map(r => new Wildcard(r.tags.as?.[0]));
-
+/** an item an a collection list {a, b} */
 const collectionItem = or(
-  () => packagePath,
-  itemImport.map(r => [r.value]),
+  tagScope(or(() => packagePath).collect(importTree)),
+  lastSimpleSegment,
 );
 
 const importCollection = tagScope(
-  withTags(
-    seq(
-      "{",
-      skipWs(
-        seq(
-          withSepPlus(",", () => collectionItem)
-            .ptag("list")
-            .tag("list"),
-          "}", //
-        ),
-      ),
-    )
-      .collect(importList)
-      .map(r => {
-        const elems = r.tags.list.flat().map(l => new ImportTree(l));
-        return new SegmentList(elems);
-      }),
-  ),
+  seq(
+    "{",
+    skipWs(seq(withSepPlus(",", () => collectionItem.ctag("list")), "}")),
+  ).collect(importList),
 );
 
-const pathExtends = withTags(
-  seq(simpleSegment.tag("s"), "/", () => pathTail.tag("s")).map(r =>
-    r.tags.s.flat(),
-  ),
-);
-
-/** The tail covers the part of the import path after the prefix */
-pathTail = withTags(
-  or(
-    pathExtends,
-    or(importCollection, itemImport, starImport).map(r => [r.value]),
-  ).map(r => {
-    return r.value.flat();
-  }),
-).ctag("seg");
-
+/** a relative path element like "./" or "../" */
 const relativeSegment = tagScope(
-  withTags(
-    seq(or(".", "..").ptag("segment").tag("dir"), "/")
-      .collect(importSegment)
-      .map(r => new SimpleSegment(r.tags.dir[0])),
-  ),
+  seq(or(".", "..").ptag("segment"), "/").collect(importSegment),
+).ctag("p");
+
+const lastSegment = or(lastSimpleSegment, importCollection);
+
+const packageTail = seq(
+  repeat(seq(simpleSegment.ctag("p"), "/")),
+  lastSegment.ctag("p"),
 );
 
-// The prefix covers the import path until the last item
-const relativePrefix = seq(
-  repeatPlus(relativeSegment.ctag("seg").tag("seg")),
-  simpleSegment.ctag("seg").tag("seg"),
-  "/",
-).map(r => {
-  return r.tags.seg;
-});
+/** a module path starting with ../ or ./ */
+const relativePath = seq(repeatPlus(relativeSegment), packageTail);
 
-const relativePath = withTags(
-  seq(relativePrefix.tag("p"), pathTail.tag("p")).map(r => r.tags.p.flat()),
-);
+const packagePrefix = tagScope(
+  seq(tokens(packageTokens, pkgToken.ptag("segment")), "/"),
+).collect(importSegment, "p");
 
-const packagePrefix = withTags(
-  seq(tokens(packageTokens, pkgToken.tag("pkg")), "/").map(r => [
-    new SimpleSegment(r.tags.pkg[0]),
-  ]),
-);
-
-packagePath = seq(packagePrefix, pathTail).map(r => r.value.flat());
+/** a module path, starting with a simple element */
+packagePath = tagScope(seq(packagePrefix, packageTail));
 
 const fullPath = noSkipWs(
-  seq(kind(gleamImportTokens.ws), or(relativePath, packagePath).tag("path")),
-).map(r => {
-  return new ImportTree(r.tags.path.flat());
-});
+  seq(kind(gleamImportTokens.ws), or(relativePath, packagePath)),
+);
 
 /** parse a Gleam style wgsl import statement. */
 export const gleamImport = tagScope(
-  withTags(
-    tokens(
-      gleamImportTokens,
-      seq("import", fullPath.tag("imports"), opt(";"), eolf)
-        .collect(importElem())
-        .map(r => {
-          const e = makeElem("treeImport", r, ["imports"]) as TreeImportElem;
-          r.app.stable.elems.push(e);
-        }),
-    ),
+  tokens(
+    gleamImportTokens,
+    seq("import", fullPath, opt(";"), eolf).collect(importElem()),
   ),
 );
 
 if (tracing) {
   const names: Record<string, Parser<unknown, TagRecord>> = {
     simpleSegment,
-    itemImport,
-    starImport,
+    lastSimpleSegment,
     importCollection,
-    pathExtends,
-    pathTail,
     relativeSegment,
-    relativePrefix,
     relativePath,
     packagePrefix,
     packagePath,
