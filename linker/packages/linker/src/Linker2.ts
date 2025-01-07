@@ -101,8 +101,8 @@ export function linkRegistry(
   /* --- Step #3   Writing WGSL --- */
   // traverse the AST and emit WGSL (doesn't need scopes)
   const srcBuilder = new SrcMapBuilder();
-  lowerAndEmit(srcBuilder, [rootModule], conditions, false);
-  lowerAndEmit(srcBuilder, newDecls, conditions);
+  lowerAndEmit(srcBuilder, [rootModule], conditions, false); // emit the entire root module
+  lowerAndEmit(srcBuilder, newDecls, conditions); // emit referenced declarations from other modules
   return srcBuilder.build();
 }
 
