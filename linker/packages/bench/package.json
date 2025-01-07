@@ -12,11 +12,11 @@
     "wgsl-linker": "workspace:*"
   },
   "devDependencies": {
-    "0x": "^5.7.0",
-    "@types/diff": "^5.0.9",
+    "0x": "^5.8.0",
+    "@types/diff": "^6.0.0",
     "@use-gpu/shader": "^0.12.0",
     "clinic": "^13.0.0",
-    "diff": "^5.2.0",
+    "diff": "^7.0.0",
     "wgsl_reflect": "^1.0.16"
   }
 }
