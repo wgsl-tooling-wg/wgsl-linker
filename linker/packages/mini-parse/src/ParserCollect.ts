@@ -51,26 +51,26 @@ export interface CollectPair<V> {
 
 /** Queue a collection function that runs later, when a commit() is parsed.
  * Collection functions are dropped with parser backtracking, so
- * only succsessful parses are collected. 
- * 
+ * only succsessful parses are collected.
+ *
  * optionally tag the collection results
  * */
 export function collect<N extends TagRecord, T, V>(
   p: Parser<T, N>,
   collectFn: CollectFn<V> | CollectPair<V>,
-  ctag?: string, 
+  ctag?: string,
 ): Parser<T, N> {
   const origAfter: CollectFn<V> =
     (collectFn as CollectPair<V>).after ?? collectFn;
   const beforeFn = (collectFn as Partial<CollectPair<V>>).before;
-  
+
   let afterFn = origAfter;
   if (ctag) {
     afterFn = (cc: CollectContext) => {
       const result = origAfter(cc);
       addTagValue(cc.tags, ctag, result);
       return result;
-    }; 
+    };
   }
 
   const debugName = ctag ? `${p.debugName}-${ctag}` : `${p.debugName}`;
@@ -107,7 +107,10 @@ export function tagScope<A extends CombinatorArg>(
       queueCollectFn(
         ctx,
         origStart,
-        (cc: CollectContext) => (origTags = cloneTags(cc.tags)),
+        (cc: CollectContext) => {
+          origTags = cloneTags(cc.tags);
+          cc.tags = {};
+        },
         `scope.before ${p.debugName}`,
       );
       return runAndCollectAfter(
@@ -115,7 +118,6 @@ export function tagScope<A extends CombinatorArg>(
         ctx,
         (cc: CollectContext) => {
           cc.tags = origTags;
-          // Object.keys(cc.tags).forEach(key => delete cc.tags[key]);
         },
         `tagScope`,
       );

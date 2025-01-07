@@ -153,12 +153,28 @@ test("collect with ctag param", () => {
   const results: string[] = [];
   const p = seq(
     "a",
-    text("b")
-      .collect(() =>  "B", "tagged"),
-  ).collect( cc => {
+    text("b").collect(() => "B", "tagged"),
+  ).collect(cc => {
     results.push(`tagged: ${cc.tags.tagged}`);
   });
 
   testParse(p, src);
   expect(results).toEqual(["tagged: B"]);
-})
+});
+
+test("tagScope clears tags on entry", () => {
+  let results: any[] = [];
+
+  const p = seq(
+    text("a").ptag("A"),
+    tagScope(
+      text("b")
+        .ptag("B")
+        .collect(cc => {
+          results.push(...Object.keys(cc.tags));
+        }),
+    ),
+  );
+  testParse(p, "a b");
+  expect(results).toEqual(["B"]);
+});
