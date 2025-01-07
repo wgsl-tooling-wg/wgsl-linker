@@ -192,7 +192,7 @@ test("unexpected token", () => {
   const { log, logged } = logCatch();
   _withBaseLogger(log, () => testAppParse(p, "a b"));
   expect(logged()).toMatchInlineSnapshot(`
-    "??? ident: 'b'  repeat > or > map
+    "??? word: 'b'  repeat > or > map
     a b   Ln 1
       ^"
   `);
@@ -393,7 +393,6 @@ test("parse ^= assignment", () => {
   testParseWgsl(src);
 });
 
-// TODO fixme (breaks bench)
 test("var <workgroup> work: array<u32, 128>;", expectWgsl);
 
 test("fn f() { _ = 1; }", expectWgsl);
