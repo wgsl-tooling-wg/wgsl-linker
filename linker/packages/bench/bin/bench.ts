@@ -1,7 +1,6 @@
 import { WGSLLinker } from "@use-gpu/shader";
 import fs from "fs/promises";
-import path from "path";
-import { ModuleRegistry } from "wgsl-linker";
+import { linkWeslFiles, parseWESL } from "wgsl-linker";
 import { WgslReflect } from "wgsl_reflect";
 import yargs from "yargs";
 
@@ -9,7 +8,7 @@ import { hideBin } from "yargs/helpers";
 
 type ParserVariant =
   | "wgsl-linker"
-  | "wgsl-linker.link" // NYI
+  | "wesl-link"
   | "wgsl_reflect"
   | "use-gpu"
   | "all"; // NYI
@@ -32,7 +31,7 @@ function parseArgs(args: string[]) {
       describe: "run a benchmark, collecting timings",
     })
     .option("variant", {
-      choices: ["wgsl-linker", "wgsl_reflect", "use-gpu"] as const,
+      choices: ["wgsl-linker", "wgsl_reflect", "use-gpu", "wesl-link"] as const,
       default: "wgsl-linker",
       describe: "select parser to test",
     })
@@ -67,15 +66,12 @@ async function bench(argv: CliArgs): Promise<void> {
 }
 
 function selectVariant(variant: string): ParserVariant {
-  if (variant === "wgsl-linker") {
-    return "wgsl-linker";
-  } else if (variant === "wgsl_reflect") {
-    return "wgsl_reflect";
-  } else if (variant === "use-gpu") {
-    return "use-gpu";
-  } else {
-    throw new Error("NYI parser variant: " + variant);
+  if (
+    ["wesl-link", "wgsl-linker", "wgsl_reflect", "use-gpu"].includes(variant)
+  ) {
+    return variant as ParserVariant;
   }
+  throw new Error("NYI parser variant: " + variant);
 }
 
 function runBench(variant: ParserVariant, files: LoadedFile[]): number {
@@ -117,8 +113,6 @@ interface LoadedFile {
 }
 
 async function loadAllFiles(): Promise<LoadedFile[]> {
-  // const boat = await loadBoatFiles();
-  // return [...boat];
   const reduceBuffer = await loadFile(
     "reduceBuffer",
     "./src/examples/reduceBuffer.wgsl",
@@ -140,22 +134,15 @@ async function loadFile(name: string, path: string): Promise<LoadedFile> {
   return { name, text };
 }
 
-async function loadBoatFiles(): Promise<LoadedFile[]> {
-  const boatAttackDir =
-    "../../../community-wgsl/unity_web_research/webgpu/wgsl/boat_attack";
-
-  const boatName = "unity_webgpu_0000026E5689B260.fs.wgsl";
-  const boatPath = path.join(boatAttackDir, boatName);
-  return [await loadFile(boatName, boatPath)];
-}
-
 function parseOnce(
   parserVariant: ParserVariant,
   filePath: string,
   text: string,
 ): void {
   if (parserVariant === "wgsl-linker") {
-    wgslLinkerParse(filePath, text);
+    parseWESL(text);
+  } else if (parserVariant === "wesl-link") {
+    linkWeslFiles({ [filePath]: text }, filePath);
   } else if (parserVariant === "wgsl_reflect") {
     wgslReflectParse(filePath, text);
   } else if (parserVariant === "use-gpu") {
@@ -163,11 +150,6 @@ function parseOnce(
   } else {
     throw new Error("NYI parser variant: " + parserVariant);
   }
-}
-
-function wgslLinkerParse(filePath: string, text: string): void {
-  const registry = new ModuleRegistry({ wgsl: { [filePath]: text } });
-  registry.parsed();
 }
 
 function wgslReflectParse(_filePath: string, text: string): void {
