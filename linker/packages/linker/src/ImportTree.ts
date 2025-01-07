@@ -1,5 +1,3 @@
-import { pretty } from "berry-pretty";
-
 export class ImportTree {
   /** segments in path order */
   constructor(public segments: PathSegment[]) {}
@@ -20,7 +18,8 @@ export class SegmentList {
   constructor(public list: PathSegment[]) {}
 }
 
-export class Wildcard { // TODO rm
+export class Wildcard {
+  // TODO rm
   constructor(public as?: string) {}
 }
 
@@ -44,5 +43,5 @@ function segmentToString(segment: PathSegment): string {
   if (segment instanceof ImportTree) {
     return `(${treeToString(segment)})`;
   }
-  return `[unknown segment type ${pretty(segment)}`;
+  return `|unknown segment type ${(segment as any).constructor.name}|`;
 }

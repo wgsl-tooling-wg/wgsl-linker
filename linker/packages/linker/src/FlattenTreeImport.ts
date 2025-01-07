@@ -53,7 +53,7 @@ export function flattenTreeImport(imp: ImportTree): FlatImport[] {
       );
     }
 
-    if (tracing) console.error("unknown segment type", segment); // should be impossible
+    if (tracing) console.log("unknown segment type", segment); // should be impossible
     return [];
   }
 }
