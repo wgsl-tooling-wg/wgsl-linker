@@ -12,7 +12,7 @@ function expectParses(ctx: TaskContext): TestParseResult<void> {
     appState,
   );
   expect(result.parsed).not.toBeNull();
-  return result;
+  return result as any; // TODO legacy, going away
 }
 /* ------  success cases  -------   */
 

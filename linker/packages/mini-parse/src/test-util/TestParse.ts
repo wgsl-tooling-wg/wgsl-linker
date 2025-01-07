@@ -30,15 +30,15 @@ export const testTokens = tokenMatcher({
 export interface TestParseResult<T, N extends TagRecord = NoTags, S = any> {
   parsed: OptParserResult<T, N>;
   position: number;
-  stable: any;
+  stable: S;
 }
 
 /** utility for testing parsers */
-export function testParse<T, N extends TagRecord = NoTags, S = any>(
+export function testParse<T, N extends TagRecord = NoTags, C = any, S = any>(
   p: Parser<T, N>,
   src: string,
   tokenMatcher: TokenMatcher = testTokens,
-  appState: AppState<S> = { context: {} as S, stable: [] },
+  appState: AppState<C, S> = { context: {} as C, stable: [] as S},
 ): TestParseResult<T, N, S> {
   const lexer = matchingLexer(src, tokenMatcher);
   const parsed = p.parse({ lexer, appState: appState, maxParseCount: 1000 });

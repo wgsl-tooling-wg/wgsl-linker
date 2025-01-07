@@ -29,7 +29,8 @@ export interface WeslAST {
 }
 
 /** stable and unstable state used during parsing */
-export interface WeslParseState extends AppState<WeslParseContext> {
+export interface WeslParseState
+  extends AppState<WeslParseContext, StableState> {
   context: WeslParseContext;
   stable: StableState;
 }
@@ -49,7 +50,7 @@ export function parseSrcModule(
   maxParseCount: number | undefined = undefined,
 ): WeslAST {
   // TODO allow returning undefined for failure, or throw?
-    
+
   resetScopeIds();
   const lexer = matchingLexer(srcModule.src, mainTokens);
 

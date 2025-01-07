@@ -30,7 +30,7 @@ export interface CollectPosition {
 export interface CollectContext extends CollectPosition {
   tags: TagRecord;
   src: string;
-  app: AppState<any>;
+  app: AppState<any, any>;
   _values: CollectValue[];
 }
 
@@ -232,7 +232,7 @@ function addTagValue(tags: TagRecord, name: string, value: any) {
  * run any pending collect() fns */
 export function runCollection(
   _collect: CollectFnEntry<any>[],
-  app: AppState<any>,
+  app: AppState<any, any>,
   lexer: Lexer,
 ) {
   const tags: Record<string, any> = {};

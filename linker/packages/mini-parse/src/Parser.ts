@@ -22,24 +22,24 @@ import {
 import { mergeTags } from "./ParserUtil.js";
 import { SrcMap } from "./SrcMap.js";
 
-export interface AppState<A> {
+export interface AppState<C, S> {
   /**
    * Context for user written parsers while parsing. e.g. for nested #if state
    * The context value is reset to its original value if the parser fails.
    * Set context to a new immutable value to update (don't internally mutate context)
    */
-  context: A;
+  context: C;
 
   /** typical place for user written parsers to accumulate results, e.g. syntax tree */
-  stable: any;
+  stable: S;
 }
 
-export interface ParserInit<A = any> {
+export interface ParserInit<C = any, S = any> {
   /** supply tokens to the parser*/
   lexer: Lexer;
 
   /** application specific context and result storage, shared with every parser */
-  appState?: AppState<A>;
+  appState?: AppState<C, S>;
 
   /** set this to avoid infinite looping by failing after more than this many parsing steps */
   maxParseCount?: number;
@@ -49,10 +49,10 @@ export interface ParserInit<A = any> {
 }
 
 /* Information passed to the parsers during parsing */
-export interface ParserContext<A = any> {
+export interface ParserContext<C = any, S = any> {
   lexer: Lexer;
 
-  app: AppState<A>;
+  app: AppState<C, S>;
 
   maxParseCount?: number;
 
@@ -87,14 +87,18 @@ export interface ParserResult<T, N extends TagRecord> {
   tags: N;
 }
 
-export interface ExtendedResult<T, N extends TagRecord = NoTags, A = any>
-  extends ParserResult<T, N> {
+export interface ExtendedResult<
+  T,
+  N extends TagRecord = NoTags,
+  C = any,
+  S = any,
+> extends ParserResult<T, N> {
   src: string;
   srcMap?: SrcMap;
   start: number;
   end: number;
-  app: AppState<A>;
-  ctx: ParserContext<A>;
+  app: AppState<C, S>;
+  ctx: ParserContext<C, S>;
 }
 
 /** parsers return null if they don't match */
@@ -234,10 +238,7 @@ export class Parser<T, N extends TagRecord = NoTags> {
    * when a commit() is parsed.
    * Collection functions are dropped with parser backtracking, so
    * only succsessful parses are collected. */
-  collect<U>(
-    fn: CollectFn<U> | CollectPair<U>,
-    ctag?: string
-  ): Parser<T, N> {
+  collect<U>(fn: CollectFn<U> | CollectPair<U>, ctag?: string): Parser<T, N> {
     return collect(this, fn, ctag);
   }
 
