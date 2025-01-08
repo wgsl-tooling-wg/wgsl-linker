@@ -38,10 +38,10 @@
   },
   "devDependencies": {
     "ncp": "^2.0.0",
+    "random_wgsl": "workspace:*",
     "rollup-plugin-visualizer": "^5.12.0",
     "terser": "^5.36.0",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "^2.1.4",
-    "wgsl-rand": "workspace:*"
+    "vitest": "^2.1.4"
   }
 }
