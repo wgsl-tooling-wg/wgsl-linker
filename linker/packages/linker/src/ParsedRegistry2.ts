@@ -1,3 +1,4 @@
+import { WgslBundle } from "random_wgsl";
 import { parseSrcModule, parseWESL, WeslAST } from "./ParseWESL.ts";
 import { normalize, noSuffix } from "./PathUtil.ts";
 import { SrcModule } from "./Scope.ts";
@@ -25,7 +26,7 @@ export function parseWeslSrc(src: Record<string, string>): ParsedRegistry2 {
 /** Look up a module with a flexible selector.
  *    :: separated module path,   package::util
  *    / separated file path       ./util.wesl (or ./util)
- *    simpleName                  util 
+ *    simpleName                  util
  */
 export function selectModule(
   parsed: ParsedRegistry2,
@@ -72,8 +73,23 @@ export function parseIntoRegistry(
   });
 }
 
+export function parseLibsIntoRegistry(
+  libs: WgslBundle[],
+  registry: ParsedRegistry2,
+): void {
+  libs.forEach(({ modules, name }) =>
+    parseIntoRegistry(modules, registry, name),
+  );
+}
+
+const libExp = /^lib\.w[eg]sl$/i;
+
 /** convert a relative file path (./foo/bar.wesl) to a module path (package::foo::bar) */
 function fileToModulePath(filePath: string, packageName: string): string {
+  if (packageName !== "package" && libExp.test(filePath)) {
+    // special case for lib.wesl files in external packages
+    return packageName;
+  }
   const strippedPath = noSuffix(normalize(filePath));
   const moduleSuffix = strippedPath.replaceAll("/", "::");
   const modulePath = packageName + "::" + moduleSuffix;

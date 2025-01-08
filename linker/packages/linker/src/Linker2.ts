@@ -5,10 +5,12 @@ import {
   parsedRegistry,
   ParsedRegistry2,
   parseIntoRegistry,
+  parseLibsIntoRegistry,
   parseWeslSrc,
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
+import { WgslBundle } from "./WgslBundle.ts";
 
 /* --- Overview: Plan for Linking WESL --- */
 
@@ -73,10 +75,13 @@ export function linkWeslFiles(
   weslSrc: Record<string, string>,
   rootModuleName: string = "main",
   conditions: Conditions = {},
+  /** record of file names and wgsl text for modules */
+  libs: WgslBundle[] = [],
   maxParseCount?: number,
 ): SrcMap {
   const registry = parsedRegistry();
   parseIntoRegistry(weslSrc, registry, "package", maxParseCount);
+  parseLibsIntoRegistry(libs, registry);
   return linkRegistry(registry, rootModuleName, conditions);
 }
 
