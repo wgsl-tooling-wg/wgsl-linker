@@ -1,3 +1,3 @@
-export fn foo() {
+fn foo() {
   // fooImpl
 }
