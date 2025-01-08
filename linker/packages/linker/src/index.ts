@@ -1,3 +1,4 @@
+export * from "./ASTLogging.js";
 export * from "./Linker.js";
 export * from "./Linker2.js";
 export * from "./ModuleRegistry.js";
