@@ -22,7 +22,11 @@ export function parseWeslSrc(src: Record<string, string>): ParsedRegistry2 {
   return { modules: Object.fromEntries(parsedEntries) };
 }
 
-/** Look up a module by name, or :: separated module path or relative module path */
+/** Look up a module with a flexible selector.
+ *    :: separated module path,   package::util
+ *    / separated file path       ./util.wesl (or ./util)
+ *    simpleName                  util 
+ */
 export function selectModule(
   parsed: ParsedRegistry2,
   selectPath: string,
@@ -42,7 +46,7 @@ export function selectModule(
 
 /**
  * @param srcFiles    map of source strings by file path
- *                    key is '/' separated path
+ *                    key is '/' separated relative path (relative to srcRoot, not absolute file path )
  *                    value is wesl source string
  * @param registry    add parsed modules to this registry
  * @param packageName name of package
@@ -68,6 +72,7 @@ export function parseIntoRegistry(
   });
 }
 
+/** convert a relative file path (./foo/bar.wesl) to a module path (package::foo::bar) */
 function fileToModulePath(filePath: string, packageName: string): string {
   const strippedPath = noSuffix(normalize(filePath));
   const moduleSuffix = strippedPath.replaceAll("/", "::");

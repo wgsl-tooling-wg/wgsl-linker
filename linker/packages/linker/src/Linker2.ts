@@ -50,7 +50,7 @@ The AST is now immutable, mutation is confined to the Idents and Scopes.
  *
  * @param weslSrc map of wesl source strings (aka modules) by scoped path
  *                key is module path or file path
- *                  '::' separated path .e.g `package::foo::bar.wesl`, or
+ *                  `package::foo::bar`, or './foo/bar.wesl', or './foo/bar'
  *                value is wesl src
  *                (inludes both library and local WESL modules)
  * @param rootModuleName name or module path of the root module
