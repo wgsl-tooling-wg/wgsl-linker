@@ -21,5 +21,5 @@ test("basic import glob", async () => {
 
 test("#import from path ./util", async () => {
   const linked = linkWeslFiles(wgsl2, "wgsl_2/main2");
-  expect(linked).toContain("fn bar()");
+  expect(linked.dest).toContain("fn bar()");
 });
