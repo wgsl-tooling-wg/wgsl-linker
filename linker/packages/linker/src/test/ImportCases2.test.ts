@@ -321,6 +321,70 @@ test.skip("fn call with a separator", ctx => {
   });
 });
 
+test("local var to struct", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn main() {
+          var a: AStruct; 
+        }
+        struct AStruct { x: u32 }
+    `,
+  });
+});
+
+test("global var to struct", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        @group(0) @binding(0) var<uniform> u: Uniforms;      
+        struct Uniforms { model: mat4x4<f32> }
+    `,
+  });
+});
+
+test("return type of function", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn b() -> A { }
+        struct A { y: i32 }
+    `,
+  });
+});
+
+// test(, ctx => {
+//   linkTest2(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
+// test(, ctx => {
+//   linkTest2(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
+// test(, ctx => {
+//   linkTest2(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
+// test(, ctx => {
+//   linkTest2(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
+// test(, ctx => {
+//   linkTest2(ctx.task.name, {
+//     linked: `
+//     `,
+//   });
+// });
+
 // TODO add case for const_assert in non root module
 // TODO add case for diagnostic in non-root module (should fail?)
 

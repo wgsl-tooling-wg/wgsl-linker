@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { link2Test } from "./TestUtil.js";
 import { matchTrimmed } from "./shared/StringUtil.js";
+import { dlog } from "berry-pretty";
 
 test("link global var", () => {
   const src = `var x: i32 = 1;`;
@@ -66,6 +67,54 @@ test("struct after var", () => {
       x: u32,
     }
   `;
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
+
+test("type inside fn with same name as fn", () => {
+  // illegal but shouldn't hang
+  const src = `
+    fn foo() {
+      var a:foo;
+    }
+    fn bar() {}
+  `;
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
+
+test("call cross reference", () => {
+  const src = `
+    fn foo() {
+      bar();
+    }
+
+    fn bar() {
+      foo();
+    }
+  `;
+
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
+
+test("struct self reference", () => {
+  const src = `
+    struct A {
+      a: A,
+      b: B,
+    }
+    struct B {
+      f: f32,
+    }
+  `;
+
+  const result = link2Test(src);
+  matchTrimmed(result, src);
+});
+
+test("parse texture_storage_2d with texture format in typical type position", () => {
+  const src = `var t: texture_storage_2d<rgba8unorm, write>;`;
   const result = link2Test(src);
   matchTrimmed(result, src);
 });
