@@ -69,6 +69,7 @@ export function tokenMatcher<T extends Record<string, string | RegExp>>(
       const text = src.slice(startEnd[0], startEnd[1]);
       const token = { kind, text };
       if (startPos != startEnd[0]) {
+        // TODO report filename as well
         // regex didn't recognize some characters and skipped ahead to match
         srcLog(
           src,
