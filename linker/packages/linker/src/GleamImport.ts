@@ -42,14 +42,8 @@ const ws = /\s+/;
 export const gleamImportTokens = tokenMatcher({
   ws,
   gleamImportSymbol,
-  ident,
+  ident, // TODO allow '-' in pkg names?
   digits,
-});
-
-export const packageTokens = tokenMatcher({
-  ws,
-  pkg: /[a-zA-Z_][\w-]*/, // LATER follow spec
-  other: /.+/,
 });
 
 export const eolTokens = tokenMatcher({
@@ -59,7 +53,6 @@ export const eolTokens = tokenMatcher({
 
 const eolf = disablePreParse(makeEolf(eolTokens, gleamImportTokens.ws));
 const wordToken = kind(gleamImportTokens.ident);
-const pkgToken = kind(packageTokens.pkg); // TODO just use ident?
 
 // forward references for mutual recursion
 let packagePath: Parser<any, NoTags> = null as any;
