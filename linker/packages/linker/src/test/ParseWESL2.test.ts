@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { astTree } from "../ASTLogging.ts";
+import { treeToString } from "../ImportTree.ts";
 import { parse2Test } from "./TestUtil.ts";
 
 test("parse empty string", () => {
@@ -631,7 +632,6 @@ test("import ./foo/bar;", ctx => {
   `);
 });
 
-
 // TODO
 test.skip("parse foo::bar(); ", () => {
   const src = "fn main() { foo::bar(); }";
@@ -843,13 +843,12 @@ test("var foo: vec2<f32 >= vec2( 0.5, -0.5);", ctx => {
 test("import ./a/b/c", ctx => {
   const ast = parse2Test(ctx.task.name);
   const astString = astTree(ast.moduleElem);
-  console.log(astString);
   expect(astString).toMatchInlineSnapshot(`
     "module
       import package/a/b/c
         text 'import ./a/b/c'"
   `);
-})
+});
 
 test("import ./file1/{foo, bar}", ctx => {
   const src = ctx.task.name;
@@ -859,5 +858,45 @@ test("import ./file1/{foo, bar}", ctx => {
     "module
       import package/file1/{foo, bar}
         text 'import ./file1/{foo, bar}'"
+  `);
+});
+
+test("import ./file1/{foo, bar}", ctx => {
+  const src = ctx.task.name;
+  const ast = parse2Test(src);
+  const imps = ast.imports.map(t => treeToString(t)).join("\n");
+
+  expect(imps).toMatchInlineSnapshot(`"package/file1/{foo, bar}"`);
+});
+
+test("import foo_bar/boo;", ctx => {
+  const ast = parse2Test(ctx.task.name);
+  const astString = astTree(ast.moduleElem);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import foo_bar/boo
+        text 'import foo_bar/boo;'"
+  `);
+});
+
+test(`import a/{ b }`, ctx => {
+  const ast = parse2Test(ctx.task.name);
+  const astString = astTree(ast.moduleElem);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import a/{b}
+        text 'import a/{ b }'"
+  `);
+});
+
+test(`import a/{ b, c/{d, e}, f }`, ctx => {
+  const src = ctx.task.name;
+  const ast = parse2Test(src);
+  const astString = astTree(ast.moduleElem);
+
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      import a/{b, (c/{d, e}), f}
+        text 'import a/{ b, c/{d, e}, f }'"
   `);
 });
