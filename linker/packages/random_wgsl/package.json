@@ -1,0 +1,22 @@
+{
+  "name": "random_wgsl",
+  "version": "0.1.1",
+  "type": "module",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "wgsl-packager --rootDir src",
+    "build:local": "../packager/bin/wgsl-packager --rootDir src"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/wgslBundle.d.ts",
+      "import": "./dist/wgslBundle.js"
+    }
+  },
+  "devDependencies": {
+    "wgsl-packager": "workspace:*"
+  }
+}
