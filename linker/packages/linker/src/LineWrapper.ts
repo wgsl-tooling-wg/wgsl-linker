@@ -1,6 +1,6 @@
-import { dlog } from "berry-pretty";
-
-/** debug utility for constructing strings that wrap at a fixed column width */
+/** debug utility for constructing strings that wrap at a fixed column width
+ * text beyond the column width is wrapped to start on the next line
+ */
 export class LineWrapper {
   #fragments: string[] = [];
   #column = 0;
