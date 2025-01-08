@@ -1,17 +1,22 @@
 import { createTwoFilesPatch } from "diff";
 import fs from "fs";
-import { ModuleRegistry, normalize } from "wgsl-linker";
+import { enableTracing } from "mini-parse";
+import { astTree, linkWeslFiles, normalize } from "wgsl-linker";
 import yargs from "yargs";
-import { TypeRefElem } from "../../linker/src/AbstractElems.js";
+import {
+  parsedRegistry,
+  parseIntoRegistry,
+} from "../../linker/src/ParsedRegistry2.js";
+import { scopeIdentTree } from "../../linker/src/ScopeLogging.js";
 
 type CliArgs = ReturnType<typeof parseArgs>;
 let argv: CliArgs;
 
 export async function cli(rawArgs: string[]): Promise<void> {
+  enableTracing(); // so we get more debug info
   argv = parseArgs(rawArgs);
   const files = argv.files as string[];
-  if (argv.separately) linkSeparately(files);
-  else linkNormally(files);
+  linkNormally(files);
 }
 
 function parseArgs(args: string[]) {
@@ -28,12 +33,6 @@ function parseArgs(args: string[]) {
       requiresArg: true,
       type: "string",
       describe: "rm common prefix from file paths",
-    })
-    .option("separately", {
-      type: "boolean",
-      default: false,
-      hidden: true,
-      describe: "link each file separately (for parser testing)",
     })
     .option("details", {
       type: "boolean",
@@ -60,34 +59,37 @@ function parseArgs(args: string[]) {
 function linkNormally(paths: string[]): void {
   const pathAndTexts = paths.map(f => {
     const text = fs.readFileSync(f, { encoding: "utf8" });
-    const basedPath = normalize(rmBaseDirPrefix(f));
+    const basedPath = "./" + normalize(rmBaseDirPrefix(f));
     return [basedPath, text];
   });
-  const wgsl = Object.fromEntries(pathAndTexts);
-  const registry = new ModuleRegistry({ wgsl });
-  const [srcPath, srcText] = pathAndTexts[0];
-  doLink(srcPath, registry, srcText);
-}
+  const [rootPath] = pathAndTexts[0];
+  const weslFiles = Object.fromEntries(pathAndTexts);
 
-function linkSeparately(paths: string[]): void {
-  paths.forEach(f => {
-    const srcText = fs.readFileSync(f, { encoding: "utf8" });
-    const basedPath = normalize(rmBaseDirPrefix(f));
-    const registry = new ModuleRegistry({ wgsl: { [basedPath]: srcText } });
-    doLink(basedPath, registry, srcText);
-  });
-}
+  // TODO conditions
+  // TODO external defines
+  if (argv.emit) {
+    const linked = linkWeslFiles(weslFiles, rootPath);
+    if (argv.emit) console.log(linked.dest);
+  }
+  if (argv.details) {
+    const registry = parsedRegistry();
+    try {
+      parseIntoRegistry(weslFiles, registry, "package");
+    } catch (e) {
+      console.error(e);
+    }
+    Object.entries(registry.modules).forEach(([modulePath, ast]) => {
+      console.log(`---\n${modulePath}`);
+      console.log(`\n->ast`);
+      console.log(astTree(ast.moduleElem));
+      console.log(`\n->scope`);
+      console.log(scopeIdentTree(ast.rootScope));
+      console.log();
+    });
+  }
 
-function doLink(
-  srcPath: string,
-  registry: ModuleRegistry,
-  origWgsl: string,
-): void {
-  const asRelative = "./" + srcPath;
-  const linked = registry.link(asRelative, externalDefines());
-  if (argv.emit) console.log(linked);
-  if (argv.diff) printDiff(srcPath, origWgsl, linked);
-  if (argv.details) printDetails(srcPath, registry);
+  // TODO diff 
+  // if (argv.diff) printDiff(srcPath, origWgsl, linked);
 }
 
 function externalDefines(): Record<string, string> {
@@ -100,8 +102,9 @@ function externalDefines(): Record<string, string> {
     return {};
   }
 
+  throw new Error("external defines Not implemented");
   const withParsedValues = pairs.map(([k, v]) => [k, parseDefineValue(v)]);
-  return Object.fromEntries(withParsedValues);
+  // return Object.fromEntries(withParsedValues);
 }
 
 function parseDefineValue(value: string): string | number | boolean {
@@ -121,34 +124,6 @@ function printDiff(modulePath: string, src: string, linked: string): void {
   } else {
     console.log(`${modulePath}: linked version matches original source`);
   }
-}
-
-function printDetails(modulePath: string, registry: ModuleRegistry): void {
-  console.log(modulePath, ":");
-  const parsed = registry.parsed(externalDefines());
-  const m = parsed.findTextModule(modulePath)!;
-  m.fns.forEach(f => {
-    console.log(`  fn ${f.name}`);
-    const calls = f.calls.map(c => c.name).join("  ");
-    console.log(`    calls: ${calls}`);
-    printTypeRefs(f);
-  });
-  m.vars.forEach(v => {
-    console.log(`  var ${v.name}`);
-    printTypeRefs(v);
-  });
-  m.structs.forEach(s => {
-    console.log(`  struct ${s.name}`);
-    const members = (s.members ?? []).map(m => m.name).join("  ");
-    console.log(`    members: ${members}`);
-    s.members.map(m => printTypeRefs(m));
-  });
-  console.log();
-}
-
-function printTypeRefs(hasTypeRefs: { typeRefs: TypeRefElem[] }): void {
-  const typeRefs = hasTypeRefs.typeRefs.map(t => t.name).join("  ");
-  console.log(`    typeRefs: ${typeRefs}`);
 }
 
 function rmBaseDirPrefix(path: string): string {
