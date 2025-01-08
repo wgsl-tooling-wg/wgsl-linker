@@ -98,11 +98,11 @@ const packageTail = seq(
 const relativePath = seq(repeatPlus(relativeSegment), packageTail);
 
 const packagePrefix = tagScope(
-  seq(tokens(packageTokens, pkgToken.ptag("segment")), "/"),
-).collect(importSegment, "p");
+  seq(wordToken.ptag("segment"), "/").collect(importSegment),
+).ctag("p");
 
 /** a module path, starting with a simple element */
-packagePath = tagScope(seq(packagePrefix, packageTail));
+packagePath = seq(packagePrefix, packageTail);
 
 const fullPath = noSkipWs(
   seq(kind(gleamImportTokens.ws), or(relativePath, packagePath)),
