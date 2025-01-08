@@ -78,7 +78,12 @@ const collectionItem = or(
 const importCollection = tagScope(
   seq(
     "{",
-    skipWs(seq(withSepPlus(",", () => collectionItem.ctag("list")), "}")),
+    skipWs(
+      seq(
+        withSepPlus(",", () => collectionItem.ctag("list")),
+        "}",
+      ),
+    ),
   ).collect(importList),
 );
 
