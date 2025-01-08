@@ -1,6 +1,5 @@
 import { SrcMap, SrcMapBuilder, tracing } from "mini-parse";
 import { bindIdents } from "./BindIdents.ts";
-import { flattenTreeImport } from "./FlattenTreeImport.ts";
 import { lowerAndEmit } from "./LowerAndEmit.ts";
 import {
   parsedRegistry,
@@ -10,7 +9,6 @@ import {
   selectModule,
 } from "./ParsedRegistry2.ts";
 import { Conditions } from "./Scope.ts";
-import { dlog } from "berry-pretty";
 
 /* --- Overview: Plan for Linking WESL --- */
 
