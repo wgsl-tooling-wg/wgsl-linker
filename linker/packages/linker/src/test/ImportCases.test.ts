@@ -3,6 +3,9 @@ import { importCases } from "wesl-testsuite";
 import { linkWeslFiles } from "../Linker.js";
 import { matchTrimmed, trimSrc } from "./shared/StringUtil.js";
 
+/** so vitest triggers when this file changes */
+import("../../../../../wesl-testsuite/src/test-cases/ImportCases.js");
+
 interface LinkExpectation {
   includes?: string[];
   excludes?: string[];
