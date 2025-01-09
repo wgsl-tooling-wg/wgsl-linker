@@ -18,7 +18,7 @@ import {
   withSep,
   withSepPlus
 } from "mini-parse";
-import { gleamImport } from "./ImportGrammar.ts";
+import { weslImport } from "./ImportGrammar.ts";
 import { bracketTokens, mainTokens } from "./WESLTokens.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, word } from "./ParseSupport.ts";
@@ -445,7 +445,7 @@ const const_assert = seq("const_assert", req(expression), ";").collect(
   collectSimpleElem("assert"),
 );
 
-const import_statement = gleamImport;
+const import_statement = weslImport;
 
 const global_directive = seq(
   or(

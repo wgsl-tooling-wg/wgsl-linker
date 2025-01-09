@@ -17,19 +17,18 @@ import {
   tokens,
   tokenSkipSet,
   tracing,
-  withSepPlus,
+  withSepPlus
 } from "mini-parse";
-import { digits, eol, ident } from "./WESLTokens.js";
 import {
   importElem,
   importList,
   importSegment,
   importTree,
 } from "./WESLCollect.js";
+import { digits, eol, ident, } from "./WESLTokens.js";
 
-const gleamImportSymbolSet = "/ { } , ( ) .. . * ; @ #"; // Had to add @ and # here to get the parsing tests to work. Weird.
-const gleamImportSymbol = matchOneOf(gleamImportSymbolSet);
 
+// TODO now that ';' is required, special ws and eol handling is probably not needed.
 const skipWsSet = new Set(["ws"]);
 function skipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
   return tokenSkipSet(skipWsSet, p);
@@ -37,11 +36,14 @@ function skipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
 function noSkipWs<V, T extends TagRecord>(p: Parser<V, T>): Parser<V, T> {
   return tokenSkipSet(null, p);
 }
-const ws = /\s+/;
 
-export const gleamImportTokens = tokenMatcher({
-  ws,
-  gleamImportSymbol,
+const importSymbolSet = "/ { } , ( ) .. . * ; @ #"; // Had to add @ and # here to get the parsing tests to work. Weird.
+const importSymbol = matchOneOf(importSymbolSet);
+
+// TODO reconsider whether we need a separate token set for import statements vs wgsl/wesl
+export const importTokens = tokenMatcher({
+  ws: /\s+/,
+  importSymbol,
   ident, // TODO allow '-' in pkg names?
   digits,
 });
@@ -51,8 +53,8 @@ export const eolTokens = tokenMatcher({
   eol,
 });
 
-const eolf = disablePreParse(makeEolf(eolTokens, gleamImportTokens.ws));
-const wordToken = kind(gleamImportTokens.ident);
+const eolf = disablePreParse(makeEolf(eolTokens, importTokens.ws));
+const wordToken = kind(importTokens.ident);
 
 // forward references for mutual recursion
 let packagePath: Parser<any, NoTags> = null as any;
@@ -110,13 +112,13 @@ const packagePrefix = tagScope(
 packagePath = seq(packagePrefix, packageTail);
 
 const fullPath = noSkipWs(
-  seq(kind(gleamImportTokens.ws), or(relativePath, packagePath)),
+  seq(kind(importTokens.ws), or(relativePath, packagePath)),
 );
 
-/** parse a Gleam style wgsl import statement. */
-export const gleamImport = tagScope(
+/** parse a WESL style wgsl import statement. */
+export const weslImport = tagScope(
   tokens(
-    gleamImportTokens,
+    importTokens,
     seq("import", fullPath, opt(";"), eolf).collect(importElem()),
   ),
 );
@@ -131,7 +133,7 @@ if (tracing) {
     packagePrefix,
     packagePath,
     fullPath,
-    gleamImport,
+    weslImport,
   };
 
   Object.entries(names).forEach(([name, parser]) => {

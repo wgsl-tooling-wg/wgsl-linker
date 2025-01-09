@@ -1,15 +1,15 @@
 import { expect, test } from "vitest";
 import { importSyntaxCases } from "wesl-testsuite";
-import { gleamImport } from "../ImportGrammar.js";
+import { weslImport } from "../ImportGrammar.js";
 import { testAppParse } from "./TestUtil.js";
 
 function expectParseFail(src: string): void {
-  const result = testAppParse(gleamImport, src);
-  expect(result.stable.imports).toEqual([]);
+  const result = testAppParse(weslImport, src);
+  expect(result.stable.imports).toEqual([]); // TODO tighten test, shouldn't parse
 }
 
 function expectParses(src: string): void {
-  const result = testAppParse(gleamImport, src);
+  const result = testAppParse(weslImport, src);
   expect(result.stable.imports.length).toBeGreaterThan(0);
 }
 

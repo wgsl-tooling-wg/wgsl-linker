@@ -71,6 +71,7 @@ export function linkWesl(
   return linkRegistry(parsed, rootModuleName, conditions);
 }
 
+// TODO DRY entry points
 export function linkWeslFiles(
   weslSrc: Record<string, string>,
   rootModuleName: string = "main",

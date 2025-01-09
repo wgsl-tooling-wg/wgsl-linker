@@ -41,7 +41,7 @@ const textureStorage = matchOneOf(
   "texture_strorage_1d texture_storage_2d texture_storage_2d_array texture_storage_3d",
 );
 
-/** matching tokens at wgsl root level */
+/** main set of tokens for WGSL */
 export const mainTokens = tokenMatcher(
   {
     directive,
