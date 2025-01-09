@@ -1,7 +1,7 @@
 import { createTwoFilesPatch } from "diff";
 import fs from "fs";
 import { enableTracing } from "mini-parse";
-import { astTree, linkWeslFiles, normalize, scopeIdentTree } from "wgsl-linker";
+import { astToString, linkWeslFiles, normalize, scopeToString } from "wgsl-linker";
 import yargs from "yargs";
 import {
   parsedRegistry,
@@ -80,9 +80,9 @@ function linkNormally(paths: string[]): void {
     Object.entries(registry.modules).forEach(([modulePath, ast]) => {
       console.log(`---\n${modulePath}`);
       console.log(`\n->ast`);
-      console.log(astTree(ast.moduleElem));
+      console.log(astToString(ast.moduleElem));
       console.log(`\n->scope`);
-      console.log(scopeIdentTree(ast.rootScope));
+      console.log(scopeToString(ast.rootScope));
       console.log();
     });
   }
