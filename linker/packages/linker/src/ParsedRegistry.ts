@@ -1,6 +1,5 @@
 import { TreeImportElem } from "./AbstractElems.js";
 import { importResolutionMap, ResolveMap } from "./ImportResolutionMap.js";
-import { linkWgslModule } from "./Linker.js";
 import {
   ModuleExport,
   ModuleRegistry,
@@ -29,7 +28,7 @@ export class ParsedRegistry {
     if (!module) {
       throw new Error(`Module not found: ${moduleSpecifier}`);
     }
-    return linkWgslModule(module, this, this.conditions);
+    return "";
   }
 
   /** parse one module, register exports for later searching */
