@@ -17,7 +17,7 @@ import {
   mainTokens,
   moduleTokens,
 } from "./MatchWgslD.js";
-import { eolf, makeElem } from "./ParseSupport.js";
+import { eolf } from "./ParseSupport.js";
 
 /* parse #directive enhancements to wgsl: #export, etc. */
 
@@ -26,34 +26,18 @@ const fromWord = or(argsWord, kind(argsTokens.relPath));
 
 const fromClause = seq(
   "from",
-  or(fromWord.tag("from"), seq('"', fromWord.tag("from"), '"')),
+  or(fromWord, seq('"', fromWord, '"')),
 );
 
 /** #export <foo> <(a,b)> EOL */
-export const exportDirective = seq(or("#export", "export"), opt(eolf)).map(
-  r => {
-    const e = makeElem("export", r, ["args"]);
-    r.app.stable.elems.push(e);
-  },
-);
+export const exportDirective = seq(or("#export", "export"), opt(eolf));
 
 const moduleDirective = seq(
   or("module", "#module"),
-  tokens(moduleTokens, req(kind(moduleTokens.moduleName).tag("name"))),
+  tokens(moduleTokens, req(kind(moduleTokens.moduleName))),
   eolf,
-).map(r => {
-  const e = makeElem("module", r);
-  e.name = normalizeModulePath(r.tags.name[0]);
-  r.app.stable.elems.push(e);
-});
+)
 
-function normalizeModulePath(name: string): string {
-  if (name.includes("::")) {
-    const result = name.split("::").join("/");
-    return result;
-  }
-  return name;
-}
 
 export const directive = tokens(
   argsTokens,

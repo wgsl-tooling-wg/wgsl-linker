@@ -1,5 +1,4 @@
 import { AppState, matchingLexer, ParserInit, SrcMap } from "mini-parse";
-import { AbstractElem } from "./AbstractElems.ts";
 import { ModuleElem } from "./AbstractElems2.ts";
 import { ImportTree } from "./ImportTree.ts";
 import { mainTokens } from "./MatchWgslD.ts";
@@ -24,8 +23,6 @@ export interface WeslAST {
 
   /* constructed on demand from import trees, and cached */
   _flatImports?: FlatImport[];
-
-  elems: AbstractElem[]; // legacy
 }
 
 /** stable and unstable state used during parsing */
@@ -85,7 +82,7 @@ export function blankWeslParseState(srcModule: SrcModule): WeslParseState {
   const moduleElem = null as any; // we'll fill this in later
   return {
     context: { scope: rootScope, openElems: [] },
-    stable: { srcModule, elems: [], imports: [], rootScope, moduleElem },
+    stable: { srcModule, imports: [], rootScope, moduleElem },
   };
 }
 

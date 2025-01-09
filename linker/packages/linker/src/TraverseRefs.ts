@@ -1,55 +1,3 @@
-import {
-  AliasElem,
-  FnElem,
-  StructElem,
-  StructMemberElem,
-  TreeImportElem,
-  VarElem
-} from "./AbstractElems.js";
-import { TextModule } from "./ParseModule.js";
-
-/**
- * A wrapper around a wgsl element targeted for inclusion in the link
- * There is one FoundRef per unique target element.
- * . Multiple references to a single target element share the same FoundRef.
- * . But multiple versions of a target element from generic expansion
- *   result in multiple FoundRefs.
- */
-export type FoundRef = TextRef;
-
-export type StringPairs = [string, string][];
-
-interface FoundRefBase {
-  /** proposed name to use for this referent, either fn/struct name or 'as' name from the import.
-   * name might still be rewritten by global uniqueness remapping */
-  proposedName: string;
-
-  /** rename needed for the referent element due to the global uniqueness mapping */
-  rename?: string;
-}
-
-export interface ExportInfo {
-  /** reference that led us to find this ref */
-  fromRef: FoundRef;
-
-  /** import or extends elem that resolved to this export (so we can later separate out extends) */
-  fromImport: TreeImportElem;
-}
-
-/** A reference to a target wgsl element (e.g. a function). */
-export interface TextRef extends FoundRefBase {
-  kind: "txt";
-
-  /** module containing the referenced element */
-  expMod: TextModule;
-
-  /** referenced element */
-  elem: FnElem | StructElem | VarElem | AliasElem | StructMemberElem;
-
-  /** extra data if the referenced element is from another module */
-  expInfo?: ExportInfo;
-}
-
 export const stdFns = `bitcast all any select arrayLength 
   abs acos acosh asin asinh atan atanh atan2 ceil clamp cos cosh 
   countLeadingZeros countOneBits countTrailingZeros cross 
@@ -110,10 +58,6 @@ export const stdTypes = `array atomic bool f16 f32 i32
 /** return true if the name is for a built in type (not a user struct) */
 export function stdType(name: string): boolean {
   return stdTypes.includes(name);
-}
-
-export function refName(ref: FoundRef): string {
-  return ref.elem.name;
 }
 
 /** return true if the name is for a built in fn (not a user function) */

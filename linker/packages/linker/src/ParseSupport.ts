@@ -16,7 +16,6 @@ import {
   tokens,
   tracing,
 } from "mini-parse";
-import type { AbstractElem, AbstractElemBase } from "./AbstractElems.ts";
 import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
@@ -53,60 +52,3 @@ export const comment = or(() => lineComment, blockComment).trace({
   hide: true,
 });
 
-type ByKind<U, T> = U extends { kind: T } ? U : never;
-
-type TagsType<U extends AbstractElem> = Record<
-  Exclude<keyof U, keyof AbstractElemBase>,
-  any[]
->;
-
-/** create an AbstractElem from parse results
- * @param named keys in the tags result to copy to
- *  like named fields in the abstract elem (as a single value)
- * @param namedArray keys in the tags result to copy to
- *  like named fields in the abstract elem (as an array)
- */
-export function makeElem<
-  U extends AbstractElem,
-  K extends U["kind"], // 'kind' of AbtractElem "fn"
-  E extends ByKind<U, K>, // FnElem
-  T extends TagsType<E>, // {name: string[]}
->(
-  kind: K,
-  er: ExtendedResult<any, Partial<T>>,
-  tags: (keyof T)[] = [],
-  tagArrays: (keyof T)[] = [],
-): Partial<E> {
-  const { start, end } = er;
-
-  const nv = mapIfDefined(tags, er.tags, true);
-  const av = mapIfDefined(tagArrays, er.tags);
-  return { kind, start, end, ...nv, ...av } as Partial<E>;
-}
-
-function mapIfDefined<A>(
-  keys: (keyof A)[],
-  array: Partial<Record<keyof A, string[]>>,
-  firstElemOnly?: boolean,
-): Partial<Record<keyof A, string | string[]>> {
-  const entries = keys.flatMap(k => {
-    const ak = array[k];
-    const v = firstElemOnly ? ak?.[0] : ak;
-
-    if (v === undefined) return [];
-    else return [[k, v]];
-  });
-  return Object.fromEntries(entries);
-}
-
-if (tracing) {
-  const names: Record<string, Parser<unknown>> = {
-    word,
-    blockComment,
-    comment,
-  };
-
-  Object.entries(names).forEach(([name, parser]) => {
-    setTraceName(parser, name);
-  });
-}
