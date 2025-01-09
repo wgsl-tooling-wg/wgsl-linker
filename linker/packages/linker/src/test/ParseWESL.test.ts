@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { astTree } from "../debug/ASTLogging.ts";
-import { treeToString } from "../ImportTree.ts";
 import { parse2Test } from "./TestUtil.ts";
+import { importToString } from "../debug/ImportToString.ts";
 
 test("parse empty string", () => {
   const ast = parse2Test("");
@@ -864,7 +864,7 @@ test("import ./file1/{foo, bar}", ctx => {
 test("import ./file1/{foo, bar}", ctx => {
   const src = ctx.task.name;
   const ast = parse2Test(src);
-  const imps = ast.imports.map(t => treeToString(t)).join("\n");
+  const imps = ast.imports.map(t => importToString(t)).join("\n");
 
   expect(imps).toMatchInlineSnapshot(`"package/file1/{foo, bar}"`);
 });

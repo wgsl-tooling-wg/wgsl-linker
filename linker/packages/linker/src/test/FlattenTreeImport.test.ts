@@ -3,7 +3,6 @@ import {
   ImportTree,
   SegmentList,
   SimpleSegment,
-  treeToString,
 } from "../ImportTree.ts";
 import { flattenTreeImport } from "../FlattenTreeImport.ts";
 

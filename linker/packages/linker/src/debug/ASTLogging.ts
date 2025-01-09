@@ -1,5 +1,5 @@
 import { AbstractElem, ModuleElem } from "../AbstractElems.ts";
-import { treeToString } from "../ImportTree.ts";
+import { importToString } from "./ImportToString.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
 export function astTree(elem: AbstractElem, indent = 0): string {
@@ -113,7 +113,7 @@ function addStructFields(
 
 function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "import") {
-    str.add(" " + treeToString(elem.imports));
+    str.add(" " + importToString(elem.imports));
     return true;
   }
 }
