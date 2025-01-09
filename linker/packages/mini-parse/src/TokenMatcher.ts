@@ -5,7 +5,8 @@ export interface Token {
   text: string;
 }
 
-type FullTokenMatcher<T> = TokenMatcher & {
+/** a TokenMatcher with each token kind exposed as a string property */
+export type FullTokenMatcher<T> = TokenMatcher & {
   [Property in keyof T]: string;
 };
 
