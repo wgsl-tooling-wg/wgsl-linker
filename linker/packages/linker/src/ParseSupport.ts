@@ -16,7 +16,7 @@ import {
   tokens,
   tracing,
 } from "mini-parse";
-import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.ts";
+import { argsTokens, lineCommentTokens, mainTokens } from "./WESLTokens.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
 

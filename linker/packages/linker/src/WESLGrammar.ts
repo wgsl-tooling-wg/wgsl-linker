@@ -19,7 +19,7 @@ import {
   withSepPlus
 } from "mini-parse";
 import { gleamImport } from "./ImportGrammar.ts";
-import { bracketTokens, mainTokens } from "./MatchWgslD.ts";
+import { bracketTokens, mainTokens } from "./WESLTokens.ts";
 import { directive } from "./ParseDirective.ts";
 import { comment, word } from "./ParseSupport.ts";
 import {

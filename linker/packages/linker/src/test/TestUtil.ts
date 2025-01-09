@@ -6,7 +6,7 @@ import {
   TestParseResult,
 } from "mini-parse/test-util";
 import { linkWesl } from "../Linker.js";
-import { mainTokens } from "../MatchWgslD.js";
+import { mainTokens } from "../WESLTokens.js";
 import { parseWESL, syntheticWeslParseState, WeslAST } from "../ParseWESL.js";
 
 export function testAppParse<T, N extends TagRecord = NoTags>(

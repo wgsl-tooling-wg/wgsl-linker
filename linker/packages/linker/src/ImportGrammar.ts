@@ -19,7 +19,7 @@ import {
   tracing,
   withSepPlus,
 } from "mini-parse";
-import { digits, eol, ident } from "./MatchWgslD.js";
+import { digits, eol, ident } from "./WESLTokens.js";
 import {
   importElem,
   importList,

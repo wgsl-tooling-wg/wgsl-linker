@@ -1,6 +1,6 @@
 import { matchingLexer } from "mini-parse";
 import { expect, test } from "vitest";
-import { mainTokens } from "../MatchWgslD.js";
+import { mainTokens } from "../WESLTokens.js";
 
 test("lex #import foo", () => {
   const lexer = matchingLexer(`#import foo`, mainTokens);

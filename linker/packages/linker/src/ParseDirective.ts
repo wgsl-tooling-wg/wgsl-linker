@@ -11,7 +11,7 @@ import {
   tracing,
 } from "mini-parse";
 import { gleamImport } from "./ImportGrammar.js";
-import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.js";
+import { argsTokens, lineCommentTokens, mainTokens } from "./WESLTokens.js";
 import { eolf } from "./ParseSupport.js";
 
 /* parse #directive enhancements to wgsl: #export, etc. */
