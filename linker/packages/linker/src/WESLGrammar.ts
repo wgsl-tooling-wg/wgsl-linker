@@ -16,11 +16,10 @@ import {
   tokenSkipSet,
   tracing,
   withSep,
-  withSepPlus
+  withSepPlus,
 } from "mini-parse";
 import { weslImport } from "./ImportGrammar.ts";
 import { bracketTokens, mainTokens } from "./WESLTokens.ts";
-import { directive } from "./ParseDirective.ts";
 import { comment, word } from "./ParseSupport.ts";
 import {
   collectFn,
@@ -97,9 +96,7 @@ const argument_expression_list = seq(
 const opt_attributes = repeat(attribute);
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(
-  word.collect(declIdentElem, "typeName"),
-);
+export const typeNameDecl = req(word.collect(declIdentElem, "typeName"));
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
@@ -404,13 +401,7 @@ export const fn_decl = seq(
   req(fnNameDecl),
   seq(
     req(fnParamList),
-    opt(
-      seq(
-        "->",
-        opt_attributes,
-        type_specifier.ctag("returnType"),
-      ),
-    ),
+    opt(seq("->", opt_attributes, type_specifier.ctag("returnType"))),
     req(unscoped_compound_statement),
   ).collect(scopeCollect(), "body_scope"),
 ).collect(collectFn());
@@ -474,9 +465,9 @@ const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
 export const weslRoot = preParse(
   comment,
   seq(
-    repeat(or(import_statement, directive)),
-    repeat(or(global_directive, directive)),
-    repeat(or(global_decl, directive)),
+    repeat(weslImport),
+    repeat(or(global_directive, weslImport)),
+    repeat(or(global_decl, weslImport)),
     req(end),
   ).collect(collectModule(), "collectModule"),
 );
