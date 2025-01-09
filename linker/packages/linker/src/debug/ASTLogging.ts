@@ -1,5 +1,5 @@
-import { AbstractElem2, ModuleElem } from "./AbstractElems2.ts";
-import { treeToString } from "./ImportTree.ts";
+import { AbstractElem2, ModuleElem } from "../AbstractElems2.ts";
+import { treeToString } from "../ImportTree.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
 export function astTree(elem: AbstractElem2, indent = 0): string {

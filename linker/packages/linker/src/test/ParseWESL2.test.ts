@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { astTree } from "../ASTLogging.ts";
+import { astTree } from "../debug/ASTLogging.ts";
 import { treeToString } from "../ImportTree.ts";
 import { parse2Test } from "./TestUtil.ts";
 

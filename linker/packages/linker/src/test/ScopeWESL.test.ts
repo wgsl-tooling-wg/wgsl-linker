@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { parseWESL } from "../ParseWESL.ts";
-import { scopeIdentTree } from "../ScopeLogging.ts";
+import { scopeIdentTree } from "../debug/ScopeLogging.ts";
 import { DeclIdent } from "../Scope.ts";
 
 test("scope from simple fn", () => {

@@ -5,7 +5,7 @@ import { lineComment } from "../ParseDirective.js";
 import { blockComment } from "../ParseSupport.js";
 import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
-import { astTree } from "../ASTLogging.js";
+import { astTree } from "../debug/ASTLogging.js";
 
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";

@@ -1,13 +1,12 @@
 import { createTwoFilesPatch } from "diff";
 import fs from "fs";
 import { enableTracing } from "mini-parse";
-import { astTree, linkWeslFiles, normalize } from "wgsl-linker";
+import { astTree, linkWeslFiles, normalize, scopeIdentTree } from "wgsl-linker";
 import yargs from "yargs";
 import {
   parsedRegistry,
   parseIntoRegistry,
 } from "../../linker/src/ParsedRegistry2.js";
-import { scopeIdentTree } from "../../linker/src/ScopeLogging.js";
 
 type CliArgs = ReturnType<typeof parseArgs>;
 let argv: CliArgs;
