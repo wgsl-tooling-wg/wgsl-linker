@@ -2,11 +2,11 @@ import { LineWrapper } from "./LineWrapper.ts";
 import { Ident, Scope } from "../Scope.ts";
 
 /** A debugging print of the scope tree with identifiers in nested brackets */
-export function scopeIdentTree(scope: Scope, indent = 0): string {
+export function scopeToString(scope: Scope, indent = 0): string {
   const { children } = scope;
   let childStrings: string[] = [];
   if (children.length)
-    childStrings = children.map(c => scopeIdentTree(c, indent + 2));
+    childStrings = children.map(c => scopeToString(c, indent + 2));
 
   // list of identifiers, with decls prefixed with '%'
   const identStrings = scope.idents.map(({ kind, originalName }) => {

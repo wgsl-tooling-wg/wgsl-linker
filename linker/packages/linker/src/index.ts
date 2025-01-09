@@ -1,5 +1,5 @@
 export * from "./debug/ASTtoString.js";
-export * from "./debug/ScopeLogging.js";
+export * from "./debug/ScopeToString.js";
 export * from "./Linker.js";
 export * from "./ParseWESL.js";
 export * from "./PathUtil.js";

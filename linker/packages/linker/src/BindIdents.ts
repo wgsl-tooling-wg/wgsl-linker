@@ -4,7 +4,7 @@ import { FlatImport } from "./FlattenTreeImport.ts";
 import { ParsedRegistry } from "./ParsedRegistry.ts";
 import { flatImports, WeslAST } from "./ParseWESL.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
-import { identToString } from "./debug/ScopeLogging.ts";
+import { identToString } from "./debug/ScopeToString.ts";
 import { stdFn, stdType } from "./StandardTypes.ts";
 import { last, overlapTail } from "./Util.ts";
 
