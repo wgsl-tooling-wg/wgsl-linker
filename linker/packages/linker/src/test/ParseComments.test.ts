@@ -5,7 +5,7 @@ import { lineComment } from "../ParseDirective.js";
 import { blockComment } from "../ParseSupport.js";
 import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
-import { astTree } from "../debug/ASTLogging.js";
+import { astToString } from "../debug/ASTtoString.js";
 
 test("lineComment parse // foo bar", () => {
   const src = "// foo bar";
@@ -48,7 +48,7 @@ test("parse fn with line comment", () => {
     fn binaryOp() { // binOpImpl
     }`;
   const parsed = parseWESL(src);
-  expect(astTree(parsed.moduleElem)).toMatchInlineSnapshot(`
+  expect(astToString(parsed.moduleElem)).toMatchInlineSnapshot(`
     "module
       text '
         '

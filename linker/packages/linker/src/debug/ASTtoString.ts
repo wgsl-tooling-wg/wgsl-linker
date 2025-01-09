@@ -2,14 +2,14 @@ import { AbstractElem, ModuleElem } from "../AbstractElems.ts";
 import { importToString } from "./ImportToString.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
-export function astTree(elem: AbstractElem, indent = 0): string {
+export function astToString(elem: AbstractElem, indent = 0): string {
   const { kind, contents } = elem as ModuleElem;
   const str = new LineWrapper(indent);
   str.add(kind);
   addElemFields(elem, str);
   let childStrings: string[] = [];
   if (contents) {
-    childStrings = contents.map(e => astTree(e, indent + 2));
+    childStrings = contents.map(e => astToString(e, indent + 2));
   }
   if (childStrings.length) {
     str.nl();
