@@ -28,7 +28,7 @@ test("simple link", async () => {
   `);
 });
 
-test("ast link", async () => {
+test("link --details", async () => {
   const line = `./src/test/wgsl/main.wgsl 
      ./src/test/wgsl/util.wgsl 
      --baseDir ./src/test/wgsl 
