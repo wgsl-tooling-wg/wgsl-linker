@@ -38,7 +38,6 @@ const moduleDirective = seq(
   eolf,
 )
 
-
 export const directive = tokens(
   argsTokens,
   seq(repeat("\n"), or(exportDirective, gleamImport, moduleDirective)),
