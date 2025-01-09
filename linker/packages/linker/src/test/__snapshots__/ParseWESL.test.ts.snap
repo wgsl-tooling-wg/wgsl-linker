@@ -1,137 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`parse @attribute before fn 1`] = `
-[
-  {
-    "calls": [],
-    "end": 31,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 26,
-      "kind": "fnName",
-      "name": "main",
-      "start": 22,
-    },
-    "start": 5,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse @compute @workgroup_size(a, b, 1) before fn 1`] = `
-[
-  {
-    "calls": [],
-    "end": 61,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 56,
-      "kind": "fnName",
-      "name": "main",
-      "start": 52,
-    },
-    "start": 5,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse array alias 1`] = `
-[
-  {
-    "end": 37,
-    "kind": "alias",
-    "name": "Points3",
-    "start": 5,
-    "typeRefs": {
-      "end": 32,
-      "kind": "typeRef",
-      "name": "Point",
-      "start": 27,
-    },
-  },
-]
-`;
-
-exports[`parse const_assert 1`] = `
-[
-  {
-    "end": 24,
-    "kind": "globalDirective",
-    "start": 5,
-  },
-  {
-    "calls": [],
-    "end": 42,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 37,
-      "kind": "fnName",
-      "name": "main",
-      "start": 33,
-    },
-    "start": 30,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse empty string 1`] = `[]`;
-
-exports[`parse fn foo() { } 1`] = `
-[
-  {
-    "calls": [],
-    "end": 12,
-    "kind": "fn",
-    "name": "foo",
-    "nameElem": {
-      "end": 6,
-      "kind": "fnName",
-      "name": "foo",
-      "start": 3,
-    },
-    "start": 0,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse fn with calls 1`] = `
-[
-  {
-    "calls": [
-      {
-        "end": 14,
-        "kind": "call",
-        "name": "foo",
-        "start": 11,
-      },
-      {
-        "end": 21,
-        "kind": "call",
-        "name": "bar",
-        "start": 18,
-      },
-    ],
-    "end": 26,
-    "kind": "fn",
-    "name": "foo",
-    "nameElem": {
-      "end": 6,
-      "kind": "fnName",
-      "name": "foo",
-      "start": 3,
-    },
-    "start": 0,
-    "typeRefs": [],
-  },
-]
-`;
-
 exports[`parse foo::bar();  1`] = `
 [
   {
@@ -153,30 +21,6 @@ exports[`parse foo::bar();  1`] = `
       "start": 3,
     },
     "start": 0,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse global diagnostic 1`] = `
-[
-  {
-    "end": 43,
-    "kind": "globalDirective",
-    "start": 5,
-  },
-  {
-    "calls": [],
-    "end": 61,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 56,
-      "kind": "fnName",
-      "name": "main",
-      "start": 52,
-    },
-    "start": 49,
     "typeRefs": [],
   },
 ]
@@ -208,260 +52,68 @@ exports[`parse let x: foo::bar;  1`] = `
 ]
 `;
 
-exports[`parse root level ;; 1`] = `[]`;
-
-exports[`parse simple alias 1`] = `
-[
-  {
-    "end": 24,
-    "kind": "alias",
-    "name": "NewType",
-    "start": 0,
-    "typeRefs": [
-      {
-        "end": 23,
-        "kind": "typeRef",
-        "name": "OldType",
-        "start": 16,
-      },
-    ],
-  },
-]
-`;
-
-exports[`parse switch statement 1`] = `
-[
-  {
-    "calls": [],
-    "end": 110,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 12,
-      "kind": "fnName",
-      "name": "main",
-      "start": 8,
-    },
-    "start": 5,
-    "typeRefs": [
-      {
-        "end": 19,
-        "kind": "typeRef",
-        "name": "i32",
-        "start": 16,
-      },
-    ],
-  },
-]
-`;
-
-exports[`parse top level override and const 1`] = `
-[
-  {
-    "end": 21,
-    "kind": "var",
-    "name": "x",
-    "start": 5,
-    "typeRefs": [],
-  },
-  {
-    "end": 38,
-    "kind": "var",
-    "name": "y",
-    "start": 26,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 56,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 51,
-      "kind": "fnName",
-      "name": "main",
-      "start": 47,
-    },
-    "start": 44,
-    "typeRefs": [],
-  },
-]
-`;
-
-exports[`parse top level var 1`] = `
-[
-  {
-    "end": 52,
-    "kind": "var",
-    "name": "u",
-    "start": 5,
-    "typeRefs": [
-      {
-        "end": 51,
-        "kind": "typeRef",
-        "name": "Uniforms",
-        "start": 43,
-      },
-    ],
-  },
-  {
-    "calls": [],
-    "end": 76,
-    "kind": "fn",
-    "name": "main",
-    "nameElem": {
-      "end": 71,
-      "kind": "fnName",
-      "name": "main",
-      "start": 67,
-    },
-    "start": 64,
-    "typeRefs": [],
-  },
-]
-`;
-
 exports[`parse unicode ident 1`] = `
-[
-  {
-    "calls": [],
-    "end": 15,
-    "kind": "fn",
-    "name": "Δέλτα",
-    "nameElem": {
-      "end": 11,
-      "kind": "fnName",
-      "name": "Δέλτα",
-      "start": 6,
-    },
-    "start": 3,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 35,
-    "kind": "fn",
-    "name": "réflexion",
-    "nameElem": {
-      "end": 31,
-      "kind": "fnName",
-      "name": "réflexion",
-      "start": 22,
-    },
-    "start": 19,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 51,
-    "kind": "fn",
-    "name": "Кызыл",
-    "nameElem": {
-      "end": 47,
-      "kind": "fnName",
-      "name": "Кызыл",
-      "start": 42,
-    },
-    "start": 39,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 68,
-    "kind": "fn",
-    "name": "𐰓𐰏𐰇",
-    "nameElem": {
-      "end": 64,
-      "kind": "fnName",
-      "name": "𐰓𐰏𐰇",
-      "start": 58,
-    },
-    "start": 55,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 82,
-    "kind": "fn",
-    "name": "朝焼け",
-    "nameElem": {
-      "end": 78,
-      "kind": "fnName",
-      "name": "朝焼け",
-      "start": 75,
-    },
-    "start": 72,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 96,
-    "kind": "fn",
-    "name": "سلام",
-    "nameElem": {
-      "end": 92,
-      "kind": "fnName",
-      "name": "سلام",
-      "start": 88,
-    },
-    "start": 85,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 109,
-    "kind": "fn",
-    "name": "검정",
-    "nameElem": {
-      "end": 105,
-      "kind": "fnName",
-      "name": "검정",
-      "start": 103,
-    },
-    "start": 100,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 127,
-    "kind": "fn",
-    "name": "שָׁלוֹם",
-    "nameElem": {
-      "end": 123,
-      "kind": "fnName",
-      "name": "שָׁלוֹם",
-      "start": 116,
-    },
-    "start": 113,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 143,
-    "kind": "fn",
-    "name": "गुलाबी",
-    "nameElem": {
-      "end": 139,
-      "kind": "fnName",
-      "name": "गुलाबी",
-      "start": 133,
-    },
-    "start": 130,
-    "typeRefs": [],
-  },
-  {
-    "calls": [],
-    "end": 159,
-    "kind": "fn",
-    "name": "փիրուզ",
-    "nameElem": {
-      "end": 155,
-      "kind": "fnName",
-      "name": "փիրուզ",
-      "start": 149,
-    },
-    "start": 146,
-    "typeRefs": [],
-  },
-]
+"module
+  text '
+  '
+  fn Δέλτα()
+    text 'fn '
+    decl %Δέλτα
+    text '(){}'
+  text ' 
+  '
+  fn réflexion()
+    text 'fn '
+    decl %réflexion
+    text '(){}'
+  text ' 
+  '
+  fn Кызыл()
+    text 'fn '
+    decl %Кызыл
+    text '(){}'
+  text ' 
+  '
+  fn 𐰓𐰏𐰇()
+    text 'fn '
+    decl %𐰓𐰏𐰇
+    text '(){}'
+  text ' 
+  '
+  fn 朝焼け()
+    text 'fn '
+    decl %朝焼け
+    text '(){}'
+  text '
+  '
+  fn سلام()
+    text 'fn '
+    decl %سلام
+    text '(){}'
+  text ' 
+  '
+  fn 검정()
+    text 'fn '
+    decl %검정
+    text '(){}'
+  text ' 
+  '
+  fn שָׁלוֹם()
+    text 'fn '
+    decl %שָׁלוֹם
+    text '(){}'
+  text '
+  '
+  fn गुलाबी()
+    text 'fn '
+    decl %गुलाबी
+    text '(){}'
+  text '
+  '
+  fn փիրուզ()
+    text 'fn '
+    decl %փիրուզ
+    text '(){}'
+  text '
+  '"
 `;
