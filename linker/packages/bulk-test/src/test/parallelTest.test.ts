@@ -1,6 +1,6 @@
 import { expectNoLog } from "mini-parse/test-util";
 import fs from "node:fs/promises";
-import { test } from "vitest";
+import { expect, test } from "vitest";
 import { linkWeslFiles, noSuffix } from "wgsl-linker";
 import { findBulkTestPaths } from "../findBulkTests.ts";
 
@@ -21,7 +21,10 @@ export function testWgslFiles(namedPaths: NamedPath[]) {
     const shortPath = "./" + name;
     test(name, async () => {
       const text = await fs.readFile(filePath, { encoding: "utf8" });
-      expectNoLog(() => linkWeslFiles({ [shortPath]: text }, noSuffix(name)));
+      const result = expectNoLog(() =>
+        linkWeslFiles({ [shortPath]: text }, noSuffix(name)),
+      );
+      expect(result.dest).eq(text);
     });
   });
 }
