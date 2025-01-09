@@ -478,7 +478,7 @@ export const global_alias = seq(
   "alias",
   req(word.tag("name")).collect(declIdentElem, "declIdent"),
   req("="),
-  req(type_specifier).tag("typeRefs"),
+  req(type_specifier).collect(scopeCollect(), "decl_scope").tag("typeRefs"),
   req(";"),
 )
   .collect(collectVarLike("alias"), "global_alias")

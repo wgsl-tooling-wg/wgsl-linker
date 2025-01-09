@@ -90,7 +90,11 @@ test("alias", () => {
     alias A = B;
   `;
   const { rootScope } = parseWESL(src);
-  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`"{ %A, B }"`);
+  expect(scopeIdentTree(rootScope)).toMatchInlineSnapshot(`
+    "{ %A
+      { B }
+    }"
+  `);
 });
 
 test("switch", () => {
