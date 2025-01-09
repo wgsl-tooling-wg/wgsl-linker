@@ -2,7 +2,7 @@
   "name": "root",
   "type": "module",
   "scripts": {
-    "bump": "scripts/runTs bump --version",
+    "bump": "tsx scripts/bump.ts --version",
     "build:all": "pnpm --filter \"./packages/**\" build",
     "format:all": "pnpm --filter \"./packages/**\" format",
     "lint:all": "pnpm --no-bail --filter \"./packages/**\" lint",
