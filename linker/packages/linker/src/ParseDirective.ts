@@ -10,7 +10,7 @@ import {
   tokens,
   tracing,
 } from "mini-parse";
-import { gleamImport } from "./GleamImport.js";
+import { gleamImport } from "./ImportGrammar.js";
 import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.js";
 import { eolf } from "./ParseSupport.js";
 
