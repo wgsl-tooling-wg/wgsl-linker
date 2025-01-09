@@ -5,7 +5,7 @@ import { ParsedRegistry } from "./ParsedRegistry.ts";
 import { flatImports, WeslAST } from "./ParseWESL.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
 import { identToString } from "./debug/ScopeLogging.ts";
-import { stdFn, stdType } from "./TraverseRefs.ts";
+import { stdFn, stdType } from "./StandardTypes.ts";
 import { last, overlapTail } from "./Util.ts";
 
 /**
