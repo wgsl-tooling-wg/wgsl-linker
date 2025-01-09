@@ -95,7 +95,6 @@ const argument_expression_list = seq(
 );
 
 const opt_attributes = repeat(attribute);
-const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
