@@ -1,1 +1,1 @@
-export fn bar() { }
+fn bar() { }
