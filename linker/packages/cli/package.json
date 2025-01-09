@@ -1,6 +1,6 @@
 {
   "name": "wgsl-link",
-  "version": "0.5.0-d1",
+  "version": "0.6.0-pre1",
   "type": "module",
   "scripts": {
     "build": "esbuild --bundle --platform=node --format=esm --outfile=bin/wgsl-link src/main.ts",

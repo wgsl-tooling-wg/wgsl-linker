@@ -1,6 +1,6 @@
 {
   "name": "bulk-test",
-  "version": "0.5.0-d1",
+  "version": "0.6.0-pre1",
   "type": "module",
   "scripts": {
     "format": "prettier . --write",
