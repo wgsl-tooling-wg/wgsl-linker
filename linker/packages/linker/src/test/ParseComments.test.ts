@@ -23,7 +23,18 @@ test("blockComment parses /* comment */", () => {
   const src = "/* comment */";
   expectNoLog(() => {
     const { parsed } = testAppParse(blockComment, src);
-    expect(parsed).toMatchSnapshot();
+    expect(parsed?.value).toMatchInlineSnapshot(`
+      [
+        "/*",
+        [
+          {
+            "kind": "ident",
+            "text": "comment",
+          },
+        ],
+        "*/",
+      ]
+    `);
   });
 });
 
