@@ -1,7 +1,7 @@
 import { expectNoLog } from "mini-parse/test-util";
 
 import { expect, test } from "vitest";
-import { blockComment, lineComment } from "../ParseSupport.js";
+import { blockComment, lineComment } from "../CommentsGrammar.js";
 import { parseWESL } from "../ParseWESL.js";
 import { testAppParse } from "./TestUtil.js";
 import { astToString } from "../debug/ASTtoString.js";

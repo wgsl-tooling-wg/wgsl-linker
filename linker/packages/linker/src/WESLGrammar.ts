@@ -20,7 +20,7 @@ import {
 } from "mini-parse";
 import { weslImport } from "./ImportGrammar.ts";
 import { bracketTokens, mainTokens } from "./WESLTokens.ts";
-import { comment } from "./ParseSupport.ts";
+import { comment } from "./CommentsGrammar.ts";
 import {
   collectFn,
   collectFnParam,
