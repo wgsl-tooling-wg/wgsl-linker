@@ -1,6 +1,6 @@
 // PCG pseudo random generator from vec2u to vec4f
 // the random output is in the range from zero to 1
-export fn pcg_2u_3f(pos: vec2u) -> vec3f {
+fn pcg_2u_3f(pos: vec3u) -> vec3f {
     let seed = mix2to3(pos);
     let random = pcg_3u_3u(seed);
     let normalized = ldexp(vec3f(random), vec3(-32));
@@ -9,7 +9,7 @@ export fn pcg_2u_3f(pos: vec2u) -> vec3f {
 
 // PCG random generator from vec3u to vec3u
 // adapted from http://www.jcgt.org/published/0009/03/02/
-export fn pcg_3u_3u(seed: vec3u) -> vec3u {
+fn pcg_3u_3u(seed: vec3u) -> vec3u {
     var v = seed * 1664525u + 1013904223u;
 
     v = mixing(v);
@@ -40,6 +40,6 @@ fn mix2to3(p: vec2u) -> vec3u {
 }
 
 // from https://stackoverflow.com/questions/12964279/whats-the-origin-of-this-glsl-rand-one-liner
-export fn sinRand(co: vec2f) -> f32 {
+fn sinRand(co: vec2f) -> f32 {
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
