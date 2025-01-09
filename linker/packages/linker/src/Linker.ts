@@ -3,12 +3,12 @@ import { bindIdents } from "./BindIdents.ts";
 import { lowerAndEmit } from "./LowerAndEmit.ts";
 import {
   parsedRegistry,
-  ParsedRegistry2,
+  ParsedRegistry,
   parseIntoRegistry,
   parseLibsIntoRegistry,
   parseWeslSrc,
   selectModule,
-} from "./ParsedRegistry2.ts";
+} from "./ParsedRegistry.ts";
 import { Conditions } from "./Scope.ts";
 import { WgslBundle } from "./WgslBundle.ts";
 
@@ -66,7 +66,7 @@ export function linkWesl(
   /* --- Step #1   Parsing WESL --- */
   // parse all source modules in both app and libraries,
   // producing Scope tree and AST elements for each module
-  const parsed: ParsedRegistry2 = parseWeslSrc(weslSrc);
+  const parsed: ParsedRegistry = parseWeslSrc(weslSrc);
 
   return linkRegistry(parsed, rootModuleName, conditions);
 }
@@ -86,7 +86,7 @@ export function linkWeslFiles(
 }
 
 export function linkRegistry(
-  parsed: ParsedRegistry2,
+  parsed: ParsedRegistry,
   rootModuleName: string = "main",
   conditions: Conditions = {},
 ): SrcMap {

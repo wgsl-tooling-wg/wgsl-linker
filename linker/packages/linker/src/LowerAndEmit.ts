@@ -1,11 +1,11 @@
 import { SrcMapBuilder, tracing } from "mini-parse";
 import {
-  AbstractElem2,
+  AbstractElem,
   DeclIdentElem,
   RefIdentElem,
   NameElem,
   TextElem,
-} from "./AbstractElems2.ts";
+} from "./AbstractElems.ts";
 import { isGlobal } from "./BindIdents.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
 import { identToString } from "./debug/ScopeLogging.ts";
@@ -20,7 +20,7 @@ interface EmitContext {
 /** traverse the AST, starting from root elements, emitting wgsl for each */
 export function lowerAndEmit(
   srcBuilder: SrcMapBuilder,
-  rootElems: AbstractElem2[],
+  rootElems: AbstractElem[],
   conditions: Conditions,
   extracting = true,
 ): void {
@@ -29,7 +29,7 @@ export function lowerAndEmit(
 }
 
 function lowerAndEmitRecursive(
-  elems: AbstractElem2[],
+  elems: AbstractElem[],
   emitContext: EmitContext,
 ): void {
   const validElems = elems.filter(e =>
@@ -38,7 +38,7 @@ function lowerAndEmitRecursive(
   validElems.forEach(e => lowerAndEmitElem(e, emitContext));
 }
 
-export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
+export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
   switch (e.kind) {
     case "import":
       return; // drop imports statements from emitted text
@@ -82,7 +82,7 @@ export function emitName(e: NameElem, ctx: EmitContext): void {
 }
 
 export function emitContents(
-  elem: AbstractElem2 & { contents: AbstractElem2[] },
+  elem: AbstractElem & { contents: AbstractElem[] },
   ctx: EmitContext,
 ): void {
   elem.contents.forEach(e => lowerAndEmitElem(e, ctx));
@@ -136,7 +136,7 @@ export function findDecl(ident: Ident): DeclIdent {
 
 /** check if the element is visible with the current current conditional compilation settings */
 export function conditionsValid(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   conditions: Conditions,
 ): boolean {
   return true;

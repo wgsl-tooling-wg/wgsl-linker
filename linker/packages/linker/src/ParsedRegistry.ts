@@ -3,11 +3,11 @@ import { parseSrcModule, parseWESL, WeslAST } from "./ParseWESL.ts";
 import { normalize, noSuffix } from "./PathUtil.ts";
 import { SrcModule } from "./Scope.ts";
 
-export interface ParsedRegistry2 {
+export interface ParsedRegistry {
   modules: Record<string, WeslAST>; // key is module path, e.g. "rand_pkg::foo::bar"
 }
 
-export function parsedRegistry(): ParsedRegistry2 {
+export function parsedRegistry(): ParsedRegistry {
   return { modules: {} };
 }
 
@@ -15,7 +15,7 @@ export function parsedRegistry(): ParsedRegistry2 {
  * Parse WESL each src module (file) into AST elements and a Scope tree.
  * @param src keys are module paths, values are wesl src strings
  */
-export function parseWeslSrc(src: Record<string, string>): ParsedRegistry2 {
+export function parseWeslSrc(src: Record<string, string>): ParsedRegistry {
   const parsedEntries = Object.entries(src).map(([path, src]) => {
     const weslAST = parseWESL(src);
     return [path, weslAST];
@@ -29,7 +29,7 @@ export function parseWeslSrc(src: Record<string, string>): ParsedRegistry2 {
  *    simpleName                  util
  */
 export function selectModule(
-  parsed: ParsedRegistry2,
+  parsed: ParsedRegistry,
   selectPath: string,
   packageName = "package",
 ): WeslAST | undefined {
@@ -54,7 +54,7 @@ export function selectModule(
  */
 export function parseIntoRegistry(
   srcFiles: Record<string, string>,
-  registry: ParsedRegistry2,
+  registry: ParsedRegistry,
   packageName: string = "package",
   maxParseCount?: number,
 ): void {
@@ -75,7 +75,7 @@ export function parseIntoRegistry(
 
 export function parseLibsIntoRegistry(
   libs: WgslBundle[],
-  registry: ParsedRegistry2,
+  registry: ParsedRegistry,
 ): void {
   libs.forEach(({ modules, name }) =>
     parseIntoRegistry(modules, registry, name),

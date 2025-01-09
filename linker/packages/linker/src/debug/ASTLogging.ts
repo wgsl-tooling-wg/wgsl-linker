@@ -1,8 +1,8 @@
-import { AbstractElem2, ModuleElem } from "../AbstractElems2.ts";
+import { AbstractElem, ModuleElem } from "../AbstractElems.ts";
 import { treeToString } from "../ImportTree.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
-export function astTree(elem: AbstractElem2, indent = 0): string {
+export function astTree(elem: AbstractElem, indent = 0): string {
   const { kind, contents } = elem as ModuleElem;
   const str = new LineWrapper(indent);
   str.add(kind);
@@ -19,7 +19,7 @@ export function astTree(elem: AbstractElem2, indent = 0): string {
   return str.result;
 }
 
-export function elemToString(elem: AbstractElem2): string {
+export function elemToString(elem: AbstractElem): string {
   const { kind } = elem as ModuleElem;
   const str = new LineWrapper();
   str.add(kind);
@@ -32,7 +32,7 @@ export function elemToString(elem: AbstractElem2): string {
   return str.result;
 }
 
-function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
+function addElemFields(elem: AbstractElem, str: LineWrapper): void {
   addTextFields(elem, str) ||
     addVarishFields(elem, str) ||
     addStructFields(elem, str) ||
@@ -45,7 +45,7 @@ function addElemFields(elem: AbstractElem2, str: LineWrapper): void {
 }
 
 function addVarishFields(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
   const { kind } = elem;
@@ -64,7 +64,7 @@ function addVarishFields(
 }
 
 function addTextFields(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "text") {
@@ -74,14 +74,14 @@ function addTextFields(
   }
 }
 
-function addRefIdent(elem: AbstractElem2, str: LineWrapper): true | undefined {
+function addRefIdent(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "ref") {
     str.add(" " + elem.ident.originalName);
     return true;
   }
 }
 
-function addDeclIdent(elem: AbstractElem2, str: LineWrapper): true | undefined {
+function addDeclIdent(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "decl") {
     str.add(" %" + elem.ident.originalName);
     return true;
@@ -89,7 +89,7 @@ function addDeclIdent(elem: AbstractElem2, str: LineWrapper): true | undefined {
 }
 
 function addAliasFields(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "alias") {
@@ -102,7 +102,7 @@ function addAliasFields(
 }
 
 function addStructFields(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "struct") {
@@ -111,7 +111,7 @@ function addStructFields(
   }
 }
 
-function addImport(elem: AbstractElem2, str: LineWrapper): true | undefined {
+function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "import") {
     str.add(" " + treeToString(elem.imports));
     return true;
@@ -119,7 +119,7 @@ function addImport(elem: AbstractElem2, str: LineWrapper): true | undefined {
 }
 
 function addNameFields(
-  elem: AbstractElem2,
+  elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "name") {
@@ -128,7 +128,7 @@ function addNameFields(
   }
 }
 
-function addFnFields(elem: AbstractElem2, str: LineWrapper): true | undefined {
+function addFnFields(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "fn") {
     const { name, params, returnType } = elem;
     str.add(" " + name.ident.originalName);

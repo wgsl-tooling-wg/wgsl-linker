@@ -1,4 +1,4 @@
-import { DeclarationElem, RefIdentElem } from "./AbstractElems2.ts";
+import { DeclarationElem, RefIdentElem } from "./AbstractElems.ts";
 import { WeslAST } from "./ParseWESL.ts";
 
 export interface SrcModule {

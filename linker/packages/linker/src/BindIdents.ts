@@ -1,7 +1,7 @@
 import { debugNames, srcLog } from "mini-parse";
-import { DeclarationElem } from "./AbstractElems2.ts";
+import { DeclarationElem } from "./AbstractElems.ts";
 import { FlatImport } from "./FlattenTreeImport.ts";
-import { ParsedRegistry2 } from "./ParsedRegistry2.ts";
+import { ParsedRegistry } from "./ParsedRegistry.ts";
 import { flatImports, WeslAST } from "./ParseWESL.ts";
 import { DeclIdent, exportDecl, RefIdent, Scope } from "./Scope.ts";
 import { identToString } from "./debug/ScopeLogging.ts";
@@ -18,7 +18,7 @@ import { last, overlapTail } from "./Util.ts";
  */
 export function bindIdents(
   ast: WeslAST,
-  parsed: ParsedRegistry2,
+  parsed: ParsedRegistry,
   conditions: Record<string, any>,
 ): DeclarationElem[] {
   /* 
@@ -55,7 +55,7 @@ export function bindIdents(
 }
 
 interface BindContext {
-  parsed: ParsedRegistry2;
+  parsed: ParsedRegistry;
   conditions: Record<string, any>;
   knownDecls: Set<DeclIdent>; // decl idents discovered so far
   foundScopes: Set<Scope>; // save work by not processing scopes multiple times
@@ -199,7 +199,7 @@ function findDeclInModule(
  * another module via an import statement */
 function findDeclImport(
   refIdent: RefIdent,
-  parsed: ParsedRegistry2,
+  parsed: ParsedRegistry,
 ): DeclIdent | undefined {
   // dlog(identToString(refIdent), { ast: !!refIdent.ast });
   const flatImps = flatImports(refIdent.ast);
@@ -229,7 +229,7 @@ function matchingImport(
 /** @return an exported root element for the provided path */
 function findExport(
   modulePathParts: string[],
-  parsed: ParsedRegistry2,
+  parsed: ParsedRegistry,
 ): DeclIdent | undefined {
   const legacyConvert = modulePathParts.map(p => (p === "." ? "package" : p)); // TODO rm after we update grammar
   const modulePath = legacyConvert.slice(0, -1).join("::");

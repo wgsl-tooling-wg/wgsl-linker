@@ -1,6 +1,6 @@
 import { CollectContext, CollectPair, tracing } from "mini-parse";
 import {
-  AbstractElem2,
+  AbstractElem,
   AliasElem,
   ConstElem,
   DeclarationElem,
@@ -18,7 +18,7 @@ import {
   StructMemberElem,
   TextElem,
   VarElem,
-} from "./AbstractElems2.ts";
+} from "./AbstractElems.ts";
 import {
   ImportTree,
   PathSegment,
@@ -34,7 +34,7 @@ import {
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
 
 /** add an elem to the .contents array of the currently containing element */
-function addToOpenElem(cc: CollectContext, elem: AbstractElem2): void {
+function addToOpenElem(cc: CollectContext, elem: AbstractElem): void {
   const weslContext: WeslParseContext = cc.app.context;
   const { openElems } = weslContext;
   if (openElems && openElems.length) {
@@ -115,12 +115,12 @@ function completeScope(cc: CollectContext): Scope {
 }
 
 // prettier-ignore
-export type OpenElem<T extends AbstractElem2 = AbstractElem2> = 
-  Pick< T, "kind" > & { contents: AbstractElem2[] };
+export type OpenElem<T extends AbstractElem = AbstractElem> = 
+  Pick< T, "kind" > & { contents: AbstractElem[] };
 
 // prettier-ignore
-export type PartElem<T extends AbstractElem2 = AbstractElem2> = 
-  Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem2[] };
+export type PartElem<T extends AbstractElem = AbstractElem> = 
+  Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem[] };
 
 type VarLikeElem =
   | GlobalVarElem
@@ -266,13 +266,13 @@ export function scopeCollect(): CollectPair<void> {
   };
 }
 
-export function collectSimpleElem<V extends AbstractElem2 & ElemWithContents>(
+export function collectSimpleElem<V extends AbstractElem & ElemWithContents>(
   kind: V["kind"],
 ): CollectPair<V> {
   return collectElem(kind, (cc, part) => withTextCover(part, cc) as V);
 }
 
-function collectElem<V extends AbstractElem2>(
+function collectElem<V extends AbstractElem>(
   kind: V["kind"],
   fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
 ): CollectPair<V> {
@@ -311,8 +311,8 @@ function withTextCover<T extends ElemWithContents>(
  * @returns the existing elems combined with any new TextElems, in src order */
 function coverWithText(
   cc: CollectContext,
-  existing: AbstractElem2[],
-): AbstractElem2[] {
+  existing: AbstractElem[],
+): AbstractElem[] {
   let { start: pos } = cc;
   const { end, app } = cc;
   const ast: WeslAST = app.stable;

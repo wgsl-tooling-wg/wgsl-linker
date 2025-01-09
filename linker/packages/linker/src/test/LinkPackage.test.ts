@@ -1,7 +1,7 @@
 import { expectNoLog } from "mini-parse/test-util";
 import { expect, test } from "vitest";
 import lib from "random_wgsl";
-import { linkWeslFiles } from "../Linker2.ts";
+import { linkWeslFiles } from "../Linker.ts";
 
 test("import rand() from a package", () => {
   const src = `

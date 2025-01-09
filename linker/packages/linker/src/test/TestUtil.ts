@@ -5,7 +5,7 @@ import {
   testParse,
   TestParseResult,
 } from "mini-parse/test-util";
-import { linkWesl } from "../Linker2.js";
+import { linkWesl } from "../Linker.js";
 import { mainTokens } from "../MatchWgslD.js";
 import { parseWESL, syntheticWeslParseState, WeslAST } from "../ParseWESL.js";
 

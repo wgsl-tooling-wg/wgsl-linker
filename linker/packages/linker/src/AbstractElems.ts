@@ -1,7 +1,7 @@
 import { ImportTree } from "./ImportTree.ts";
 import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 
-export type AbstractElem2 =
+export type AbstractElem =
   | AliasElem
   | ConstElem
   | ImportElem
@@ -29,14 +29,14 @@ export type DeclarationElem =
   | GlobalVarElem
   | VarElem;
 
-export interface AbstractElemBase2 {
+export interface AbstractElemBase {
   kind: string;
   start: number;
   end: number;
 }
 
-export interface ElemWithContents extends AbstractElemBase2 {
-  contents: AbstractElem2[];
+export interface ElemWithContents extends AbstractElemBase {
+  contents: AbstractElem[];
 }
 
 export interface ImportElem extends ElemWithContents {
@@ -45,14 +45,14 @@ export interface ImportElem extends ElemWithContents {
 }
 
 /** an identifier in WESL source */
-export interface RefIdentElem extends AbstractElemBase2 {
+export interface RefIdentElem extends AbstractElemBase {
   kind: RefIdent["kind"];
   ident: RefIdent;
   srcModule: SrcModule;
 }
 
 /** an identifier in WESL source */
-export interface DeclIdentElem extends AbstractElemBase2 {
+export interface DeclIdentElem extends AbstractElemBase {
   kind: DeclIdent["kind"];
   ident: DeclIdent;
   srcModule: SrcModule;
@@ -61,7 +61,7 @@ export interface DeclIdentElem extends AbstractElemBase2 {
 /** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
  e.g. a keyword  like 'var' or '@diagnostic(off,derivative_uniformity)'
 */
-export interface TextElem extends AbstractElemBase2 {
+export interface TextElem extends AbstractElemBase {
   kind: "text";
   srcModule: SrcModule;
 }
@@ -133,7 +133,7 @@ export interface StructMemberElem extends ElemWithContents {
 }
 
 /** a name (e.g. a struct member name) that doesn't need to be an Ident */
-export interface NameElem extends AbstractElemBase2 {
+export interface NameElem extends AbstractElemBase {
   kind: "name";
   name: string;
   srcModule: SrcModule;

@@ -1,6 +1,6 @@
 import { afterAll, expect, test } from "vitest";
 import { importCases } from "wesl-testsuite";
-import { linkWeslFiles } from "../Linker2.js";
+import { linkWeslFiles } from "../Linker.js";
 import { matchTrimmed, trimSrc } from "./shared/StringUtil.js";
 
 interface LinkExpectation {

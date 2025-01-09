@@ -1,5 +1,5 @@
 import { AppState, matchingLexer, ParserInit, SrcMap } from "mini-parse";
-import { ModuleElem } from "./AbstractElems2.ts";
+import { ModuleElem } from "./AbstractElems.ts";
 import { ImportTree } from "./ImportTree.ts";
 import { mainTokens } from "./MatchWgslD.ts";
 import { emptyScope, resetScopeIds, Scope, SrcModule } from "./Scope.ts";
