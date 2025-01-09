@@ -350,19 +350,23 @@ test("return type of function", ctx => {
   });
 });
 
-// test(, ctx => {
-//   linkTest2(ctx.task.name, {
-//     linked: `
-//     `,
-//   });
-// });
+test("import a const", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn m() { let a = conA; }
+        const conA = 11;
+    `,
+  });
+});
 
-// test(, ctx => {
-//   linkTest2(ctx.task.name, {
-//     linked: `
-//     `,
-//   });
-// });
+test("import an alias", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+        fn m() { let a: aliasA = 4; }
+        alias aliasA = u32;
+    `,
+  });
+});
 
 // test(, ctx => {
 //   linkTest2(ctx.task.name, {
