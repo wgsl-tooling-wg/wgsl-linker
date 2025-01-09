@@ -47,6 +47,7 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "override":
     case "const":
     case "assert":
+    case "alias":
     case "gvar":
       if (ctx.extracting) {
         ctx.srcBuilder.addNl();
@@ -61,7 +62,6 @@ export function lowerAndEmitElem(e: AbstractElem2, ctx: EmitContext): void {
     case "param":
     case "var":
     case "module":
-    case "alias":
     case "member":
       return emitContents(e, ctx);
     case "name":
