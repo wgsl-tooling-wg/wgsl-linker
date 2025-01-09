@@ -7,6 +7,7 @@
     "format:all": "pnpm --filter \"./packages/**\" format",
     "lint:all": "pnpm --no-bail --filter \"./packages/**\" lint",
     "organize:all": "pnpm --filter \"./packages/**\" organize",
+    "prepublishOnly:all": "pnpm --filter \"./packages/**\" prepublishOnly",
     "publish:all": "pnpm --filter \"./packages/**\" publish",
     "test:all": "run-s test:once",
     "test:once": "pnpm --filter \"./packages/**\" test:once",
