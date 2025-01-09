@@ -519,14 +519,14 @@ test("parse for(;;) {} not as a fn call", () => {
 
 test("eolf followed by blank line", () => {
   const src = `
-    export fn foo() { }
+    fn foo() { }
   `;
   const ast = parse2Test(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
       text '
-        export '
+        '
       fn foo()
         text 'fn '
         decl %foo
