@@ -1,6 +1,5 @@
 import {
   eof,
-  ExtendedResult,
   kind,
   opt,
   or,
@@ -17,28 +16,23 @@ import {
   tokenSkipSet,
   tracing,
   withSep,
-  withSepPlus,
+  withSepPlus
 } from "mini-parse";
-import { CallElem, TypeNameElem, TypeRefElem } from "./AbstractElems.ts";
 import { gleamImport } from "./GleamImport.ts";
 import { bracketTokens, mainTokens } from "./MatchWgslD.ts";
 import { directive } from "./ParseDirective.ts";
-import { comment, makeElem, word } from "./ParseSupport.ts";
+import { comment, word } from "./ParseSupport.ts";
 import {
-  identLocToCallElem,
-  identToTypeRefOrLocation,
-} from "./ParsingHacks.ts";
-import {
+  collectFn,
+  collectFnParam,
   collectModule,
-  declIdentElem,
-  refIdent,
-  collectVarLike,
+  collectNameElem,
   collectSimpleElem,
   collectStruct,
   collectStructMember,
-  collectNameElem,
-  collectFn,
-  collectFnParam,
+  collectVarLike,
+  declIdentElem,
+  refIdent,
   scopeCollect,
 } from "./WESLCollect.ts";
 
@@ -105,28 +99,18 @@ const possibleTypeRef = Symbol("typeRef");
 
 /** parse an identifier into a TypeNameElem */
 export const typeNameDecl = req(
-  word.collect(declIdentElem, "typeName").tag("name"),
-).map(r => {
-  return makeElem("typeName", r, ["name"]) as TypeNameElem;
-});
+  word.collect(declIdentElem, "typeName"),
+);
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.tag("name").collect(declIdentElem, "fnName"),
+  word.collect(declIdentElem, "fnName"),
   "missing fn name",
-).map(r => {
-  return makeElem("fnName", r, ["name"]);
-});
+);
 
 const std_type_specifier = seq(
-  word.tag(possibleTypeRef).collect(refIdent, "typeRef"),
+  word.collect(refIdent, "typeRef"),
   () => opt_template_list,
-).map(r =>
-  r.tags[possibleTypeRef].map(name => {
-    const e = makeElem("typeRef", r as ExtendedResult<any>);
-    e.name = name;
-    return e as Required<typeof e>;
-  }),
 );
 
 const texture_storage_type = seq(
@@ -144,55 +128,39 @@ const ptr_type = seq(
   req(">"),
 );
 
-export const type_specifier: Parser<TypeRefElem[]> = or(
+export const type_specifier: Parser<any> = or(
   texture_storage_type,
   ptr_type,
   std_type_specifier,
 ) as any;
 
 const optionally_typed_ident = seq(
-  word.tag("name").collect(declIdentElem, "declIdent"),
-  opt(seq(":", type_specifier.tag("typeRefs"))),
+  word.collect(declIdentElem, "declIdent"),
+  opt(seq(":", type_specifier)),
 );
 
 const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const struct_member = seq(
   opt_attributes,
-  word.tag("name").collect(collectNameElem, "nameElem"),
+  word.collect(collectNameElem, "nameElem"),
   ":",
-  req(type_specifier.tag("typeRefs")),
-)
-  .collect(collectStructMember())
-  .map(r => {
-    return makeElem("member", r, ["name", "typeRefs"]);
-  });
+  req(type_specifier),
+).collect(collectStructMember());
 
 export const struct_decl = seq(
   "struct",
-  req(typeNameDecl).tag("nameElem"),
+  req(typeNameDecl),
   seq(
     req("{"),
-    withSepPlus(",", struct_member).ptag("members").tag("members"),
+    withSepPlus(",", struct_member).ptag("members"),
     req("}"),
   ).collect(scopeCollect(), "struct_scope"),
-)
-  .collect(collectStruct())
-  .map(r => {
-    const e = makeElem("struct", r, ["members"]);
-    const nameElem = r.tags.nameElem[0];
-    e.nameElem = nameElem;
-    e.name = nameElem.name;
-    r.app.stable.elems.push(e);
-  });
+).collect(collectStruct());
 
 /** Also covers func_call_statement.post.ident */
 export const fn_call = seq(
-  word
-    .tag("name")
-    .collect(refIdent, "fn_call.refIdent")
-    .map(r => makeElem("call", r, ["name"]))
-    .tag("calls"), // we collect this in fnDecl, to attach to FnElem
+  word.collect(refIdent, "fn_call.refIdent"), // we collect this in fnDecl, to attach to FnElem
   () => opt_template_list,
   argument_expression_list,
 );
@@ -201,7 +169,7 @@ const fnParam = tagScope(
   seq(
     opt_attributes,
     word.collect(declIdentElem, "paramName"),
-    opt(seq(":", req(type_specifier.tag("typeRefs")))),
+    opt(seq(":", req(type_specifier))),
   ).collect(collectFnParam()),
 ).ctag("fnParam");
 
@@ -227,7 +195,7 @@ const opt_template_list = opt(
     tokens(bracketTokens, "<"),
     withSepPlus(",", () => template_arg_expression),
     tokens(bracketTokens, ">"),
-  ).tag("template"),
+  ),
 );
 
 /** template list of non-identifier words. e.g. var <storage> */
@@ -240,7 +208,7 @@ const opt_template_words = opt(
 );
 
 const template_elaborated_ident = seq(
-  word.collect(refIdent).map(identToTypeRefOrLocation).tag("identLoc"),
+  word.collect(refIdent),
   opt_template_list,
 );
 
@@ -248,9 +216,10 @@ const literal = or("true", "false", kind(mainTokens.digits));
 
 const paren_expression = seq("(", () => expression, req(")"));
 
-const call_expression = seq(template_elaborated_ident, argument_expression_list)
-  .map(identLocToCallElem)
-  .tag("calls");
+const call_expression = seq(
+  template_elaborated_ident,
+  argument_expression_list,
+);
 
 const primary_expression = or(
   literal,
@@ -407,7 +376,7 @@ const statement: Parser<any> = or(
 );
 
 const lhs_expression: Parser<any> = or(
-  seq(word.tag("ident").collect(refIdent), opt(component_or_swizzle)),
+  seq(word.collect(refIdent), opt(component_or_swizzle)),
   seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
   seq("&", () => lhs_expression),
   seq("*", () => lhs_expression),
@@ -433,29 +402,19 @@ const variable_updating_statement = or(
 export const fn_decl = seq(
   opt_attributes,
   text("fn"),
-  req(fnNameDecl).tag("nameElem"),
+  req(fnNameDecl),
   seq(
     req(fnParamList),
     opt(
       seq(
         "->",
         opt_attributes,
-        type_specifier.ctag("returnType").tag("typeRefs"),
+        type_specifier.ctag("returnType"),
       ),
     ),
     req(unscoped_compound_statement),
   ).collect(scopeCollect(), "body_scope"),
-)
-  .collect(collectFn())
-  .map(r => {
-    const e = makeElem("fn", r);
-    const nameElem = r.tags.nameElem[0];
-    e.nameElem = nameElem as Required<typeof nameElem>;
-    e.name = nameElem.name;
-    e.calls = (r.tags.calls as CallElem[][])?.flat() || [];
-    e.typeRefs = r.tags.typeRefs?.flat() || [];
-    r.app.stable.elems.push(e);
-  });
+).collect(collectFn());
 
 const global_value_decl = or(
   seq(
@@ -476,16 +435,11 @@ const global_value_decl = or(
 
 export const global_alias = seq(
   "alias",
-  req(word.tag("name")).collect(declIdentElem, "declIdent"),
+  req(word).collect(declIdentElem, "declIdent"),
   req("="),
-  req(type_specifier).collect(scopeCollect(), "decl_scope").tag("typeRefs"),
+  req(type_specifier).collect(scopeCollect(), "decl_scope"),
   req(";"),
-)
-  .collect(collectVarLike("alias"), "global_alias")
-  .map(r => {
-    const e = makeElem("alias", r, ["name", "typeRefs"]);
-    r.app.stable.elems.push(e);
-  });
+).collect(collectVarLike("alias"), "global_alias");
 
 const const_assert = seq("const_assert", req(expression), ";").collect(
   collectSimpleElem("assert"),
@@ -500,32 +454,19 @@ const global_directive = seq(
     seq("requires", withSep(",", word, { requireOne: true })),
   ),
   ";",
-).map(r => {
-  const e = makeElem("globalDirective", r);
-  r.app.stable.elems.push(e);
-});
+);
 
 export const global_decl = tagScope(
   or(
     fn_decl,
-    seq(opt_attributes, global_variable_decl, ";")
-      .map(r => {
-        const e = makeElem("var", r, ["name"]);
-        e.typeRefs = r.tags.typeRefs?.flat() || [];
-        r.app.stable.elems.push(e);
-      })
-      .collect(collectVarLike("gvar"), "g_variable_decl"),
-    global_value_decl.map(r => {
-      const e = makeElem("var", r, ["name"]);
-      e.typeRefs = r.tags.typeRefs?.flat() || [];
-      r.app.stable.elems.push(e);
-    }),
+    seq(opt_attributes, global_variable_decl, ";").collect(
+      collectVarLike("gvar"),
+      "g_variable_decl",
+    ),
+    global_value_decl,
     ";",
     global_alias,
-    const_assert.map(r => {
-      const e = makeElem("globalDirective", r);
-      r.app.stable.elems.push(e);
-    }),
+    const_assert,
     struct_decl,
   ),
 );
