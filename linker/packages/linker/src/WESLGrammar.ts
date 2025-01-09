@@ -20,7 +20,7 @@ import {
 } from "mini-parse";
 import { weslImport } from "./ImportGrammar.ts";
 import { bracketTokens, mainTokens } from "./WESLTokens.ts";
-import { comment, word } from "./ParseSupport.ts";
+import { comment } from "./ParseSupport.ts";
 import {
   collectFn,
   collectFnParam,
@@ -36,6 +36,11 @@ import {
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
+
+export const word = or(
+  kind(mainTokens.ident),
+  kind(mainTokens.textureStorage),
+);
 
 const qualified_ident = withSepPlus("::", word);
 

@@ -3,8 +3,6 @@ import {
   anyNot,
   anyThrough,
   disablePreParse,
-  ExtendedResult,
-  kind,
   makeEolf,
   or,
   Parser,
@@ -12,18 +10,11 @@ import {
   req,
   resultLog,
   seq,
-  setTraceName,
   tokens,
-  tracing,
 } from "mini-parse";
 import { argsTokens, lineCommentTokens, mainTokens } from "./WESLTokens.ts";
 
 /* Basic parsing functions for comment handling, eol, etc. */
-
-export const word = or(
-  kind(mainTokens.ident),
-  kind(mainTokens.textureStorage),
-);
 
 export const unknown = any().map(r => {
   const { kind, text } = r.value;
@@ -39,7 +30,7 @@ export const blockComment: Parser<any> = seq(
   req("*/"),
 );
 
-export const eolf: Parser<any> = disablePreParse(
+const eolf: Parser<any> = disablePreParse(
   makeEolf(argsTokens, argsTokens.ws),
 );
 
@@ -51,4 +42,3 @@ export const lineComment = seq(tokens(mainTokens, "//"), skipToEol);
 export const comment = or(() => lineComment, blockComment).trace({
   hide: true,
 });
-
