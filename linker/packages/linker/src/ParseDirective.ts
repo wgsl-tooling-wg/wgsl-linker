@@ -11,12 +11,7 @@ import {
   tracing,
 } from "mini-parse";
 import { gleamImport } from "./GleamImport.js";
-import {
-  argsTokens,
-  lineCommentTokens,
-  mainTokens,
-  moduleTokens,
-} from "./MatchWgslD.js";
+import { argsTokens, lineCommentTokens, mainTokens } from "./MatchWgslD.js";
 import { eolf } from "./ParseSupport.js";
 
 /* parse #directive enhancements to wgsl: #export, etc. */
@@ -24,23 +19,14 @@ import { eolf } from "./ParseSupport.js";
 const argsWord = kind(argsTokens.arg);
 const fromWord = or(argsWord, kind(argsTokens.relPath));
 
-const fromClause = seq(
-  "from",
-  or(fromWord, seq('"', fromWord, '"')),
-);
+const fromClause = seq("from", or(fromWord, seq('"', fromWord, '"')));
 
 /** #export <foo> <(a,b)> EOL */
 export const exportDirective = seq(or("#export", "export"), opt(eolf));
 
-const moduleDirective = seq(
-  or("module", "#module"),
-  tokens(moduleTokens, req(kind(moduleTokens.moduleName))),
-  eolf,
-)
-
 export const directive = tokens(
   argsTokens,
-  seq(repeat("\n"), or(exportDirective, gleamImport, moduleDirective)),
+  seq(repeat("\n"), or(exportDirective, gleamImport)),
 );
 
 const skipToEol = tokens(lineCommentTokens, anyThrough(eolf));
@@ -54,7 +40,6 @@ if (tracing) {
     exportDirective,
     skipToEol,
     lineComment,
-    moduleDirective,
     directive,
   });
 }

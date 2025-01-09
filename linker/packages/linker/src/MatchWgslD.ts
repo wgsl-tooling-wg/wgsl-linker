@@ -64,14 +64,6 @@ export const bracketTokens = tokenMatcher(
   "bracket",
 );
 
-export const moduleTokens = tokenMatcher(
-  {
-    ws: blankspaces,
-    moduleName: /[a-zA-Z_][\w./:-]*/,
-  },
-  "moduleName",
-);
-
 /** matching tokens at the start of a '//' line comment that might contain #directives */
 export const lineCommentTokens = tokenMatcher(
   {
