@@ -32,6 +32,7 @@ import {
   WeslParseState,
 } from "./ParseWESL.ts";
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
+import { dlog } from "berry-pretty";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem): void {
@@ -179,6 +180,8 @@ export function collectStruct(): CollectPair<StructElem> {
   return collectElem(
     "struct",
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
+      dlog({ tags: [...Object.keys(cc.tags)] });
+      dlog({ attributes: cc.tags.attributes?.flat(8) });
       const name = cc.tags.typeName?.[0] as DeclIdentElem;
       const members = cc.tags.members as StructMemberElem[];
       name.ident.scope = cc.tags.struct_scope?.[0] as Scope;

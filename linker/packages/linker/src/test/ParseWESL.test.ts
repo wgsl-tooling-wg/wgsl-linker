@@ -900,3 +900,23 @@ test(`import a/{ b, c/{d, e}, f }`, ctx => {
         text 'import a/{ b, c/{d, e}, f }'"
   `);
 });
+
+
+test.only(`parse binding struct`, ctx => {
+  const src = `
+    struct Bindings {
+      @group(2) particles: ParticlesBindGroup, // group 2 set outside
+    }
+    
+    @compute @workgroup_size(64)
+    fn main(bindings: Bindings) {
+      someFunction(bindings.st0);
+      otherFunction(bindings.particles);
+    }
+  `
+  const ast = parse2Test(src);
+  const astString = astToString(ast.moduleElem);
+  console.log(astString);
+  expect.fail();
+  
+})

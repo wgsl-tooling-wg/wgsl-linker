@@ -143,7 +143,7 @@ const optionally_typed_ident = seq(
 const req_optionally_typed_ident = req(optionally_typed_ident);
 
 export const struct_member = seq(
-  opt_attributes,
+  opt_attributes.ctag("attributes"),
   word.collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier),
