@@ -36,9 +36,11 @@ function addElemFields(elem: AbstractElem, str: LineWrapper): void {
   addTextFields(elem, str) ||
     addVarishFields(elem, str) ||
     addStructFields(elem, str) ||
+    addStructMemberFields(elem, str) ||
     addNameFields(elem, str) ||
     addFnFields(elem, str) ||
     addAliasFields(elem, str) ||
+    addAttributeFields(elem, str) ||
     addImport(elem, str) ||
     addRefIdent(elem, str) ||
     addDeclIdent(elem, str);
@@ -63,10 +65,7 @@ function addVarishFields(
   }
 }
 
-function addTextFields(
-  elem: AbstractElem,
-  str: LineWrapper,
-): true | undefined {
+function addTextFields(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "text") {
     const { srcModule, start, end } = elem;
     str.add(` '${srcModule.src.slice(start, end)}'`);
@@ -111,6 +110,18 @@ function addStructFields(
   }
 }
 
+function addStructMemberFields(
+  elem: AbstractElem,
+  str: LineWrapper,
+): true | undefined {
+  if (elem.kind === "member") {
+    const { name, typeRef } = elem;
+    str.add(" " + name.name);
+    str.add(": " + typeRef?.ident.originalName);
+    return true;
+  }
+}
+
 function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "import") {
     str.add(" " + importToString(elem.imports));
@@ -118,10 +129,23 @@ function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
   }
 }
 
-function addNameFields(
+function addAttributeFields(
   elem: AbstractElem,
   str: LineWrapper,
 ): true | undefined {
+  if (elem.kind === "attribute") {
+    const { name, params } = elem;
+    str.add(" @" + name);
+    if (params) {
+      str.add("(");
+      str.add(params.join(", "));
+      str.add(")");
+    }
+    return true;
+  }
+}
+
+function addNameFields(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "name") {
     str.add(" " + elem.name);
     return true;

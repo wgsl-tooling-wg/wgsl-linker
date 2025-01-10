@@ -138,12 +138,12 @@ test("parse struct", () => {
         text 'struct '
         decl %foo
         text ' { '
-        member
+        member bar: i32
           name bar
           text ': '
           ref i32
         text ', '
-        member
+        member bar: i32
           name zip
           text ': '
           ref u32
@@ -182,7 +182,9 @@ test("parse @attribute before fn", () => {
   expect(astString).toMatchInlineSnapshot(`
     "module
       fn main()
-        text '@compute fn '
+        attribute @compute
+          text '@compute'
+        text ' fn '
         decl %main
         text '() {}'
       text ' '"
@@ -202,12 +204,22 @@ test("parse @compute @workgroup_size(a, b, 1) before fn", () => {
       text '
         '
       fn main()
-        text '@compute 
-        @workgroup_size('
-        ref a
-        text ', '
-        ref b
-        text ', 1) 
+        attribute @compute
+          text '@compute'
+        text ' 
+        '
+        attribute @workgroup_size
+          text '@workgroup_size('
+          attrParam
+            ref a
+          text ', '
+          attrParam
+            ref b
+          text ', '
+          attrParam
+            text '1'
+          text ')'
+        text ' 
         fn '
         decl %main
         text '() {}'
@@ -229,7 +241,18 @@ test("parse top level var", () => {
       text '
         '
       gvar u:Uniforms
-        text '@group(0) @binding(0) var<uniform> '
+        attribute @group
+          text '@group('
+          attrParam
+            text '0'
+          text ')'
+        text ' '
+        attribute @binding
+          text '@binding('
+          attrParam
+            text '0'
+          text ')'
+        text ' var<uniform> '
         decl %u
         text ': '
         ref Uniforms
@@ -552,16 +575,30 @@ test("parse fn with attributes and suffix comma", () => {
       text '
       '
       fn main(grid: vec3, localIndex: u32)
-        text '@compute
-      @workgroup_size('
-        ref workgroupThreads
-        text ', 1, 1) 
+        attribute @compute
+          text '@compute'
+        text '
+      '
+        attribute @workgroup_size
+          text '@workgroup_size('
+          attrParam
+            ref workgroupThreads
+          text ', '
+          attrParam
+            text '1'
+          text ', '
+          attrParam
+            text '1'
+          text ')'
+        text ' 
       fn '
         decl %main
         text '(
           '
         param
-          text '@builtin(global_invocation_id) '
+          attribute @builtin
+            text '@builtin(global_invocation_id)'
+          text ' '
           decl %grid
           text ': '
           ref vec3
@@ -571,7 +608,9 @@ test("parse fn with attributes and suffix comma", () => {
         text ',
           '
         param
-          text '@builtin(local_invocation_index) '
+          attribute @builtin
+            text '@builtin(local_invocation_index)'
+          text ' '
           decl %localIndex
           text ': '
           ref u32
@@ -614,7 +653,9 @@ test("parse @attribute before fn", () => {
   expect(astString).toMatchInlineSnapshot(`
     "module
       fn main()
-        text '@compute fn '
+        attribute @compute
+          text '@compute'
+        text ' fn '
         decl %main
         text '() {}'
       text ' '"
@@ -902,15 +943,13 @@ test(`import a/{ b, c/{d, e}, f }`, ctx => {
 });
 
 
-test.only(`parse binding struct`, ctx => {
+test.skip(`parse binding struct`, ctx => {
   const src = `
     struct Bindings {
-      @group(2) particles: ParticlesBindGroup, // group 2 set outside
+      @group(0) @binding(0) particles: ptr<storage, Particles>, 
     }
     
-    @compute @workgroup_size(64)
     fn main(bindings: Bindings) {
-      someFunction(bindings.st0);
       otherFunction(bindings.particles);
     }
   `

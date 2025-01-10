@@ -3,6 +3,8 @@ import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 
 export type AbstractElem =
   | AliasElem
+  | AttributeElem
+  | AttributeParamElem
   | ConstElem
   | ImportElem
   | ConstAssertElem
@@ -71,6 +73,16 @@ export interface ParamElem extends ElemWithContents {
   kind: "param";
   name: DeclIdentElem;
   typeRef: RefIdentElem;
+}
+
+export interface AttributeElem extends ElemWithContents {
+  kind: "attribute";
+  name: string;
+  params: AttributeParamElem[];
+}
+
+export interface AttributeParamElem extends ElemWithContents {
+  kind: "attrParam";
 }
 
 /** a variable declaration */

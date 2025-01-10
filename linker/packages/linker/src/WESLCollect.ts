@@ -2,6 +2,8 @@ import { CollectContext, CollectPair, tracing } from "mini-parse";
 import {
   AbstractElem,
   AliasElem,
+  AttributeElem,
+  AttributeParamElem,
   ConstElem,
   DeclarationElem,
   DeclIdentElem,
@@ -33,6 +35,7 @@ import {
 } from "./ParseWESL.ts";
 import { DeclIdent, emptyBodyScope, RefIdent, Scope } from "./Scope.ts";
 import { dlog } from "berry-pretty";
+import { elemToString } from "./debug/ASTtoString.ts";
 
 /** add an elem to the .contents array of the currently containing element */
 function addToOpenElem(cc: CollectContext, elem: AbstractElem): void {
@@ -134,7 +137,6 @@ export function collectVarLike<E extends VarLikeElem>(
   kind: E["kind"],
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
-    // dlog({ tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
     const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
@@ -180,10 +182,10 @@ export function collectStruct(): CollectPair<StructElem> {
   return collectElem(
     "struct",
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
-      dlog({ tags: [...Object.keys(cc.tags)] });
-      dlog({ attributes: cc.tags.attributes?.flat(8) });
+      // dlog({ attributes: cc.tags.attributes?.flat(8).map(e => e && elemToString(e)) });
       const name = cc.tags.typeName?.[0] as DeclIdentElem;
       const members = cc.tags.members as StructMemberElem[];
+      // dlog({members:members})
       name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
@@ -198,9 +200,24 @@ export function collectStructMember(): CollectPair<StructMemberElem> {
   return collectElem(
     "member",
     (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
+      // dlog("structMember", { tags: [...Object.keys(cc.tags)] });
       const name = cc.tags.nameElem?.[0]!;
       const typeRef = cc.tags.typeRef?.[0];
       const partElem = { ...openElem, name, typeRef };
+      return withTextCover(partElem, cc);
+    },
+  );
+}
+
+export function collectAttribute(): CollectPair<AttributeElem> {
+  return collectElem(
+    "attribute",
+    (cc: CollectContext, openElem: PartElem<AttributeElem>) => {
+      // dlog({ tags: [...Object.keys(cc.tags)] });
+      const attributes = cc.tags.attrParam?.[0]!;
+      const name = cc.tags.name?.[0]! as string;
+      // dlog({name})
+      const partElem = { ...openElem, attributes, name } as any;
       return withTextCover(partElem, cc);
     },
   );

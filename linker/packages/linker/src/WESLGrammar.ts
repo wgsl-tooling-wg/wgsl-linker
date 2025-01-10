@@ -1,5 +1,6 @@
 import {
   eof,
+  fn,
   kind,
   opt,
   or,
@@ -22,6 +23,7 @@ import { weslImport } from "./ImportGrammar.ts";
 import { bracketTokens, mainTokens } from "./WESLTokens.ts";
 import { comment } from "./CommentsGrammar.ts";
 import {
+  collectAttribute,
   collectFn,
   collectFnParam,
   collectModule,
@@ -37,10 +39,7 @@ import {
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
 
-export const word = or(
-  kind(mainTokens.ident),
-  kind(mainTokens.textureStorage),
-);
+export const word = or(kind(mainTokens.ident), kind(mainTokens.textureStorage));
 
 const qualified_ident = withSepPlus("::", word);
 
@@ -57,39 +56,57 @@ const diagnostic_control = seq(
 /** list of words that we don't need to collect (e.g. for @interpolate) */
 const word_list = seq("(", withSep(",", word, { requireOne: true }), ")");
 
-const attribute = seq(
-  "@",
-  req(
-    or(
-      // These attributes have no arguments
-      or("compute", "const", "fragment", "invariant", "must_use", "vertex"),
-      // These attributes have arguments, but the argument doesn't have any identifiers
-      seq(
-        or("interpolate", "builtin"),
-        req(() => word_list),
-      ),
-      seq("diagnostic", diagnostic_control),
-      // These are normal attributes
-      seq(
+const attribute = tagScope(
+  seq(
+    "@",
+    req(
+      or(
+        // These attributes have no arguments
         or(
-          "workgroup_size",
-          "align",
-          "binding",
-          "blend_src",
-          "group",
-          "id",
-          "location",
-          "size",
+          "compute",
+          "const",
+          "fragment",
+          "invariant",
+          "must_use",
+          "vertex",
+        ).ptag("name"),
+        // These attributes have arguments, but the argument doesn't have any identifiers
+        seq(
+          or("interpolate", "builtin").ptag("name"),
+          req(() => word_list),
         ),
-        req(() => argument_expression_list),
-      ),
-      // Everything else is also a normal attribute, it might have an expression list
-      seq(
-        word,
-        opt(() => argument_expression_list),
+        seq("diagnostic", diagnostic_control),
+        // These are normal attributes
+        seq(
+          or(
+            "workgroup_size",
+            "align",
+            "binding",
+            "blend_src",
+            "group",
+            "id",
+            "location",
+            "size",
+          ).ptag("name"),
+          req(() => attribute_argument_list),
+        ),
+        // Everything else is also a normal attribute, it might have an expression list
+        seq(
+          word,
+          opt(() => attribute_argument_list),
+        ),
       ),
     ),
+  ).collect(collectAttribute()),
+).ctag("attribute");
+
+const attribute_argument_list = seq(
+  "(",
+  withSep(
+    ",",
+    fn(() => expression).collect(collectSimpleElem("attrParam"), "attrParam"),
   ),
+  req(")"),
 );
 
 const argument_expression_list = seq(
@@ -114,11 +131,15 @@ const std_type_specifier = seq(
   () => opt_template_list,
 );
 
+// none of the elements of a texture_storage type generator are bindable idents
+// e.g. texture_storage_2d<rgba8unorm, write>
 const texture_storage_type = seq(
   kind(mainTokens.textureStorage),
   () => opt_template_words,
 );
 
+// the first and optional third elements of a ptr template are not bindable idents:
+// e.g. ptr<storage, MyStruct, read>
 const ptr_type = seq(
   "ptr",
   req("<"),
