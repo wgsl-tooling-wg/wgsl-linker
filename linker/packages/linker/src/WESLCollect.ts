@@ -170,7 +170,6 @@ export function collectFnParam(): CollectPair<ParamElem> {
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
 
-      // name.ident.scope = pseudoScope(typeRef); // TODO set scope for param?
       return paramElem;
     },
   );
@@ -182,10 +181,10 @@ export function collectStruct(): CollectPair<StructElem> {
     (cc: CollectContext, openElem: PartElem<StructElem>) => {
       const name = cc.tags.typeName?.[0] as DeclIdentElem;
       const members = cc.tags.members as StructMemberElem[];
+      name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
       const structElem = { ...openElem, name, members };
       const elem = withTextCover(structElem, cc);
       (name.ident as DeclIdent).declElem = elem as DeclarationElem;
-      name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
 
       return elem;
     },
