@@ -1,5 +1,5 @@
 export interface WgslBundle {
-  /** name of the package, e.g. wgsl-rand */
+  /** name of the package, e.g. random_wgsl */
   name: string;
 
   /** npm version of the package  e.g. 0.4.1 */
