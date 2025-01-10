@@ -370,20 +370,25 @@ test("import an alias", ctx => {
     `,
   });
 });
-
-// test(, ctx => {
-//   linkTest2(ctx.task.name, {
-//     linked: `
-//     `,
-//   });
-// });
-
-// test(, ctx => {
-//   linkTest2(ctx.task.name, {
-//     linked: `
-//     `,
-//   });
-// });
+test("alias f32", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+      fn main() { foo(); }
+      fn foo(a: f32) { }
+      alias f32 = AStruct;
+      struct AStruct { x: u32 }
+    `,
+  });
+});
+test("fn f32()", ctx => {
+  linkTest2(ctx.task.name, {
+    linked: `
+      fn main() { foo(); }
+      fn foo() { f32(); }
+      fn f32() { }
+    `,
+  });
+});
 
 // test(, ctx => {
 //   linkTest2(ctx.task.name, {

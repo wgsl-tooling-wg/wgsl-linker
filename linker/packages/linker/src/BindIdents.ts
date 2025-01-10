@@ -87,31 +87,28 @@ function bindIdentsRecursive(
     // dlog(`--- considering ident ${identToString(ident)}`);
     if (ident.kind === "ref") {
       if (!ident.refersTo && !ident.std) {
-        if (stdWgsl(ident.originalName)) {
+        let foundDecl =
+          findDeclInModule(ident.scope, ident) ?? findDeclImport(ident, parsed);
+
+        if (foundDecl) {
+          ident.refersTo = foundDecl;
+          if (!knownDecls.has(foundDecl)) {
+            knownDecls.add(foundDecl);
+            setDisplayName(ident.originalName, foundDecl, globalNames);
+            if (foundDecl.declElem && isGlobal(foundDecl.declElem)) {
+              newDecls.push(foundDecl);
+            }
+            // dlog(`  > found new decl: ${identToString(foundDecl)}`);
+          }
+        } else if (stdWgsl(ident.originalName)) {
           ident.std = true;
         } else {
-          let foundDecl =
-            findDeclInModule(ident.scope, ident) ??
-            findDeclImport(ident, parsed);
-
-          if (foundDecl) {
-            ident.refersTo = foundDecl;
-            if (!knownDecls.has(foundDecl)) {
-              knownDecls.add(foundDecl);
-              setDisplayName(ident.originalName, foundDecl, globalNames);
-              if (foundDecl.declElem && isGlobal(foundDecl.declElem)) {
-                newDecls.push(foundDecl);
-              }
-              // dlog(`  > found new decl: ${identToString(foundDecl)}`);
-            }
-          } else {
-            const { refIdentElem } = ident;
-            if (refIdentElem) {
-              const { srcModule, start, end } = refIdentElem;
-              const { filePath } = srcModule;
-              const msg = `unresolved identifier in file: ${filePath}`;
-              srcLog(srcModule.src, [start, end], msg);
-            }
+          const { refIdentElem } = ident;
+          if (refIdentElem) {
+            const { srcModule, start, end } = refIdentElem;
+            const { filePath } = srcModule;
+            const msg = `unresolved identifier in file: ${filePath}`;
+            srcLog(srcModule.src, [start, end], msg);
           }
         }
       }
