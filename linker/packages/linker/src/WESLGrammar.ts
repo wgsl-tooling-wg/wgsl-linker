@@ -58,6 +58,7 @@ const diagnostic_control = seq(
 /** list of words that we don't need to collect (e.g. for @interpolate) */
 const word_list = seq("(", withSep(",", word, { requireOne: true }), ")");
 
+// prettier-ignore
 const attribute = tagScope(
   seq(
     "@",
@@ -71,10 +72,10 @@ const attribute = tagScope(
           "invariant",
           "must_use",
           "vertex",
-        ).ptag("name"),
+        )                                 .ptag("name"),
         // These attributes have arguments, but the argument doesn't have any identifiers
         seq(
-          or("interpolate", "builtin").ptag("name"),
+          or("interpolate", "builtin")    .ptag("name"),
           req(() => word_list),
         ),
         seq("diagnostic", diagnostic_control),
@@ -89,7 +90,7 @@ const attribute = tagScope(
             "id",
             "location",
             "size",
-          ).ptag("name"),
+          )                               .ptag("name"),
           req(() => attribute_argument_list),
         ),
         // Everything else is also a normal attribute, it might have an expression list
@@ -99,14 +100,15 @@ const attribute = tagScope(
         ),
       ),
     ),
-  ).collect(collectAttribute()),
-).ctag("attribute");
+  )                                       .collect(collectAttribute()),
+)                                         .ctag("attribute");
 
+// prettier-ignore
 const attribute_argument_list = seq(
   "(",
   withSep(
     ",",
-    fn(() => expression).collect(collectSimpleElem("attrParam"), "attrParam"),
+    fn(() => expression)               .collect(collectSimpleElem("attrParam"), "attrParam"),
   ),
   req(")"),
 );
@@ -120,11 +122,11 @@ const argument_expression_list = seq(
 const opt_attributes = repeat(attribute);
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.collect(declIdentElem, "typeName"));
+export const typeNameDecl = req(word  .collect(declIdentElem, "typeName"));
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word.collect(declIdentElem, "fnName"),
+  word                                .collect(declIdentElem, "fnName"),
   "missing fn name",
 );
 
@@ -156,63 +158,71 @@ const ptr_type = tagScope(
   )                                 .collect(typeRefCollect()),
 )
 
+// prettier-ignore
 export const type_specifier: Parser<any> = tagScope(
   or(texture_storage_type, ptr_type, std_type_specifier),
-).ctag("typeRefElem");
+)                                   .ctag("typeRefElem");
 
+// prettier-ignore
 const optionally_typed_ident = seq(
-  word.collect(declIdentElem, "declIdent"),
+  word                              .collect(declIdentElem, "declIdent"),
   opt(seq(":", type_specifier)),
 );
 
 const req_optionally_typed_ident = req(optionally_typed_ident);
 
+// prettier-ignore
 export const struct_member = seq(
-  opt_attributes.ctag("attributes"),
-  word.collect(collectNameElem, "nameElem"),
+  opt_attributes                    .ctag("attributes"),
+  word                              .collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier),
-).collect(collectStructMember());
+)                                   .collect(collectStructMember());
 
+// prettier-ignore
 export const struct_decl = seq(
   "struct",
   req(typeNameDecl),
   seq(
     req("{"),
-    withSepPlus(",", struct_member).ptag("members"),
+    withSepPlus(",", struct_member)   .ptag("members"),
     req("}"),
-  ).collect(scopeCollect(), "struct_scope"),
-).collect(collectStruct());
+  )                                   .collect(scopeCollect(), "struct_scope"),
+)                                     .collect(collectStruct());
 
 /** Also covers func_call_statement.post.ident */
+// prettier-ignore
 export const fn_call = seq(
-  word.collect(refIdent, "fn_call.refIdent"), // we collect this in fnDecl, to attach to FnElem
+  word                                .collect(refIdent, "fn_call.refIdent"), // we collect this in fnDecl, to attach to FnElem
   () => opt_template_list,
   argument_expression_list,
 );
 
+// prettier-ignore
 const fnParam = tagScope(
   seq(
     opt_attributes,
-    word.collect(declIdentElem, "paramName"),
+    word                              .collect(declIdentElem, "paramName"),
     opt(seq(":", req(type_specifier))),
-  ).collect(collectFnParam()),
-).ctag("fnParam");
+  )                                   .collect(collectFnParam()),
+)                                     .ctag("fnParam");
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
 
+// prettier-ignore
 const local_variable_decl = seq(
   "var",
   () => opt_template_list,
   req_optionally_typed_ident,
   opt(seq("=", () => expression)),
-).collect(collectVarLike("var"), "variable_decl");
+)                                     .collect(collectVarLike("var"), "variable_decl");
 
+// prettier-ignore
 const global_variable_decl = seq(
   "var",
   () => opt_template_words,
   req_optionally_typed_ident,
-  opt(seq("=", () => expression.collect(scopeCollect(), "decl_scope"))),
+  opt(seq("=", () => expression       .collect(scopeCollect(), "decl_scope"))),
 );
 
 /** Aka template_elaborated_ident.post.ident */
@@ -232,10 +242,13 @@ const opt_template_words = opt(
     tokens(bracketTokens, ">"),
   ),
 );
-const template_elaborated_ident = seq(
-  word.collect(refIdent),
-  opt_template_list,
-);
+
+// prettier-ignore
+const template_elaborated_ident = 
+  seq(
+    word                              .collect(refIdent),
+    opt_template_list,
+  );
 
 const literal = or("true", "false", kind(mainTokens.digits));
 
@@ -307,13 +320,14 @@ const unscoped_compound_statement = seq(
   req("}"),
 );
 
+// prettier-ignore
 const compound_statement = seq(
   opt_attributes,
   seq(
     text("{"),
     repeat(() => statement),
     req("}"),
-  ).collect(scopeCollect()),
+  )                                 .collect(scopeCollect()),
 );
 
 const for_init = or(
@@ -324,6 +338,7 @@ const for_init = or(
 
 const for_update = or(fn_call, () => variable_updating_statement);
 
+// prettier-ignore
 const for_statement = seq(
   opt_attributes,
   "for",
@@ -336,7 +351,7 @@ const for_statement = seq(
     opt(for_update),
     req(")"),
     unscoped_compound_statement,
-  ).collect(scopeCollect()),
+  )                                 .collect(scopeCollect()),
 );
 
 const if_statement = seq(
@@ -346,6 +361,7 @@ const if_statement = seq(
   repeat(seq("else", "if", req(seq(expression, compound_statement)))),
   opt(seq("else", req(compound_statement))),
 );
+
 const loop_statement = seq(
   opt_attributes,
   "loop",
@@ -432,44 +448,55 @@ const variable_updating_statement = or(
   seq("_", "=", expression),
 );
 
+// prettier-ignore
 export const fn_decl = seq(
   opt_attributes,
   text("fn"),
   req(fnNameDecl),
   seq(
     req(fnParamList),
-    opt(seq("->", opt_attributes, type_specifier.ctag("returnType"))),
+    opt(seq(
+      "->", 
+      opt_attributes, 
+      type_specifier                  .ctag("returnType"))),
     req(unscoped_compound_statement),
-  ).collect(scopeCollect(), "body_scope"),
-).collect(collectFn());
+  )                                   .collect(scopeCollect(), "body_scope"),
+)                                     .collect(collectFn());
 
+// prettier-ignore
 const global_value_decl = or(
   seq(
     opt_attributes,
     "override",
     optionally_typed_ident,
-    seq(opt(seq("=", expression.collect(scopeCollect(), "decl_scope")))),
+    seq(opt(seq("=", expression       .collect(scopeCollect(), "decl_scope")))),
     ";",
-  ).collect(collectVarLike("override")),
+  )                                   .collect(collectVarLike("override")),
   seq(
     "const",
     optionally_typed_ident,
     "=",
-    seq(expression).collect(scopeCollect(), "decl_scope"),
+    seq(expression)                   .collect(scopeCollect(), "decl_scope"),
     ";",
-  ).collect(collectVarLike("const")),
+  )                                   .collect(collectVarLike("const")),
 );
 
+// prettier-ignore
 export const global_alias = seq(
   "alias",
-  req(word).collect(declIdentElem, "declIdent"),
+  req(word)                           .collect(declIdentElem, "declIdent"),
   req("="),
-  req(type_specifier).collect(scopeCollect(), "decl_scope"),
+  req(type_specifier)                 .collect(scopeCollect(), "decl_scope"),
   req(";"),
-).collect(collectVarLike("alias"), "global_alias");
+)                                     .collect(collectVarLike("alias"), "global_alias");
 
-const const_assert = seq("const_assert", req(expression), ";").collect(
-  collectSimpleElem("assert"),
+// prettier-ignore
+const const_assert = 
+  seq(
+    "const_assert", 
+    req(expression), 
+    ";"
+  )                                   .collect(collectSimpleElem("assert"),
 );
 
 const import_statement = weslImport;
@@ -483,13 +510,14 @@ const global_directive = seq(
   ";",
 );
 
+// prettier-ignore
 export const global_decl = tagScope(
   or(
     fn_decl,
-    seq(opt_attributes, global_variable_decl, ";").collect(
-      collectVarLike("gvar"),
-      "g_variable_decl",
-    ),
+    seq(
+      opt_attributes, 
+      global_variable_decl, 
+      ";")                          .collect(collectVarLike("gvar"), "g_variable_decl"),
     global_value_decl,
     ";",
     global_alias,
@@ -499,6 +527,8 @@ export const global_decl = tagScope(
 );
 
 const end = tokenSkipSet(null, seq(repeat(kind(mainTokens.ws)), eof()));
+
+// prettier-ignore
 export const weslRoot = preParse(
   comment,
   seq(
@@ -506,7 +536,7 @@ export const weslRoot = preParse(
     repeat(or(global_directive, weslImport)),
     repeat(or(global_decl, weslImport)),
     req(end),
-  ).collect(collectModule(), "collectModule"),
+  )                                 .collect(collectModule(), "collectModule"),
 );
 
 if (tracing) {
