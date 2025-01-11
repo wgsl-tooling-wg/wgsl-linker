@@ -99,6 +99,7 @@ function carets(linePos: number, linePos2?: number): string {
   const firstCaret = " ".repeat(linePos) + "^";
   let secondCaret = "";
   if (linePos2 && linePos2 > linePos) {
+    // TODO maybe a continuous line of carets would look nicer?
     secondCaret = " ".repeat(linePos2 - linePos - 1) + "^";
   }
   return firstCaret + secondCaret;
