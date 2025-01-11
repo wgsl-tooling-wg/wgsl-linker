@@ -48,5 +48,10 @@ export function linkWithLog(...rawWgsl: string[]): {
 }
 
 export function parse2Test(src: string): WeslAST {
-  return expectNoLog(() => parseWESL(src, undefined, 500));
+  return expectNoLog(() => parseTestRaw(src));
+}
+
+/** test w/o any log collection, to not confuse debugging */
+export function parseTestRaw(src: string) {
+  return parseWESL(src, undefined, 500);
 }

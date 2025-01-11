@@ -6,6 +6,7 @@ export type AbstractElem =
   | AttributeElem
   | AttributeParamElem
   | ConstElem
+  | ExpressionElem 
   | ImportElem
   | ConstAssertElem
   | FnElem
@@ -18,6 +19,7 @@ export type AbstractElem =
   | StructElem
   | StructMemberElem
   | TextElem
+  | TypeRefElem
   | GlobalVarElem
   | VarElem;
 
@@ -46,6 +48,18 @@ export interface ImportElem extends ElemWithContents {
   imports: ImportTree;
 }
 
+export type TypeTemplateParameter = TypeRefElem | ExpressionElem | string;
+
+export interface ExpressionElem extends ElemWithContents {
+  kind: "expression"
+}
+
+export interface TypeRefElem extends ElemWithContents {
+  kind: "type";
+  name: RefIdent | string;
+  templateParams?: TypeTemplateParameter[];
+}
+
 /** an identifier in WESL source */
 export interface RefIdentElem extends AbstractElemBase {
   kind: RefIdent["kind"];
@@ -61,7 +75,8 @@ export interface DeclIdentElem extends AbstractElemBase {
 }
 
 /** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
- e.g. a keyword  like 'var' or '@diagnostic(off,derivative_uniformity)'
+ e.g. a keyword  like 'var' 
+ or a phrase we needn't analyze further like '@diagnostic(off,derivative_uniformity)'
 */
 export interface TextElem extends AbstractElemBase {
   kind: "text";
@@ -72,7 +87,7 @@ export interface TextElem extends AbstractElemBase {
 export interface ParamElem extends ElemWithContents {
   kind: "param";
   name: DeclIdentElem;
-  typeRef: RefIdentElem;
+  typeRef: TypeRefElem;
 }
 
 export interface AttributeElem extends ElemWithContents {
@@ -89,28 +104,28 @@ export interface AttributeParamElem extends ElemWithContents {
 export interface VarElem extends ElemWithContents {
   kind: "var";
   name: DeclIdentElem;
-  typeRef?: RefIdentElem;
+  typeRef?: TypeRefElem;
 }
 
 /** a global variable declaration (at the root level) */
 export interface GlobalVarElem extends ElemWithContents {
   kind: "gvar";
   name: DeclIdentElem;
-  typeRef?: RefIdentElem;
+  typeRef?: TypeRefElem;
 }
 
 /** a const declaration */
 export interface ConstElem extends ElemWithContents {
   kind: "const";
   name: DeclIdentElem;
-  typeRef?: RefIdentElem;
+  typeRef?: TypeRefElem;
 }
 
 /** an override declaration */
 export interface OverrideElem extends ElemWithContents {
   kind: "override";
   name: DeclIdentElem;
-  typeRef?: RefIdentElem;
+  typeRef?: TypeRefElem;
 }
 
 /** an entire file */
@@ -122,7 +137,7 @@ export interface ModuleElem extends ElemWithContents {
 export interface AliasElem extends ElemWithContents {
   kind: "alias";
   name: DeclIdentElem;
-  typeRef: RefIdentElem;
+  typeRef: TypeRefElem;
 }
 
 /** a const_assert statement */
@@ -141,7 +156,7 @@ export interface StructElem extends ElemWithContents {
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
-  typeRef: RefIdentElem;
+  typeRef: TypeRefElem;
 }
 
 /** a name (e.g. a struct member name) that doesn't need to be an Ident */
@@ -156,5 +171,5 @@ export interface FnElem extends ElemWithContents {
   kind: "fn";
   name: DeclIdentElem;
   params: ParamElem[];
-  returnType?: RefIdentElem;
+  returnType?: TypeRefElem;
 }

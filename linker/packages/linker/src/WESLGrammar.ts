@@ -33,8 +33,10 @@ import {
   collectStructMember,
   collectVarLike,
   declIdentElem,
+  expressionCollect,
   refIdent,
   scopeCollect,
+  typeRefCollect,
 } from "./WESLCollect.ts";
 
 /** parser that recognizes key parts of WGSL and also directives like #import */
@@ -126,35 +128,37 @@ export const fnNameDecl = req(
   "missing fn name",
 );
 
+// prettier-ignore
 const std_type_specifier = seq(
-  word.collect(refIdent, "typeRef"),
+  word                              .collect(refIdent, "typeRefName"),
   () => opt_template_list,
-);
+)                                   .collect(typeRefCollect());
 
 // none of the elements of a texture_storage type generator are bindable idents
 // e.g. texture_storage_2d<rgba8unorm, write>
 const texture_storage_type = seq(
   kind(mainTokens.textureStorage),
   () => opt_template_words,
-);
+); // TODO collect as TypeRefElem for completeness
 
 // the first and optional third elements of a ptr template are not bindable idents:
 // e.g. ptr<storage, MyStruct, read>
-const ptr_type = seq(
-  "ptr",
-  req("<"),
-  word,
-  req(","),
-  () => template_arg_expression,
-  opt(seq(",", word)),
-  req(">"),
-);
+// prettier-ignore
+const ptr_type = tagScope(
+  seq(
+    text("ptr")                     .ptag("typeRefName"),
+    req("<"),
+    word                            .ptag("templateParam"),
+    req(","),
+    () => template_parameter,
+    opt(seq(",", word               .ptag("templateParam"))),
+    req(">"),
+  )                                 .collect(typeRefCollect()),
+)
 
-export const type_specifier: Parser<any> = or(
-  texture_storage_type,
-  ptr_type,
-  std_type_specifier,
-) as any;
+export const type_specifier: Parser<any> = tagScope(
+  or(texture_storage_type, ptr_type, std_type_specifier),
+).ctag("typeRefElem");
 
 const optionally_typed_ident = seq(
   word.collect(declIdentElem, "declIdent"),
@@ -215,7 +219,7 @@ const global_variable_decl = seq(
 const opt_template_list = opt(
   seq(
     tokens(bracketTokens, "<"),
-    withSepPlus(",", () => template_arg_expression),
+    withSepPlus(",", () => template_parameter),
     tokens(bracketTokens, ">"),
   ),
 );
@@ -228,7 +232,6 @@ const opt_template_words = opt(
     tokens(bracketTokens, ">"),
   ),
 );
-
 const template_elaborated_ident = seq(
   word.collect(refIdent),
   opt_template_list,
@@ -288,6 +291,14 @@ const makeExpression = (isTemplate: boolean) => {
 
 export const expression = makeExpression(false);
 const template_arg_expression = makeExpression(true);
+
+/** a template_arg_expression with additional collection for parameters
+ * that are types like array<f32> vs. expressions like 1+2 */
+// prettier-ignore
+const template_parameter = or(
+  type_specifier                    .ctag("templateParam"),
+  template_arg_expression           .collect(expressionCollect(), "templateParam"),
+);
 
 const unscoped_compound_statement = seq(
   opt_attributes,

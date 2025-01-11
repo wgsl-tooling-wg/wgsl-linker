@@ -1,4 +1,4 @@
-import { CollectContext, CollectPair, tracing } from "mini-parse";
+import { CollectContext, CollectPair, srcLog, tracing } from "mini-parse";
 import {
   AbstractElem,
   AliasElem,
@@ -8,6 +8,7 @@ import {
   DeclarationElem,
   DeclIdentElem,
   ElemWithContents,
+  ExpressionElem,
   FnElem,
   GlobalVarElem,
   ImportElem,
@@ -19,6 +20,7 @@ import {
   StructElem,
   StructMemberElem,
   TextElem,
+  TypeRefElem,
   VarElem,
 } from "./AbstractElems.ts";
 import {
@@ -119,12 +121,12 @@ function completeScope(cc: CollectContext): Scope {
 }
 
 // prettier-ignore
-export type OpenElem<T extends AbstractElem = AbstractElem> = 
-  Pick< T, "kind" > & { contents: AbstractElem[] };
+export type OpenElem<T extends ElemWithContents = ElemWithContents> = 
+  Pick< T, "kind" | "contents">;
 
 // prettier-ignore
-export type PartElem<T extends AbstractElem = AbstractElem> = 
-  Pick< T, "kind" | "start" | "end" > & { contents: AbstractElem[] };
+export type PartElem<T extends ElemWithContents = ElemWithContents > = 
+  Pick< T, "kind" | "start" | "end" | "contents"> ;
 
 type VarLikeElem =
   | GlobalVarElem
@@ -138,7 +140,7 @@ export function collectVarLike<E extends VarLikeElem>(
 ): CollectPair<E> {
   return collectElem(kind, (cc: CollectContext, openElem: PartElem<E>) => {
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
-    const typeRef = cc.tags.typeRef?.[0] as RefIdentElem;
+    const typeRef = cc.tags.typeRefElem?.[0] as TypeRefElem;
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
     const partElem = { ...openElem, name, typeRef };
     const varElem = withTextCover(partElem, cc) as E;
@@ -153,7 +155,7 @@ export function collectFn(): CollectPair<FnElem> {
     const name = cc.tags.fnName?.[0] as DeclIdentElem;
     const body_scope = cc.tags.body_scope?.[0] as Scope;
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
-    const returnType: RefIdentElem | undefined = cc.tags.returnType?.flat(3)[0];
+    const returnType: TypeRefElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
     const fnElem = withTextCover(partElem, cc);
     (name.ident as DeclIdent).declElem = fnElem;
@@ -168,7 +170,7 @@ export function collectFnParam(): CollectPair<ParamElem> {
     "param",
     (cc: CollectContext, openElem: PartElem<ParamElem>) => {
       const name = cc.tags.paramName?.[0]! as DeclIdentElem;
-      const typeRef = cc.tags.typeRef?.[0]! as RefIdentElem;
+      const typeRef = cc.tags.typeRefElem?.[0]! as TypeRefElem;
       const elem: ParamElem = { ...openElem, name, typeRef };
       const paramElem = withTextCover(elem, cc);
       name.ident.declElem = paramElem;
@@ -202,7 +204,7 @@ export function collectStructMember(): CollectPair<StructMemberElem> {
     (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
       // dlog("structMember", { tags: [...Object.keys(cc.tags)] });
       const name = cc.tags.nameElem?.[0]!;
-      const typeRef = cc.tags.typeRef?.[0];
+      const typeRef = cc.tags.typeRefElem?.[0];
       const partElem = { ...openElem, name, typeRef };
       return withTextCover(partElem, cc);
     },
@@ -218,6 +220,32 @@ export function collectAttribute(): CollectPair<AttributeElem> {
       const name = cc.tags.name?.[0]! as string;
       // dlog({name})
       const partElem = { ...openElem, attributes, name } as any;
+      return withTextCover(partElem, cc);
+    },
+  );
+}
+
+export function typeRefCollect(): CollectPair<TypeRefElem> {
+  return collectElem(
+    "type",
+    (cc: CollectContext, openElem: PartElem<TypeRefElem>) => {
+      const templateParams = cc.tags.templateParam?.flat(3);
+      const typeRef = cc.tags.typeRefName?.[0] as string | RefIdentElem;
+      const name = typeof typeRef === "string" ? typeRef : typeRef.ident;
+      const partElem = { ...openElem, name, templateParams };
+      // dlog("typeRefCollect", { tags: [...Object.keys(cc.tags)] });
+      // collectLog(cc, "typeRefCollect", elemToString(partElem));
+      // dlog({ typeRefCollect: elemToString(partElem) });
+      return withTextCover(partElem, cc);
+    },
+  );
+}
+
+export function expressionCollect(): CollectPair<ExpressionElem> {
+  return collectElem(
+    "expression",
+    (cc: CollectContext, openElem: PartElem<ExpressionElem>) => {
+      const partElem = { ...openElem };
       return withTextCover(partElem, cc);
     },
   );
@@ -291,7 +319,17 @@ export function collectSimpleElem<V extends AbstractElem & ElemWithContents>(
   return collectElem(kind, (cc, part) => withTextCover(part, cc) as V);
 }
 
-function collectElem<V extends AbstractElem>(
+/** utility to collect an ElemWithContents
+ * starts the new element as the collection point corresponding
+ * to the start of the attached grammar and completes
+ * the element in the at the end of the grammar.
+ *
+ * In between the start and the end, the new element is available
+ * as an 'open' element in the collection context. While this element
+ * is 'open', other collected are added to the 'contents' field of this
+ * open element.
+ */
+function collectElem<V extends ElemWithContents>(
   kind: V["kind"],
   fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
 ): CollectPair<V> {
@@ -307,7 +345,7 @@ function collectElem<V extends AbstractElem>(
       const partialElem = weslContext.openElems.pop()!;
       console.assert(partialElem && partialElem.kind === kind);
       const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
-      addToOpenElem(cc, elem);
+      addToOpenElem(cc, elem as AbstractElem);
       return elem;
     },
   };
@@ -352,4 +390,9 @@ function coverWithText(
   function makeTextElem(end: number): TextElem {
     return { kind: "text", start: pos, end, srcModule: ast.srcModule };
   }
+}
+
+function collectLog(cc: CollectContext, ...messages: any[]): void {
+  const { src, start, end } = cc;
+  srcLog(src, [start, end], ...messages);
 }

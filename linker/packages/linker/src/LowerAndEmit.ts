@@ -65,6 +65,8 @@ export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
     case "member":
     case "attribute":
     case "attrParam":
+    case "expression":
+    case "type":
       return emitContents(e, ctx);
     case "name":
       return emitName(e, ctx);
