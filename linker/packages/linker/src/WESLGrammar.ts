@@ -122,13 +122,19 @@ const argument_expression_list = seq(
 const opt_attributes = repeat(attribute);
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word.collect(declIdentElem, "typeName"));
+// prettier-ignore
+export const typeNameDecl = 
+  req(
+    word                            .collect(declIdentElem, "typeName")
+  );
 
 /** parse an identifier into a TypeNameElem */
-export const fnNameDecl = req(
-  word.collect(declIdentElem, "fnName"),
-  "missing fn name",
-);
+// prettier-ignore
+export const fnNameDecl = 
+  req(
+    word                            .collect(declIdentElem, "fnName"),
+    "missing fn name",
+  );
 
 // prettier-ignore
 const std_type_specifier = seq(
