@@ -150,8 +150,9 @@ export function collectVarLike<E extends VarLikeElem>(
   });
 }
 
-export function collectFn(): CollectPair<FnElem> {
-  return collectElem("fn", (cc: CollectContext, openElem: PartElem<FnElem>) => {
+export const collectFn = collectElem(
+  "fn",
+  (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0] as DeclIdentElem;
     const body_scope = cc.tags.body_scope?.[0] as Scope;
     const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
@@ -162,94 +163,82 @@ export function collectFn(): CollectPair<FnElem> {
     name.ident.scope = body_scope;
 
     return fnElem;
-  });
-}
+  },
+);
 
-export function collectFnParam(): CollectPair<ParamElem> {
-  return collectElem(
-    "param",
-    (cc: CollectContext, openElem: PartElem<ParamElem>) => {
-      const name = cc.tags.paramName?.[0]! as DeclIdentElem;
-      const typeRef = cc.tags.typeRefElem?.[0]! as TypeRefElem;
-      const elem: ParamElem = { ...openElem, name, typeRef };
-      const paramElem = withTextCover(elem, cc);
-      name.ident.declElem = paramElem;
+export const collectFnParam = collectElem(
+  "param",
+  (cc: CollectContext, openElem: PartElem<ParamElem>) => {
+    const name = cc.tags.paramName?.[0]! as DeclIdentElem;
+    const typeRef = cc.tags.typeRefElem?.[0]! as TypeRefElem;
+    const elem: ParamElem = { ...openElem, name, typeRef };
+    const paramElem = withTextCover(elem, cc);
+    name.ident.declElem = paramElem;
 
-      return paramElem;
-    },
-  );
-}
+    return paramElem;
+  },
+);
 
-export function collectStruct(): CollectPair<StructElem> {
-  return collectElem(
-    "struct",
-    (cc: CollectContext, openElem: PartElem<StructElem>) => {
-      // dlog({ attributes: cc.tags.attributes?.flat(8).map(e => e && elemToString(e)) });
-      const name = cc.tags.typeName?.[0] as DeclIdentElem;
-      const members = cc.tags.members as StructMemberElem[];
-      // dlog({members:members})
-      name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
-      const structElem = { ...openElem, name, members };
-      const elem = withTextCover(structElem, cc);
-      (name.ident as DeclIdent).declElem = elem as DeclarationElem;
+export const collectStruct = collectElem(
+  "struct",
+  (cc: CollectContext, openElem: PartElem<StructElem>) => {
+    // dlog({ attributes: cc.tags.attributes?.flat(8).map(e => e && elemToString(e)) });
+    const name = cc.tags.typeName?.[0] as DeclIdentElem;
+    const members = cc.tags.members as StructMemberElem[];
+    // dlog({members:members})
+    name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
+    const structElem = { ...openElem, name, members };
+    const elem = withTextCover(structElem, cc);
+    (name.ident as DeclIdent).declElem = elem as DeclarationElem;
 
-      return elem;
-    },
-  );
-}
+    return elem;
+  },
+);
 
-export function collectStructMember(): CollectPair<StructMemberElem> {
-  return collectElem(
-    "member",
-    (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
-      // dlog("structMember", { tags: [...Object.keys(cc.tags)] });
-      const name = cc.tags.nameElem?.[0]!;
-      const typeRef = cc.tags.typeRefElem?.[0];
-      const partElem = { ...openElem, name, typeRef };
-      return withTextCover(partElem, cc);
-    },
-  );
-}
+export const collectStructMember = collectElem(
+  "member",
+  (cc: CollectContext, openElem: PartElem<StructMemberElem>) => {
+    // dlog("structMember", { tags: [...Object.keys(cc.tags)] });
+    const name = cc.tags.nameElem?.[0]!;
+    const typeRef = cc.tags.typeRefElem?.[0];
+    const partElem = { ...openElem, name, typeRef };
+    return withTextCover(partElem, cc);
+  },
+);
 
-export function collectAttribute(): CollectPair<AttributeElem> {
-  return collectElem(
-    "attribute",
-    (cc: CollectContext, openElem: PartElem<AttributeElem>) => {
-      // dlog({ tags: [...Object.keys(cc.tags)] });
-      const attributes = cc.tags.attrParam?.[0]!;
-      const name = cc.tags.name?.[0]! as string;
-      // dlog({name})
-      const partElem = { ...openElem, attributes, name } as any;
-      return withTextCover(partElem, cc);
-    },
-  );
-}
+export const collectAttribute = collectElem(
+  "attribute",
+  (cc: CollectContext, openElem: PartElem<AttributeElem>) => {
+    // dlog({ tags: [...Object.keys(cc.tags)] });
+    const attributes = cc.tags.attrParam?.[0]!;
+    const name = cc.tags.name?.[0]! as string;
+    // dlog({name})
+    const partElem = { ...openElem, attributes, name } as any;
+    return withTextCover(partElem, cc);
+  },
+);
 
-export function typeRefCollect(): CollectPair<TypeRefElem> {
-  return collectElem(
-    "type",
-    (cc: CollectContext, openElem: PartElem<TypeRefElem>) => {
-      const templateParams = cc.tags.templateParam?.flat(3);
-      const typeRef = cc.tags.typeRefName?.[0] as string | RefIdentElem;
-      const name = typeof typeRef === "string" ? typeRef : typeRef.ident;
-      const partElem = { ...openElem, name, templateParams };
-      // dlog("typeRefCollect", { tags: [...Object.keys(cc.tags)] });
-      // collectLog(cc, "typeRefCollect", elemToString(partElem));
-      // dlog({ typeRefCollect: elemToString(partElem) });
-      return withTextCover(partElem, cc);
-    },
-  );
-}
+export const typeRefCollect = collectElem(
+  "type",
+  (cc: CollectContext, openElem: PartElem<TypeRefElem>) => {
+    const templateParams = cc.tags.templateParam?.flat(3);
+    const typeRef = cc.tags.typeRefName?.[0] as string | RefIdentElem;
+    const name = typeof typeRef === "string" ? typeRef : typeRef.ident;
+    const partElem = { ...openElem, name, templateParams };
+    // dlog("typeRefCollect", { tags: [...Object.keys(cc.tags)] });
+    // collectLog(cc, "typeRefCollect", elemToString(partElem));
+    // dlog({ typeRefCollect: elemToString(partElem) });
+    return withTextCover(partElem, cc);
+  },
+);
 
-export function expressionCollect(): CollectPair<ExpressionElem> {
-  return collectElem(
-    "expression",
-    (cc: CollectContext, openElem: PartElem<ExpressionElem>) => {
-      const partElem = { ...openElem };
-      return withTextCover(partElem, cc);
-    },
-  );
-}
+export const expressionCollect = collectElem(
+  "expression",
+  (cc: CollectContext, openElem: PartElem<ExpressionElem>) => {
+    const partElem = { ...openElem };
+    return withTextCover(partElem, cc);
+  },
+);
 
 export function collectNameElem(cc: CollectContext): NameElem {
   const { start, end, src, app } = cc;
@@ -260,20 +249,16 @@ export function collectNameElem(cc: CollectContext): NameElem {
   return elem;
 }
 
-// prettier-ignore
-export function collectModule(): 
-    CollectPair<ModuleElem > {
-  return collectElem(
-    "module",
-    (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
-      const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
-      const moduleElem: ModuleElem = withTextCover(openElem, ccComplete);
-      const weslState: StableState = cc.app.stable;
-      weslState.moduleElem = moduleElem;
-      return moduleElem;
-    },
-  );
-}
+export const collectModule = collectElem(
+  "module",
+  (cc: CollectContext, openElem: PartElem<ModuleElem>) => {
+    const ccComplete = { ...cc, start: 0, end: cc.src.length }; // force module to cover entire source despite ws skipping
+    const moduleElem: ModuleElem = withTextCover(openElem, ccComplete);
+    const weslState: StableState = cc.app.stable;
+    weslState.moduleElem = moduleElem;
+    return moduleElem;
+  },
+);
 
 export function importList(cc: CollectContext): SegmentList {
   const list = cc.tags.list as PathSegment[];
@@ -291,19 +276,17 @@ export function importTree(cc: CollectContext): ImportTree {
   return new ImportTree(path);
 }
 
-export function importElem(): CollectPair<ImportElem> {
-  return collectElem(
-    "import",
-    (cc: CollectContext, openElem: PartElem<ImportElem>) => {
-      const path = cc.tags.p as PathSegment[]; // LATER ts typing
-      const imports = new ImportTree(path);
-      const partialElem: ImportElem = { ...openElem, imports };
-      const importElem = withTextCover(partialElem, cc);
-      (cc.app.stable as StableState).imports.push(imports);
-      return importElem;
-    },
-  );
-}
+export const importElem = collectElem(
+  "import",
+  (cc: CollectContext, openElem: PartElem<ImportElem>) => {
+    const path = cc.tags.p as PathSegment[]; // LATER ts typing
+    const imports = new ImportTree(path);
+    const partialElem: ImportElem = { ...openElem, imports };
+    const importElem = withTextCover(partialElem, cc);
+    (cc.app.stable as StableState).imports.push(imports);
+    return importElem;
+  },
+);
 
 /** collect a scope start starts before and ends after a parser */
 export function scopeCollect(): CollectPair<void> {

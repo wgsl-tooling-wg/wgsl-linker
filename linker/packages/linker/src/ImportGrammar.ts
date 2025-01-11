@@ -137,7 +137,7 @@ const fullPath = noSkipWs(
 export const weslImport = tagScope(
   tokens(
     importTokens,
-    seq("import", fullPath, opt(";"), eolf)     .collect(importElem()),
+    seq("import", fullPath, opt(";"), eolf)     .collect(importElem),
   ),
 );
 

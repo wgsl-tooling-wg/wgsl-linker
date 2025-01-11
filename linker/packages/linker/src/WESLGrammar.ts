@@ -100,7 +100,7 @@ const attribute = tagScope(
         ),
       ),
     ),
-  )                                       .collect(collectAttribute()),
+  )                                       .collect(collectAttribute),
 )                                         .ctag("attribute");
 
 // prettier-ignore
@@ -122,11 +122,11 @@ const argument_expression_list = seq(
 const opt_attributes = repeat(attribute);
 
 /** parse an identifier into a TypeNameElem */
-export const typeNameDecl = req(word  .collect(declIdentElem, "typeName"));
+export const typeNameDecl = req(word.collect(declIdentElem, "typeName"));
 
 /** parse an identifier into a TypeNameElem */
 export const fnNameDecl = req(
-  word                                .collect(declIdentElem, "fnName"),
+  word.collect(declIdentElem, "fnName"),
   "missing fn name",
 );
 
@@ -134,7 +134,7 @@ export const fnNameDecl = req(
 const std_type_specifier = seq(
   word                              .collect(refIdent, "typeRefName"),
   () => opt_template_list,
-)                                   .collect(typeRefCollect());
+)                                   .collect(typeRefCollect);
 
 // none of the elements of a texture_storage type generator are bindable idents
 // e.g. texture_storage_2d<rgba8unorm, write>
@@ -155,7 +155,7 @@ const ptr_type = tagScope(
     () => template_parameter,
     opt(seq(",", word               .ptag("templateParam"))),
     req(">"),
-  )                                 .collect(typeRefCollect()),
+  )                                 .collect(typeRefCollect),
 )
 
 // prettier-ignore
@@ -177,7 +177,7 @@ export const struct_member = seq(
   word                              .collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier),
-)                                   .collect(collectStructMember());
+)                                   .collect(collectStructMember);
 
 // prettier-ignore
 export const struct_decl = seq(
@@ -188,7 +188,7 @@ export const struct_decl = seq(
     withSepPlus(",", struct_member)   .ptag("members"),
     req("}"),
   )                                   .collect(scopeCollect(), "struct_scope"),
-)                                     .collect(collectStruct());
+)                                     .collect(collectStruct);
 
 /** Also covers func_call_statement.post.ident */
 // prettier-ignore
@@ -204,7 +204,7 @@ const fnParam = tagScope(
     opt_attributes,
     word                              .collect(declIdentElem, "paramName"),
     opt(seq(":", req(type_specifier))),
-  )                                   .collect(collectFnParam()),
+  )                                   .collect(collectFnParam),
 )                                     .ctag("fnParam");
 
 const fnParamList = seq("(", withSep(",", fnParam), ")");
@@ -310,7 +310,7 @@ const template_arg_expression = makeExpression(true);
 // prettier-ignore
 const template_parameter = or(
   type_specifier                    .ctag("templateParam"),
-  template_arg_expression           .collect(expressionCollect(), "templateParam"),
+  template_arg_expression           .collect(expressionCollect, "templateParam"),
 );
 
 const unscoped_compound_statement = seq(
@@ -461,7 +461,7 @@ export const fn_decl = seq(
       type_specifier                  .ctag("returnType"))),
     req(unscoped_compound_statement),
   )                                   .collect(scopeCollect(), "body_scope"),
-)                                     .collect(collectFn());
+)                                     .collect(collectFn);
 
 // prettier-ignore
 const global_value_decl = or(
@@ -536,7 +536,7 @@ export const weslRoot = preParse(
     repeat(or(global_directive, weslImport)),
     repeat(or(global_decl, weslImport)),
     req(end),
-  )                                 .collect(collectModule(), "collectModule"),
+  )                                 .collect(collectModule, "collectModule"),
 );
 
 if (tracing) {
