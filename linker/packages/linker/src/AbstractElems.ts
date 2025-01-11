@@ -1,12 +1,22 @@
 import { ImportTree } from "./ImportTree.ts";
 import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 
+/** 
+ * Structures to describe the 'interesting' parts of a WESL source file.
+ *
+ * The parts of the source that need to analyze further in the linker 
+ * are pulled out into these structures.
+ * 
+ * The parts that are uninteresting the the linker are recorded
+ * as 'TextElem' nodes, which are generally just copied to the output WGSL
+ * along with their containing element.
+ */
 export type AbstractElem =
   | AliasElem
   | AttributeElem
   | AttributeParamElem
   | ConstElem
-  | ExpressionElem 
+  | ExpressionElem
   | ImportElem
   | ConstAssertElem
   | FnElem
@@ -43,6 +53,15 @@ export interface ElemWithContents extends AbstractElemBase {
   contents: AbstractElem[];
 }
 
+/** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
+ e.g. a keyword  like 'var' 
+ or a phrase we needn't analyze further like '@diagnostic(off,derivative_uniformity)'
+*/
+export interface TextElem extends AbstractElemBase {
+  kind: "text";
+  srcModule: SrcModule;
+}
+
 export interface ImportElem extends ElemWithContents {
   kind: "import";
   imports: ImportTree;
@@ -50,36 +69,29 @@ export interface ImportElem extends ElemWithContents {
 
 export type TypeTemplateParameter = TypeRefElem | ExpressionElem | string;
 
+/** an expression (generally we don't need details of expressions, just their contained idents */
 export interface ExpressionElem extends ElemWithContents {
-  kind: "expression"
+  kind: "expression";
 }
 
+/** a reference to a type, like 'f32', or 'MyStruct', or 'ptr<storage, array<f32>, read_only>'   */
 export interface TypeRefElem extends ElemWithContents {
   kind: "type";
   name: RefIdent | string;
   templateParams?: TypeTemplateParameter[];
 }
 
-/** an identifier in WESL source */
+/** an identifier that refers to a declaration */
 export interface RefIdentElem extends AbstractElemBase {
   kind: RefIdent["kind"];
   ident: RefIdent;
   srcModule: SrcModule;
 }
 
-/** an identifier in WESL source */
+/** a declaration identifier */
 export interface DeclIdentElem extends AbstractElemBase {
   kind: DeclIdent["kind"];
   ident: DeclIdent;
-  srcModule: SrcModule;
-}
-
-/** a raw bit of text in WESL source that's typically copied to the linked WGSL. 
- e.g. a keyword  like 'var' 
- or a phrase we needn't analyze further like '@diagnostic(off,derivative_uniformity)'
-*/
-export interface TextElem extends AbstractElemBase {
-  kind: "text";
   srcModule: SrcModule;
 }
 
@@ -90,12 +102,14 @@ export interface ParamElem extends ElemWithContents {
   typeRef: TypeRefElem;
 }
 
+/** an attribute like '@compute' or '@binding(0)' */
 export interface AttributeElem extends ElemWithContents {
   kind: "attribute";
   name: string;
   params: AttributeParamElem[];
 }
 
+// TODO make expression?
 export interface AttributeParamElem extends ElemWithContents {
   kind: "attrParam";
 }
