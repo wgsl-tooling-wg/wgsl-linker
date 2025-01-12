@@ -1,4 +1,4 @@
-import { dlog } from "berry-pretty";
+import { CombinatorArg, ResultFromArg } from "./CombinatorTypes.js";
 import { Lexer } from "./MatchingLexer.js";
 import {
   AppState,
@@ -11,7 +11,6 @@ import {
   trackChildren,
 } from "./Parser.js";
 import { parserArg } from "./ParserCombinator.js";
-import { CombinatorArg, ResultFromArg } from "./CombinatorTypes.js";
 
 /** an entry in the table of deferred functions for collect() and tag() */
 export interface CollectFnEntry<V> {
