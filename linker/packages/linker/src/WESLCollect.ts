@@ -200,7 +200,8 @@ export const collectStructMember = collectElem(
     // dlog("structMember", { tags: [...Object.keys(cc.tags)] });
     const name = cc.tags.nameElem?.[0]!;
     const typeRef = cc.tags.typeRefElem?.[0];
-    const partElem = { ...openElem, name, typeRef };
+    const attributes = cc.tags.attribute?.flat(3) as AttributeElem[];
+    const partElem = { ...openElem, name, attributes, typeRef };
     return withTextCover(partElem, cc);
   },
 );

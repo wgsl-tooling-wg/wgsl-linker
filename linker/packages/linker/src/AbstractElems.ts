@@ -164,6 +164,7 @@ export interface StructElem extends ElemWithContents {
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
+  attributes: AttributeElem[];  
   typeRef: TypeRefElem;
 }
 

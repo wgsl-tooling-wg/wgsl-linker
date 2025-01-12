@@ -179,7 +179,7 @@ const req_optionally_typed_ident = req(optionally_typed_ident);
 
 // prettier-ignore
 export const struct_member = seq(
-  opt_attributes                    .ctag("attributes"),
+  opt_attributes,
   word                              .collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier),
