@@ -810,8 +810,7 @@ test("parse switch statement-2", () => {
         text ') {
           switch ( '
         ref code
-        text
-           ' ) {
+        text ' ) {
             case 5u: { if 1 > 0 { } }
             default: { break; }
           }
