@@ -12,11 +12,7 @@ import {
 import { Conditions } from "./Scope.ts";
 import { WgslBundle } from "./WgslBundle.ts";
 
-/* --- Overview: Plan for Linking WESL --- */
-
 /* 
-This is a bit of a rework/reshuffling from the 'legacy' version described in Internals.md.
-
 It expects the parser to identify three types of idents: 
   global declarations, local declarations, references
   (the legacy version distingished between type and variable idents, and more)
@@ -75,6 +71,13 @@ export function link(
   return linkRegistry(registry, rootModuleName, conditions);
 }
 
+/** Link wesl from a registry of already parsed modules.
+ *
+ * This entry point is intended for users who want to link multiple times
+ * from the same sources. (perhaps linking with different conditions
+ * each time, or perhaps to produce multiple wgsl shaders 
+ * that share some sources.)
+ */
 export function linkRegistry(
   parsed: ParsedRegistry,
   rootModuleName: string = "main",

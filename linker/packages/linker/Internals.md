@@ -1,67 +1,73 @@
 # Linker Internals
 
-The linker's job is merge multiple wgsl string fragments
-into one combined string.
-Normally each string fragment comes from a source .wgsl file
-and the combined wgsl string is passed to WebGPU's `createShaderModule`.
+The linker's job is merge multiple WESL string fragments
+into one combined WGSL string.
+Suitable for WebGPU's `createShaderModule`.
 
-The fragments are merged together by following an
-and extended wgsl syntax that includes
-support for modules via import and export statements
-to select wgsl elements to merge.
+The WESL language is a superset of WGSL, including support
+for import statements, conditional compilation, etc.
 
-wgsl-linker is designed to enable linking at runtime in the browser
-to enable conditional compiling and conditional linking based
-on gpu characteristics.
-Because wgsl-linker runs in the browser, it has no access
-to the original source filesystem.
-The caller of the linker provides wgsl strings
-and file names to the linker so that it can
-provide the programmer with filesystem-like relative
-imports: `import foo from ./bar`.
-Typical build tools (vite, rollup) will bundle up source
-files to into strings and filenames for that purpose.
-(the build tool syntax is a bit cumbersome, though,
-a build plugin could polish that.)
+wesl-js is designed to enable linking at runtime in the browser
+to enable conditional compilation of shaders based on application specific
+conditions (e.g. `@if(useShadowMap)` )
+
+Because wesl-js is intended to run in the browser,
+it assumes no access to the original source filesystem.
+The caller is expected to provide named WESL strings, typically
+by bundling `.wesl` files into strings with a build tool like `vite`.
 
 ## Setting up to link
 
-- _build_ - wgsl source files are converted into strings for runtime registration.
-- _register_ - wgsl fragments are registered in the ModuleRegistry
-  for later retrieval.
-  No wgsl processing is done at registration time.
-- _link_ - create a merged wgsl string, starting from a root fragment
+- _build_ - .wesl source files are converted into strings for runtime registration.
+- _register_ - wgsl fragments are parsed into the ParsedRegistry
+- _link_ - create a merged wgsl string, starting from a root module
   in the registry.
-  The merged wgsl string contains only vanilla wgsl,
-  all extended syntax (import, export) is processed and the
-  extended syntax is removed.
+  The linked wgsl string contains only vanilla WGSL.
+  extended WESL syntax (e.g. import statements, conditions) is removed.
 
 ## Linking phases
 
 Linking is relatively straightforward.
 
-1. Preprocess and parse the registry
-   - parse wgsl fragments into an abstract syntax tree. see `AbstractElem`
-1. Traverse the abstract syntax tree recursively, starting from the wgsl
-   elements in the root wgsl fragment.
-   - The accumulated list of wgsl elements (`FoundRef[]`)
-     will eventually be concatenated into the linked result string.
-   - each FoundRef has a deconflicted 'rename' name
-     so that wgsl element names will be unique in the linked result.
-     see `findReferences() handleRef()`.
-   - During the traverse, mutate the abstract elem graph to add
-     a link from referencing elements (e.g. a call, type annotation)
-     to their FoundRef target (e.g. fn, struct).
-     (so we can rename referencing elements as necessary)
-1. The text of all referenced FoundRef[] elements is extracted
-   from the source fragment, rewritten according to any renaming,
-   and concatenated into the final linked result string.
-
-## Embellishments
-
-- ImportResolutionMap - Fully expand wildcard and list style imports,
-  distinguish imports that refer to wgsl elements
-  from (rust only) path prefix imports.
+1. Parse WESL strings into the ParsedRegistry
+    - Each WESL module is parsed into a WeslAST.
+    - There are three notable structures in the `WeslAST`:
+        - `AbstractElem`s for the traditional abstract syntax tree,
+          roughly mirroring the structure of source statements in the WESL language.
+            - Most `AbstractElements` can contain other elements via their `contents` field.
+            - Contents typically include `TextElem`s, which record semantically
+            uninteresting parts of the source text.
+            (The `TextElem`s are typically copied verbatim to the output WGSL.
+            As a result, the output of a trivial WESL link of unextended WGSL
+            code is the same as the original WGSL.)
+        - `ImportTree` for the import statements
+        - `Scope` tree for a heirarchical tree of identifiers,
+          with `DeclIdent` declaration identifiers distinguished
+          from `RefIdent` references by the parser.
+1. Traverse the `Scope` tree from the root module,
+  tracing references to declarations by searching for matching declarations
+  in parent scopes and import statements.
+    - Each `DeclIdent` includes an attached `Scope` containing the references attached to the declaration.
+    For example, the `DeclIdent` for a WESL `fn` declaration will point to a `Scope` containing
+    all of the references in the `fn` body.
+    - The traversal will recursively visit each of
+    the references in the scoped attached to the declaration,
+    and trace those references to their declarations too.
+    - This recursive walk through through the identifier
+    graph eventually visits every declaration that
+    will be linked into the final WGSL.
+    - During the traversal
+        1. Mangle the names of declarations as necessary for uniqueness by
+        mutating the `mangledName` field of the `DeclIdent`.
+        1. Link references to declaration by mutating the `refersTo` field
+        in the `RefIdent`.
+        1. Return the complete list of visited declarations.
+1. Emit all of the declarations.
+    - Each declaration AbstractElem is written to the output result WGSL string
+      along with any contained elements.
+        - Each contained declaration is rewritten to use its `mangledName`.
+        - Each contained reference is rewritten to use the `mangledName`
+        from the declaration it `refersTo`.
 
 ## Error Reporting
 
@@ -76,20 +82,3 @@ then be reported to the user in terms of the source text.
 User error logging routines like `srcLog()` take a `SrcMap`
 as a paramater to facilitate error logging.
 `SrcMap`s may stack to cover multiple rounds of rewrites.
-
-Currently, linker errors are reported correctly by mapping sources
-through preprocessing via a SrcMap.
-
-## Future Work
-
-Linker rewriting should also track through a `SrcMap`
-(in addition to preprocessing), so that
-wgsl parsing errors from dawn/naga can also be
-translated to the original source.
-
-Consider rewriting graph mutations as separate passes
-producing new data structures to improve clarity (rather
-than mutating optional fields in existing data structures).
-
-Simplify internal differences between local refs and non-local refs,
-e.g. provide ExportInfo for local refs too.

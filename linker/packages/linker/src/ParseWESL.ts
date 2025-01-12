@@ -7,7 +7,7 @@ import { OpenElem } from "./WESLCollect.ts";
 import { weslRoot } from "./WESLGrammar.ts";
 import { FlatImport, flattenTreeImport } from "./FlattenTreeImport.ts";
 
-/** result of a parse */
+/** result of a parse for one wesl module (e.g. one .wesl file) */
 export interface WeslAST {
   /** source text for this module */
   srcModule: SrcModule;
@@ -21,7 +21,7 @@ export interface WeslAST {
   /** imports found in this module */
   imports: ImportTree[];
 
-  /* constructed on demand from import trees, and cached */
+  /* a flattened version of the import statements constructed on demand from import trees, and cached */
   _flatImports?: FlatImport[];
 }
 
