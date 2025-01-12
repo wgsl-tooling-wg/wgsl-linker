@@ -183,7 +183,7 @@ export const struct_member = seq(
   word                              .collect(collectNameElem, "nameElem"),
   ":",
   req(type_specifier),
-)                                   .collect(collectStructMember);
+)                                   .collect(collectStructMember, "members");
 
 // prettier-ignore
 export const struct_decl = seq(
@@ -191,7 +191,7 @@ export const struct_decl = seq(
   req(typeNameDecl),
   seq(
     req("{"),
-    withSepPlus(",", struct_member)   .ptag("members"),
+    withSepPlus(",", struct_member),
     req("}"),
   )                                   .collect(scopeCollect(), "struct_scope"),
 )                                     .collect(collectStruct);
