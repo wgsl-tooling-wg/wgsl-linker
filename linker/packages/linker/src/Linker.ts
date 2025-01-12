@@ -58,20 +58,6 @@ The AST is now immutable, mutation is confined to the Idents and Scopes.
  * @param rootModuleName name or module path of the root module
  * @param conditions runtime conditions for conditional compilation
  */
-export function linkWesl(
-  weslSrc: Record<string, string>,
-  rootModuleName: string = "main",
-  conditions: Conditions = {},
-): SrcMap {
-  /* --- Step #1   Parsing WESL --- */
-  // parse all source modules in both app and libraries,
-  // producing Scope tree and AST elements for each module
-  const parsed: ParsedRegistry = parseWeslSrc(weslSrc);
-
-  return linkRegistry(parsed, rootModuleName, conditions);
-}
-
-// TODO DRY entry points
 export function link(
   weslSrc: Record<string, string>,
   rootModuleName: string = "main",
@@ -80,6 +66,9 @@ export function link(
   libs: WgslBundle[] = [],
   maxParseCount?: number,
 ): SrcMap {
+  /* --- Step #1   Parsing WESL --- */
+  // parse all source modules in both app and libraries,
+  // producing Scope tree and AST elements for each module
   const registry = parsedRegistry();
   parseIntoRegistry(weslSrc, registry, "package", maxParseCount);
   parseLibsIntoRegistry(libs, registry);
@@ -95,13 +84,13 @@ export function linkRegistry(
   const found = selectModule(parsed, rootModuleName);
   if (!found) {
     if (tracing) {
-      console.log(`parsed modules: ${Object.keys(parsed.modules)}`); 
-      console.log(`root module not found: ${rootModuleName}`); 
+      console.log(`parsed modules: ${Object.keys(parsed.modules)}`);
+      console.log(`root module not found: ${rootModuleName}`);
     }
     throw new Error(`Root module not found: ${rootModuleName}`);
   }
   const { moduleElem: rootModule } = found;
-  
+
   /* --- Step #2   Binding Idents --- */
   // link active Ident references to declarations, and uniquify global declarations
   const newDecls = bindIdents(found, parsed, conditions);

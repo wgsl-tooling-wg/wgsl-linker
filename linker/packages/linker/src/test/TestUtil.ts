@@ -5,7 +5,7 @@ import {
   testParse,
   TestParseResult,
 } from "mini-parse/test-util";
-import { linkWesl } from "../Linker.js";
+import { link } from "../Linker.js";
 import { mainTokens } from "../WESLTokens.js";
 import { parseWESL, syntheticWeslParseState, WeslAST } from "../ParseWESL.js";
 
@@ -18,17 +18,17 @@ export function testAppParse<T, N extends TagRecord = NoTags>(
 }
 
 /** Convenience wrapper to link wgsl for tests.
- * The first module is named "package::root",
- * subsequent modules are named "package::file1", "package::file2", etc.
+ * The first module is named "./test.wesl",
+ * subsequent modules are named "./file1.wesl", "./file2.wesl", etc.
  */
 export function linkTest(...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
   const restWgsl = Object.fromEntries(
-    rest.map((src, i) => [`package::file${i + 1}`, src]),
+    rest.map((src, i) => [`./file${i + 1}.wesl`, src]),
   );
-  const wesl = { "package::root": root, ...restWgsl };
+  const wesl = { "./test.wesl": root, ...restWgsl };
 
-  const srcMap = linkWesl(wesl, "root");
+  const srcMap = link(wesl, "test");
   return srcMap.dest;
 }
 
