@@ -60,6 +60,7 @@ export function link(
   conditions: Conditions = {},
   /** record of file names and wgsl text for modules */
   libs: WgslBundle[] = [],
+  /** limit potential infinite loops for debugging */
   maxParseCount?: number,
 ): SrcMap {
   /* --- Step #1   Parsing WESL --- */
