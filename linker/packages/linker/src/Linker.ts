@@ -72,7 +72,7 @@ export function linkWesl(
 }
 
 // TODO DRY entry points
-export function linkWeslFiles(
+export function link(
   weslSrc: Record<string, string>,
   rootModuleName: string = "main",
   conditions: Conditions = {},

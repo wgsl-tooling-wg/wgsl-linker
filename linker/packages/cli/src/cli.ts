@@ -1,7 +1,7 @@
 import { createTwoFilesPatch } from "diff";
 import fs from "fs";
 import { enableTracing } from "mini-parse";
-import { astToString, linkWeslFiles, normalize, scopeToString } from "wgsl-linker";
+import { astToString, link, normalize, scopeToString } from "wgsl-linker";
 import yargs from "yargs";
 import {
   parsedRegistry,
@@ -67,7 +67,7 @@ function linkNormally(paths: string[]): void {
   // TODO conditions
   // TODO external defines
   if (argv.emit) {
-    const linked = linkWeslFiles(weslFiles, rootPath);
+    const linked = link(weslFiles, rootPath);
     if (argv.emit) console.log(linked.dest);
   }
   if (argv.details) {
