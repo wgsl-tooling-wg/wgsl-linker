@@ -51,6 +51,7 @@ function addElemFields(elem: AbstractElem, str: LineWrapper): void {
     addAttributeFields(elem, str) ||
     addExpressionFields(elem, str) ||
     addTypeRefFields(elem, str) ||
+    addSynthetic(elem, str) ||
     addImport(elem, str) ||
     addRefIdent(elem, str) ||
     addDeclIdent(elem, str);
@@ -142,6 +143,16 @@ function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
     return true;
   }
 }
+
+
+function addSynthetic(elem: AbstractElem, str: LineWrapper): true | undefined {
+  if (elem.kind === "synthetic") {
+    str.add(` '${elem.text}'`);
+    return true;
+  }
+}
+
+
 
 function addAttributeFields(
   elem: AbstractElem,

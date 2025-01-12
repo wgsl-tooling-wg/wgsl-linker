@@ -5,6 +5,7 @@ import {
   RefIdentElem,
   NameElem,
   TextElem,
+  SyntheticElem,
 } from "./AbstractElems.ts";
 import { isGlobal } from "./BindIdents.ts";
 import { Conditions, DeclIdent, Ident, RefIdent } from "./Scope.ts";
@@ -69,6 +70,8 @@ export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
       return emitContents(e, ctx);
     case "name":
       return emitName(e, ctx);
+    case "synthetic":
+      return emitSynthetic(e, ctx);
     default:
       const kind = (e as any).kind;
       console.log("NYI for emit, elem kind:", kind);
@@ -82,6 +85,11 @@ export function emitText(e: TextElem, ctx: EmitContext): void {
 
 export function emitName(e: NameElem, ctx: EmitContext): void {
   ctx.srcBuilder.add(e.name, e.srcModule.src, e.start, e.end);
+}
+
+export function emitSynthetic(e: SyntheticElem, ctx: EmitContext): void {
+  const { text } = e;
+  ctx.srcBuilder.add(text, text, 0, text.length);
 }
 
 export function emitContents(

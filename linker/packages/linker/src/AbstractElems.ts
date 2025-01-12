@@ -15,6 +15,7 @@ export type AbstractElem =
   | AliasElem
   | AttributeElem
   | ConstElem
+  | SyntheticElem
   | ExpressionElem
   | ImportElem
   | ConstAssertElem
@@ -182,4 +183,9 @@ export interface FnElem extends ElemWithContents {
   name: DeclIdentElem;
   params: ParamElem[];
   returnType?: TypeRefElem;
+}
+
+export interface SyntheticElem {
+  kind: "synthetic";
+  text: string;
 }
