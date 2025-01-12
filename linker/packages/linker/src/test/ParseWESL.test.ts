@@ -1064,7 +1064,7 @@ test(`parse binding struct`, ctx => {
         decl %Bindings
         text ' {
           '
-        member particles: ptr<storage, array<f32>, read_write>
+        member @group @binding particles: ptr<storage, array<f32>, read_write>
           attribute @group('0')
             text '@group('
             expression '0'
