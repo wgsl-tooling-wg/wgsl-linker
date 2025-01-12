@@ -147,7 +147,7 @@ function addAttributeFields(
     str.add(" @" + name);
     if (params) {
       str.add("(");
-      str.add(params.join(", "));
+      str.add(params.map(expressionToString).join(", "));
       str.add(")");
     }
     return true;

@@ -3,7 +3,6 @@ import {
   AbstractElem,
   AliasElem,
   AttributeElem,
-  AttributeParamElem,
   ConstElem,
   DeclarationElem,
   DeclIdentElem,
@@ -209,11 +208,9 @@ export const collectStructMember = collectElem(
 export const collectAttribute = collectElem(
   "attribute",
   (cc: CollectContext, openElem: PartElem<AttributeElem>) => {
-    // dlog({ tags: [...Object.keys(cc.tags)] });
-    const attributes = cc.tags.attrParam?.[0]!;
+    const params = cc.tags.attrParam as ExpressionElem[];
     const name = cc.tags.name?.[0]! as string;
-    // dlog({name})
-    const partElem = { ...openElem, attributes, name } as any;
+    const partElem: AttributeElem = { ...openElem, params, name };
     return withTextCover(partElem, cc);
   },
 );

@@ -108,7 +108,7 @@ const attribute_argument_list = seq(
   "(",
   withSep(
     ",",
-    fn(() => expression)               .collect(collectSimpleElem("attrParam"), "attrParam"),
+    fn(() => expression)               .collect(expressionCollect, "attrParam"),
   ),
   req(")"),
 );

@@ -213,15 +213,15 @@ test("parse @compute @workgroup_size(a, b, 1) before fn", () => {
           text '@compute'
         text ' 
         '
-        attribute @workgroup_size
+        attribute @workgroup_size(ref a, ref b, '1')
           text '@workgroup_size('
-          attrParam
+          expression ref a
             ref a
           text ', '
-          attrParam
+          expression ref b
             ref b
           text ', '
-          attrParam
+          expression '1'
             text '1'
           text ')'
         text ' 
@@ -246,15 +246,15 @@ test("parse top level var", () => {
       text '
         '
       gvar u:Uniforms
-        attribute @group
+        attribute @group('0')
           text '@group('
-          attrParam
+          expression '0'
             text '0'
           text ')'
         text ' '
-        attribute @binding
+        attribute @binding('0')
           text '@binding('
-          attrParam
+          expression '0'
             text '0'
           text ')'
         text ' var<uniform> '
@@ -615,15 +615,16 @@ test("parse fn with attributes and suffix comma", () => {
           text '@compute'
         text '
       '
-        attribute @workgroup_size
+        attribute @workgroup_size(ref workgroupThreads, '1', '1'
+          )
           text '@workgroup_size('
-          attrParam
+          expression ref workgroupThreads
             ref workgroupThreads
           text ', '
-          attrParam
+          expression '1'
             text '1'
           text ', '
-          attrParam
+          expression '1'
             text '1'
           text ')'
         text ' 
@@ -995,11 +996,10 @@ test(`import a/{ b, c/{d, e}, f }`, ctx => {
   `);
 });
 
-
 test(`parse ptr`, ctx => {
   const src = `
     var particles: ptr<storage, f32, read_write>;
-  `
+  `;
   const ast = parse2Test(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
@@ -1019,12 +1019,12 @@ test(`parse ptr`, ctx => {
       text '
       '"
   `);
-})
+});
 
 test(`parse ptr with internal array`, ctx => {
   const src = `
     var particles: ptr<storage, array<f32>, read_write>;
-  `
+  `;
   const ast = parse2Test(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
@@ -1048,14 +1048,14 @@ test(`parse ptr with internal array`, ctx => {
       text '
       '"
   `);
-})
+});
 
 test(`parse binding struct`, ctx => {
   const src = `
     struct Bindings {
       @group(0) @binding(0) particles: ptr<storage, array<f32>, read_write>, 
     }
-  `
+  `;
   const ast = parse2Test(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
@@ -1068,15 +1068,15 @@ test(`parse binding struct`, ctx => {
         text ' {
           '
         member particles: ptr<storage, array<f32>, read_write>
-          attribute @group
+          attribute @group('0')
             text '@group('
-            attrParam
+            expression '0'
               text '0'
             text ')'
           text ' '
-          attribute @binding
+          attribute @binding('0')
             text '@binding('
-            attrParam
+            expression '0'
               text '0'
             text ')'
           text ' '
@@ -1096,4 +1096,4 @@ test(`parse binding struct`, ctx => {
       text '
       '"
   `);
-})
+});

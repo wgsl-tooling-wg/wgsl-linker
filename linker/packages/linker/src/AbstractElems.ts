@@ -14,7 +14,6 @@ import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 export type AbstractElem =
   | AliasElem
   | AttributeElem
-  | AttributeParamElem
   | ConstElem
   | ExpressionElem
   | ImportElem
@@ -106,12 +105,7 @@ export interface ParamElem extends ElemWithContents {
 export interface AttributeElem extends ElemWithContents {
   kind: "attribute";
   name: string;
-  params: AttributeParamElem[];
-}
-
-// TODO make expression?
-export interface AttributeParamElem extends ElemWithContents {
-  kind: "attrParam";
+  params?: ExpressionElem[];
 }
 
 /** a variable declaration */
