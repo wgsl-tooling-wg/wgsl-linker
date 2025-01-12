@@ -21,7 +21,7 @@ export function testAppParse<T, N extends TagRecord = NoTags>(
  * The first module is named "package::root",
  * subsequent modules are named "package::file1", "package::file2", etc.
  */
-export function link2Test(...rawWgsl: string[]): string {
+export function linkTest(...rawWgsl: string[]): string {
   const [root, ...rest] = rawWgsl;
   const restWgsl = Object.fromEntries(
     rest.map((src, i) => [`package::file${i + 1}`, src]),
@@ -41,13 +41,14 @@ export function linkWithLog(...rawWgsl: string[]): {
   let result = "???";
   _withBaseLogger(log, () => {
     try {
-      result = link2Test(...rawWgsl);
+      result = linkTest(...rawWgsl);
     } catch (e) {}
   });
   return { result, log: logged() };
 }
 
-export function parse2Test(src: string): WeslAST {
+/** parse wesl for testing, and return the AST */
+export function parseTest(src: string): WeslAST {
   return expectNoLog(() => parseTestRaw(src));
 }
 

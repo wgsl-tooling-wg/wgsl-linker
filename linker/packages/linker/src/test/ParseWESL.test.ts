@@ -1,16 +1,16 @@
 import { expect, test } from "vitest";
 import { astToString } from "../debug/ASTtoString.ts";
-import { parse2Test } from "./TestUtil.ts";
+import { parseTest } from "./TestUtil.ts";
 import { importToString } from "../debug/ImportToString.ts";
 
 test("parse empty string", () => {
-  const ast = parse2Test("");
+  const ast = parseTest("");
   expect(astToString(ast.moduleElem)).toMatchInlineSnapshot(`"module"`);
 });
 
 test("parse fn foo() { }", () => {
   const src = "fn foo() { }";
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   expect(astToString(ast.moduleElem)).toMatchInlineSnapshot(`
     "module
       fn foo()
@@ -22,7 +22,7 @@ test("parse fn foo() { }", () => {
 
 test("parse fn with calls", () => {
   const src = "fn foo() { foo(); bar(); }";
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   expect(astToString(ast.moduleElem)).toMatchInlineSnapshot(`
     "module
       fn foo()
@@ -50,14 +50,14 @@ test("parse unicode ident", () => {
   fn गुलाबी(){}
   fn փիրուզ(){}
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchSnapshot();
 });
 
 test("parse global var", () => {
   const src = `var x: i32 = 1;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -73,7 +73,7 @@ test("parse global var", () => {
 
 test("parse alias", () => {
   const src = `alias Num = i32;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -89,7 +89,7 @@ test("parse alias", () => {
 
 test("parse const", () => {
   const src = `const y = 11u;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -102,7 +102,7 @@ test("parse const", () => {
 
 test("parse override ", () => {
   const src = `override z: f32;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -118,7 +118,7 @@ test("parse override ", () => {
 
 test("parse const_assert", () => {
   const src = `const_assert x < y;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -133,7 +133,7 @@ test("parse const_assert", () => {
 
 test("parse struct", () => {
   const src = `struct foo { bar: i32, zip: u32, } ;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -163,7 +163,7 @@ test("parse global diagnostic", () => {
 
     fn main() {}
     `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -182,7 +182,7 @@ test("parse global diagnostic", () => {
 
 test("parse @attribute before fn", () => {
   const src = `@compute fn main() {} `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -202,7 +202,7 @@ test("parse @compute @workgroup_size(a, b, 1) before fn", () => {
     @workgroup_size(a, b, 1) 
     fn main() {}
     `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -239,7 +239,7 @@ test("parse top level var", () => {
 
     fn main() {}
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -282,7 +282,7 @@ test("parse top level override and const", () => {
 
     fn main() {}
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -312,7 +312,7 @@ test("parse top level override and const", () => {
 
 test("parse root level ;;", () => {
   const src = ";;";
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -322,7 +322,7 @@ test("parse root level ;;", () => {
 
 test("parse simple alias", () => {
   const src = `alias NewType = OldType;`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -340,7 +340,7 @@ test("parse array alias", () => {
   const src = `
     alias Points3 = array<Point, 3>;
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -367,7 +367,7 @@ test("parse array alias", () => {
 
 test("fnDecl parses fn with return type", () => {
   const src = `fn foo() -> MyType { }`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -385,7 +385,7 @@ test("fnDecl parses :type specifier in fn args", () => {
   const src = `
     fn foo(a: MyType) { }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -412,7 +412,7 @@ test("fnDecl parses :type specifier in fn block", () => {
       var b:MyType;
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -439,7 +439,7 @@ test("fnDecl parses :type specifier in fn block", () => {
 test("parse type in <template> in fn args", () => {
   const src = `
     fn foo(a: vec2<MyStruct>) { };`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -466,7 +466,7 @@ test("parse type in <template> in fn args", () => {
 test("parse simple templated type", () => {
   const src = `fn main(a: array<MyStruct,4>) { }`;
 
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -492,7 +492,7 @@ test("parse simple templated type", () => {
 
 test("parse nested template that ends with >> ", () => {
   const src = `fn main(a: vec2<array <MyStruct,4>>) { }`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -523,7 +523,7 @@ test("parse nested template that ends with >> ", () => {
 test("parse type in <template> in global var", () => {
   const src = `var<private> x:array<MyStruct, 8>;`;
 
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -550,7 +550,7 @@ test("parse for(;;) {} not as a fn call", () => {
       for (var a = 1; a < 10; a++) {}
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -580,7 +580,7 @@ test("eolf followed by blank line", () => {
   const src = `
     fn foo() { }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -604,7 +604,7 @@ test("parse fn with attributes and suffix comma", () => {
       @builtin(local_invocation_index) localIndex: u32,  
   ) { }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -663,7 +663,7 @@ test("parse fn with attributes and suffix comma", () => {
 
 test("parse fn", () => {
   const src = `fn foo(x: i32, y: u32) -> f32 { return 1.0; }`;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -691,7 +691,7 @@ test("parse fn", () => {
 
 test("parse @attribute before fn", () => {
   const src = `@compute fn main() {} `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -707,7 +707,7 @@ test("parse @attribute before fn", () => {
 
 test("import ./foo/bar;", ctx => {
   const src = ctx.task.name;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -719,7 +719,7 @@ test("import ./foo/bar;", ctx => {
 // TODO
 test.skip("parse foo::bar(); ", () => {
   const src = "fn main() { foo::bar(); }";
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot();
 });
@@ -727,7 +727,7 @@ test.skip("parse foo::bar(); ", () => {
 // TODO
 test.skip("parse let x: foo::bar; ", () => {
   const src = "fn main() { let x: foo::bar = 1; }";
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot();
 });
@@ -740,7 +740,7 @@ test.skip("parse var x: foo.bar;", () => {
      fn main() { }
   `;
 
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot();
 });
@@ -754,7 +754,7 @@ test("parse switch statement", () => {
       }
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -793,7 +793,7 @@ test("parse switch statement-2", () => {
       }
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -829,7 +829,7 @@ test("parse struct constructor in assignment", () => {
       var x = AStruct(1u);
     }
    `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -859,7 +859,7 @@ test("parse struct.member (component_or_swizzle)", () => {
         let x = u.frame;
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -881,7 +881,7 @@ test("parse struct.member (component_or_swizzle)", () => {
 });
 
 test("var<workgroup> work: array<u32, 128>;", ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -903,7 +903,7 @@ test("var<workgroup> work: array<u32, 128>;", ctx => {
 });
 
 test("fn f() { _ = 1; }", ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -915,7 +915,7 @@ test("fn f() { _ = 1; }", ctx => {
 });
 
 test("var foo: vec2<f32 >= vec2( 0.5, -0.5);", ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -936,7 +936,7 @@ test("var foo: vec2<f32 >= vec2( 0.5, -0.5);", ctx => {
 });
 
 test("import ./a/b/c", ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -947,7 +947,7 @@ test("import ./a/b/c", ctx => {
 
 test("import ./file1/{foo, bar}", ctx => {
   const src = ctx.task.name;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -958,14 +958,14 @@ test("import ./file1/{foo, bar}", ctx => {
 
 test("import ./file1/{foo, bar}", ctx => {
   const src = ctx.task.name;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const imps = ast.imports.map(t => importToString(t)).join("\n");
 
   expect(imps).toMatchInlineSnapshot(`"package/file1/{foo, bar}"`);
 });
 
 test("import foo_bar/boo;", ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -975,7 +975,7 @@ test("import foo_bar/boo;", ctx => {
 });
 
 test(`import a/{ b }`, ctx => {
-  const ast = parse2Test(ctx.task.name);
+  const ast = parseTest(ctx.task.name);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -986,7 +986,7 @@ test(`import a/{ b }`, ctx => {
 
 test(`import a/{ b, c/{d, e}, f }`, ctx => {
   const src = ctx.task.name;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
 
   expect(astString).toMatchInlineSnapshot(`
@@ -1000,7 +1000,7 @@ test(`parse ptr`, ctx => {
   const src = `
     var particles: ptr<storage, f32, read_write>;
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -1025,7 +1025,7 @@ test(`parse ptr with internal array`, ctx => {
   const src = `
     var particles: ptr<storage, array<f32>, read_write>;
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module
@@ -1056,7 +1056,7 @@ test(`parse binding struct`, ctx => {
       @group(0) @binding(0) particles: ptr<storage, array<f32>, read_write>, 
     }
   `;
-  const ast = parse2Test(src);
+  const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
     "module

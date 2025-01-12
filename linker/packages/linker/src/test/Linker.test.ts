@@ -1,11 +1,11 @@
 import { expect, test } from "vitest";
-import { link2Test } from "./TestUtil.js";
+import { linkTest } from "./TestUtil.js";
 import { matchTrimmed } from "./shared/StringUtil.js";
 import { dlog } from "berry-pretty";
 
 test("link global var", () => {
   const src = `var x: i32 = 1;`;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -15,7 +15,7 @@ test("link an alias", () => {
 
     fn main() { Num(1.0); }
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -25,7 +25,7 @@ test("link a const_assert", () => {
     var y = 2;
     const_assert x < y;
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -36,7 +36,7 @@ test("link a struct", () => {
       y: i32,
     }
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -45,7 +45,7 @@ test("link a fn", () => {
     fn foo(x: i32, y: u32) -> f32 { 
       return 1.0; 
     }`;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -55,7 +55,7 @@ test("handle a ptr type", () => {
       value: ptr<function, u32>, 
       bits: ptr<function, i32>) -> u32 { }
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -67,7 +67,7 @@ test("struct after var", () => {
       x: u32,
     }
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -79,7 +79,7 @@ test("type inside fn with same name as fn", () => {
     }
     fn bar() {}
   `;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -94,7 +94,7 @@ test("call cross reference", () => {
     }
   `;
 
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
@@ -109,12 +109,12 @@ test("struct self reference", () => {
     }
   `;
 
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
 
 test("parse texture_storage_2d with texture format in typical type position", () => {
   const src = `var t: texture_storage_2d<rgba8unorm, write>;`;
-  const result = link2Test(src);
+  const result = linkTest(src);
   matchTrimmed(result, src);
 });
