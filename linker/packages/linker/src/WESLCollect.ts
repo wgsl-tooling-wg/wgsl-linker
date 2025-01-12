@@ -184,7 +184,6 @@ export const collectStruct = collectElem(
     // dlog({ attributes: cc.tags.attributes?.flat(8).map(e => e && elemToString(e)) });
     const name = cc.tags.typeName?.[0] as DeclIdentElem;
     const members = cc.tags.members as StructMemberElem[];
-    // dlog({members:members})
     name.ident.scope = cc.tags.struct_scope?.[0] as Scope;
     const structElem = { ...openElem, name, members };
     const elem = withTextCover(structElem, cc);

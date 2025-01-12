@@ -158,13 +158,14 @@ export interface StructElem extends ElemWithContents {
   kind: "struct";
   name: DeclIdentElem;
   members: StructMemberElem[];
+  bindingStruct?: true; // used later during binding struct transformation
 }
 
 /** a member of a struct declaration */
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
-  attributes: AttributeElem[];  
+  attributes?: AttributeElem[];  
   typeRef: TypeRefElem;
 }
 
