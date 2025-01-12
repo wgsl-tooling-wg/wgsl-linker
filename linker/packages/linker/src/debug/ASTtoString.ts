@@ -8,9 +8,11 @@ import {
 import { importToString } from "./ImportToString.ts";
 import { LineWrapper } from "./LineWrapper.ts";
 
+const maxLineLength = 150;
+
 export function astToString(elem: AbstractElem, indent = 0): string {
   const { kind, contents } = elem as ModuleElem;
-  const str = new LineWrapper(indent);
+  const str = new LineWrapper(indent, maxLineLength);
   str.add(kind);
   addElemFields(elem, str);
   let childStrings: string[] = [];
@@ -27,7 +29,7 @@ export function astToString(elem: AbstractElem, indent = 0): string {
 
 export function elemToString(elem: AbstractElem): string {
   const { kind } = elem as ModuleElem;
-  const str = new LineWrapper();
+  const str = new LineWrapper(0, maxLineLength);
   str.add(kind);
   addElemFields(elem, str);
   let childStrings: string[] = [];
@@ -124,7 +126,10 @@ function addStructMemberFields(
   str: LineWrapper,
 ): true | undefined {
   if (elem.kind === "member") {
-    const { name, typeRef } = elem;
+    const { name, typeRef, attributes } = elem;
+    if (attributes) {
+      str.add(" " + attributes.map(a => "@" + (a && a.name)).join(" "));
+    }
     str.add(" " + name.name);
     str.add(": " + typeRefElemToString(typeRef));
     return true;

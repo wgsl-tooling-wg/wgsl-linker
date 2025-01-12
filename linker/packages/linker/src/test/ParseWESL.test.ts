@@ -615,8 +615,7 @@ test("parse fn with attributes and suffix comma", () => {
           text '@compute'
         text '
       '
-        attribute @workgroup_size(ref workgroupThreads, '1', '1'
-          )
+        attribute @workgroup_size(ref workgroupThreads, '1', '1')
           text '@workgroup_size('
           expression ref workgroupThreads
             ref workgroupThreads
@@ -772,8 +771,7 @@ test("parse switch statement", () => {
         text ') {
           switch ('
         ref x
-        text
-           ') {
+        text ') {
             case 1: { break; }
             default: { break; }
           }

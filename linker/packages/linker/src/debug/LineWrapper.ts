@@ -1,3 +1,4 @@
+
 /** debug utility for constructing strings that wrap at a fixed column width
  * text beyond the column width is wrapped to start on the next line
  */
@@ -28,7 +29,7 @@ export class LineWrapper {
 
   /** add a string, wrapping to the next line if necessary */
   add(s: string) {
-    if (this.#column + s.length > this.maxWidth) {
+    if (this.#column + firstLineLength(s) > this.maxWidth) {
       this.hangingNl();
     }
     if (this.#column === 0) {
@@ -62,4 +63,9 @@ export class LineWrapper {
     this.nl();
     this.#isHanging = true;
   }
+}
+
+function firstLineLength(s: string): number {
+  const i = s.indexOf("\n");
+  return i === -1 ? s.length : i;
 }
