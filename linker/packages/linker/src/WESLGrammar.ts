@@ -199,7 +199,7 @@ export const struct_decl = seq(
 /** Also covers func_call_statement.post.ident */
 // prettier-ignore
 export const fn_call = seq(
-  word                                .collect(refIdent, "fn_call.refIdent"), // we collect this in fnDecl, to attach to FnElem
+  word                                .collect(refIdent),
   () => opt_template_list,
   argument_expression_list,
 );
