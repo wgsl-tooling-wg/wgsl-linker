@@ -1,6 +1,15 @@
-import { dlog } from "berry-pretty";
-import { AttributeElem, ModuleElem, StructElem } from "./AbstractElems.ts";
-import { WeslAST } from "./ParseWESL.ts";
+import {
+  AbstractElem,
+  AttributeElem,
+  ModuleElem,
+  StructElem,
+  SyntheticElem,
+} from "./AbstractElems.ts";
+import {
+  attributeToString,
+  typeListToString,
+  typeParamToString,
+} from "./RawEmit.ts";
 
 /* Our goal is to transform binding structures into binding variables
  *
@@ -46,3 +55,29 @@ function bindingAttribute(attributes?: AttributeElem[]): boolean {
   return attributes.some(({ name }) => name === "binding" || name === "group");
 }
 
+export function transformBindingStruct(s: StructElem): AbstractElem[] {
+  return s.members.map(m => {
+    const attributes = m.attributes?.map(attributeToString).join(" ");
+    const varName = m.name.name;
+
+    const origParams = m.typeRef?.templateParams || [];
+    const newParams = [origParams[0]];
+    if (origParams[2]) newParams.push(origParams[2]);
+    const storageType = typeListToString(newParams);
+
+    const varType = typeParamToString(origParams?.[1]);
+
+    const varText = `var ${attributes} ${varName}${storageType} : ${varType};`;
+
+    const elem: SyntheticElem = {
+      kind: "synthetic",
+      text: varText,
+    };
+    return elem;
+  });
+}
+
+// const firstTypeParam = typeParamToString(m.typeRef?.templateParams?.[0]);
+// const maybeThird = typeParamToString(m.typeRef?.templateParams?.[2]);
+// const thirdTypeParam = maybeThird ? `, ${maybeThird}` : "";
+// const storageType = `<${firstTypeParam}${thirdTypeParam}>`;
