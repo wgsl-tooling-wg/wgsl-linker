@@ -6,7 +6,7 @@ import {
   ConstElem,
   DeclarationElem,
   DeclIdentElem,
-  ElemWithContents,
+  ContainerElem,
   ExpressionElem,
   FnElem,
   GlobalVarElem,
@@ -120,11 +120,11 @@ function completeScope(cc: CollectContext): Scope {
 }
 
 // prettier-ignore
-export type OpenElem<T extends ElemWithContents = ElemWithContents> = 
+export type OpenElem<T extends ContainerElem = ContainerElem> = 
   Pick< T, "kind" | "contents">;
 
 // prettier-ignore
-export type PartElem<T extends ElemWithContents = ElemWithContents > = 
+export type PartElem<T extends ContainerElem = ContainerElem > = 
   Pick< T, "kind" | "start" | "end" | "contents"> ;
 
 type VarLikeElem =
@@ -141,8 +141,8 @@ export function collectVarLike<E extends VarLikeElem>(
     const name = cc.tags.declIdent?.[0] as DeclIdentElem;
     const typeRef = cc.tags.typeRefElem?.[0] as TypeRefElem;
     const decl_scope = cc.tags.decl_scope?.[0] as Scope;
-    const partElem = { ...openElem, name, typeRef };
-    const varElem = withTextCover(partElem, cc) as E;
+    const partElem = { ...openElem, name, typeRef } as E;
+    const varElem = withTextCover(partElem, cc);
     (name.ident as DeclIdent).declElem = varElem as DeclarationElem;
     name.ident.scope = decl_scope;
     return varElem;
@@ -305,10 +305,10 @@ export function scopeCollect(): CollectPair<Scope> {
   };
 }
 
-export function collectSimpleElem<V extends AbstractElem & ElemWithContents>(
+export function collectSimpleElem<V extends AbstractElem & ContainerElem>(
   kind: V["kind"],
 ): CollectPair<V> {
-  return collectElem(kind, (cc, part) => withTextCover(part, cc) as V);
+  return collectElem(kind, (cc, part) => withTextCover(part as V, cc) as V);
 }
 
 /** utility to collect an ElemWithContents
@@ -321,9 +321,9 @@ export function collectSimpleElem<V extends AbstractElem & ElemWithContents>(
  * is 'open', other collected are added to the 'contents' field of this
  * open element.
  */
-function collectElem<V extends ElemWithContents>(
+function collectElem<V extends ContainerElem>(
   kind: V["kind"],
-  fn: (cc: CollectContext, partialElem: PartElem<V>) => V | null,
+  fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
 ): CollectPair<V> {
   return {
     before: (cc: CollectContext) => {
@@ -347,7 +347,7 @@ function collectElem<V extends ElemWithContents>(
  * @return a copy of the element with contents extended
  * to include TextElems to cover the entire range.
  */
-function withTextCover<T extends ElemWithContents>(
+function withTextCover<T extends ContainerElem>(
   elem: T,
   cc: CollectContext,
 ): T {
@@ -358,10 +358,7 @@ function withTextCover<T extends ElemWithContents>(
 /** cover the entire source range with Elems by creating TextElems to
  * cover any parts of the source that are not covered by other elems
  * @returns the existing elems combined with any new TextElems, in src order */
-function coverWithText(
-  cc: CollectContext,
-  elem: ElemWithContents,
-): GrammarElem[] {
+function coverWithText(cc: CollectContext, elem: ContainerElem): GrammarElem[] {
   let { start: pos } = cc;
   const ast: WeslAST = cc.app.stable;
   const { contents, end } = elem;

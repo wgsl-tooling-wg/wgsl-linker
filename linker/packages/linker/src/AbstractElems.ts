@@ -11,29 +11,34 @@ import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
  * as 'TextElem' nodes, which are generally just copied to the output WGSL
  * along with their containing element.
  */
-export type GrammarElem =
+export type AbstractElem = GrammarElem | SyntheticElem;
+
+export type GrammarElem = ContainerElem | TerminalElem;
+
+export type ContainerElem =
   | AliasElem
   | AttributeElem
   | ConstAssertElem
   | ConstElem
-  | DeclIdentElem
   | ExpressionElem
   | FnElem
   | GlobalVarElem
   | ImportElem
   | ModuleElem
-  | NameElem
   | OverrideElem
   | FnParamElem
-  | RefIdentElem
   | SimpleMemberRef
   | StructElem
   | StructMemberElem
-  | TextElem
   | TypeRefElem
   | VarElem;
 
-export type AbstractElem = GrammarElem | SyntheticElem;
+// prettier-ignore
+export type TerminalElem = 
+  | TextElem 
+  | NameElem 
+  | RefIdentElem 
+  | DeclIdentElem;
 
 export type DeclarationElem =
   | AliasElem
@@ -46,15 +51,14 @@ export type DeclarationElem =
   | VarElem;
 
 export interface AbstractElemBase {
-  kind: string;
+  kind: AbstractElem["kind"];
   start: number;
   end: number;
 }
 
-export interface ElemWithContents extends AbstractElemBase {
+export interface ElemWithContentsBase extends AbstractElemBase {
   contents: AbstractElem[];
 }
-
 
 /* ------   Terminal Elements  (don't contain other elements)  ------   */
 
@@ -98,38 +102,38 @@ export interface SyntheticElem {
 /* ------   Container Elements  (contain other elements)  ------   */
 
 /** an alias statement */
-export interface AliasElem extends ElemWithContents {
+export interface AliasElem extends ElemWithContentsBase {
   kind: "alias";
   name: DeclIdentElem;
   typeRef: TypeRefElem;
 }
 
 /** an attribute like '@compute' or '@binding(0)' */
-export interface AttributeElem extends ElemWithContents {
+export interface AttributeElem extends ElemWithContentsBase {
   kind: "attribute";
   name: string;
   params?: ExpressionElem[];
 }
 
 /** a const_assert statement */
-export interface ConstAssertElem extends ElemWithContents {
+export interface ConstAssertElem extends ElemWithContentsBase {
   kind: "assert";
 }
 
 /** a const declaration */
-export interface ConstElem extends ElemWithContents {
+export interface ConstElem extends ElemWithContentsBase {
   kind: "const";
   name: DeclIdentElem;
   typeRef?: TypeRefElem;
 }
 
 /** an expression (generally we don't need details of expressions, just their contained idents) */
-export interface ExpressionElem extends ElemWithContents {
+export interface ExpressionElem extends ElemWithContentsBase {
   kind: "expression";
 }
 
 /** a function declaration */
-export interface FnElem extends ElemWithContents {
+export interface FnElem extends ElemWithContentsBase {
   kind: "fn";
   name: DeclIdentElem;
   params: FnParamElem[];
@@ -137,32 +141,32 @@ export interface FnElem extends ElemWithContents {
 }
 
 /** a global variable declaration (at the root level) */
-export interface GlobalVarElem extends ElemWithContents {
+export interface GlobalVarElem extends ElemWithContentsBase {
   kind: "gvar";
   name: DeclIdentElem;
   typeRef?: TypeRefElem;
 }
 
 /** an import statement */
-export interface ImportElem extends ElemWithContents {
+export interface ImportElem extends ElemWithContentsBase {
   kind: "import";
   imports: ImportTree;
 }
 
 /** an entire file */
-export interface ModuleElem extends ElemWithContents {
+export interface ModuleElem extends ElemWithContentsBase {
   kind: "module";
 }
 
 /** an override declaration */
-export interface OverrideElem extends ElemWithContents {
+export interface OverrideElem extends ElemWithContentsBase {
   kind: "override";
   name: DeclIdentElem;
   typeRef?: TypeRefElem;
 }
 
 /** a parameter in a function declaration */
-export interface FnParamElem extends ElemWithContents {
+export interface FnParamElem extends ElemWithContentsBase {
   kind: "param";
   name: DeclIdentElem;
   typeRef: TypeRefElem;
@@ -170,14 +174,14 @@ export interface FnParamElem extends ElemWithContents {
 
 /** simple references to structures, like myStruct.bar
  * (used for transforming refs to binding structs) */
-export interface SimpleMemberRef extends ElemWithContents {
+export interface SimpleMemberRef extends ElemWithContentsBase {
   kind: "memberRef";
   name: RefIdentElem;
   member: NameElem;
 }
 
 /** a struct declaration */
-export interface StructElem extends ElemWithContents {
+export interface StructElem extends ElemWithContentsBase {
   kind: "struct";
   name: DeclIdentElem;
   members: StructMemberElem[];
@@ -185,7 +189,7 @@ export interface StructElem extends ElemWithContents {
 }
 
 /** a member of a struct declaration */
-export interface StructMemberElem extends ElemWithContents {
+export interface StructMemberElem extends ElemWithContentsBase {
   kind: "member";
   name: NameElem;
   attributes?: AttributeElem[];
@@ -195,14 +199,14 @@ export interface StructMemberElem extends ElemWithContents {
 export type TypeTemplateParameter = TypeRefElem | ExpressionElem | string;
 
 /** a reference to a type, like 'f32', or 'MyStruct', or 'ptr<storage, array<f32>, read_only>'   */
-export interface TypeRefElem extends ElemWithContents {
+export interface TypeRefElem extends ElemWithContentsBase {
   kind: "type";
   name: RefIdent | string;
   templateParams?: TypeTemplateParameter[];
 }
 
 /** a variable declaration */
-export interface VarElem extends ElemWithContents {
+export interface VarElem extends ElemWithContentsBase {
   kind: "var";
   name: DeclIdentElem;
   typeRef?: TypeRefElem;
