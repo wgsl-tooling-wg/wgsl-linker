@@ -41,8 +41,35 @@ function lowerAndEmitRecursive(
 
 export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
   switch (e.kind) {
+    // import statements are dropped from from emitted text
     case "import":
-      return; // drop imports statements from emitted text
+      return; 
+    
+    // terminal elements copy strings to the output
+    case "text":
+      return emitText(e, ctx);
+    case "name":
+      return emitName(e, ctx);
+    case "synthetic":
+      return emitSynthetic(e, ctx);
+
+    // identifiers are copied to the output, but with potentially mangled names
+    case "ref":
+    case "decl":
+      return emitIdent(e, ctx);
+
+    // container elements just emit their child elements
+    case "param":
+    case "var":
+    case "module":
+    case "member":
+    case "memberRef":
+    case "attribute":
+    case "expression":
+    case "type":
+      return emitContents(e, ctx);
+
+    // root level container elements get some extra newlines to make the output prettier
     case "fn":
     case "struct":
     case "override":
@@ -55,24 +82,7 @@ export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
         ctx.srcBuilder.addNl();
       }
       return emitContents(e, ctx);
-    case "text":
-      return emitText(e, ctx);
-    case "ref":
-    case "decl":
-      return emitIdent(e, ctx);
-    case "param":
-    case "var":
-    case "module":
-    case "member":
-    case "memberRef":
-    case "attribute":
-    case "expression":
-    case "type":
-      return emitContents(e, ctx);
-    case "name":
-      return emitName(e, ctx);
-    case "synthetic":
-      return emitSynthetic(e, ctx);
+
     default:
       const kind = (e as any).kind;
       console.log("NYI for emit, elem kind:", kind);
