@@ -287,7 +287,7 @@ export const importElem = collectElem(
 );
 
 /** collect a scope start starts before and ends after a parser */
-export function scopeCollect(): CollectPair<void> {
+export function scopeCollect(): CollectPair<Scope> {
   return {
     before: startScope,
     after: completeScope,
@@ -312,7 +312,7 @@ export function collectSimpleElem<V extends AbstractElem & ElemWithContents>(
  */
 function collectElem<V extends ElemWithContents>(
   kind: V["kind"],
-  fn: (cc: CollectContext, partialElem: PartElem<V>) => V,
+  fn: (cc: CollectContext, partialElem: PartElem<V>) => V | null,
 ): CollectPair<V> {
   return {
     before: (cc: CollectContext) => {

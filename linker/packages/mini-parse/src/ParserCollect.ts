@@ -40,7 +40,7 @@ interface CollectValue {
 }
 
 /** a user supplied function for collecting info from the parse */
-export type CollectFn<V> = (ctx: CollectContext) => V;
+export type CollectFn<V> = (ctx: CollectContext) => V | null;
 
 /** a user supplied pair functions for collecting info from the parse */
 export interface CollectPair<V> {
