@@ -15,7 +15,7 @@ import {
   ModuleElem,
   NameElem,
   OverrideElem,
-  ParamElem,
+  FnParamElem,
   RefIdentElem,
   SimpleMemberRef,
   StructElem,
@@ -154,7 +154,7 @@ export const collectFn = collectElem(
   (cc: CollectContext, openElem: PartElem<FnElem>) => {
     const name = cc.tags.fnName?.[0] as DeclIdentElem;
     const body_scope = cc.tags.body_scope?.[0] as Scope;
-    const params: ParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
+    const params: FnParamElem[] = cc.tags.fnParam?.flat(3) ?? [];
     const returnType: TypeRefElem | undefined = cc.tags.returnType?.flat(3)[0];
     const partElem: FnElem = { ...openElem, name, params, returnType };
     const fnElem = withTextCover(partElem, cc);
@@ -167,10 +167,10 @@ export const collectFn = collectElem(
 
 export const collectFnParam = collectElem(
   "param",
-  (cc: CollectContext, openElem: PartElem<ParamElem>) => {
+  (cc: CollectContext, openElem: PartElem<FnParamElem>) => {
     const name = cc.tags.paramName?.[0]! as DeclIdentElem;
     const typeRef = cc.tags.typeRefElem?.[0]! as TypeRefElem;
-    const elem: ParamElem = { ...openElem, name, typeRef };
+    const elem: FnParamElem = { ...openElem, name, typeRef };
     const paramElem = withTextCover(elem, cc);
     name.ident.declElem = paramElem;
 

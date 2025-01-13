@@ -24,7 +24,7 @@ export type GrammarElem =
   | ModuleElem
   | NameElem
   | OverrideElem
-  | ParamElem
+  | FnParamElem
   | RefIdentElem
   | SimpleMemberRef
   | StructElem
@@ -41,7 +41,7 @@ export type DeclarationElem =
   | FnElem
   | GlobalVarElem
   | OverrideElem
-  | ParamElem
+  | FnParamElem
   | StructElem
   | VarElem;
 
@@ -95,7 +95,7 @@ export interface SyntheticElem {
   text: string;
 }
 
-/* ------   Container Elements  (don't contain other elements)  ------   */
+/* ------   Container Elements  (contain other elements)  ------   */
 
 /** an alias statement */
 export interface AliasElem extends ElemWithContents {
@@ -132,7 +132,7 @@ export interface ExpressionElem extends ElemWithContents {
 export interface FnElem extends ElemWithContents {
   kind: "fn";
   name: DeclIdentElem;
-  params: ParamElem[];
+  params: FnParamElem[];
   returnType?: TypeRefElem;
 }
 
@@ -162,7 +162,7 @@ export interface OverrideElem extends ElemWithContents {
 }
 
 /** a parameter in a function declaration */
-export interface ParamElem extends ElemWithContents {
+export interface FnParamElem extends ElemWithContents {
   kind: "param";
   name: DeclIdentElem;
   typeRef: TypeRefElem;
