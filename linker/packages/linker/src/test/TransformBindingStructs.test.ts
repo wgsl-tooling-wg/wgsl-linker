@@ -78,7 +78,7 @@ test("findRefsToBindingStructs", () => {
   markBindingStructs(ast.moduleElem)[0];
   const found = findRefsToBindingStructs(ast.moduleElem);
   expect(found.length).toBe(1);
-  const foundAst = astToString(found[0][0]);
+  const foundAst = astToString(found[0].memberRef);
   expect(foundAst).toMatchInlineSnapshot(`
     "memberRef b.particles
       ref b
@@ -103,7 +103,8 @@ test("transformBindingReference", () => {
   transformBindingStruct(bindingStruct);
   const found = findRefsToBindingStructs(ast.moduleElem);
   expect(found.length).toBe(1);
-  const synthElem = transformBindingReference(...found[0]);
+  const { memberRef, struct } = found[0];
+  const synthElem = transformBindingReference(memberRef, struct);
   const synthAst = elemToString(synthElem);
   expect(synthAst).toMatchInlineSnapshot(`"synthetic 'particles'"`);
 });

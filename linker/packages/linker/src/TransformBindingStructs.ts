@@ -49,8 +49,14 @@ export function lowerBindingStructs(ast: WeslAST): ModuleElem {
   const bindingStructs = markBindingStructs(moduleElem); // CONSIDER should we only mark bining structs referenced from the entry point?
   const newVars = bindingStructs.flatMap(transformBindingStruct);
   const bindingRefs = findRefsToBindingStructs(moduleElem);
-  bindingRefs.forEach(([memberRef, struct]) =>
+
+  // convert references 'b.particles' to references to the synthetic var 'particles'
+  bindingRefs.forEach(({ memberRef, struct }) =>
     transformBindingReference(memberRef, struct),
+  );
+  // remove intermediate fn param declaration b:Bindings from 'fn(b:Bindings)'
+  bindingRefs.forEach(({ intermediates }) =>
+    intermediates.forEach(e => (e.contents = [])),
   );
   const contents = removeBindingStructs(moduleElem);
   moduleElem.contents = [...newVars, ...contents];
@@ -114,9 +120,19 @@ export function transformBindingStruct(s: StructElem): SyntheticElem[] {
   });
 }
 
+interface MemberRefToStruct extends StructTrace {
+  memberRef: SimpleMemberRef; // e.g. the memberRef 'b.particles'
+}
+
+interface StructTrace {
+  struct: StructElem; // e.g. the struct Bindings
+  intermediates: DeclarationElem[]; // e.g. the fn param b:Bindings from 'fn(b:Bindings)'
+}
+
+/** find all simple member references in the module that refer to binding structs */
 export function findRefsToBindingStructs(
   moduleElem: ModuleElem,
-): [SimpleMemberRef, StructElem][] {
+): MemberRefToStruct[] {
   const members: SimpleMemberRef[] = [];
   visitAst(moduleElem, elem => {
     if (elem.kind === "memberRef") members.push(elem);
@@ -127,21 +143,15 @@ export function findRefsToBindingStructs(
 /** @return true if this memberRef refers to a binding struct */
 function refersToBindingStruct(
   memberRef: SimpleMemberRef,
-): [SimpleMemberRef, StructElem] | undefined {
+): MemberRefToStruct | undefined {
   const found = traceToStruct(memberRef.name.ident);
 
   if (found && found.struct.bindingStruct) {
-    found.intermediates.forEach(e => (e.contents = [])); // TODO patch this out in the caller
-    return [memberRef, found.struct];
+    return { memberRef, ...found };
   }
 }
 
-interface StructTrace {
-  struct: StructElem;
-  intermediates: DeclarationElem[];
-}
-
-/** If this identifier refers to a struct type, return the struct declaration */
+/** If this identifier ultimately refers to a struct type, return the struct declaration */
 function traceToStruct(ident: RefIdent): StructTrace | undefined {
   const decl = findDecl(ident);
   const declElem = decl.declElem;
