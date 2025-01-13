@@ -75,7 +75,7 @@ test("findRefsToBindingStructs", () => {
   markBindingStructs(ast.moduleElem)[0];
   const found = findRefsToBindingStructs(ast.moduleElem);
   expect(found.length).toBe(1);
-  const foundAst = astToString(found[0]);
+  const foundAst = astToString(found[0][0]);
   expect(foundAst).toMatchInlineSnapshot(`
     "memberRef b.particles
       ref b

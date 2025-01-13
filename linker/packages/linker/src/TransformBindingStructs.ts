@@ -94,18 +94,32 @@ export function transformBindingStruct(s: StructElem): SyntheticElem[] {
 
 export function findRefsToBindingStructs(
   moduleElem: ModuleElem,
-): SimpleMemberRef[] {
+): [SimpleMemberRef, StructElem][] {
   const members: SimpleMemberRef[] = [];
   visitAst(moduleElem, elem => {
     if (elem.kind === "memberRef") members.push(elem);
   });
-  return members.filter(refersToBindingStruct);
+  return filterMap(members, refersToBindingStruct);
+}
+
+/** filter an array, returning the truthy results of the filter function */
+function filterMap<T, U>(arr: T[], fn: (t: T) => U | undefined): U[] {
+  const out: U[] = [];
+  for (const t of arr) {
+    const u = fn(t);
+    if (u) out.push(u);
+  }
+  return out;
 }
 
 /** @return true if this memberRef refers to a binding struct */
-function refersToBindingStruct(memberRef: SimpleMemberRef): true | undefined {
+function refersToBindingStruct(
+  memberRef: SimpleMemberRef,
+): [SimpleMemberRef, StructElem] | undefined {
   const structElem = traceToStruct(memberRef.name.ident);
-  return structElem?.bindingStruct;
+  if (structElem && structElem.bindingStruct) {
+    return [memberRef, structElem];
+  }
 }
 
 /** If this identifier refers to a struct type, return the struct declaration */
