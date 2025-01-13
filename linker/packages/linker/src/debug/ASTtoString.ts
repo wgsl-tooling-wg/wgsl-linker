@@ -27,6 +27,7 @@ export function astToString(elem: AbstractElem, indent = 0): string {
   return str.result;
 }
 
+// TODO DRY with above
 export function elemToString(elem: AbstractElem): string {
   const { kind } = elem as ModuleElem;
   const str = new LineWrapper(0, maxLineLength);

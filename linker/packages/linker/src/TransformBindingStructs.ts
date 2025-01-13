@@ -1,6 +1,10 @@
+import { dlog } from "berry-pretty";
 import {
+  AbstractElem,
   AttributeElem,
+  ContainerElem,
   ModuleElem,
+  SimpleMemberRef,
   StructElem,
   SyntheticElem,
 } from "./AbstractElems.ts";
@@ -9,6 +13,9 @@ import {
   typeListToString,
   typeParamToString,
 } from "./RawEmit.ts";
+import { elemToString } from "./debug/ASTtoString.ts";
+import { findDecl } from "./LowerAndEmit.ts";
+import { RefIdent } from "./Scope.ts";
 
 /* Our goal is to transform binding structures into binding variables
  *
@@ -31,6 +38,14 @@ import {
  *   . rewrite compound ident refs to binding struct members as references to binding variables
  */
 
+export function lowerBindingStructs(): void {
+  // TBD
+}
+
+/** mutate the AST, marking StructElems as bindingStructs
+ *  (if they contain ptrs with @group @binding annotations)
+ * @return the binding structs
+ */
 export function markBindingStructs(moduleElem: ModuleElem): StructElem[] {
   const structs = moduleElem.contents.filter(elem => elem.kind === "struct");
   const bindingStructs = structs.filter(containsBindingPtr);
@@ -75,4 +90,48 @@ export function transformBindingStruct(s: StructElem): SyntheticElem[] {
     };
     return elem;
   });
+}
+
+export function findRefsToBindingStructs(
+  moduleElem: ModuleElem,
+): SimpleMemberRef[] {
+  const members: SimpleMemberRef[] = [];
+  visitAst(moduleElem, elem => {
+    if (elem.kind === "memberRef") members.push(elem);
+  });
+  return members.filter(refersToBindingStruct);
+}
+
+/** @return true if this memberRef refers to a binding struct */
+function refersToBindingStruct(memberRef: SimpleMemberRef): true | undefined {
+  const structElem = traceToStruct(memberRef.name.ident);
+  return structElem?.bindingStruct;
+}
+
+/** If this identifier refers to a struct type, return the struct declaration */
+function traceToStruct(ident: RefIdent): StructElem | undefined {
+  const decl = findDecl(ident);
+  const declElem = decl.declElem;
+  // for now only handle the case where the reference points at a fn parameter
+  if (declElem.kind === "param") {
+    const name = declElem.typeRef.name;
+    if (typeof name !== "string") {
+      const paramDecl = findDecl(name);
+      const paramElem = paramDecl.declElem;
+      if (paramElem.kind === "struct") {
+        return paramElem;
+      }
+      return undefined;
+    }
+  }
+
+  return undefined;
+}
+
+function visitAst(elem: AbstractElem, visitor: (elem: AbstractElem) => void) {
+  visitor(elem);
+  if ((elem as ContainerElem).contents) {
+    const container = elem as ContainerElem;
+    container.contents.forEach(child => visitAst(child, visitor));
+  }
 }
