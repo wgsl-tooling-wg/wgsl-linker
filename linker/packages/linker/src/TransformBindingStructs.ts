@@ -2,6 +2,7 @@ import { tracing } from "mini-parse";
 import {
   AbstractElem,
   AttributeElem,
+  DeclarationElem,
   ModuleElem,
   SimpleMemberRef,
   StructElem,
@@ -127,14 +128,21 @@ export function findRefsToBindingStructs(
 function refersToBindingStruct(
   memberRef: SimpleMemberRef,
 ): [SimpleMemberRef, StructElem] | undefined {
-  const structElem = traceToStruct(memberRef.name.ident);
-  if (structElem && structElem.bindingStruct) {
-    return [memberRef, structElem];
+  const found = traceToStruct(memberRef.name.ident);
+
+  if (found && found.struct.bindingStruct) {
+    found.intermediates.forEach(e => (e.contents = [])); // TODO patch this out in the caller
+    return [memberRef, found.struct];
   }
 }
 
+interface StructTrace {
+  struct: StructElem;
+  intermediates: DeclarationElem[];
+}
+
 /** If this identifier refers to a struct type, return the struct declaration */
-function traceToStruct(ident: RefIdent): StructElem | undefined {
+function traceToStruct(ident: RefIdent): StructTrace | undefined {
   const decl = findDecl(ident);
   const declElem = decl.declElem;
   // for now only handle the case where the reference points at a fn parameter
@@ -142,21 +150,19 @@ function traceToStruct(ident: RefIdent): StructElem | undefined {
     const name = declElem.typeRef.name;
     if (typeof name !== "string") {
       const paramDecl = findDecl(name);
-      const paramElem = paramDecl.declElem;
-      if (paramElem.kind === "struct") {
-        declElem.contents = []; // TODO patch this out in the caller
-        return paramElem;
+      const structElem = paramDecl.declElem;
+      if (structElem.kind === "struct") {
+        return { struct: structElem, intermediates: [declElem] };
       }
       return undefined;
     }
   } else {
+    // LATER presumably handle other cases? Should this be more general, e.g. traceToType()?
     // elemLog(
     //   ident.refIdentElem!,
     //   `unhandled case in traceToStruct: decl ${declElem.kind} not yet implemented`,
     // );
   }
-
-  return undefined;
 }
 
 /** Mutate the member reference elem to instead contain synthetic elem text.
