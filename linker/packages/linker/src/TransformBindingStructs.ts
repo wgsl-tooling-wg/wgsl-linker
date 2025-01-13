@@ -18,7 +18,8 @@ import { RefIdent } from "./Scope.ts";
 import { elemLog, visitAst } from "./LinkerUtil.ts";
 import { filterMap } from "./Util.ts";
 
-/* Our goal is to transform binding structures into binding variables
+/**
+ * Transform binding structures into binding variables by mutating the AST.
  *
  * First we find all the binding structs:
  *   . find all the structs in the module by filtering the moduleElem.contents
@@ -26,8 +27,7 @@ import { filterMap } from "./Util.ts";
  *       . mark any structs with that contain @group or @binding annotations as 'binding structs' and save them in a list
  *       . (later) create reverse links from structs to struct members
  *       . (later) visit all the binding structs and traverse to referencing structs, marking the referencing structs as binding structs too
- * Generate AST nodes for binding variables
- * Remove the binding structs from the AST, add new the binding variables AST
+ * Generate synethic AST nodes for binding variables
  *
  * Find all references to binding struct members
  *   . find the componound idents by traversing moduleElem.contents
@@ -36,12 +36,16 @@ import { filterMap } from "./Util.ts";
  *     . declaration to typeRef reference
  *     . typeRef to type declaration
  *     . check type declaration to see if it's a binding struct
- *   . rewrite compound ident refs to binding struct members as references to binding variables
+ *     . record the intermediate declaration (e.g. a fn param b:Bindings from 'fn(b:Bindings)' )
+ * rewrite references to binding struct members as synthetic elements
+ *
+ * Remove the binding structs from the AST
+ * Remove the intermediate fn param declarations from the AST
+ * Add the new binding variables to the AST
  */
-
-export function lowerBindingStructs(ast: WeslAST): AbstractElem {
+export function lowerBindingStructs(ast: WeslAST): ModuleElem {
   const { moduleElem } = ast;
-  const bindingStructs = markBindingStructs(moduleElem);
+  const bindingStructs = markBindingStructs(moduleElem); // CONSIDER should we only mark bining structs referenced from the entry point?
   const newVars = bindingStructs.flatMap(transformBindingStruct);
   const bindingRefs = findRefsToBindingStructs(moduleElem);
   bindingRefs.forEach(([memberRef, struct]) =>
