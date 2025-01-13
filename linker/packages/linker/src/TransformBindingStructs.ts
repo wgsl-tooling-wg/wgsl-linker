@@ -16,6 +16,7 @@ import {
 import { elemToString } from "./debug/ASTtoString.ts";
 import { findDecl } from "./LowerAndEmit.ts";
 import { RefIdent } from "./Scope.ts";
+import { tracing } from "mini-parse";
 
 /* Our goal is to transform binding structures into binding variables
  *
@@ -69,11 +70,12 @@ function bindingAttribute(attributes?: AttributeElem[]): boolean {
   return attributes.some(({ name }) => name === "binding" || name === "group");
 }
 
-/** convert each member of the binding struct into a synethic global variable */
+/** convert each member of the binding struct into a synthetic global variable */
 export function transformBindingStruct(s: StructElem): SyntheticElem[] {
   return s.members.map(m => {
     const attributes = m.attributes?.map(attributeToString).join(" ");
     const varName = m.name.name; // TODO uniquify
+    m.mangledVarName = varName;
 
     const origParams = m.typeRef?.templateParams || [];
     const newParams = [origParams[0]];
@@ -148,4 +150,19 @@ function visitAst(elem: AbstractElem, visitor: (elem: AbstractElem) => void) {
     const container = elem as ContainerElem;
     container.contents.forEach(child => visitAst(child, visitor));
   }
+}
+
+export function transformBindingReference(
+  memberRef: SimpleMemberRef,
+  struct: StructElem,
+): SyntheticElem {
+  const refName = memberRef.member.name;
+  const structMember = struct.members.find(m => m.name.name === refName)!;
+  if (!structMember || !structMember.mangledVarName) {
+    if (tracing) console.log(`missing mangledVarName for ${refName}`);
+    return { kind: "synthetic", text: refName };
+  }
+
+  const text = `${structMember.mangledVarName}`;
+  return { kind: "synthetic", text };
 }

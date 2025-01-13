@@ -194,6 +194,7 @@ export interface StructMemberElem extends ElemWithContentsBase {
   name: NameElem;
   attributes?: AttributeElem[];
   typeRef: TypeRefElem;
+  mangledVarName?: string; // root name if transformed to a var (for binding struct transformation)
 }
 
 export type TypeTemplateParameter = TypeRefElem | ExpressionElem | string;

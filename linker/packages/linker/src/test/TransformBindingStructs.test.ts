@@ -6,10 +6,11 @@ import { parsedRegistry } from "../ParsedRegistry.ts";
 import {
   findRefsToBindingStructs,
   markBindingStructs,
+  transformBindingReference,
   transformBindingStruct,
 } from "../TransformBindingStructs.ts";
 import { parseTest } from "./TestUtil.ts";
-import { astToString } from "../debug/ASTtoString.ts";
+import { astToString, elemToString } from "../debug/ASTtoString.ts";
 
 test("markBindingStructs true", () => {
   const src = `
@@ -82,4 +83,25 @@ test("findRefsToBindingStructs", () => {
       text '.'
       name particles"
   `);
+});
+
+test("transformBindingReference", () => {
+  const src = `
+    struct Bindings {
+      @group(0) @binding(0) particles: ptr<storage, array<f32>, read_write>, 
+    }
+    fn main(b:Bindings) {
+      let x = b.particles;
+    }
+  `;
+
+  const ast = parseTest(src);
+  bindIdents(ast, parsedRegistry(), {});
+  const bindingStruct = markBindingStructs(ast.moduleElem)[0];
+  transformBindingStruct(bindingStruct);
+  const found = findRefsToBindingStructs(ast.moduleElem);
+  expect(found.length).toBe(1);
+  const synthElem = transformBindingReference(...found[0]);
+  const synthAst = elemToString(synthElem);
+  expect(synthAst).toMatchInlineSnapshot(`"synthetic 'particles'"`);
 });
