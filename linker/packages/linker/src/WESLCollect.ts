@@ -340,7 +340,7 @@ function withTextCover<T extends ElemWithContents>(
   elem: T,
   cc: CollectContext,
 ): T {
-  const contents = coverWithText(cc, elem.contents);
+  const contents = coverWithText(cc, elem);
   return { ...elem, contents };
 }
 
@@ -349,12 +349,12 @@ function withTextCover<T extends ElemWithContents>(
  * @returns the existing elems combined with any new TextElems, in src order */
 function coverWithText(
   cc: CollectContext,
-  existing: AbstractElem[],
-): AbstractElem[] {
+  elem: ElemWithContents,
+): GrammarElem[] {
   let { start: pos } = cc;
-  const { end, app } = cc;
-  const ast: WeslAST = app.stable;
-  const sorted = existing.sort((a, b) => a.start - b.start);
+  const ast: WeslAST = cc.app.stable;
+  const { contents, end } = elem;
+  const sorted = (contents as GrammarElem[]).sort((a, b) => a.start - b.start);
 
   const elems = sorted.flatMap(elem => {
     const result = pos < elem.start ? [makeTextElem(elem.start), elem] : [elem];
