@@ -17,6 +17,7 @@ import { elemToString } from "./debug/ASTtoString.ts";
 import { findDecl } from "./LowerAndEmit.ts";
 import { RefIdent } from "./Scope.ts";
 import { tracing } from "mini-parse";
+import { WeslAST } from "./ParseWESL.ts";
 
 /* Our goal is to transform binding structures into binding variables
  *
@@ -39,8 +40,23 @@ import { tracing } from "mini-parse";
  *   . rewrite compound ident refs to binding struct members as references to binding variables
  */
 
-export function lowerBindingStructs(): void {
-  // TBD
+export function lowerBindingStructs(ast: WeslAST): AbstractElem {
+  const { moduleElem } = ast;
+  const bindingStructs = markBindingStructs(moduleElem);
+  const newVars = bindingStructs.flatMap(transformBindingStruct);
+  const bindingRefs = findRefsToBindingStructs(moduleElem);
+  bindingRefs.forEach(([memberRef, struct]) =>
+    transformBindingReference(memberRef, struct),
+  );
+  const contents = removeBindingStructs(moduleElem);
+  moduleElem.contents = [ ...newVars, ...contents ];
+  return moduleElem;
+}
+
+function removeBindingStructs(moduleElem: ModuleElem): AbstractElem[] {
+  return moduleElem.contents.filter(
+    elem => elem.kind !== "struct" || !elem.bindingStruct,
+  );
 }
 
 /** mutate the AST, marking StructElems as bindingStructs
@@ -135,6 +151,7 @@ function traceToStruct(ident: RefIdent): StructElem | undefined {
       const paramDecl = findDecl(name);
       const paramElem = paramDecl.declElem;
       if (paramElem.kind === "struct") {
+        declElem.contents = []; // TODO patch this out in the caller
         return paramElem;
       }
       return undefined;
@@ -152,6 +169,8 @@ function visitAst(elem: AbstractElem, visitor: (elem: AbstractElem) => void) {
   }
 }
 
+/** Mutate the member reference elem to instead contain synthetic elem text.
+ * The new text is the mangled var name of the struct member that the memberRef refers to. */
 export function transformBindingReference(
   memberRef: SimpleMemberRef,
   struct: StructElem,
@@ -164,5 +183,7 @@ export function transformBindingReference(
   }
 
   const text = `${structMember.mangledVarName}`;
-  return { kind: "synthetic", text };
+  const synthElem: SyntheticElem = { kind: "synthetic", text };
+  memberRef.contents = [synthElem];
+  return synthElem;
 }

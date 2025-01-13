@@ -5,12 +5,14 @@ import { lowerAndEmit } from "../LowerAndEmit.ts";
 import { parsedRegistry } from "../ParsedRegistry.ts";
 import {
   findRefsToBindingStructs,
+  lowerBindingStructs,
   markBindingStructs,
   transformBindingReference,
   transformBindingStruct,
 } from "../TransformBindingStructs.ts";
 import { parseTest } from "./TestUtil.ts";
 import { astToString, elemToString } from "../debug/ASTtoString.ts";
+import { matchTrimmed } from "./shared/StringUtil.ts";
 
 test("markBindingStructs true", () => {
   const src = `
@@ -65,7 +67,7 @@ test("findRefsToBindingStructs", () => {
     struct NotBindings { a: i32 }
     var y: NotBindings;
 
-    fn main(b:Bindings) {
+    fn main(b: Bindings) {
       let x = b.particles;
       let z = y.a;
     }
@@ -90,7 +92,7 @@ test("transformBindingReference", () => {
     struct Bindings {
       @group(0) @binding(0) particles: ptr<storage, array<f32>, read_write>, 
     }
-    fn main(b:Bindings) {
+    fn main(b: Bindings) {
       let x = b.particles;
     }
   `;
@@ -104,4 +106,55 @@ test("transformBindingReference", () => {
   const synthElem = transformBindingReference(...found[0]);
   const synthAst = elemToString(synthElem);
   expect(synthAst).toMatchInlineSnapshot(`"synthetic 'particles'"`);
+});
+
+test("lower binding structs", () => {
+  const src = `
+    struct Bindings {
+      @group(0) @binding(0) particles: ptr<storage, array<f32>, read_write>, 
+    }
+    fn main(b: Bindings) {
+      let x = b.particles;
+    }
+  `;
+
+  const expected = `
+var @group(0) @binding(0) particles<storage, read_write> : array<f32>;
+       
+    fn main() {
+      let x = particles;
+    }
+  `;
+  const ast = parseTest(src);
+  bindIdents(ast, parsedRegistry(), {});
+  const lowered = lowerBindingStructs(ast);
+  const loweredAst = astToString(lowered);
+  expect(loweredAst).toMatchInlineSnapshot(`
+    "module
+      synthetic 'var @group(0) @binding(0) particles<storage, read_write> : array<f32>;'
+      text '
+        '
+      text '
+        '
+      fn main(b: Bindings)
+        text 'fn '
+        decl %main
+        text '('
+        param
+        text ') {
+          let '
+        decl %x
+        text ' = '
+        memberRef b.particles
+          synthetic 'particles'
+        text ';
+        }'
+      text '
+      '"
+  `);
+
+  const srcBuilder = new SrcMapBuilder();
+  lowerAndEmit(srcBuilder, [lowered], {}, false);
+  const linked = srcBuilder.build().dest;
+  matchTrimmed(linked, expected);
 });
