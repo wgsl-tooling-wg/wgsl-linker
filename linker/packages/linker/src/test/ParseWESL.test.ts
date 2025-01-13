@@ -869,8 +869,11 @@ test("parse struct.member (component_or_swizzle)", () => {
             let '
         decl %x
         text ' = '
-        ref u
-        text '.frame;
+        memberRef u.frame
+          ref u
+          text '.'
+          name frame
+        text ';
         }'
       text '
       '"
@@ -1115,8 +1118,46 @@ test(`parse struct reference`, () => {
           ref a
           text '.'
           name b
-        text '[0]; }'
+          text '[0]'
+        text '; }'
       text ';
       '"
   `);
 });
+
+
+test('member reference with extra components', () => {
+ const src = `
+  fn foo() {
+    output[ out + 0u ] = c.p0.t0.x;
+  }
+ ` 
+  const ast = parseTest(src);
+  const astString = astToString(ast.moduleElem);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      text '
+      '
+      fn foo()
+        text 'fn '
+        decl %foo
+        text '() {
+        '
+        ref output
+        text '[ '
+        ref out
+        text ' + 0u ] = '
+        memberRef c.p0
+          ref c
+          text '.'
+          name p0
+          text '.'
+          name t0
+          text '.'
+          name x
+        text ';
+      }'
+      text '
+     '"
+  `);
+})

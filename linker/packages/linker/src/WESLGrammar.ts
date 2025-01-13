@@ -281,6 +281,16 @@ const component_or_swizzle = repeatPlus(
   ),
 );
 
+// prettier-ignore
+/** parse simple struct.member style references specially, for binding struct lowering */
+const simple_component_reference = tagScope(
+  seq(
+    word                              .collect(refIdent, "structRef"),
+    seq(".", word                     .collect(collectNameElem, "component")),
+    opt(component_or_swizzle),
+  )                                   .collect(memberRefCollect),
+);
+
 /**
  * bitwise_expression.post.unary_expression
  * & ^ |
@@ -301,12 +311,13 @@ const makeExpressionOperator = (isTemplate: boolean) => {
 // prettier-ignore
 const unary_expression: Parser<any> = or(
   seq(or(..."! & * - ~".split(" ")), () => unary_expression),
-  tagScope(
+  or(
+    simple_component_reference,
     seq(
-      primary_expression                   .ctag("name"), 
+      primary_expression,  
       opt(component_or_swizzle)
-    )                                      .collect(memberRefCollect)
-  ),
+    ),
+  )
 );
 
 const makeExpression = (isTemplate: boolean) => {

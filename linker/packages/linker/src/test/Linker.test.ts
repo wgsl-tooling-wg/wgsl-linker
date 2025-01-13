@@ -1,7 +1,6 @@
-import { expect, test } from "vitest";
+import { test } from "vitest";
 import { linkTest } from "./TestUtil.js";
 import { matchTrimmed } from "./shared/StringUtil.js";
-import { dlog } from "berry-pretty";
 
 test("link global var", () => {
   const src = `var x: i32 = 1;`;
@@ -115,6 +114,18 @@ test("struct self reference", () => {
 
 test("parse texture_storage_2d with texture format in typical type position", () => {
   const src = `var t: texture_storage_2d<rgba8unorm, write>;`;
+  const result = linkTest(src);
+  matchTrimmed(result, src);
+});
+
+test("struct member ref with extra component_or_swizzle", () => {
+  const src = `
+    struct C { p: P }
+    struct P { x: u32 }
+    fn foo(c: C) {
+      let a = c.p.x;
+    }
+ `;
   const result = linkTest(src);
   matchTrimmed(result, src);
 });
