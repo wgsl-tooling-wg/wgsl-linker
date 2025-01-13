@@ -1,9 +1,8 @@
 import {
-  AbstractElem,
   AttributeElem,
   ModuleElem,
   StructElem,
-  SyntheticElem,
+  SyntheticElem
 } from "./AbstractElems.ts";
 import {
   attributeToString,
@@ -55,10 +54,11 @@ function bindingAttribute(attributes?: AttributeElem[]): boolean {
   return attributes.some(({ name }) => name === "binding" || name === "group");
 }
 
-export function transformBindingStruct(s: StructElem): AbstractElem[] {
+/** convert each member of the binding struct into a synethic global variable */
+export function transformBindingStruct(s: StructElem): SyntheticElem[] {
   return s.members.map(m => {
     const attributes = m.attributes?.map(attributeToString).join(" ");
-    const varName = m.name.name;
+    const varName = m.name.name; // TODO uniquify
 
     const origParams = m.typeRef?.templateParams || [];
     const newParams = [origParams[0]];
@@ -76,8 +76,3 @@ export function transformBindingStruct(s: StructElem): AbstractElem[] {
     return elem;
   });
 }
-
-// const firstTypeParam = typeParamToString(m.typeRef?.templateParams?.[0]);
-// const maybeThird = typeParamToString(m.typeRef?.templateParams?.[2]);
-// const thirdTypeParam = maybeThird ? `, ${maybeThird}` : "";
-// const storageType = `<${firstTypeParam}${thirdTypeParam}>`;
