@@ -1125,13 +1125,12 @@ test(`parse struct reference`, () => {
   `);
 });
 
-
-test('member reference with extra components', () => {
- const src = `
+test("member reference with extra components", () => {
+  const src = `
   fn foo() {
     output[ out + 0u ] = c.p0.t0.x;
   }
- ` 
+ `;
   const ast = parseTest(src);
   const astString = astToString(ast.moduleElem);
   expect(astString).toMatchInlineSnapshot(`
@@ -1160,4 +1159,4 @@ test('member reference with extra components', () => {
       text '
      '"
   `);
-})
+});
