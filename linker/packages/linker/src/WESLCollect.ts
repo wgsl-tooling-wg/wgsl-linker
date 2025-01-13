@@ -10,6 +10,7 @@ import {
   ExpressionElem,
   FnElem,
   GlobalVarElem,
+  GrammarElem,
   ImportElem,
   ModuleElem,
   NameElem,

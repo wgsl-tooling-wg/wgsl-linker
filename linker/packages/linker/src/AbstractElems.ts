@@ -1,21 +1,20 @@
 import { ImportTree } from "./ImportTree.ts";
 import { DeclIdent, RefIdent, SrcModule } from "./Scope.ts";
 
-/** 
+/**
  * Structures to describe the 'interesting' parts of a WESL source file.
  *
- * The parts of the source that need to analyze further in the linker 
+ * The parts of the source that need to analyze further in the linker
  * are pulled out into these structures.
- * 
+ *
  * The parts that are uninteresting the the linker are recorded
  * as 'TextElem' nodes, which are generally just copied to the output WGSL
  * along with their containing element.
  */
-export type AbstractElem =
+export type GrammarElem =
   | AliasElem
   | AttributeElem
   | ConstElem
-  | SyntheticElem
   | ExpressionElem
   | ImportElem
   | ConstAssertElem
@@ -26,12 +25,15 @@ export type AbstractElem =
   | NameElem
   | OverrideElem
   | ParamElem
+  | SimpleMemberRef
   | StructElem
   | StructMemberElem
   | TextElem
   | TypeRefElem
   | GlobalVarElem
   | VarElem;
+
+export type AbstractElem = GrammarElem | SyntheticElem;
 
 export type DeclarationElem =
   | AliasElem

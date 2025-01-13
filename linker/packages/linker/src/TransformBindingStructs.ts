@@ -2,7 +2,7 @@ import {
   AttributeElem,
   ModuleElem,
   StructElem,
-  SyntheticElem
+  SyntheticElem,
 } from "./AbstractElems.ts";
 import {
   attributeToString,
