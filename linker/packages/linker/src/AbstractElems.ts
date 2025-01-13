@@ -93,6 +93,8 @@ export interface DeclIdentElem extends AbstractElemBase {
   srcModule: SrcModule;
 }
 
+/* ------   Synthetic element (for transformations, not produced by grammar) ------   */
+
 /** generated element, produced after parsing and binding */
 export interface SyntheticElem {
   kind: "synthetic";

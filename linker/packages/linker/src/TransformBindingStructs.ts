@@ -1,23 +1,22 @@
-import { dlog } from "berry-pretty";
+import { tracing } from "mini-parse";
 import {
   AbstractElem,
   AttributeElem,
-  ContainerElem,
   ModuleElem,
   SimpleMemberRef,
   StructElem,
   SyntheticElem,
 } from "./AbstractElems.ts";
+import { findDecl } from "./LowerAndEmit.ts";
+import { WeslAST } from "./ParseWESL.ts";
 import {
   attributeToString,
   typeListToString,
   typeParamToString,
 } from "./RawEmit.ts";
-import { elemToString } from "./debug/ASTtoString.ts";
-import { findDecl } from "./LowerAndEmit.ts";
 import { RefIdent } from "./Scope.ts";
-import { tracing } from "mini-parse";
-import { WeslAST } from "./ParseWESL.ts";
+import { elemLog, visitAst } from "./LinkerUtil.ts";
+import { filterMap } from "./Util.ts";
 
 /* Our goal is to transform binding structures into binding variables
  *
@@ -49,7 +48,7 @@ export function lowerBindingStructs(ast: WeslAST): AbstractElem {
     transformBindingReference(memberRef, struct),
   );
   const contents = removeBindingStructs(moduleElem);
-  moduleElem.contents = [ ...newVars, ...contents ];
+  moduleElem.contents = [...newVars, ...contents];
   return moduleElem;
 }
 
@@ -120,16 +119,6 @@ export function findRefsToBindingStructs(
   return filterMap(members, refersToBindingStruct);
 }
 
-/** filter an array, returning the truthy results of the filter function */
-function filterMap<T, U>(arr: T[], fn: (t: T) => U | undefined): U[] {
-  const out: U[] = [];
-  for (const t of arr) {
-    const u = fn(t);
-    if (u) out.push(u);
-  }
-  return out;
-}
-
 /** @return true if this memberRef refers to a binding struct */
 function refersToBindingStruct(
   memberRef: SimpleMemberRef,
@@ -156,17 +145,14 @@ function traceToStruct(ident: RefIdent): StructElem | undefined {
       }
       return undefined;
     }
+  } else {
+    // elemLog(
+    //   ident.refIdentElem!,
+    //   `unhandled case in traceToStruct: decl ${declElem.kind} not yet implemented`,
+    // );
   }
 
   return undefined;
-}
-
-function visitAst(elem: AbstractElem, visitor: (elem: AbstractElem) => void) {
-  visitor(elem);
-  if ((elem as ContainerElem).contents) {
-    const container = elem as ContainerElem;
-    container.contents.forEach(child => visitAst(child, visitor));
-  }
 }
 
 /** Mutate the member reference elem to instead contain synthetic elem text.
