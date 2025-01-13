@@ -69,6 +69,14 @@ export interface ImportElem extends ElemWithContents {
   imports: ImportTree;
 }
 
+/** simple references to structures, like myStruct.bar
+ * (used for transforming refs to binding structs) */
+export interface SimpleMemberRef extends ElemWithContents {
+  kind: "memberRef";
+  name: RefIdentElem;
+  member: NameElem;
+}
+
 export type TypeTemplateParameter = TypeRefElem | ExpressionElem | string;
 
 /** an expression (generally we don't need details of expressions, just their contained idents */
@@ -168,7 +176,7 @@ export interface StructElem extends ElemWithContents {
 export interface StructMemberElem extends ElemWithContents {
   kind: "member";
   name: NameElem;
-  attributes?: AttributeElem[];  
+  attributes?: AttributeElem[];
   typeRef: TypeRefElem;
 }
 

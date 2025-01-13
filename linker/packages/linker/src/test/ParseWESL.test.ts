@@ -1094,3 +1094,30 @@ test(`parse binding struct`, ctx => {
       '"
   `);
 });
+
+test.only(`parse struct reference`, () => {
+  const src = `
+    fn f() { let x = a.b[0]; };
+  `;
+  const ast = parseTest(src);
+  const astString = astToString(ast.moduleElem);
+  console.log(astString);
+  expect(astString).toMatchInlineSnapshot(`
+    "module
+      text '
+        '
+      fn f()
+        text 'fn '
+        decl %f
+        text '() { let '
+        decl %x
+        text ' = '
+        memberRef a.b
+          ref a
+          text '.'
+          name b
+        text '[0]; }'
+      text ';
+      '"
+  `);
+});

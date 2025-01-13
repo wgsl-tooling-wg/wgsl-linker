@@ -17,6 +17,7 @@ import {
   OverrideElem,
   ParamElem,
   RefIdentElem,
+  SimpleMemberRef,
   StructElem,
   StructMemberElem,
   TextElem,
@@ -238,6 +239,22 @@ export const expressionCollect = collectElem(
   },
 );
 
+export const memberRefCollect = collectElem(
+  "memberRef",
+  (cc: CollectContext, openElem: PartElem<SimpleMemberRef>) => {
+    const { component, name:nameTag } = cc.tags;
+    if (!component) {
+      return null;
+    }
+    const member = component[0] as NameElem;
+    const name = nameTag?.flat()[0] as RefIdentElem;
+
+    const partElem: SimpleMemberRef = { ...openElem, name, member };
+    partElem.end = member.end; // don't collect any subsequent 
+    return withTextCover(partElem, cc) as any;
+  },
+);
+
 export function collectNameElem(cc: CollectContext): NameElem {
   const { start, end, src, app } = cc;
   const { srcModule } = app.stable as WeslAST;
@@ -326,7 +343,7 @@ function collectElem<V extends ElemWithContents>(
       const partialElem = weslContext.openElems.pop()!;
       console.assert(partialElem && partialElem.kind === kind);
       const elem = fn(cc, { ...partialElem, start: cc.start, end: cc.end });
-      addToOpenElem(cc, elem as AbstractElem);
+      if (elem) addToOpenElem(cc, elem as AbstractElem);
       return elem;
     },
   };

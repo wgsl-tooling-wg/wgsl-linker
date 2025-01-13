@@ -34,6 +34,7 @@ import {
   collectVarLike,
   declIdentElem,
   expressionCollect,
+  memberRefCollect,
   refIdent,
   scopeCollect,
   typeRefCollect,
@@ -272,9 +273,10 @@ const primary_expression = or(
   template_elaborated_ident,
 );
 
+// prettier-ignore
 const component_or_swizzle = repeatPlus(
   or(
-    seq(".", word),
+    seq(".", word                          .collect(collectNameElem, "component")),
     seq("[", () => expression, req("]")),
   ),
 );
@@ -296,9 +298,15 @@ const makeExpressionOperator = (isTemplate: boolean) => {
   return or(...allowedOps);
 };
 
+// prettier-ignore
 const unary_expression: Parser<any> = or(
   seq(or(..."! & * - ~".split(" ")), () => unary_expression),
-  seq(primary_expression, opt(component_or_swizzle)),
+  tagScope(
+    seq(
+      primary_expression                   .ctag("name"), 
+      opt(component_or_swizzle)
+    )                                      .collect(memberRefCollect)
+  ),
 );
 
 const makeExpression = (isTemplate: boolean) => {
@@ -430,9 +438,18 @@ const statement: Parser<any> = or(
   seq(() => variable_updating_statement, ";"),
 );
 
+// prettier-ignore
 const lhs_expression: Parser<any> = or(
-  seq(word.collect(refIdent), opt(component_or_swizzle)),
-  seq("(", () => lhs_expression, ")", opt(component_or_swizzle)),
+  seq(
+    word                              .collect(refIdent), 
+    opt(component_or_swizzle)
+  ),
+  seq(
+    "(", 
+    () => lhs_expression, 
+    ")", 
+    opt(component_or_swizzle)
+  ),
   seq("&", () => lhs_expression),
   seq("*", () => lhs_expression),
 );

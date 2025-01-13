@@ -46,6 +46,7 @@ function addElemFields(elem: AbstractElem, str: LineWrapper): void {
     addStructFields(elem, str) ||
     addStructMemberFields(elem, str) ||
     addNameFields(elem, str) ||
+    addMemberRef(elem, str) ||
     addFnFields(elem, str) ||
     addAliasFields(elem, str) ||
     addAttributeFields(elem, str) ||
@@ -88,6 +89,13 @@ function addTextFields(elem: AbstractElem, str: LineWrapper): true | undefined {
 function addRefIdent(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "ref") {
     str.add(" " + elem.ident.originalName);
+    return true;
+  }
+}
+
+function addMemberRef(elem: AbstractElem, str: LineWrapper): true | undefined {
+  if (elem.kind === "memberRef") {
+    str.add(` ${elem.name.ident.originalName}.${elem.member.name}`);
     return true;
   }
 }
@@ -144,15 +152,12 @@ function addImport(elem: AbstractElem, str: LineWrapper): true | undefined {
   }
 }
 
-
 function addSynthetic(elem: AbstractElem, str: LineWrapper): true | undefined {
   if (elem.kind === "synthetic") {
     str.add(` '${elem.text}'`);
     return true;
   }
 }
-
-
 
 function addAttributeFields(
   elem: AbstractElem,
