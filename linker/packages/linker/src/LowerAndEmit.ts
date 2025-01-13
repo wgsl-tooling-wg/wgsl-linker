@@ -64,6 +64,7 @@ export function lowerAndEmitElem(e: AbstractElem, ctx: EmitContext): void {
     case "var":
     case "module":
     case "member":
+    case "memberRef":
     case "attribute":
     case "expression":
     case "type":
